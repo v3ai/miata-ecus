@@ -1,0 +1,652 @@
+<meta charset="utf-8">
+<title>Miata ECU Daughterboard 3D</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a workbench — the board on a lit stage, an inspector rail beside it (stacks under it on phones) */
+:root{
+  --bg:#eef0ec; --stage:#dfe3dc; --stage2:#c9cfc6; --panel:#f8f9f6; --fg:#1d2420; --muted:#5e6b63;
+  --line:#cfd6cf; --accent:#1f7a4a; --gold:#b8892f; --chip:#e6ebe4;
+  --f-ui:"Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-data:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121614; --stage:#1a201c; --stage2:#0d110f; --panel:#171c19; --fg:#e4ebe5; --muted:#93a198;
+  --line:#2b342e; --accent:#4fbf82; --gold:#d9ad55; --chip:#222a25; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121614; --stage:#1a201c; --stage2:#0d110f; --panel:#171c19; --fg:#e4ebe5; --muted:#93a198;
+  --line:#2b342e; --accent:#4fbf82; --gold:#d9ad55; --chip:#222a25; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-ui);font-size:14px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:16px;box-sizing:border-box}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;height:100%;min-height:520px}
+.stage{position:relative;border-radius:10px;overflow:hidden;min-height:0;
+  background:radial-gradient(120% 90% at 50% 35%,var(--stage),var(--stage2))}
+#c{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+#c.picking{cursor:crosshair}
+.views{position:absolute;left:12px;top:12px;display:flex;gap:6px;flex-wrap:wrap}
+.views button,.toggle{font:500 12px/1 var(--f-ui);letter-spacing:.04em;text-transform:uppercase;
+  padding:8px 10px;border-radius:6px;border:1px solid var(--line);background:color-mix(in srgb,var(--panel) 88%,transparent);
+  color:var(--fg);cursor:pointer;backdrop-filter:blur(6px)}
+.views button:hover,.toggle:hover{border-color:var(--accent)}
+.views button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tip{position:absolute;pointer-events:none;font:500 12px/1 var(--f-data);padding:6px 8px;border-radius:5px;
+  background:var(--fg);color:var(--bg);transform:translate(12px,-28px);white-space:nowrap}
+.status{position:absolute;left:12px;bottom:12px;font:12px/1.4 var(--f-data);color:var(--muted)}
+.scale{position:absolute;right:12px;bottom:12px;font:12px/1 var(--f-data);color:var(--muted);text-align:right}
+aside{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;overflow:auto;min-height:0;
+  display:flex;flex-direction:column;gap:18px}
+h1{font:700 22px/1.1 var(--f-ui);font-stretch:80%;letter-spacing:.01em;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:6px 0 0;line-height:1.45}
+.specs{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font:12.5px/1.3 var(--f-data)}
+.specs dt{color:var(--muted)} .specs dd{margin:0;font-variant-numeric:tabular-nums}
+.label{font:600 11px/1 var(--f-ui);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+input[type=search]{width:100%;box-sizing:border-box;font:14px var(--f-data);padding:9px 10px;border-radius:6px;
+  border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+.card{border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.card .ref{font:600 26px/1 var(--f-data);color:var(--accent)}
+.card .val{font:600 16px/1.2 var(--f-ui)}
+.card .desc{color:var(--muted);line-height:1.45;margin:0}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font:12.5px/1.35 var(--f-data);margin:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0;overflow-wrap:anywhere}
+.shops{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.shops a{font:600 12px/1 var(--f-ui);padding:7px 9px;border:1px solid var(--line);border-radius:6px;color:var(--fg, inherit);text-decoration:none;white-space:nowrap}
+.shops a:hover,.shops a:focus-visible{border-color:var(--accent);color:var(--accent);outline:none}
+.shops-h{font:600 11px/1 var(--f-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.empty{color:var(--muted);line-height:1.5;margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 12px/1 var(--f-data);padding:6px 8px;border-radius:999px;background:var(--chip);border:1px solid var(--line);
+  color:var(--fg);cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.toggle{display:inline-flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:13px}
+.toggle input{accent-color:var(--accent);margin:0}
+.loading{position:absolute;inset:0;display:grid;place-items:center;font:13px var(--f-data);color:var(--muted);pointer-events:none}
+
+.loading.small{inset:auto 12px 40px auto;display:block;padding:6px 10px;border-radius:6px;background:color-mix(in srgb,var(--panel) 85%,transparent)}
+.loading[hidden]{display:none!important}
+aside>*{flex-shrink:0}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{flex:1;font:600 12.5px/1 var(--f-ui);padding:10px 8px;border:0;background:transparent;color:var(--fg);cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg[hidden]{display:none}
+.seg.years{margin-top:-10px}
+.seg.years button{padding:8px 2px;font:600 12px/1 var(--f-mono, ui-monospace, monospace)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.seg button:hover:not([aria-pressed="true"]){background:var(--chip)}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr;grid-template-rows:62vh auto;height:auto}
+  aside{overflow:visible}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div class="app">
+  <section class="stage" aria-label="3D board view">
+    <canvas id="c"></canvas>
+    <div class="views" role="group" aria-label="Camera">
+      <button id="v-iso" aria-pressed="true">Iso</button>
+      <button id="v-top" aria-pressed="false">Top</button>
+      <button id="v-bot" aria-pressed="false">Bottom</button>
+      <button id="v-side" aria-pressed="false">Edge</button>
+    </div>
+    <div class="tip" id="tip" hidden></div>
+    <div class="loading" id="loading">Loading board model…</div>
+    <div class="status" id="status">Drag to orbit · scroll to zoom · right-drag to pan · click a part for details and shop links</div>
+    <div class="scale" id="scale">125.0 × 60.0 mm</div>
+  </section>
+
+  <aside>
+    <div class="seg" role="group" aria-label="Model">
+      <button id="m-d" aria-pressed="true">Daughterboard</button>
+      <button id="m-a" aria-pressed="false">Assembled</button>
+    </div>
+    <div class="seg years" id="years" role="group" aria-label="Model year" hidden>
+      <button data-y="8993" aria-pressed="true">89–93</button>
+      <button data-y="9495" aria-pressed="false">94–95</button>
+      <button data-y="9697" aria-pressed="false">96–97</button>
+      <button data-y="9900" aria-pressed="false">99–00</button>
+      <button data-y="0105" aria-pressed="false">01–05</button>
+    </div>
+    <div>
+      <h1 id="title">Miata ECU daughterboard</h1>
+      <p class="sub" id="subtitle"></p>
+    </div>
+    <dl class="specs" id="specs"></dl>
+
+    <div>
+      <p class="label">Find a part</p>
+      <input type="search" id="q" list="refs" placeholder="U1, Q3, LMR14020, C12345…" autocomplete="off">
+      <datalist id="refs"></datalist>
+    </div>
+
+    <div id="info" class="card" aria-live="polite">
+      <p class="empty">Click any component on the board, or search above, to see its value, job, LCSC number and footprint.</p>
+    </div>
+
+    <div>
+      <p class="label">Jump to</p>
+      <div class="chips" id="jumps"></div>
+    </div>
+
+    <div>
+      <p class="label">Show</p>
+      <div class="row">
+        <label class="toggle"><input type="checkbox" id="t-parts" checked> Components</label>
+        <label class="toggle"><input type="checkbox" id="t-spin"> Turntable</label>
+        <label class="toggle" id="lift-wrap" hidden><input type="checkbox" id="t-lift"> Lift daughterboard</label>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {EffectComposer} from 'three/addons/postprocessing/EffectComposer.js';
+import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
+import {GTAOPass} from 'three/addons/postprocessing/GTAOPass.js';
+import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
+
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.95;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.autoUpdate = false;   // the scene is static: redraw shadows only when it changes
+
+const scene = new THREE.Scene();
+
+// Photo-studio lighting baked into an environment map: a dark room with a big overhead softbox,
+// two strip lights and a warm low fill. Glossy solder mask and tinned leads pick these up as
+// the long soft highlights you see on a real board under studio lights.
+function studioEnvironment(){
+  const env = new THREE.Scene();
+  const room = new THREE.Mesh(new THREE.BoxGeometry(100, 60, 100),
+    new THREE.MeshBasicMaterial({color:new THREE.Color(0.045, 0.047, 0.05), side:THREE.BackSide}));
+  room.position.y = 20; env.add(room);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshBasicMaterial({color:new THREE.Color(0.16, 0.165, 0.16)}));
+  floor.rotation.x = -Math.PI/2; floor.position.y = -9.9; env.add(floor);
+  const panel = (w, h, k, tint, pos, look) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h),
+      new THREE.MeshBasicMaterial({color:new THREE.Color(...tint).multiplyScalar(k), side:THREE.DoubleSide}));
+    m.position.set(...pos); m.lookAt(...look); env.add(m);
+  };
+  panel(40, 26, 7.0, [1, 0.98, 0.95], [0, 48, 6], [0, 0, 0]);       // overhead softbox
+  panel(8, 46, 9.0, [0.95, 0.98, 1], [-46, 18, -10], [0, 0, 0]);    // left strip
+  panel(8, 46, 7.0, [1, 0.99, 0.97], [46, 16, 14], [0, 0, 0]);      // right strip
+  panel(60, 8, 1.6, [1, 0.86, 0.7], [0, 2, 48], [0, 0, 0]);         // warm low front fill
+  panel(30, 12, 2.2, [1, 1, 1], [-10, 30, -48], [0, 0, 0]);         // back rim
+  const pm = new THREE.PMREMGenerator(renderer);
+  const tex = pm.fromScene(env, 0.02).texture; pm.dispose();
+  return tex;
+}
+scene.environment = studioEnvironment();
+
+const camera = new THREE.PerspectiveCamera(32, 1, 1, 3000);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.minDistance = 12; controls.maxDistance = 600;
+
+// key light matches the overhead softbox, so shadows fall where the reflections say they should
+const sun = new THREE.DirectionalLight(0xfff6ea, 1.3);
+sun.position.set(-25, 160, 40); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
+Object.assign(sun.shadow.camera, {left:-75, right:75, top:45, bottom:-45, near:60, far:260});
+scene.add(sun);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.ShadowMaterial({opacity:0.32}));
+ground.rotation.x = -Math.PI/2; ground.position.y = -10; ground.receiveShadow = true;
+scene.add(ground);
+
+// ---- boards ----
+// Each board: surface maps (<pre>top_*.webp ...), a merged component model (<pre>board.glb.gz.b64.txt) and a
+// parts table (<pre>parts.json: size, centre in board mm, rows with 3D pick boxes in board-local mm).
+const MODELS = {
+  d: {title:'Miata ECU daughterboard', scale:'125.0 × 60.0 mm',
+      sub:'Rev 0.3, as routed. The on-board wideband controller sits on the right, above the LSU pins of J2. Components are KiCad 3D models at their placed positions (a few are drawn to their datasheet sizes where the library has none). The two 40-pin headers hang underneath to plug into the motherboard.',
+      specs:[['Size','125 × 60 mm, 1.6 mm'],['Stack-up','4 layers: sig / GND / 3V3 / sig'],['Parts','<span id="partcount"></span>'],
+             ['MCU','STM32F407VGT6 + STM32F042 (wideband)'],['Headers','Bottom side, pins down: J1 power+outputs · J2 inputs+comms+LSU']],
+      jumps:[['U1','MCU'],['U2','5V buck'],['U5','Relay driver'],['U6','Coil driver'],['Q1','Injector 1'],['U9','VR input'],
+             ['U8','Knock amp'],['U10','CAN'],['U102','Wideband MCU'],['Q101','LSU heater'],['J1','Header J1'],['J2','Header J2']]},
+};
+// one motherboard per model year; all share the daughterboard and its position
+const YEARS = {
+  '8993': {name:'1989–93', chassis:'NA6', rev:'0.4', hdr:'TE 174917-6, 48 pins (plugs 1 and 2)', prov:false},
+  '9495': {name:'1994–95', chassis:'NA8', rev:'0.4', hdr:'TE 174917-6, 48 pins (plugs 1 and 2)', prov:false},
+  '9697': {name:'1996–97', chassis:'NA8, OBD-II', rev:'0.2', hdr:'TE 178780-1, 76 positions (plugs 1, 3, 4; plug 2 unused)', prov:true},
+  '9900': {name:'1999–2000', chassis:'NB1', rev:'0.2', hdr:'TE 176122-6, 64 positions (plugs 1–3)', prov:true,
+           extra:[['F2','Idle valve fuse']]},
+  '0105': {name:'2001–05', chassis:'NB2, VVT', rev:'0.2', hdr:'TE 353830-5, 72 positions in 3 rows (plugs 2–4)', prov:true,
+           extra:[['F2','Idle valve fuse'],['F3','VVT valve fuse']]},
+};
+function assyModel(y){
+  const Y = YEARS[y];
+  return {title:`Miata ECU, <span style="white-space:nowrap">${Y.name}</span> assembly`, scale:'154.0 × 161.5 mm',
+    sub:`The ${Y.chassis} motherboard (rev ${Y.rev}) with the daughterboard plugged into its two 1×40 sockets on four M3 × 11 mm standoffs. `
+      + (Y.prov ? `The outline and mounting holes are the NA case's until a ${Y.name} case is measured. ` : 'It fits the stock NA case. ')
+      + 'The harness header and MAP sensor are simplified stand-in models; everything else is the KiCad 3D model.',
+    specs:[['Motherboard', '154 × 161.5 mm, 2 layers' + (Y.prov ? ', provisional outline' : ', stock NA case outline')],
+           ['Harness header', Y.hdr], ['Stack','Daughterboard 11 mm above, on 8.5 mm sockets'],
+           ['Bottom edge','LSU 4.9 · IAT · USB-C · MAP (left to right)'],['Parts','<span id="partcount"></span>']],
+    jumps:[['J1','Harness header'],['JD1','Socket JD1'],['J5','AUX header'],['J2','LSU 4.9'],['J3','IAT'],['J4','USB-C'],
+           ['U2','MAP sensor'],['F1','Heater fuse'], ...(Y.extra || []),['U102','Wideband MCU'],['U1','Main MCU']]};
+}
+const PCBS = {d:{pre:'', label:'Daughterboard'}};
+for (const y in YEARS) PCBS['mb' + y] = {pre:`mb${y}_`, label:`Motherboard ${YEARS[y].name}`};
+let year = '8993';
+const curMB = () => PCBS['mb' + year];
+const STACK = 12.6;                      // daughterboard underside above the motherboard underside (1.6 + 8.5 socket + 2.5 header)
+const DAUGHTER_AT = [14.5, 42.0];         // daughterboard top-left corner on the motherboard (mm)
+let parts = [], byRef = new Map(), mode = 'd';
+const assy = new THREE.Group(); assy.visible = false; scene.add(assy);
+
+// selection box
+const selBox = new THREE.Box3Helper(new THREE.Box3(), 0x2fd07a);
+selBox.visible = false; scene.add(selBox);
+
+const fr4Edge = new THREE.MeshStandardMaterial({color:new THREE.Color().setRGB(0.66, 0.66, 0.5, THREE.SRGBColorSpace), roughness:0.7});
+let needsRender = true;
+const requestRender = () => { needsRender = true; };
+const loadingEl = document.getElementById('loading');
+
+async function fetchModel(url){
+  // gzip + base64 text: no WebAssembly and no data: URLs, so it works under strict page security rules
+  const b64 = (await fetch(url).then(r => { if (!r.ok) throw new Error('model file ' + r.status); return r.text(); })).trim();
+  const bin = atob(b64), gz = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) gz[i] = bin.charCodeAt(i);
+  const buf = await new Response(new Blob([gz]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
+  return new GLTFLoader().parseAsync(buf, '');
+}
+
+// stage 1: board surface + parts table (small files) so something shows right away
+async function loadSurface(pcb){
+  const tl = new THREE.TextureLoader(), pre = pcb.pre;
+  const maps = side => Promise.all(['albedo', 'orm', 'normal'].map(k => tl.loadAsync(`${pre}${side}_${k}.webp`)));
+  const [top, bot, tab] = await Promise.all([maps('top'), maps('bottom'), fetch(`${pre}parts.json`).then(r => r.json())]);
+  const [BW, BH] = tab.size;
+  pcb.centre = tab.centre; pcb.size = tab.size;
+  pcb.group = new THREE.Group(); scene.add(pcb.group);
+  pcb.partMeshes = []; pcb.markings = [];
+  const slab = new THREE.Mesh(new THREE.BoxGeometry(BW - 0.2, 1.58, BH - 0.2), fr4Edge);
+  slab.position.y = 0.8; slab.castShadow = slab.receiveShadow = true;
+  pcb.group.add(slab); pcb.boardMesh = slab;
+  const aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  for (const [[alb, orm, nrm], y, side] of [[top, 1.612, THREE.FrontSide], [bot, -0.012, THREE.BackSide]]) {
+    alb.colorSpace = THREE.SRGBColorSpace;
+    for (const t of [alb, orm, nrm]) t.anisotropy = aniso;
+    // solder mask is a glossy lacquer over the copper: a clear coat only where the mask is (orm.r),
+    // tinned pads are metal (orm.b), silkscreen is matte (orm.g)
+    const mat = new THREE.MeshPhysicalMaterial({map:alb, alphaTest:0.5, side,
+      roughnessMap:orm, metalnessMap:orm, roughness:1, metalness:1,
+      clearcoat:1, clearcoatMap:orm, clearcoatRoughness:0.1,
+      normalMap:nrm, normalScale:new THREE.Vector2(1, side === THREE.BackSide ? -1 : 1)});
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(BW, BH), mat);
+    m.rotation.x = -Math.PI/2; m.position.y = y; m.receiveShadow = true;
+    pcb.group.add(m);
+  }
+  pcb.rows = tab.parts;
+  for (const p of pcb.rows) {
+    p.lbox = new THREE.Box3(new THREE.Vector3(p.box[0], p.box[1], p.box[2]), new THREE.Vector3(p.box[3], p.box[4], p.box[5]));
+    p.pcb = pcb;
+  }
+}
+
+// stage 2: the component models (one compressed file, ~15 merged meshes)
+async function loadParts(pcb){
+  const gltf = await fetchModel(`${pcb.pre}board.glb.gz.b64.txt`);
+  gltf.scene.traverse(o => {
+    if (!o.isMesh) return;
+    const c = o.material.color;                // the board is the only mesh in the solder-mask green
+    if (Math.abs(c.r - 29/255) < 0.01 && Math.abs(c.g - 79/255) < 0.01) {   // real outline: notches, holes
+      o.material = fr4Edge; o.castShadow = o.receiveShadow = true;
+      pcb.group.remove(pcb.boardMesh); pcb.boardMesh = o;
+    } else { o.material = partMaterial(o.material); o.castShadow = o.receiveShadow = true;
+      pcb.partMeshes.push(o); o.visible = document.getElementById('t-parts').checked; }
+  });
+  pcb.group.add(gltf.scene);
+  addMarkings(pcb);
+  pcb.ready = true;
+}
+
+async function ensure(pcb){
+  if (!pcb.loading) pcb.loading = (async () => { await loadSurface(pcb); placeAll(); await loadParts(pcb); })();
+  return pcb.loading;
+}
+
+// where each board sits in the scene for the current mode, and the world-space pick boxes
+function liftHeight(){ return document.getElementById('t-lift').checked ? 30 : 0; }
+function placeAll(){
+  const d = PCBS.d, mb = curMB();
+  for (const [k, pcb] of Object.entries(PCBS)) if (k !== 'd' && pcb !== mb && pcb.group) pcb.group.visible = false;
+  if (mode === 'd' || !mb.group) {
+    if (d.group) d.group.position.set(0, 0, 0);
+    if (mb.group) mb.group.visible = false;
+    assy.visible = false;
+  } else {
+    mb.group.visible = true; mb.group.position.set(0, 0, 0);
+    // daughter centre in motherboard mm, minus the motherboard's own centre
+    const dx = DAUGHTER_AT[0] + d.centre[0] - mb.centre[0], dz = DAUGHTER_AT[1] + d.centre[1] - mb.centre[1];
+    d.group.position.set(dx, STACK + liftHeight(), dz);
+    buildHardware(dx, dz);
+    assy.visible = true;
+  }
+  parts = [];
+  for (const pcb of mode === 'd' ? [d] : [mb, d]) {
+    if (!pcb.rows) continue;
+    for (const p of pcb.rows) { p.box = p.lbox.clone().translate(pcb.group.position); p._flat = null; parts.push(p); }
+  }
+  byRef = new Map();
+  for (const p of parts) if (!byRef.has(p.ref.toLowerCase())) byRef.set(p.ref.toLowerCase(), p);
+  document.getElementById('refs').innerHTML = parts.map(p => `<option value="${esc(p.ref)}">${esc(p.value)}</option>`).join('');
+  const pc = document.getElementById('partcount');
+  if (pc) pc.textContent = mode === 'd' ? `${(d.rows || []).length - 2} on top · J1, J2 underneath`
+                                        : `${(mb.rows || []).length} on the motherboard · ${(d.rows || []).length} on the daughterboard`;
+  if (selBox.visible) selBox.visible = false;
+  sun.shadow.camera.left = mode === 'd' ? -75 : -110; sun.shadow.camera.right = -sun.shadow.camera.left;
+  sun.shadow.camera.top = mode === 'd' ? 45 : 110; sun.shadow.camera.bottom = -sun.shadow.camera.top;
+  sun.shadow.camera.updateProjectionMatrix();
+  renderer.shadowMap.needsUpdate = true; requestRender();
+}
+
+// standoffs and screws between the boards (assembly only)
+let hwKey = '';
+function buildHardware(dx, dz){
+  const key = dx.toFixed(2) + ',' + dz.toFixed(2);
+  if (hwKey === key) { assy.children.forEach(o => { if (o.userData.top) o.position.y = o.userData.y + liftHeight(); }); return; }
+  hwKey = key;
+  assy.clear();
+  const steel = new THREE.MeshPhysicalMaterial({color:0xb9bcc0, metalness:1, roughness:0.32});
+  const brass = new THREE.MeshPhysicalMaterial({color:0xc9a55a, metalness:1, roughness:0.38});
+  const d = PCBS.d;
+  for (const [hx, hy] of [[4.5, 4.5], [120.5, 4.5], [4.5, 55.5], [120.5, 55.5]]) {
+    const x = dx + hx - d.centre[0], z = dz + hy - d.centre[1];
+    const st = new THREE.Mesh(new THREE.CylinderGeometry(3.175, 3.175, STACK - 1.6, 6), brass);
+    st.position.set(x, 1.6 + (STACK - 1.6) / 2, z); st.castShadow = st.receiveShadow = true; assy.add(st);
+    for (const [y, top] of [[STACK + 1.6 + 0.9, true], [-0.9, false]]) {
+      const h = new THREE.Mesh(new THREE.CylinderGeometry(2.75, 2.75, 1.8, 28), steel);
+      h.position.set(x, y, z); h.castShadow = true; h.userData = {top, y}; assy.add(h);
+      if (top) h.position.y = y + liftHeight();
+    }
+  }
+}
+
+// The KiCad models only carry flat colours; give each family a real surface finish.
+function partMaterial(src){
+  const c = src.color, k = [c.r, c.g, c.b].map(v => Math.round(v * 255)), key = k.join(',');
+  const srgb = (r, g, b) => new THREE.Color().setRGB(r/255, g/255, b/255, THREE.SRGBColorSpace);
+  const metal = new Set(['165,163,146', '164,163,146', '198,196,160']);
+  if (metal.has(key)) return new THREE.MeshPhysicalMaterial({color:srgb(196, 197, 194), metalness:1, roughness:0.26});   // tinned leads
+  if (key === '181,129,54') return new THREE.MeshPhysicalMaterial({color:srgb(240, 196, 120), metalness:1, roughness:0.34});   // gold flash
+  if (key.startsWith('111,10')) return new THREE.MeshPhysicalMaterial({color:srgb(150, 128, 92), roughness:0.55, clearcoat:0.2});  // ceramic
+  if (key === '24,107,42') return new THREE.MeshPhysicalMaterial({color:srgb(40, 170, 80), roughness:0.12, clearcoat:1, transmission:0});
+  if (key === '114,3,1') return new THREE.MeshPhysicalMaterial({color:srgb(170, 20, 16), roughness:0.42, sheen:0.3});
+  if (Math.max(...k) < 40) return new THREE.MeshPhysicalMaterial({color:srgb(24, 24, 26), roughness:0.52, clearcoat:0.12, clearcoatRoughness:0.5});  // epoxy
+  return new THREE.MeshPhysicalMaterial({color:srgb(...k), roughness:0.5});
+}
+
+// laser-etched part markings on the IC packages (part number + a made-up lot code), grey on black
+function addMarkings(pcb){
+  for (const p of pcb.rows) {
+    if (!/^(U|Q)\d/.test(p.ref) || p.lbox.max.y < 2.2 || /MPX/.test(p.value)) continue;
+    const size = p.lbox.getSize(new THREE.Vector3()), along = size.x >= size.z;
+    const L = (along ? size.x : size.z) * 0.62, Wd = (along ? size.z : size.x) * 0.42;
+    const cv = document.createElement('canvas'); cv.width = 512; cv.height = 256;
+    const g = cv.getContext('2d');
+    g.fillStyle = 'rgba(178,178,174,0.85)'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    const name = p.value.replace(/\(.*\)/, '').slice(0, 14);
+    let fs = 120; g.font = `600 ${fs}px "IBM Plex Mono", monospace`;
+    while (g.measureText(name).width > 480 && fs > 20) { fs -= 4; g.font = `600 ${fs}px "IBM Plex Mono", monospace`; }
+    g.fillText(name, 256, 96);
+    g.font = `500 ${Math.min(70, fs * 0.7)}px "IBM Plex Mono", monospace`;
+    g.fillText('2618 ' + (p.ref.charCodeAt(1) * 7 % 90 + 10) + 'A', 256, 190);
+    g.beginPath(); g.arc(40, 222, 16, 0, Math.PI * 2); g.fill();     // pin-1 dot
+    const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(L, Math.min(Wd, L * 0.5)),
+      new THREE.MeshStandardMaterial({map:tex, transparent:true, roughness:0.8, depthWrite:false, polygonOffset:true, polygonOffsetFactor:-2}));
+    const c = p.lbox.getCenter(new THREE.Vector3());
+    m.position.set(c.x, p.lbox.max.y + 0.01, c.z);
+    m.rotation.x = -Math.PI/2; if (!along) m.rotation.z = Math.PI/2;
+    m.visible = document.getElementById('t-parts').checked;
+    pcb.group.add(m); pcb.markings.push(m);
+  }
+}
+
+async function load(){
+  const timer = setTimeout(() => { if (!loadingEl.hidden) loadingEl.textContent = 'Still loading the component models… (slow connection?)'; }, 15000);
+  showMode('d');
+  const d = PCBS.d;
+  await loadSurface(d); placeAll();
+  loadingEl.classList.add('small'); loadingEl.textContent = 'Loading components…';
+  await loadParts(d);
+  loadingEl.hidden = true;
+  clearTimeout(timer);
+  renderer.shadowMap.needsUpdate = true; requestRender();
+}
+
+function showMode(m){
+  mode = m;
+  const M = m === 'a' ? assyModel(year) : MODELS[m];
+  document.getElementById('m-d').setAttribute('aria-pressed', m === 'd');
+  document.getElementById('m-a').setAttribute('aria-pressed', m === 'a');
+  document.getElementById('years').hidden = m !== 'a';
+  for (const b of document.querySelectorAll('#years button')) b.setAttribute('aria-pressed', b.dataset.y === year);
+  document.getElementById('title').innerHTML = M.title;
+  document.getElementById('subtitle').textContent = M.sub;
+  document.getElementById('scale').textContent = M.scale;
+  document.getElementById('specs').innerHTML = M.specs.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+  document.getElementById('lift-wrap').hidden = m !== 'a';
+  jumps.innerHTML = M.jumps.map(([r,l]) => `<button class="chip" data-ref="${r}">${r} <span style="color:var(--muted)">${l}</span></button>`).join('');
+  document.getElementById('info').innerHTML = '<p class="empty">Click any component, or search above, to see its value, job, part numbers and shop links.</p>';
+}
+let flyPending = false;           // a mode change still owes a camera move (survives a superseded load)
+async function switchMode(m, y){
+  if (m === mode && (!y || y === year)) return;
+  if (m !== mode) flyPending = true;
+  if (y) year = y;
+  showMode(m);
+  if (m === 'a') {
+    const mb = curMB(), want = year;
+    if (!mb.ready) { loadingEl.hidden = false; loadingEl.classList.add('small'); loadingEl.textContent = `Loading the ${YEARS[year].name} motherboard…`; }
+    try { await ensure(mb); } catch (err) { loadingEl.textContent = 'The motherboard did not load: ' + (err.message || err); return; }
+    if (want !== year || mode !== 'a') return;      // the user moved on while this one loaded
+    loadingEl.hidden = true;
+  }
+  placeAll();
+  if (flyPending) { flyPending = false; const v = document.querySelector('.views button[aria-pressed="true"]'); flyTo(...view(v ? v.id : 'v-iso')); }
+}
+document.getElementById('m-d').addEventListener('click', () => switchMode('d'));
+document.getElementById('m-a').addEventListener('click', () => switchMode('a'));
+document.getElementById('years').addEventListener('click', e => {
+  const b = e.target.closest('[data-y]'); if (b) switchMode('a', b.dataset.y); });
+document.getElementById('t-lift').addEventListener('change', () => placeAll());
+
+// ---- picking ----
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
+const hitPt = new THREE.Vector3();
+function partAt(ev){
+  const r = canvas.getBoundingClientRect();
+  ptr.set(((ev.clientX - r.left)/r.width)*2 - 1, -((ev.clientY - r.top)/r.height)*2 + 1);
+  ray.setFromCamera(ptr, camera);
+  const showParts = document.getElementById('t-parts').checked;
+  let best = null, bestD = Infinity, bestA = Infinity;
+  for (const q of parts) {
+    const box = showParts ? q.box : flat(q);
+    if (!ray.ray.intersectBox(box, hitPt)) continue;
+    const d = hitPt.distanceTo(ray.ray.origin), a = (q.x1-q.x0)*(q.y1-q.y0);
+    // nearest box wins; among boxes hit at about the same depth, the smaller footprint wins
+    if (d < bestD - 0.3 || (Math.abs(d - bestD) <= 0.3 && a < bestA)) { best = q; bestD = d; bestA = a; }
+  }
+  return best;
+}
+function flat(q){ const y = q.pcb.group.position.y;
+  return q._flat || (q._flat = new THREE.Box3(new THREE.Vector3(q.box.min.x, y + 1.55, q.box.min.z), new THREE.Vector3(q.box.max.x, y + 1.65, q.box.max.z))); }
+const tip = document.getElementById('tip');
+let downAt = null;
+canvas.addEventListener('pointerdown', e => { downAt = [e.clientX, e.clientY]; });
+canvas.addEventListener('pointermove', e => {
+  if (e.buttons) { tip.hidden = true; return; }
+  const p = partAt(e);
+  if (p) { const r = canvas.getBoundingClientRect();
+    tip.textContent = `${p.ref} · ${p.value}`; tip.style.left = (e.clientX - r.left)+'px'; tip.style.top = (e.clientY - r.top)+'px';
+    tip.hidden = false; canvas.classList.add('picking'); }
+  else { tip.hidden = true; canvas.classList.remove('picking'); }
+});
+canvas.addEventListener('pointerleave', () => tip.hidden = true);
+canvas.addEventListener('pointerup', e => {
+  if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 4) return;
+  const p = partAt(e); if (p) select(p, false);
+});
+
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+// part listings: LCSC/JLCPCB by LCSC number, distributors by manufacturer part number
+function shopLinks(p){
+  const q = encodeURIComponent(p.mpn || '');
+  const L = [];
+  if (p.lcsc) {
+    L.push(['LCSC', `https://www.lcsc.com/product-detail/${encodeURIComponent(p.lcsc)}.html`]);
+    L.push(['JLCPCB', `https://jlcpcb.com/partdetail/${encodeURIComponent(p.lcsc)}`]);
+  }
+  if (p.mpn) {
+    L.push(['DigiKey', `https://www.digikey.com/en/products/result?keywords=${q}`]);
+    L.push(['Mouser', `https://www.mouser.com/c/?q=${q}`]);
+    L.push(['Octopart', `https://octopart.com/search?q=${q}`]);
+  }
+  if (!L.length) return '';
+  return `<div class="shops-h">Find this part</div><div class="shops">`
+    + L.map(([n, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${n} ↗</a>`).join('') + `</div>`;
+}
+function select(p, fly){
+  selBox.box.copy(p.box).expandByScalar(0.25); selBox.visible = true; requestRender();
+  const info = document.getElementById('info');
+  const lc = p.lcsc ? `<dt>LCSC</dt><dd>${esc(p.lcsc)}</dd>` : `<dt>LCSC</dt><dd>not assembled</dd>`;
+  const mp = p.mpn ? `<dt>MPN</dt><dd>${esc(p.mpn)}</dd><dt>Maker</dt><dd>${esc(p.mfr||'')}</dd>` : '';
+  info.innerHTML = `<div class="ref">${esc(p.ref)}</div><div class="val">${esc(p.value)}</div>`
+    + (p.desc ? `<p class="desc">${esc(p.desc)}</p>` : '')
+    + `<dl class="kv"><dt>Board</dt><dd>${esc(p.pcb.label)}</dd>${mp}${lc}<dt>Footprint</dt><dd>${esc(p.fp)}</dd>`
+    + `<dt>Position</dt><dd>${((p.x0+p.x1)/2).toFixed(1)}, ${((p.y0+p.y1)/2).toFixed(1)} mm</dd></dl>`
+    + shopLinks(p);
+  if (fly) {
+    const c = p.box.getCenter(new THREE.Vector3());
+    const size = Math.max(14, p.box.getSize(new THREE.Vector3()).length() * 3.2);
+    flyTo(c, c.clone().add(new THREE.Vector3(size*0.35, size*0.9, size*0.75)));
+  }
+}
+
+// ---- camera ----
+let anim = null;
+function flyTo(target, pos){
+  const t0 = performance.now(), fromT = controls.target.clone(), fromP = camera.position.clone();
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  anim = now => {
+    const k = reduce ? 1 : Math.min(1, (now - t0)/700), e = 1 - Math.pow(1 - k, 3);
+    controls.target.lerpVectors(fromT, target, e); camera.position.lerpVectors(fromP, pos, e);
+    if (k >= 1) anim = null;
+  };
+}
+const VIEWS = {
+  'v-iso': [new THREE.Vector3(0,0,0), new THREE.Vector3(-70, 95, 110)],
+  'v-top': [new THREE.Vector3(0,0,0), new THREE.Vector3(0, 190, 0.01)],
+  'v-bot': [new THREE.Vector3(0,0,0), new THREE.Vector3(0, -190, 0.01)],
+  'v-side':[new THREE.Vector3(0,2,0), new THREE.Vector3(0, 14, 120)],
+};
+// the assembly is bigger and taller: same angles, further back, aimed at the middle of the stack
+function view(id){
+  const [t, p] = VIEWS[id];
+  if (mode === 'd') return [t.clone(), id === 'v-side' ? p.clone() : p.clone().multiplyScalar(1.3)];
+  const k = id === 'v-side' ? 2.0 : 2.15;
+  return [t.clone().add(new THREE.Vector3(0, 7, 0)), p.clone().multiplyScalar(k).add(new THREE.Vector3(0, 7, 0))];
+}
+for (const id in VIEWS) document.getElementById(id).addEventListener('click', () => {
+  for (const b of document.querySelectorAll('.views button')) b.setAttribute('aria-pressed', b.id === id);
+  ground.visible = id !== 'v-bot'; requestRender();
+  flyTo(...view(id));
+});
+{ const [t0, p0] = view('v-iso'); camera.position.copy(p0); controls.target.copy(t0); }
+
+// ---- search, jumps, toggles ----
+const q = document.getElementById('q');
+function find(v){
+  v = v.trim().toLowerCase(); if (!v) return null;
+  return byRef.get(v) || parts.find(p => p.value.toLowerCase() === v || (p.lcsc||'').toLowerCase() === v)
+    || parts.find(p => p.value.toLowerCase().includes(v) || (p.desc||'').toLowerCase().includes(v));
+}
+q.addEventListener('change', () => { const p = find(q.value); if (p) select(p, true); });
+q.addEventListener('keydown', e => { if (e.key === 'Enter') { const p = find(q.value); if (p) select(p, true); } });
+const jumps = document.getElementById('jumps');
+jumps.addEventListener('click', e => { const b = e.target.closest('[data-ref]'); if (!b) return;
+  const p = byRef.get(b.dataset.ref.toLowerCase()); if (p) { q.value = p.ref; select(p, true); } });
+document.getElementById('t-parts').addEventListener('change', e => {
+  for (const pcb of Object.values(PCBS)) for (const m of (pcb.partMeshes || []).concat(pcb.markings || [])) m.visible = e.target.checked;
+  renderer.shadowMap.needsUpdate = true; requestRender(); });
+const spin = document.getElementById('t-spin');
+spin.addEventListener('change', () => { controls.autoRotate = spin.checked; controls.autoRotateSpeed = 1.2; });
+
+// ---- loop ----
+// post: ambient occlusion (soft contact darkening between parts and board) and MSAA,
+// rendered once the view comes to rest; while orbiting we draw the cheaper direct image
+const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, {type:THREE.HalfFloatType, samples:4}));
+composer.addPass(new RenderPass(scene, camera));
+const gtao = new GTAOPass(scene, camera, 1, 1);
+gtao.updateGtaoMaterial({radius:2.2, distanceExponent:1.5, thickness:1.5, scale:1.15, samples:16});
+gtao.updatePdMaterial({lumaPhi:10, depthPhi:2, normalPhi:3, radius:6, rings:2, samples:16});
+gtao.blendIntensity = 0.9;
+composer.addPass(gtao);
+composer.addPass(new OutputPass());
+let refineAt = 0;
+
+function resize(){
+  const r = canvas.getBoundingClientRect();
+  renderer.setSize(r.width, r.height, false);
+  camera.aspect = r.width / Math.max(1, r.height); camera.updateProjectionMatrix();
+  composer.setPixelRatio(renderer.getPixelRatio()); composer.setSize(r.width, r.height);
+  requestRender();
+}
+new ResizeObserver(resize).observe(canvas); resize();
+
+// draw only when something changed, so an idle tab costs nothing
+controls.addEventListener('change', requestRender);
+renderer.setAnimationLoop(now => {
+  if (anim) { anim(now); needsRender = true; }
+  if (controls.update()) needsRender = true;
+  if (!needsRender) {
+    lastFrame = 0;
+    if (refineAt && now >= refineAt) { refineAt = 0; if (!light) composer.render(); }
+    return;
+  }
+  needsRender = false;
+  renderer.render(scene, camera);
+  refineAt = now + 220;
+  watchFrameRate(now);
+});
+
+// if the browser can't keep up while orbiting (slow GPU, some Firefox setups), drop to a lighter mode once
+let lastFrame = 0, slow = 0, light = false;
+function watchFrameRate(now){
+  if (light) return;
+  if (lastFrame) { const dt = now - lastFrame; slow = dt > 45 ? slow + 1 : Math.max(0, slow - 1); }
+  lastFrame = now;
+  if (slow < 8) return;
+  light = true;
+  renderer.setPixelRatio(1); resize();
+  renderer.shadowMap.enabled = false; sun.castShadow = false; ground.visible = false;
+  scene.traverse(o => { if (o.material) o.material.needsUpdate = true; });
+  document.getElementById('status').textContent = 'Light mode (no shadows) for smoother orbiting · click a part';
+}
+
+load().catch(err => {
+  loadingEl.hidden = false; loadingEl.classList.remove('small');
+  loadingEl.textContent = 'The component models did not load: ' + (err && err.message || err) + '. Reload the page to try again.';
+  console.error(err);
+});
+</script>

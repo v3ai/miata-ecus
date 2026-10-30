@@ -1,0 +1,28 @@
+Ref,Value,Footprint,LCSC,Assembly,Description
+J1,TE 178780-1,ecu_mb:TE_178780-1_76P,,hand-fit / not fitted,"Stock harness header, 76 positions (OEM plugs 1/3/4 used). Hand-solder; salvage from a stock ECU or use a clone"
+H3,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
+H4,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
+H5,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
+H6,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
+JD1,Socket 1x40 (daughter J1),Connector_PinSocket_2.54mm:PinSocket_1x40_P2.54mm_Vertical,C124412,JLC,"2.54 mm 1x40 female, 8.5 mm. Mates with the daughterboard J1 (power + outputs)"
+JD2,Socket 1x40 (daughter J2),Connector_PinSocket_2.54mm:PinSocket_1x40_P2.54mm_Vertical,C124412,JLC,"2.54 mm 1x40 female, 8.5 mm. Mates with the daughterboard J2 (inputs + comms)"
+HD1,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
+HD2,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
+HD3,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
+HD4,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
+R1,120,Resistor_SMD:R_0603_1608Metric,C22787,JLC,CAN termination
+R6,0R,Resistor_SMD:R_0603_1608Metric,C21189,JLC,CAN termination link: fitted = 120R terminator active; remove if the bus is terminated elsewhere
+F1,2A hold,Fuse:Fuse_1812_4532Metric,C46641168,JLC,"Resettable fuse for the LSU heater supply (R+O SMD1812-200-30: 2 A hold, 30 V)"
+J2,LSU 4.9,Connector_Molex:Molex_Micro-Fit_3.0_43045-0600_2x03_P3.00mm_Horizontal,C127367,JLC,"Bosch LSU 4.9 wideband sensor. Pin n = LSU pin n: 1 IP, 2 VM, 3 H-, 4 H+, 5 RT, 6 UN"
+J3,IAT,Connector_Molex:Molex_Micro-Fit_3.0_43650-0200_1x02_P3.00mm_Horizontal,C587650,JLC,"Intake air temperature sensor (M12x1.5 thermistor, 2 wires)"
+R4,0R,Resistor_SMD:R_0603_1608Metric,C21189,JLC,IAT source: fitted = onboard IAT connector (default)
+R5,0R,Resistor_SMD:R_0603_1608Metric,,hand-fit / not fitted,IAT source: fit instead of R4 to use the stock harness / AFM air temperature sensor (not fitted)
+U2,MPX5700AP,ecu_mb:MPX5700AP_867B_Flat,C90152,JLC,"MAP sensor, 15-700 kPa absolute, single barbed port (case 867B). Lies flat, marking up, leads bent 90 deg, 2x M3 screws"
+C1,1u,Capacitor_SMD:C_0603_1608Metric,C15849,JLC,MAP supply
+C2,10n,Capacitor_SMD:C_0603_1608Metric,C57112,JLC,MAP supply
+C3,470p,Capacitor_SMD:C_0603_1608Metric,C1620,JLC,MAP output filter
+J4,USB-C,ecu_mb:USB_C_GCT_USB4105_16P,C3020560,JLC,USB-C for tuning and firmware (USB 2.0 FS)
+R2,5.1k,Resistor_SMD:R_0603_1608Metric,C23186,JLC,USB-C sink CC1
+R3,5.1k,Resistor_SMD:R_0603_1608Metric,C23186,JLC,USB-C sink CC2
+U4,USBLC6-2SC6,Package_TO_SOT_SMD:SOT-23-6,C7519,JLC,USB ESD protection
+J5,AUX 2x8,Connector_IDC:IDC-Header_2x08_P2.54mm_Vertical,C3406,JLC,"Add-on I/O: COP 3/4, boost, alternator, main relay, knock, VR crank/cam, external AFR, UART, 5 V, +12 V"

@@ -1,0 +1,3333 @@
+{
+ "1996-1997": {
+  "vehicle": "NA8 OBD-II, BP-ZE 1.8",
+  "header": {
+   "oem_section_naming": "1 (22-pin) | 2 (12-pin) | 3 (16-pin) | 4 (26-pin), left to right",
+   "section_sizes_physical_order": "22+12+16+26 = 76 positions",
+   "sections_used_by_oem_harness": "1, 3, 4 (64 terminals). Section 2 (12-pin) has no harness plug.",
+   "header_part_number": "TE/AMP 178780-1 (76-pos 040/070 hybrid cap assy; used by Hellen NA8-96). Equivalents per rusEFI wiki: 178780-6 (obsolete), 174915-6, 3-178780-6. Rev-A Frankenso used the 64-pos TE 176122-6 (22+16+26), so the harness plugs also mate with that.",
+   "mating_harness_plugs": "22p 174515-6, 16p 174514-6, 26p 174516-6, 12p 174913-1 (rusEFI wiki 76-pin entry)",
+   "hellen_naming": "Hellen 1x = OEM 1x; Hellen 2x = OEM 3x (16-pin); Hellen 3x = OEM 4x (26-pin); Hellen 4A-4L = Hellen options/WBO port in the physical 12-pin section-2 slot (OEM 2x, unused).",
+   "naming_confidence": "medium: OEM labels 1/3/4 from the rusEFI wiki, allpinouts (citing the factory supplement) and DIY MSPNP Pro. Geometry from the Hellen KiCad footprint (pads 1-22 | 65-76 | 23-38 | 39-64).",
+   "sources": [
+    "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+    "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+    "https://wiki.rusefi.com/OEM-connectors (local: /home/claude/ref/rusefi.wiki/OEM-connectors.md)",
+    "https://www.heilind.com/amp178780-1.html",
+    "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+    "https://allpinouts.org/pinouts/connectors/car/1996-1997-mazda-miata-ecu/",
+    "/home/claude/ref/rusefi-hardware/classic-designs/frankenso/known_issues.txt (item 50); /home/claude/ref/rusefi-hardware/classic-designs/frankenso/www_docs/frankenso_connector_miata_1996.png"
+   ]
+  },
+  "pins": [
+   {
+    "terminal": "1A",
+    "function": "Cooling (radiator) fan relay control",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "1A",
+    "notes": "Low-side relay driver.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1B",
+    "function": "Fan No.2 / A/C condenser fan relay control",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "1B",
+    "notes": "wiki: 'Radiator Fan 2'; Hellen: 'AC Fan Relay'. DIY MSPNP Pro lists 1B as 'A/C Relay (Injector J Out)', duplicating 1G - probably a typo in that table.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1C",
+    "function": "Not used by OEM (no source assigns an OEM function)",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/"
+    ],
+    "hellen_name": "1C",
+    "notes": "Hellen puts its own CAN-H here; DIY lists N/C.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1D",
+    "function": "Unknown OEM function (possibly diagnostic link)",
+    "direction": "none",
+    "wire_colour": "WHT/BLK (allpinouts, unverified)",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "https://allpinouts.org/pinouts/connectors/car/1996-1997-mazda-miata-ecu/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "1D",
+    "notes": "DIY: N/C. Hellen: bare test pad. On 1994 the same position was the Data Link Connector (wiki94). Treat as possibly DLC; do not drive until probed.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "1E",
+    "function": "MIL / check engine light control",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "1E",
+    "notes": "Low-side, lamp in instrument cluster.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1F",
+    "function": "Not used",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "1F",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1G",
+    "function": "A/C relay control",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "1G",
+    "notes": "Low-side.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1H",
+    "function": "Unknown",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "1H (test pad)",
+    "notes": "DIY N/C, Hellen test pad only.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "1I",
+    "function": "Unknown",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "1I (test pad)",
+    "notes": "DIY N/C, Hellen test pad only.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "1J",
+    "function": "Not used by OEM (no source assigns an OEM function)",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/"
+    ],
+    "hellen_name": "1J",
+    "notes": "Hellen puts its own CAN-L here.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1K",
+    "function": "A/C switch / refrigerant pressure switch input",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "switch",
+    "confidence": "high",
+    "sources": [
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "1K",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1L",
+    "function": "Clutch switch input",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "switch",
+    "confidence": "high",
+    "sources": [
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "1L",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1M",
+    "function": "Vehicle speed sensor input",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "VSS pulse",
+    "confidence": "high",
+    "sources": [
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "https://allpinouts.org/pinouts/connectors/car/1996-1997-mazda-miata-ecu/"
+    ],
+    "hellen_name": "1M",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1N",
+    "function": "Not used",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "1N",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1O",
+    "function": "Ground",
+    "direction": "ground",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "https://allpinouts.org/pinouts/connectors/car/1996-1997-mazda-miata-ecu/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "1O",
+    "notes": "Hellen ties it to GNDA (sensor ground); allpinouts calls it power ground. Power-vs-signal role not confirmed by a factory source.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1P",
+    "function": "Unknown",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "1P (test pad)",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "1Q",
+    "function": "Brake (stop light) switch input",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "switch",
+    "confidence": "medium",
+    "sources": [
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "https://allpinouts.org/pinouts/connectors/car/1996-1997-mazda-miata-ecu/"
+    ],
+    "hellen_name": "1Q",
+    "notes": "DIY lists N/C.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1R",
+    "function": "A/T only (PCM<->TCM / A/T signal)",
+    "direction": "comm",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "1R (test pad)",
+    "notes": "Goes to the A/T system on automatic cars. Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "1S",
+    "function": "Not used by OEM",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/"
+    ],
+    "hellen_name": "1S",
+    "notes": "Hellen re-uses this empty cavity for an add-on knock sensor input; wiki and DIY: not used.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1T",
+    "function": "A/T only (PCM<->TCM / A/T signal)",
+    "direction": "comm",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "1T (test pad)",
+    "notes": "Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "1U",
+    "function": "Fuel pump relay control",
+    "direction": "out",
+    "wire_colour": "LT GRN (allpinouts, unverified)",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "1U",
+    "notes": "Low-side.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1V",
+    "function": "Not used",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "1V",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2A",
+    "function": "12-pin section: no mating plug in the OEM harness",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "4A (Hellen options port)",
+    "notes": "OEM harness does not populate section 2. DIY calls it 'optional wiring'; Hellen uses it as its options/WBO port (named 4A-4L).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2B",
+    "function": "12-pin section: no mating plug in the OEM harness",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "4B (Hellen options port)",
+    "notes": "OEM harness does not populate section 2. DIY calls it 'optional wiring'; Hellen uses it as its options/WBO port (named 4A-4L).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2C",
+    "function": "12-pin section: no mating plug in the OEM harness",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "4C (Hellen options port)",
+    "notes": "OEM harness does not populate section 2. DIY calls it 'optional wiring'; Hellen uses it as its options/WBO port (named 4A-4L).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2D",
+    "function": "12-pin section: no mating plug in the OEM harness",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "4D (Hellen options port)",
+    "notes": "OEM harness does not populate section 2. DIY calls it 'optional wiring'; Hellen uses it as its options/WBO port (named 4A-4L).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2E",
+    "function": "12-pin section: no mating plug in the OEM harness",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "4E (Hellen options port)",
+    "notes": "OEM harness does not populate section 2. DIY calls it 'optional wiring'; Hellen uses it as its options/WBO port (named 4A-4L).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2F",
+    "function": "12-pin section: no mating plug in the OEM harness",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "4F (Hellen options port)",
+    "notes": "OEM harness does not populate section 2. DIY calls it 'optional wiring'; Hellen uses it as its options/WBO port (named 4A-4L).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2G",
+    "function": "12-pin section: no mating plug in the OEM harness",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "4G (Hellen options port)",
+    "notes": "OEM harness does not populate section 2. DIY calls it 'optional wiring'; Hellen uses it as its options/WBO port (named 4A-4L).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2H",
+    "function": "12-pin section: no mating plug in the OEM harness",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "4H (Hellen options port)",
+    "notes": "OEM harness does not populate section 2. DIY calls it 'optional wiring'; Hellen uses it as its options/WBO port (named 4A-4L).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2I",
+    "function": "12-pin section: no mating plug in the OEM harness",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "4I (Hellen options port)",
+    "notes": "OEM harness does not populate section 2. DIY calls it 'optional wiring'; Hellen uses it as its options/WBO port (named 4A-4L).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2J",
+    "function": "12-pin section: no mating plug in the OEM harness",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "4J (Hellen options port)",
+    "notes": "OEM harness does not populate section 2. DIY calls it 'optional wiring'; Hellen uses it as its options/WBO port (named 4A-4L).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2K",
+    "function": "12-pin section: no mating plug in the OEM harness",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "4K (Hellen options port)",
+    "notes": "OEM harness does not populate section 2. DIY calls it 'optional wiring'; Hellen uses it as its options/WBO port (named 4A-4L).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2L",
+    "function": "12-pin section: no mating plug in the OEM harness",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "4L (Hellen options port)",
+    "notes": "OEM harness does not populate section 2. DIY calls it 'optional wiring'; Hellen uses it as its options/WBO port (named 4A-4L).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3A",
+    "function": "Not used (OEM)",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "2A",
+    "notes": "Hellen uses it as a spare fuel-tank-pressure/aux input; wiki and DIY: not used.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3B",
+    "function": "MAF signal",
+    "direction": "in",
+    "wire_colour": "RED/WHT",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "https://allpinouts.org/pinouts/connectors/car/1996-1997-mazda-miata-ecu/"
+    ],
+    "hellen_name": "2B",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3C",
+    "function": "Front HO2S signal",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "zirconia O2",
+    "confidence": "high",
+    "sources": [
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "https://allpinouts.org/pinouts/connectors/car/1996-1997-mazda-miata-ecu/"
+    ],
+    "hellen_name": "2C",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3D",
+    "function": "Rear HO2S signal",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "zirconia O2",
+    "confidence": "high",
+    "sources": [
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "https://allpinouts.org/pinouts/connectors/car/1996-1997-mazda-miata-ecu/"
+    ],
+    "hellen_name": "2D",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3E",
+    "function": "Not used",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "2E (test pad)",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3F",
+    "function": "Throttle position sensor",
+    "direction": "in",
+    "wire_colour": "RED/BLK",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "https://allpinouts.org/pinouts/connectors/car/1996-1997-mazda-miata-ecu/"
+    ],
+    "hellen_name": "2F",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3G",
+    "function": "Engine coolant temperature sensor",
+    "direction": "in",
+    "wire_colour": "BLU/WHT",
+    "sensor_type": "thermistor",
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "https://allpinouts.org/pinouts/connectors/car/1996-1997-mazda-miata-ecu/"
+    ],
+    "hellen_name": "2G",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3H",
+    "function": "Unknown",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "2H (test pad)",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "3I",
+    "function": "+5 V sensor reference (TPS, MAF)",
+    "direction": "power",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "2I",
+    "notes": "ECU-sourced 5 V output. Never short to ground or 12 V.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3J",
+    "function": "Unknown",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "2J (test pad)",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "3K",
+    "function": "Intake air temperature sensor",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "thermistor",
+    "confidence": "high",
+    "sources": [
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "https://allpinouts.org/pinouts/connectors/car/1996-1997-mazda-miata-ecu/"
+    ],
+    "hellen_name": "2K",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3L",
+    "function": "Ground (probably MAF signal ground)",
+    "direction": "ground",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "2L (test pad)",
+    "notes": "Only DIY lists it, as 'Ground'. On 1994 a MAF signal ground existed (wiki94 2F BLK/RED). Hellen leaves it open.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3M",
+    "function": "Front HO2S heater control",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "2M",
+    "notes": "Low-side. Hellen yaml omits it, but the PCB jumper R26 routes 2M to OUT_O2H.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3N",
+    "function": "Unknown",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "2N (test pad)",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "3O",
+    "function": "Sensor (analogue) ground",
+    "direction": "ground",
+    "wire_colour": "BLK/BLU",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "2O",
+    "notes": "Return for TPS/CLT/IAT/MAF. Hellen: GNDA.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3P",
+    "function": "Unknown",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "2P (test pad)",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "4A",
+    "function": "Ground",
+    "direction": "ground",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "https://allpinouts.org/pinouts/connectors/car/1996-1997-mazda-miata-ecu/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "3A",
+    "notes": "Hellen ties 3A (OEM 4A) to GNDA. DIY and allpinouts: ground / power ground.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4B",
+    "function": "ECU +12 V from main relay",
+    "direction": "power",
+    "wire_colour": "WHT/RED",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "3B",
+    "notes": "Hellen fuses it and uses it as main supply and battery sense. The main relay is switched by the ignition switch (no ECU control found).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4C",
+    "function": "Ground",
+    "direction": "ground",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "3C",
+    "notes": "Hellen: GND (power).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4D",
+    "function": "Ground",
+    "direction": "ground",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "3D",
+    "notes": "Hellen: GND (power).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4E",
+    "function": "Crank-pulley CKP sensor lead (OBD-II misfire sensor)",
+    "direction": "in",
+    "wire_colour": "YEL/BLK",
+    "sensor_type": "VR per AMP ('OE crankshaft VR signal'); polarity unknown",
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "https://ampenginemanagement.com/blogs/mspnp-pro-documentation/pro-mm9697-installation",
+     "https://www.miata.net/garage/tsb/006-98-1.pdf",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "3E (test pad)",
+    "notes": "This is the separate 1996-97 crank-pulley sensor. It is not the CAS signal used for fuel/spark by Hellen and DIY (both leave 4E open). Which of 4E/4H is + is UNRESOLVED.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "4F",
+    "function": "CAS 4-pulse crank-angle signal (SGT/'CKP'), primary trigger",
+    "direction": "in",
+    "wire_colour": "WHT",
+    "sensor_type": "Hall/open-collector output of the cam-driven CAS (12 V fed); needs pull-up",
+    "confidence": "high",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "https://support.haltech.com/portal/en/kb/articles/93-na8-1-6l-b6-ze",
+     "https://wiki.rusefi.com/Mazda-Miata-1994"
+    ],
+    "hellen_name": "3F",
+    "notes": "wiki96 labels it 'Cam Position Sensor', which is wrong: DIY says CKP and Hellen says CRANK (PULL_CRANK to 5 V). WHT is also the 4x SGT colour on 1994 (wiki94 2E).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4G",
+    "function": "CAS 2-pulse cam signal (SGC/CMP)",
+    "direction": "in",
+    "wire_colour": "GRN (wiki, unverified)",
+    "sensor_type": "Hall/open-collector output of the same CAS; needs pull-up",
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "https://support.haltech.com/portal/en/kb/articles/93-na8-1-6l-b6-ze"
+    ],
+    "hellen_name": "3G",
+    "notes": "Hellen fits a 4.7k pull-up to 5 V.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4H",
+    "function": "Crank-pulley CKP sensor lead (OBD-II misfire sensor)",
+    "direction": "in",
+    "wire_colour": "YEL/WHT",
+    "sensor_type": "VR per AMP; polarity unknown",
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "https://ampenginemanagement.com/blogs/mspnp-pro-documentation/pro-mm9697-installation",
+     "https://www.miata.net/garage/tsb/006-98-1.pdf",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "3H (test pad)",
+    "notes": "Pair with 4E. Polarity UNRESOLVED.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "4I",
+    "function": "CONFLICT: battery +12 V backup (Hellen) vs N/C (DIY Pro) vs optional tach output (MSPNP2 doc)",
+    "direction": "power",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "https://ampenginemanagement.com/blogs/mspnp2-documentation/mspnp2-mm9697-v2-installation"
+    ],
+    "hellen_name": "3I",
+    "notes": "Hellen jumper R48 ties 3I to +12V_PERM (keep-alive). Probe with key off before use: if battery voltage, it is B+ backup. Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "4J",
+    "function": "Unknown",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "3J (test pad)",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "4K",
+    "function": "CONFLICT: not used (wiki) vs condenser fan relay (DIY Pro)",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "3K (test pad)",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4L",
+    "function": "Tachometer output to instrument cluster",
+    "direction": "out",
+    "wire_colour": "BLK/WHT (allpinouts, unverified)",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php",
+     "https://allpinouts.org/pinouts/connectors/car/1996-1997-mazda-miata-ecu/"
+    ],
+    "hellen_name": "3L",
+    "notes": "Drives the cluster tach input. Open-collector/pull-up style; do not back-drive 12 V.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4M",
+    "function": "Unknown",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "3M (test pad)",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "4N",
+    "function": "Ignition IGT, cylinders 1 & 4 (igniter)",
+    "direction": "out",
+    "wire_colour": "GRN (wiki, unverified)",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "3N",
+    "notes": "Logic-level trigger to the coil pack with built-in igniter.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4O",
+    "function": "Unknown",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "3O (test pad)",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "4P",
+    "function": "Unknown",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "3P (test pad)",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "4Q",
+    "function": "Idle air control valve (low side)",
+    "direction": "out",
+    "wire_colour": "BLU/ORG",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "3Q",
+    "notes": "The IAC + is fed from the harness (no ECU pin). Needs a flyback diode.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4R",
+    "function": "Ignition IGT, cylinders 2 & 3 (igniter)",
+    "direction": "out",
+    "wire_colour": "BRN",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "3R",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4S",
+    "function": "Not used (OEM)",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "3S",
+    "notes": "Hellen re-uses it for an 'EGR boost' aux input.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4T",
+    "function": "Unknown",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "3T (test pad)",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "4U",
+    "function": "Injector No.1",
+    "direction": "out",
+    "wire_colour": "WHT (wiki, unverified)",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "3U",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4V",
+    "function": "Injector No.2",
+    "direction": "out",
+    "wire_colour": "YEL (wiki, unverified)",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "3V",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4W",
+    "function": "Injector No.3",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "3W",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4X",
+    "function": "Injector No.4",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1996 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1996.md)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "3X",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4Y",
+    "function": "Unknown",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9697.php"
+    ],
+    "hellen_name": "3Y (test pad)",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "4Z",
+    "function": "Rear HO2S heater control",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNA96/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellenNA8_96/",
+     "/home/claude/ref/miata/hellen-NA8-96/hellen64_NA8_96.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "3Z",
+    "notes": "DIY lists N/C. Hellen drives OUT_O2H2 here.",
+    "do_not_drive": false
+   }
+  ]
+ },
+ "1999-2000": {
+  "vehicle": "NB1, BP-4W 1.8",
+  "header": {
+   "oem_section_naming": "1 (22-pin) | 2 (16-pin) | 3 (26-pin)",
+   "section_sizes_physical_order": "22+16+26 = 64 terminals used",
+   "sections_used_by_oem_harness": "all three (1, 2, 3)",
+   "header_part_number": "OEM: listed by rusEFI wiki as 64-pin TE 176122-6 / 4-174518-7 (22+16+26), medium confidence. Hellen NB1 instead uses 76-pos TE 178780-1 (22+12+16+26) and puts its own options port in the 12-pin slot between sections 1 and 2. Both fit the car, because the harness uses three separate plugs.",
+   "mating_harness_plugs": "22p 174515-6 / 175110-6, 16p 174514-6 / 175109-6, 26p 174516-6 / 175111-6 (rusEFI wiki 64-pin entry)",
+   "hellen_naming": "Hellen 1x/2x/3x = OEM 1x/2x/3x (same names). Hellen 4A-4L = Hellen options port (not OEM). The DIY MSPNP Pro MM9900 uses its own 1/2/3/4 names: DIY 3x = OEM 2x and DIY 4x = OEM 3x.",
+   "naming_confidence": "medium-high: the same names appear in the rusEFI wiki, the Hellen 'OEM ECU pin' sheet and Alex Engineering. No Mazda FSM page was retrievable as text.",
+   "sources": [
+    "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+    "https://wiki.rusefi.com/OEM-connectors (local: /home/claude/ref/rusefi.wiki/OEM-connectors.md)",
+    "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+    "/home/claude/ref/miata/hellen-NB1/hellen64_NB1.kicad_pcb (pad->net trace)",
+    "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+    "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+   ]
+  },
+  "pins": [
+   {
+    "terminal": "1A",
+    "function": "Battery +12 V backup (always hot)",
+    "direction": "power",
+    "wire_colour": "BLU/RED",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "/home/claude/ref/miata/hellen-NB1/hellen64_NB1.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "1A",
+    "notes": "Keep-alive input. Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "1B",
+    "function": "ECU +12 V from main relay",
+    "direction": "power",
+    "wire_colour": "WHT/RED",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/miata/hellen-NB1/hellen64_NB1.kicad_pcb (pad->net trace)",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "1B",
+    "notes": "Hellen fuses it and uses it as main supply and VIGN/battery sense. The main relay is switched by the ignition switch (no ECU main-relay output is listed by any source).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1C",
+    "function": "N/C (OEM)",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)"
+    ],
+    "hellen_name": "1C",
+    "notes": "Hellen adds CAN-H here.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1D",
+    "function": "Data Link Connector",
+    "direction": "comm",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "/home/claude/ref/miata/hellen-NB1/hellen64_NB1.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "1D (test pad)",
+    "notes": "Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "1E",
+    "function": "MIL / check engine light",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "1E",
+    "notes": "Low-side, lamp in cluster.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1F",
+    "function": "Brake switch input",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "switch",
+    "confidence": "high",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/"
+    ],
+    "hellen_name": "1F",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1G",
+    "function": "Power steering pressure switch input",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "switch",
+    "confidence": "high",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "1G",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1H",
+    "function": "Unclear: '12 V battery (fuel inj 30A)' per Hellen sheet",
+    "direction": "power",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "/home/claude/ref/miata/hellen-NB1/hellen64_NB1.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "1H (test pad)",
+    "notes": "Probe before use. Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "1I",
+    "function": "A/C (condenser) fan relay",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "1I",
+    "notes": "Low-side.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1J",
+    "function": "N/C (OEM)",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)"
+    ],
+    "hellen_name": "1J",
+    "notes": "Hellen adds CAN-L here.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1K",
+    "function": "TCM link (A/T)",
+    "direction": "comm",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)"
+    ],
+    "hellen_name": "1K (test pad)",
+    "notes": "Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "1L",
+    "function": "Data Link Connector",
+    "direction": "comm",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)"
+    ],
+    "hellen_name": "1L (test pad)",
+    "notes": "Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "1M",
+    "function": "N/C",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)"
+    ],
+    "hellen_name": "1M (test pad)",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1N",
+    "function": "TCM link (A/T)",
+    "direction": "comm",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)"
+    ],
+    "hellen_name": "1N (test pad)",
+    "notes": "Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "1O",
+    "function": "Alternator field coil control (PWM)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/"
+    ],
+    "hellen_name": "1O",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1P",
+    "function": "A/C switch input",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "switch",
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "1P",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1Q",
+    "function": "Charge (battery) warning lamp",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "1Q",
+    "notes": "Low-side, lamp in instrument cluster.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1R",
+    "function": "Radiator cooling fan relay",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "1R",
+    "notes": "Low-side.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1S",
+    "function": "A/C compressor relay",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "1S",
+    "notes": "Low-side.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1T",
+    "function": "Alternator sense (generator output voltage)",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)"
+    ],
+    "hellen_name": "1T (test pad)",
+    "notes": "Input from the generator. Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "1U",
+    "function": "Front HO2S heater control",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "1U",
+    "notes": "DIY MSPNP Pro grounds it permanently (labels it 'Ground'). Low-side.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "1V",
+    "function": "Neutral switch input",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "switch",
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/"
+    ],
+    "hellen_name": "1V",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2A",
+    "function": "Fuel tank pressure sensor",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/"
+    ],
+    "hellen_name": "2A",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2B",
+    "function": "Intake air temperature sensor",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "thermistor",
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "2B",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2C",
+    "function": "Front HO2S signal",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "zirconia O2",
+    "confidence": "high",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "2C",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2D",
+    "function": "Vehicle speed sensor",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "2D",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2E",
+    "function": "Engine coolant temperature sensor",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "thermistor",
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "2E",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2F",
+    "function": "Knock sensor",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "piezo",
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/"
+    ],
+    "hellen_name": "2F",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2G",
+    "function": "N/C (OEM)",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)"
+    ],
+    "hellen_name": "2G",
+    "notes": "Hellen adds an AFR input here.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2H",
+    "function": "Camshaft position sensor (CMP/SGC) signal",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "Hall, 3-wire, 12 V fed; open-collector-style (Hellen 4.7k pull-up to 5 V)",
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "/home/claude/ref/miata/hellen-NB1/hellen64_NB1.kicad_pcb (pad->net trace)",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf",
+     "https://support.haltech.com/portal/en/kb/articles/01-05-nb2-1-8l-w-vvt-bp-z3-bp-ve",
+     "https://www.walmart.com/ip/1189340422"
+    ],
+    "hellen_name": "2H",
+    "notes": "The CMP is sold as one part for 1999-2005; Haltech says the NB2 CMP is Hall-effect. Its ground return is not identified for NB1.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2I",
+    "function": "+5 V sensor reference",
+    "direction": "power",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/"
+    ],
+    "hellen_name": "2I",
+    "notes": "ECU-sourced 5 V output.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2J",
+    "function": "Crankshaft position sensor (CKP/NE) signal",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "Hall, 3-wire, 12 V fed from main relay",
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "/home/claude/ref/miata/hellen-NB1/hellen64_NB1.kicad_pcb (pad->net trace)",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf",
+     "https://www.coxmazdaparts.com/oem-parts/mazda-crankshaft-position-sensor-bp4w18221b",
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "https://support.haltech.com/portal/en/kb/articles/01-05-nb2-1-8l-w-vvt-bp-z3-bp-ve"
+    ],
+    "hellen_name": "2J",
+    "notes": "Same part BP4W-18-221 fits 1999-2005; the NB2 FSM shows terminal A = main-relay power, B = signal, C = ground to PCM.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2K",
+    "function": "Tachometer output",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/"
+    ],
+    "hellen_name": "2K",
+    "notes": "Alex Engineering calls 2K a 'stock unused pin'; three other sources say tach out. Verify on the harness.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2L",
+    "function": "MAF signal",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/"
+    ],
+    "hellen_name": "2L",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2M",
+    "function": "EGR valve stepper coil",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": "stepper coil",
+    "confidence": "medium",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "/home/claude/ref/miata/hellen-NB1/hellen64_NB1.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "2M (test pad)",
+    "notes": "Hellen leaves these as test pads.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2N",
+    "function": "EGR valve stepper coil",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": "stepper coil",
+    "confidence": "medium",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "/home/claude/ref/miata/hellen-NB1/hellen64_NB1.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "2N (test pad)",
+    "notes": "Hellen leaves these as test pads.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2O",
+    "function": "EGR valve stepper coil",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": "stepper coil",
+    "confidence": "medium",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "/home/claude/ref/miata/hellen-NB1/hellen64_NB1.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "2O (test pad)",
+    "notes": "Hellen leaves these as test pads.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2P",
+    "function": "EGR valve stepper coil",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": "stepper coil",
+    "confidence": "medium",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "/home/claude/ref/miata/hellen-NB1/hellen64_NB1.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "2P (test pad)",
+    "notes": "Hellen leaves these as test pads.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3A",
+    "function": "Power ground",
+    "direction": "ground",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/miata/hellen-NB1/hellen64_NB1.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "3A",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3B",
+    "function": "Power ground",
+    "direction": "ground",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/miata/hellen-NB1/hellen64_NB1.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "3B",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3C",
+    "function": "Power ground",
+    "direction": "ground",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/miata/hellen-NB1/hellen64_NB1.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "3C",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3D",
+    "function": "N/C (OEM)",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)"
+    ],
+    "hellen_name": "3D",
+    "notes": "Hellen adds an external MAP input here.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3E",
+    "function": "Throttle position sensor",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "3E",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3F",
+    "function": "Sensor (analogue) ground",
+    "direction": "ground",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)"
+    ],
+    "hellen_name": "3F",
+    "notes": "Hellen PCB ties 3F to GND, not GNDA.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3G",
+    "function": "Ignition IGT, cylinders 1 & 4",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "3G",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3H",
+    "function": "Ignition IGT, cylinders 2 & 3",
+    "direction": "out",
+    "wire_colour": "BRN",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "3H",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3I",
+    "function": "Clutch switch input",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "switch",
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "3I",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3J",
+    "function": "Rear HO2S signal",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "zirconia O2",
+    "confidence": "high",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "3J",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3K",
+    "function": "N/C (Hellen sheet, DIY) vs 'fuel gauge' (wiki)",
+    "direction": "none",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "low",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)"
+    ],
+    "hellen_name": "3K (test pad)",
+    "notes": "If it is the fuel gauge it belongs to the cluster. Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "3L",
+    "function": "Purge solenoid",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "3L (test pad)",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3M",
+    "function": "Idle air control valve (negative / low side)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "3M",
+    "notes": "The wiki 1999 page has 3M and 3O swapped (it calls 3M 'IAC power +12'). Hellen, DIY, Alex and the Hellen sheet all put the IAC drive on 3M.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3N",
+    "function": "Fuel pump relay (US cars)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "3N",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3O",
+    "function": "IAC +12 V supply (output from PCM)",
+    "direction": "power",
+    "wire_colour": "ORG (wiki, attached to wrong pin there)",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/miata/hellen-NB1/hellen64_NB1.kicad_pcb (pad->net trace)"
+    ],
+    "hellen_name": "3O",
+    "notes": "Hellen connects 3O to its +12V_RAW rail fed from 1B. DIY calls it '+12V Ignition'. Treat as power out to the IAC +; it must not be shorted.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3P",
+    "function": "Fuel pump relay (European cars with immobilizer)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "https://ampenginemanagement.com/blogs/mspnp-pro-documentation/pro-mm9900-installation",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "3P",
+    "notes": "DIY jumper J2 selects 'Europe w/ immob.'. On US cars 3P is probably unpopulated. On EU cars the immobilizer path may sit on this circuit, so check before driving.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3Q",
+    "function": "VICS solenoid",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "3Q",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3R",
+    "function": "N/C",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)"
+    ],
+    "hellen_name": "3R (test pad)",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3S",
+    "function": "EGR boost sensor",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/"
+    ],
+    "hellen_name": "3S",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3T",
+    "function": "EGR boost sensor solenoid",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/"
+    ],
+    "hellen_name": "3T",
+    "notes": "Hellen re-uses it as a boost-control output.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3U",
+    "function": "Canister drain cut valve (CDCV)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)"
+    ],
+    "hellen_name": "3U (test pad)",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3V",
+    "function": "Rear HO2S heater control",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/"
+    ],
+    "hellen_name": "3V",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3W",
+    "function": "Injector No.1",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "3W",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3X",
+    "function": "Injector No.2",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "3X",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3Y",
+    "function": "Injector No.3",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "3Y",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3Z",
+    "function": "Injector No.4",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://wiki.rusefi.com/Mazda-Miata-1999 (local: /home/claude/ref/rusefi.wiki/Mazda-Miata-1999.md)",
+     "https://docs.google.com/spreadsheets/d/19Mc_QA4MTJAY1hUR4UMexbdGiqNpH4JARKxWm1VD5KA (Hellen64_NB1 (99/00) pinout, 'OEM ECU pin' column)",
+     "http://www.megasquirtpnp.com/docs/mspnp_gP_mm9900.php (DIY naming: their 3x = OEM 2x, their 4x = OEM 3x)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB1/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen-nb1/",
+     "https://alexengineering.pl/wp-content/uploads/2025/11/speeduino-pnp-nb-manual-eng-bt-upgrade-calibration-pinout-2.09.pdf"
+    ],
+    "hellen_name": "3Z",
+    "do_not_drive": false
+   }
+  ]
+ },
+ "2001-2005": {
+  "vehicle": "NB2, BP-Z3 1.8 S-VT (VVT); MSM turbo deltas in notes",
+  "header": {
+   "oem_section_naming": "2 (17 terminals: 2A-2R without 2L) | 3 (24 terminals: 3A-3Z without 3G and 3R) | 4 (31 terminals: 4A-4AH without 4G, 4Q, 4Y)",
+   "section_sizes_physical_order": "17+24+31 = 72",
+   "sections_used_by_oem_harness": "all three (2, 3, 4). There is no OEM section '1'.",
+   "header_part_number": "OEM: 72-pos TE 353830-5 ('040III HD 72POS CAP ASSY', 3 rows, through-hole) per the rusEFI wiki and Heilind; alternate TE 1123038-2 per the rusEFI wiki. Hellen NB2 uses the 122-pos TE 8-5353015-1, which adds a 22-pos section '1' (mostly unconnected) and a 28-pos section '5' (Hellen options port) to the left of OEM 2/3/4: physical order 1(22) | 5(28) | 2(17) | 3(24) | 4(31).",
+   "hellen_naming": "Hellen 2x/3x/4x = OEM 2x/3x/4x (same names). Hellen 1x and 5x are Hellen-only. The Hellen yaml '4Q' entry has no cavity in the footprint (phantom). The 2005 FSM lists 4G/4Q/4Y as '-'.",
+   "naming_confidence": "high (2005 Mazda workshop manual terminal tables match the Hellen footprint cavities)",
+   "year_split": "2001-2002: main relay switched by the ignition switch; ECU power 4AF only; 4S not connected; 3H unused. 2003-2005: PCM drives the main relay via 3H; 4S = IG1 sense. (rusEFI wiki 2002/2003 pages; Hellen-NB2 jumper notes; 2005 FSM for 2005.) Whether 2001 matches 2002 exactly, and where 2004 falls, is inferred, not documented.",
+   "sources": [
+    "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+    "https://wiki.rusefi.com/OEM-connectors (local: /home/claude/ref/rusefi.wiki/OEM-connectors.md)",
+    "https://www.heilind.com/amp353830-5.html",
+    "/home/claude/ref/miata/hellen-NB2/hellen72_NB2.kicad_pcb + connector-mapping.txt (pad->net trace)",
+    "https://wiki.rusefi.com/Hellen-NB2 (local: /home/claude/ref/rusefi.wiki/Hellen-NB2.md)",
+    "https://wiki.rusefi.com/Mazda-Miata-2002",
+    "https://wiki.rusefi.com/Mazda-Miata-2003"
+   ]
+  },
+  "pins": [
+   {
+    "terminal": "2A",
+    "function": "Injector No.1",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "2A",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2B",
+    "function": "Cooling fan relay (TC: fan relay No.1)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "2B",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2C",
+    "function": "Condenser fan relay (TC: fan relays No.2/3)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/",
+     "https://wiki.rusefi.com/Mazda-Miata-2003-alt"
+    ],
+    "hellen_name": "2C",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2D",
+    "function": "Injector No.2",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "2D",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2E",
+    "function": "EGR valve stepper coil #1 (EGR valve terminal E)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": "stepper coil",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "2E (test pad)",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2F",
+    "function": "EGR valve stepper coil #2 (EGR valve terminal A)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": "stepper coil",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "2F (test pad)",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2G",
+    "function": "Injector No.3",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "2G",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2H",
+    "function": "EGR valve stepper coil #3 (EGR valve terminal B)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": "stepper coil",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "2H (test pad)",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2I",
+    "function": "EGR valve stepper coil #4 (EGR valve terminal F)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": "stepper coil",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "2I (test pad)",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2J",
+    "function": "Injector No.4",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "2J",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2K",
+    "function": "A/C relay",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "2K",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2M",
+    "function": "Fuel pump relay",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "2M",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2N",
+    "function": "VTCS solenoid valve",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "2N",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2O",
+    "function": "Not used (OEM)",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)"
+    ],
+    "hellen_name": "2O",
+    "notes": "Hellen re-uses it as IGN3 for a coil-on-plug option.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2P",
+    "function": "IAC valve positive (+12 V supply out)",
+    "direction": "power",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/",
+     "/home/claude/ref/miata/hellen-NB2/hellen72_NB2.kicad_pcb + connector-mapping.txt (pad->net trace)",
+     "https://wiki.rusefi.com/Mazda-Miata-2003"
+    ],
+    "hellen_name": "2P",
+    "notes": "Hellen feeds it from 4AF (main relay). Fit a flyback diode 2P-2Q.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2Q",
+    "function": "IAC valve negative (low side)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "2Q",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "2R",
+    "function": "MIL control (lamp in instrument cluster)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "2R",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3A",
+    "function": "Fuel injector ground (power ground)",
+    "direction": "ground",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/miata/hellen-NB2/hellen72_NB2.kicad_pcb + connector-mapping.txt (pad->net trace)"
+    ],
+    "hellen_name": "3A",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3B",
+    "function": "PCM ground",
+    "direction": "ground",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/miata/hellen-NB2/hellen72_NB2.kicad_pcb + connector-mapping.txt (pad->net trace)"
+    ],
+    "hellen_name": "3B",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3C",
+    "function": "Purge solenoid valve",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "3C",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3D",
+    "function": "EGR boost sensor switching solenoid (TC: BARO/MAP switching)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "3D",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3E",
+    "function": "Not used in 2005 BP table; Hellen: CDCV (EVAP canister drain cut valve)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "3E",
+    "notes": "Probably year-dependent: early NB2 EVAP used a CDCV, 2005 uses a leak-detection pump.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3F",
+    "function": "Ignition IGT, cylinders 1 & 4",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "3F",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3H",
+    "function": "Main relay control (2003-2005); not used (2001-2002)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "https://wiki.rusefi.com/Mazda-Miata-2002",
+     "https://wiki.rusefi.com/Mazda-Miata-2003",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "3H",
+    "notes": "2005 FSM: B+ with ignition off, below 1 V with ignition on (low-side). The rusEFI wiki says the 2002 main relay is switched by the ignition switch, with nothing on 3H.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3I",
+    "function": "Ignition IGT, cylinders 2 & 3",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "3I",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3J",
+    "function": "Front HO2S heater control",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "3J",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3K",
+    "function": "EVAP leak-detection pump motor (2005); Hellen: NC / SENS2 input",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "3K",
+    "notes": "Year-dependent. On 2005 it is a PCM output to the LDP.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3L",
+    "function": "Not used (OEM)",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)"
+    ],
+    "hellen_name": "3L",
+    "notes": "Hellen re-uses it for AFR input / IGN7.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3M",
+    "function": "Generator field coil control (generator terminal D)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "3M",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3N",
+    "function": "Not used (OEM)",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)"
+    ],
+    "hellen_name": "3N",
+    "notes": "Hellen re-uses it as IGN4.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3O",
+    "function": "Engine speed output: tachometer and DLC IG-TCM (A/T)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "3O",
+    "notes": "Shared with the A/T TCM. Must remain a tach-style open-collector output.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3P",
+    "function": "Rear HO2S heater control",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "3P",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3Q",
+    "function": "K-line serial communication (DLC-2 terminal KLN)",
+    "direction": "comm",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "3Q",
+    "notes": "Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "3S",
+    "function": "Immobilizer communication (immobilizer unit)",
+    "direction": "comm",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "3S",
+    "notes": "Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "3T",
+    "function": "Vehicle speed (VSS; TC: from instrument cluster)",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "Haltech: reluctor VSS converted to Hall-style by the speedometer",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/",
+     "https://support.haltech.com/portal/en/kb/articles/01-05-nb2-1-8l-w-vvt-bp-z3-bp-ve"
+    ],
+    "hellen_name": "3T",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3U",
+    "function": "Generator warning light (in instrument cluster)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "3U",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3V",
+    "function": "CMP sensor signal (SGC)",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "Hall-effect, 3-wire, 12 V switched (Haltech); FSM measures SGC against PCM 4A",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/",
+     "/home/claude/ref/miata/hellen-NB2/hellen72_NB2.kicad_pcb + connector-mapping.txt (pad->net trace)",
+     "https://support.haltech.com/portal/en/kb/articles/01-05-nb2-1-8l-w-vvt-bp-z3-bp-ve"
+    ],
+    "hellen_name": "3V",
+    "notes": "Hellen fits a 4.7k pull-up to 5 V.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3W",
+    "function": "Not used (OEM)",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)"
+    ],
+    "hellen_name": "3W",
+    "notes": "Hellen re-uses it for CAN-H.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3X",
+    "function": "Not used (OEM)",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)"
+    ],
+    "hellen_name": "3X",
+    "notes": "Hellen re-uses it for CAN-L.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3Y",
+    "function": "CKP sensor signal (NE)",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "Hall-effect, 3-wire: A = +12 V from main relay terminal D, B = signal to 3Y, C = ground to PCM 4A",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/",
+     "/home/claude/ref/miata/hellen-NB2/hellen72_NB2.kicad_pcb + connector-mapping.txt (pad->net trace)",
+     "https://support.haltech.com/portal/en/kb/articles/01-05-nb2-1-8l-w-vvt-bp-z3-bp-ve"
+    ],
+    "hellen_name": "3Y",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "3Z",
+    "function": "Not used (OEM)",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)"
+    ],
+    "hellen_name": "3Z",
+    "notes": "Hellen re-uses it as GNDA / IGN5 (jumper).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4A",
+    "function": "Device ground (also CKP sensor ground return)",
+    "direction": "ground",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/miata/hellen-NB2/hellen72_NB2.kicad_pcb + connector-mapping.txt (pad->net trace)"
+    ],
+    "hellen_name": "4A",
+    "notes": "The CKP terminal C returns here. It is the reference for the SGC/NE waveform checks.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4B",
+    "function": "Brake switch",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "switch",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4B",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4C",
+    "function": "Power steering pressure switch",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "switch",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4C",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4D",
+    "function": "OCV positive (+12 V supply out) (TC: wastegate regulating valve)",
+    "direction": "power",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/",
+     "https://wiki.rusefi.com/Mazda-Miata-2003"
+    ],
+    "hellen_name": "4D",
+    "notes": "Hellen feeds it from 4AF via fuse F6. Fit a flyback diode 4D-4R.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4E",
+    "function": "DTM switching, from DLC terminal TEN (TC: wastegate control monitor)",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4E",
+    "notes": "Comes from the diagnostic connector. Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "4F",
+    "function": "A/C refrigerant pressure switch",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "switch",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4F",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4H",
+    "function": "Neutral switch (MT)",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "switch",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4H",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4I",
+    "function": "Clutch switch (MT)",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "switch",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4I",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4J",
+    "function": "VTCS vacuum switch",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "switch",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4J",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4K",
+    "function": "Not used (OEM)",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)"
+    ],
+    "hellen_name": "4K",
+    "notes": "Hellen re-uses it as +5 V for MAP or IGN6. The wiki 2003-alt page wrongly lists knock on 4K.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4L",
+    "function": "VREF +5 V (TP, EGR boost / BARO-MAP sensors)",
+    "direction": "power",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4L",
+    "notes": "ECU-sourced 5 V.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4M",
+    "function": "Knock sensor",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "piezo",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4M",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4N",
+    "function": "IAT sensor (TC: IAT No.1)",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "thermistor",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4N",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4O",
+    "function": "Analogue sensor ground (EGR boost, TP, ECT, IAT, HO2S)",
+    "direction": "ground",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/",
+     "/home/claude/ref/miata/hellen-NB2/hellen72_NB2.kicad_pcb + connector-mapping.txt (pad->net trace)"
+    ],
+    "hellen_name": "4O",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4P",
+    "function": "ECT sensor",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "thermistor",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4P",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4R",
+    "function": "OCV negative (low side) (TC: IAT No.2 input!)",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4R",
+    "notes": "On the Mazdaspeed (BP with TC) 4R is an INPUT (IAT No.2). Do not drive it on MSM.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4S",
+    "function": "IG1 ignition-switch sense (2003-2005); not connected (2001-2002)",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "https://wiki.rusefi.com/Mazda-Miata-2002",
+     "https://wiki.rusefi.com/Mazda-Miata-2003",
+     "https://wiki.rusefi.com/Hellen-NB2 (local: /home/claude/ref/rusefi.wiki/Hellen-NB2.md)"
+    ],
+    "hellen_name": "4S",
+    "notes": "Fed from the 15A ENGINE fuse in start/run (wiki 2003).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4T",
+    "function": "Generator output voltage (generator terminal P)",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "https://wiki.rusefi.com/Hellen-NB2 (local: /home/claude/ref/rusefi.wiki/Hellen-NB2.md)"
+    ],
+    "hellen_name": "4T",
+    "notes": "Hellen measures battery voltage here on 2002 cars. Input only.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4U",
+    "function": "Not used (OEM)",
+    "direction": "none",
+    "wire_colour": null,
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4U",
+    "notes": "Hellen re-uses it for MAP2/IGN8.",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4V",
+    "function": "TP sensor",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4V",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4W",
+    "function": "Front HO2S signal",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "zirconia O2",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/miata/hellen-NB2/hellen72_NB2.kicad_pcb + connector-mapping.txt (pad->net trace)"
+    ],
+    "hellen_name": "4W",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4X",
+    "function": "MAF sensor (TC: MAP/MAF)",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4X",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4Z",
+    "function": "PCM-to-TCM communication (A/T)",
+    "direction": "comm",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4Z",
+    "notes": "Goes to TCM terminal O. Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "4AA",
+    "function": "Rear HO2S signal",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": "zirconia O2",
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4AA",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4AB",
+    "function": "Not used in 2005 BP table; Hellen: fuel tank pressure sensor",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4AB",
+    "notes": "Probably year-dependent (EVAP).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4AC",
+    "function": "TCM-to-PCM communication (A/T) (TC: test mode via DLC TEN)",
+    "direction": "comm",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4AC",
+    "notes": "Goes to TCM terminal AL. Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "4AD",
+    "function": "Fuel tank level (fuel gauge sender)",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4AD",
+    "notes": "Shared with the fuel gauge. Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "4AE",
+    "function": "EGR boost / BARO sensor",
+    "direction": "in",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4AE",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4AF",
+    "function": "ECU +12 V from main relay",
+    "direction": "power",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/",
+     "https://wiki.rusefi.com/Mazda-Miata-2002",
+     "https://wiki.rusefi.com/Mazda-Miata-2003"
+    ],
+    "hellen_name": "4AF",
+    "notes": "Main power input. On Hellen it also feeds IAC+ (2P) and OCV+ (4D).",
+    "do_not_drive": false
+   },
+   {
+    "terminal": "4AG",
+    "function": "Battery back-up power (always hot)",
+    "direction": "power",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "high",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4AG",
+    "notes": "Keep-alive. Never drive.",
+    "do_not_drive": true
+   },
+   {
+    "terminal": "4AH",
+    "function": "EVAP leak-detection pump solenoid",
+    "direction": "out",
+    "wire_colour": "unknown",
+    "sensor_type": null,
+    "confidence": "medium",
+    "sources": [
+     "https://www.mellens.net/mazda/Mazda-Miata-2005/engine_control_system.pdf (Mazda 2005 MX-5 workshop manual, PCM terminal voltage tables BP and BP-with-TC)",
+     "/home/claude/ref/rusefi/firmware/config/boards/hellen/hellenMiataNB2/connectors/main.yaml ; https://rusefi.com/docs/pinouts/hellen/hellen72/"
+    ],
+    "hellen_name": "4AH",
+    "notes": "Year-dependent EVAP hardware.",
+    "do_not_drive": false
+   }
+  ]
+ },
+ "notes": [
+  "Primary factory source reached as text: only the Mazda 2005 MX-5 workshop manual 'Engine Control System' PDF (mellens.net). The 1996/1997/1999-2001 factory wiring PDFs (mellens.net, neomiata.com Mitchell) are image-only and could not be read. The 1996-97 and 1999-2000 tables are therefore built from cross-checking independent secondary sources: rusEFI wiki, Hellen KiCad netlists, the Hellen NB1 'OEM ECU pin' sheet, DIY/AMP MSPNP Pro docs, Alex Engineering, Haltech and a Mazda TSB.",
+  "Conflict 1 (1996-97 crank/cam) resolved: OEM 4F (WHT) = CAS 4-pulse crank-angle signal (SGT, 'CKP') and OEM 4G = CAS 2-pulse cam signal (SGC, 'CMP'). Both come from the cam-driven CAS, Hall/open-collector, 12 V fed, so neither is a return of the other. This matches Hellen 3F = crank and 3G = cam, which are the same physical pins (Hellen 3x = OEM 4x). The wiki's 'Cam' label on 4F is wrong. OEM 4E (YEL/BLK) and 4H (YEL/WHT) are the two leads of the separate crank-pulley CKP sensor that 1996-97 added for OBD-II (TSB 006/98 confirms the pulley sensor; AMP calls it the 'OE crankshaft VR signal'). Hellen and DIY leave 4E/4H unconnected. Which of 4E/4H is VR+ is NOT resolved.",
+  "Conflict 2 (sensor types): 1996-97: the CAS (4 wires: GND, +12 V switched, 4x, 2x per Haltech) is Hall/open-collector. The crank-pulley sensor is VR per AMP, but an aftermarket listing shows a 3-terminal connector, so it may be VR with shield or Hall (medium/low). 1999-2005: the CKP (BP4W-18-221, all NB years) and the CMP (one part for 1999-2005) are 3-wire Hall sensors fed +12 V from the main relay (2005 FSM: CKP A = main relay terminal D, B = signal, C = ground to PCM 4A; Haltech NB2: both Hall). There are no VR +/- pins on NB.",
+  "Conflict 3 (power): 96-97: 4B = main-relay +12 V. 4I is possibly battery backup (Hellen +12V_PERM), unresolved. No ECU main-relay output. 99-00: 1B = main-relay +12 V, 1A = battery backup, no ECU main-relay output, no separate IG sense (Hellen uses 1B). 01-02: 4AF main-relay +12 V, 4AG backup, 4S unused, main relay switched by the key. 03-05: 4AF main-relay +12 V, 4AG backup, 4S = IG1 ignition-switch sense, 3H = PCM main-relay control (low side). PCM-sourced actuator supplies: NB1 3O (IAC+), NB2 2P (IAC+) and 4D (OCV+).",
+  "Conflict 4 (grounds): 96-97: 4C, 4D ground (Hellen: power GND). 4A and 1O ground (Hellen: GNDA, role unconfirmed). 3O = sensor ground (BLK/BLU). 3L = ground (DIY only, low). 99-00: 3A/3B/3C power grounds, 3F sensor ground. 01-05: 3A injector power ground, 3B PCM ground, 4A device ground (CKP return), 4O analogue sensor ground.",
+  "Conflict 5 (never drive): see do_not_drive=true rows. Summary: 96-97 1R/1T (A/T), 4E/4H (OE crank sensor), 4I (probable B+), plus every unidentified populated cavity. 99-00: 1A (B+), 1D/1L (DLC), 1K/1N (TCM), 1T (generator sense), 1H, 3K. 01-05: 3Q (K-line/DLC), 3S (immobilizer), 4E (DLC TEN), 4Z/4AC (TCM), 4AD (fuel gauge sender), 4AG (B+), plus inputs 4S/4T. Outputs to the cluster (MIL, charge lamp, tach, generator warning) are ECU low-side outputs; keep them open-collector and never source 12 V into them.",
+  "Mazdaspeed (BP with TC, 2004-05) changes per the 2005 FSM: 4D = wastegate regulating valve, 4E = wastegate monitor, 4R = IAT No.2 INPUT (OCV- on non-turbo), 4X = MAP/MAF, 3D = BARO/MAP switching, 3T = VSS via cluster, 3O tach only, 4Y/4Z not used, 4AC = test mode via DLC TEN. A single NB2 board driving 4R as an OCV low side would fight the MSM IAT2 sensor.",
+  "rusEFI/Hellen errata found: (a) wiki Mazda-Miata-1996 labels 4F 'Cam'; it is the CAS crank-angle (4x) signal. (b) wiki Mazda-Miata-1999 swaps 3M/3O (IAC drive is 3M, IAC +12 V is 3O). (c) wiki Mazda-Miata-2003-alt puts knock on 4K; the FSM says 4M (4K unused). (d) hellenMiataNA96 main.yaml info.title says 'Hellen Miata NB1' (copy-paste) and its ts_name for 2K says '2B - IAT'. (e) hellenMiataNB2 main.yaml lists '4Q', which has no cavity. (f) The Hellen NA96 yaml omits 2M (OEM 3M, front O2 heater), although the PCB routes it to OUT_O2H. (g) wiki Mazda-Miata-2002 writes 'VVT terminal 4S' where 4D is meant.",
+  "Several Hellen pins are Hellen-only re-uses of OEM-empty cavities (CAN, MAP, AFR, IGN3-8, options ports). They are not OEM functions; the pin tables flag them in notes.",
+  "Wire colours are sparse. 96-97 colours come only from the rusEFI wiki (some suspicious, e.g. GRN for both 4G and 4N) and allpinouts (unverified). No OEM colours were found as text for NB1 or NB2; the 'color' fields in the Hellen NB2 yaml are Hellen pigtail colours, not OEM.",
+  "Beermoneymotorsports/Polygonus pinout pages copy the Hellen yaml. They were not counted as independent confirmation."
+ ]
+}

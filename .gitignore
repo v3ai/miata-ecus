@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.kicad_prl
+*-backups/
+fp-info-cache
+# build output
+work/
+out/
+mb/work_*/
+mb/release_*/
+mb/*.zip
+*.state.pkl
+*.failed.json
