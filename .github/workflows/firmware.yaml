@@ -47,3 +47,17 @@ jobs:
         with:
           name: rusefi_miata-ecu.ini
           path: firmware/generated/tunerstudio/generated/*.ini
+
+      # On failure, re-run the build and put its error lines in an annotation, so they show on the run's summary
+      # page (and through the API) without opening the full log.
+      - name: Report build errors
+        if: failure()
+        working-directory: firmware/ext/rusefi/firmware
+        run: |
+          META="${BOARD_META_PATH:-../../../board/meta-info.env}"
+          bash bin/compile.sh "$META" > /tmp/retry.log 2>&1 || true
+          { grep -n -E "error|Error|Exception|FAILED|No such file|not found|Unexpected" /tmp/retry.log \
+              | grep -v -E "error_handling|error_accumulator|-Werror|pragma message" | head -n 40
+            echo "--- last lines ---"; tail -n 25 /tmp/retry.log; } > /tmp/err.txt
+          cat /tmp/err.txt
+          echo "::error title=Firmware build errors::$(sed -e 's/%/%25/g' -e 's/\r//g' /tmp/err.txt | awk '{printf "%s%%0A", $0}')"
