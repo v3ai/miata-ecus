@@ -185,6 +185,14 @@
   "mpn": "0805W8F1000T5E",
   "note": ""
  },
+ "C17477": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 0 ohm 0805",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0805W8F0000T5E",
+  "note": ""
+ },
  "C187824": {
   "correct_lcsc": null,
   "desc": "Buck converter 4-40V in, 2A, 200kHz-2.5MHz, SO PowerPAD-8 (HSOP-8-EP)",
@@ -207,6 +215,14 @@
   "match": true,
   "mfr": "Microchip",
   "mpn": "TC4427AEOA713",
+  "note": ""
+ },
+ "C209741": {
+  "correct_lcsc": null,
+  "desc": "Resettable PTC fuse 0.5 A hold, 1 A trip, 24 V, 1206",
+  "match": true,
+  "mfr": "PTTC(Polytronics Tech)",
+  "mpn": "SMD1206P050TF/24",
   "note": ""
  },
  "C21010": {
@@ -234,6 +250,14 @@
   "mpn": "0603WAF1001T5E",
   "note": ""
  },
+ "C2128": {
+  "correct_lcsc": null,
+  "desc": "Switching diode 100 V 150 mA, SOD-323",
+  "match": true,
+  "mfr": "JSCJ",
+  "mpn": "1N4148WS",
+  "note": ""
+ },
  "C223413": {
   "correct_lcsc": null,
   "desc": "2.2uH 930mA 1210 inductor",
@@ -241,6 +265,14 @@
   "mfr": "Taiyo Yuden",
   "mpn": "LBC3225T2R2MR",
   "note": "replacement"
+ },
+ "C224052": {
+  "correct_lcsc": null,
+  "desc": "TVS diode 40 V standoff, 64.5 V clamp, 1500 W, SMC (DO-214AB)",
+  "match": true,
+  "mfr": "Littelfuse",
+  "mpn": "SMCJ40A",
+  "note": ""
  },
  "C22787": {
   "correct_lcsc": null,
@@ -296,6 +328,14 @@
   "match": true,
   "mfr": "UNI-ROYAL(Uniroyal Elec)",
   "mpn": "0603WAF3300T5E",
+  "note": ""
+ },
+ "C23162": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 4.7k 1% 100mW 0603",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0603WAF4701T5E",
   "note": ""
  },
  "C23186": {
@@ -580,6 +620,14 @@
   "mpn": "0402WGF6802TCE",
   "note": ""
  },
+ "C3720609": {
+  "correct_lcsc": null,
+  "desc": "TVS diode 33 V standoff, 53.3 V clamp, 400 W, SMA (DO-214AC)",
+  "match": true,
+  "mfr": "BOURNS",
+  "mpn": "SMAJ33A",
+  "note": ""
+ },
  "C3743696": {
   "correct_lcsc": null,
   "desc": "150mA tracking regulator DSO-8",
@@ -693,6 +741,14 @@
   "mpn": "19-217/GHC-YR1S2/3T",
   "note": ""
  },
+ "C7428237": {
+  "correct_lcsc": null,
+  "desc": "Schottky diode 60 V 3 A, SMA (DO-214AC)",
+  "match": true,
+  "mfr": "NH",
+  "mpn": "SS36(SMA)",
+  "note": ""
+ },
  "C7512": {
   "correct_lcsc": null,
   "desc": "7-ch Darlington array 50V 500mA, SOIC-16",
@@ -707,6 +763,14 @@
   "match": true,
   "mfr": "STMicroelectronics",
   "mpn": "USBLC6-2SC6",
+  "note": ""
+ },
+ "C7859": {
+  "correct_lcsc": null,
+  "desc": "8-bit dual-supply bus transceiver (3.3 V to 5 V level shifter), TSSOP-24",
+  "match": true,
+  "mfr": "Texas Instruments",
+  "mpn": "SN74LVC4245APWR",
   "note": ""
  },
  "C7972": {
