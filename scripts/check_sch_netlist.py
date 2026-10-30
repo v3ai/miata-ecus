@@ -20,7 +20,18 @@ for k, v in sch.items():
     if k in exp:
         merged[v].add(exp[k])
 mix = {k: v for k, v in merged.items() if len(v) > 1}
-print('pads checked', len(exp), 'mismatches', len(bad), 'extra', len(extra), 'merged nets', len(mix))
+# ...and a design net must not be split over several schematic nets (e.g. a local label on one sheet)
+full = {}
+for m in re.finditer(r'\(net \(code "?\d+"?\) \(name "([^"]*)"\)(.*?)\)\s*(?=\(net |\)\s*\)\s*$)', txt, re.S):
+    for r, p in re.findall(r'\(node \(ref "([^"]+)"\) \(pin "([^"]+)"\)', m.group(2)):
+        full[(r, p)] = m.group(1)
+split = collections.defaultdict(set)
+for k, v in exp.items():
+    if k in full:
+        split[v].add(full[k])
+split = {k: v for k, v in split.items() if len(v) > 1}
+print('pads checked', len(exp), 'mismatches', len(bad), 'extra', len(extra), 'merged nets', len(mix), 'split nets', len(split))
+for k, v in list(split.items())[:10]: print('  SPLIT', k, v)
 for b in bad[:15]: print('  BAD', b)
 for e in extra[:15]: print('  EXTRA', e)
 for k, v in list(mix.items())[:5]: print('  MERGED', k, v)

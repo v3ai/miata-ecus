@@ -15,7 +15,8 @@ HDR_1A = (40.95, 16.6)          # terminal 2A (inner row, first column); outer r
 CASE_NOTE = L.CASE_NOTE_PROVISIONAL
 HEADER_DESC = ('TE **353830-5** (alt. 1123038-2), 72 positions in three rows: OEM plug 2 = 2A-2R without 2L (17), '
                'plug 3 = 3A-3Z without 3G/3R (24), plug 4 = 4A-4AH without 4G/4Q/4Y (31). There is no plug 1. Fitted by hand.')
-CHANGES = ['Rev 0.2: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.',
+CHANGES = ['Rev 0.3: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
+           'Rev 0.2: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.',
            'Rev 0.1: first release (design complete, case geometry provisional).']
 VERIFY = ['**The case outline, mounting holes and header position (provisional here).**',
           'Mazdaspeed (turbo) cars: 4R is the second IAT sensor input there, not the VVT valve: do not fit this board unmodified.',
@@ -68,7 +69,7 @@ HARNESS = {
     '4J': '', '4K': '',
     '4L': 'V5_SENS',     # +5 V reference
     '4M': 'IN_KNOCK',    # knock sensor
-    '4N': 'HARN_IAT',    # intake air temperature (fit R5 instead of R4 to use it)
+    '4N': 'HARN_IAT',    # intake air temperature (IAT jumper JP1 on STOCK to use it)
     '4O': 'GND',         # analogue sensor ground
     '4P': 'IN_CLT',      # coolant temperature
     '4R': 'OUT_VVT',     # VVT oil control valve (low side, PWM)

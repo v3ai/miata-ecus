@@ -1,9 +1,29 @@
-# Miata ECU — daughterboard rev 0.3 (routed, unverified)
+# Miata ECU — daughterboard rev 0.4 (routed, unverified)
 
 125 × 60 mm, **4 layers**. All SMD parts are on top; the two 1×40 2.54 mm male headers are mounted on the
 **bottom side** (plastic under the board, pins pointing down) so the board plugs straight into female
 headers on the year-specific motherboard. J1 on the top edge carries power and outputs, J2 on the
 bottom edge carries inputs, comms and the LSU 4.9 wideband sensor.
+
+## What changed in rev 0.4
+- **Both MCUs flash over the one USB-C port.** The main MCU now has a programming link to the wideband MCU (U102):
+  | Main MCU (U1, STM32F407) | Wideband MCU (U102, STM32F042) | Job |
+  |---|---|---|
+  | PD8 (USART3 TX) | PA10 (USART1 RX) | data to the wideband's ROM bootloader |
+  | PD9 (USART3 RX) | PA9 (USART1 TX) | data back |
+  | PD10 | BOOT0 (10k pull-down kept) | high = start ST's ROM bootloader at the next reset |
+  | PD11 (open drain) | NRST | reset |
+
+  The F042's built-in ST bootloader listens on USART1 (PA9/PA10), pins the FOME firmware doesn't use. The main MCU raises
+  BOOT0, pulses reset and then speaks ST's serial bootloader protocol (AN3155) to write the FOME firmware.
+  - **Flow:**
+    1. Flash rusEFI to the main MCU over USB-C (hold BOOT, tap RESET: ST's DFU bootloader).
+    2. rusEFI then flashes the wideband, either from an image it carries or by passing a PC programmer
+       (STM32CubeProgrammer / `stm32flash`) through its USB serial port.
+    3. After that, rusEFI keeps PD10 low and PD11 released, and the wideband runs normally on CAN.
+  - **Firmware:** the link is hardware only. The rusEFI side (bootloader client or pass-through) belongs in this
+    board's rusEFI port, which hasn't been written yet.
+  - **Fallback:** the J102 Tag-Connect SWD pads stay as a fallback.
 
 ## What changed in rev 0.3
 - **Wideband controller laid out in this board's own style.** Rev 0.2 copied the FOME module's layout as a framed
@@ -113,8 +133,9 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
 - **Crank/cam:** VR1 (crank) on PE13, VR2 (cam) on PE12. The MAX9926 output is inverted, which is why the + and − legs are swapped on J2.
 - **Pin map:** the full pin map is in the spreadsheet's "MCU Pin Map" tab.
 - **Wideband:** in TunerStudio, enable the rusEFI CAN wideband. The controller answers at index 0, the default.
-  - First flash: program the FOME wideband firmware (`f0_module` target) through the J102 Tag-Connect pads on the bottom side.
-  - After that, rusEFI can update it over CAN.
+  - Flashing goes through the main MCU: USART3 on PD8 (TX) / PD9 (RX) to the F042's ROM bootloader, PD10 = its BOOT0,
+    PD11 = its reset (open drain). In normal running, keep PD10 low and PD11 released.
+  - The firmware is the FOME wideband `f0_module` build. Fallback: SWD through the J102 Tag-Connect pads on the bottom side.
 
 ## Before ordering
 1. **LCSC numbers.** Every number was looked up against LCSC/JLCPCB in rev 0.2, and three wrong ones were fixed. Still check stock for the extended parts when you order.
@@ -124,4 +145,4 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
    bottom-side assembly and adds cost. They are cheap to hand-solder, and you can square them up against
    the motherboard's female headers while the solder sets. If you do that, delete J1/J2 from the BOM.
 5. **Schematic and layout review.** No person has reviewed the schematic yet. The wideband *circuit* is the proven FOME design, but since rev 0.3 its *layout* is new to this board, so it no longer inherits the module's proven layout. Bring up the wideband on the first boards before relying on it (heater control, pump current, and lambda reading against a known sensor).
-6. **Wideband first flash.** Plan on a Tag-Connect TC2030-NL cable (or pogo pins) for the one-time SWD flash of U102.
+6. **Wideband first flash.** It goes through the main MCU (rev 0.4), so no extra cable is needed once this board's rusEFI port has the programming feature. Until then, a Tag-Connect TC2030-NL cable on J102 does it.

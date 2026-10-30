@@ -15,8 +15,7 @@ R6,0R,Resistor_SMD:R_0603_1608Metric,C21189,JLC,CAN termination link: fitted = 1
 F1,2A hold,Fuse:Fuse_1812_4532Metric,C46641168,JLC,"Resettable fuse for the LSU heater supply (R+O SMD1812-200-30: 2 A hold, 30 V)"
 J2,LSU 4.9,Connector_Molex:Molex_Micro-Fit_3.0_43045-0600_2x03_P3.00mm_Horizontal,C127367,JLC,"Bosch LSU 4.9 wideband sensor. Pin n = LSU pin n: 1 IP, 2 VM, 3 H-, 4 H+, 5 RT, 6 UN"
 J3,IAT,Connector_Molex:Molex_Micro-Fit_3.0_43650-0200_1x02_P3.00mm_Horizontal,C587650,JLC,"Intake air temperature sensor (M12x1.5 thermistor, 2 wires)"
-R4,0R,Resistor_SMD:R_0603_1608Metric,C21189,JLC,IAT source: fitted = onboard IAT connector (default)
-R5,0R,Resistor_SMD:R_0603_1608Metric,,hand-fit / not fitted,IAT source: fit instead of R4 to use the stock harness / AFM air temperature sensor (not fitted)
+JP1,IAT SEL,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,C49257,JLC,"IAT source jumper: shunt on 1-2 (STOCK) = stock harness air-temp sensor, on 2-3 (EXT) = IAT connector J3 (default). Shunt: 2.54 mm jumper cap, LCSC C5305, fitted by hand"
 U2,MPX5700AP,ecu_mb:MPX5700AP_867B_Flat,C90152,JLC,"MAP sensor, 15-700 kPa absolute, single barbed port (case 867B). Lies flat, marking up, leads bent 90 deg, 2x M3 screws"
 C1,1u,Capacitor_SMD:C_0603_1608Metric,C15849,JLC,MAP supply
 C2,10n,Capacitor_SMD:C_0603_1608Metric,C57112,JLC,MAP supply

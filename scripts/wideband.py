@@ -57,6 +57,11 @@ NETMAP = {
 }
 
 
+# programming link from the main MCU (rev 0.4): the F042's USART1 (PA9 TX, PA10 RX; unused by the FOME
+# firmware) is its ROM bootloader's serial port. Net names are from the main MCU's side.
+PROG = {'19': 'WB_PROG_RX', '20': 'WB_PROG_TX'}
+
+
 def net(n):
     if not n or n.startswith('unconnected'):
         return ''
@@ -99,6 +104,8 @@ def parts():
         for num, pl in f['pads'].items():
             if num:
                 pads[num] = net(pl[0][2])
+        if r == 'U2':
+            pads.update(PROG)
         out.append(dict(ref=ref(r), value=val, fp=lib, lcsc=lc, pads=pads, desc=DESC.get(r, 'wideband'),
                         mod_ref=r, side=f['side']))
     # CAN transceiver for the controller, same bus as the main MCU

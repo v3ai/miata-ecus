@@ -56,7 +56,8 @@ CASE_NOTE = ('Stock NA case (same for 1990-95). Outline and holes come from the 
              'NA6 KiCad board (rev a/b), which uses the same Mazda case outline. H1 is a recessed boss: stack 3 M4 washers under the board.')
 HEADER_DESC = ('TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); rusEFI\'s 1990 page calls the '
                'second plug 3A-3Z. TE lists it as not currently available: desolder one from a stock ECU or use a clone. Fitted by hand.')
-CHANGES = ['Rev 0.4: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.',
+CHANGES = ['Rev 0.5: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
+           'Rev 0.4: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.',
            'Rev 0.3: sensor 5 V now on both 1N (NA6, per the Hellen NA6 map) and 2K; spare low side on 1R (the early cars\' '
            'BLK/GRN fan-relay wire); 2S left open (it is only used on 94-95).',
            'Rev 0.2: wideband controller moved to the daughterboard; J5 centred; MAP sensor rotated 90 deg clockwise; LSU '
@@ -106,7 +107,7 @@ HARNESS = {
     '2M': 'IN_TPS',      # TPS signal (AT / VTPS conversion)
     '2N': 'IN_AUX2',     # stock narrowband O2
     '2O': 'IN_AUX3',     # AFM flap signal
-    '2P': 'HARN_IAT',    # AFM air temp (fit R5 instead of R4 to use it)
+    '2P': 'HARN_IAT',    # AFM air temp (IAT jumper JP1 on STOCK to use it)
     '2Q': 'IN_CLT',
     '2R': '',
     '2S': '',            # unused on 1990-93 (94-95: condenser fan relay)
@@ -146,8 +147,7 @@ def placement():
     P['J2'] = (29.0, 152.3, 180)       # LSU 4.9 (moved 6 mm right in rev 0.2)
     P['F1'] = (44.0, 143.0, 90)
     P['J3'] = (55.0, 152.3, 180)
-    P['R4'] = (52.5, 145.0, 0)
-    P['R5'] = (57.5, 145.0, 0)
+    P['JP1'] = (52.46, 145.0, 90)      # IAT source jumper: pins 1 (STOCK) .. 3 (EXT) left to right
     P['J4'] = (80.0, 157.6, 0)
     P['R2'] = (73.5, 151.0, 90)
     P['R3'] = (86.5, 151.0, 90)
