@@ -13,7 +13,8 @@ TITLE = 'Miata ECU motherboard 1994-1995 (NA8)'
 BASES = ['mb_na6']
 CASE_NOTE = base.CASE_NOTE
 HEADER_DESC = base.HEADER_DESC
-CHANGES = ['Rev 0.4: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.',
+CHANGES = ['Rev 0.5: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
+           'Rev 0.4: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.',
            'Rev 0.3: first release, from the 89-93 rev 0.3 template: same case, outline, holes and 48-pin header; 94-95 pin map '
            '(rusEFI "Mazda Miata 1994" page and the Hellen NA6/94 connector map).']
 VERIFY = ['The case geometry, as for 89-93: one stock case with calipers.',
@@ -26,7 +27,7 @@ HARNESS.update({
     '1C': 'VIGN_IN',     # VIO: ignition switch (input only)
     '2N': 'IN_AUX2',     # heated O2 sensor (narrowband)
     '2O': 'IN_AUX3',     # MAF signal (94-95 have a MAF, not the flap meter)
-    '2P': 'HARN_IAT',    # intake air thermosensor in the MAF (fit R5 instead of R4 to use it)
+    '2P': 'HARN_IAT',    # intake air thermosensor in the AFM (IAT jumper JP1 on STOCK to use it)
     '1D': '',            # data link connector
     '1F': '',            # spare analog in the stock ECU
     '1I': '',            # AT control unit

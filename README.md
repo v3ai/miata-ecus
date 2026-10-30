@@ -18,7 +18,7 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 </tr>
 <tr>
 <td align="center"><sub>Daughterboard lifted off its sockets and standoffs</sub></td>
-<td align="center"><sub>The universal daughterboard (rev 0.3)</sub></td>
+<td align="center"><sub>The universal daughterboard (rev 0.4)</sub></td>
 </tr>
 </table>
 
@@ -30,12 +30,12 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 
 | Board | Folder | Rev | Harness header | Case fit |
 |---|---|---|---|---|
-| Daughterboard (all years) | [`daughterboard/`](daughterboard/) | 0.3 | 2 × 1×40 to the motherboard | 125 × 60 mm, 4 layers |
-| 1989–93 (NA6) | [`motherboards/1989-93/`](motherboards/1989-93/) | 0.4 | TE 174917-6, 48 pins | stock NA case outline |
-| 1994–95 (NA8) | [`motherboards/1994-95/`](motherboards/1994-95/) | 0.4 | TE 174917-6, 48 pins | stock NA case outline |
-| 1996–97 (NA8, OBD-II) | [`motherboards/1996-97/`](motherboards/1996-97/) | 0.2 | TE 178780-1, 76 positions | **provisional** (NA outline) |
-| 1999–2000 (NB1) | [`motherboards/1999-2000/`](motherboards/1999-2000/) | 0.2 | TE 176122-6, 64 positions | **provisional** (NA outline) |
-| 2001–05 (NB2, VVT) | [`motherboards/2001-05/`](motherboards/2001-05/) | 0.2 | TE 353830-5, 72 positions | **provisional** (NA outline) |
+| Daughterboard (all years) | [`daughterboard/`](daughterboard/) | 0.4 | 2 × 1×40 to the motherboard | 125 × 60 mm, 4 layers |
+| 1989–93 (NA6) | [`motherboards/1989-93/`](motherboards/1989-93/) | 0.5 | TE 174917-6, 48 pins | stock NA case outline |
+| 1994–95 (NA8) | [`motherboards/1994-95/`](motherboards/1994-95/) | 0.5 | TE 174917-6, 48 pins | stock NA case outline |
+| 1996–97 (NA8, OBD-II) | [`motherboards/1996-97/`](motherboards/1996-97/) | 0.3 | TE 178780-1, 76 positions | **provisional** (NA outline) |
+| 1999–2000 (NB1) | [`motherboards/1999-2000/`](motherboards/1999-2000/) | 0.3 | TE 176122-6, 64 positions | **provisional** (NA outline) |
+| 2001–05 (NB2, VVT) | [`motherboards/2001-05/`](motherboards/2001-05/) | 0.3 | TE 353830-5, 72 positions | **provisional** (NA outline) |
 
 Each board folder contains:
 - the KiCad 7 project (schematic and board);
@@ -43,6 +43,24 @@ Each board folder contains:
 - JLCPCB gerbers, BOM and placement files in `fab/`, with the DRC report;
 - renders;
 - a README with the pinout, assembly notes and open questions.
+
+## Flashing and tuning
+- **One USB-C port for everything.** The USB-C on the motherboard's bottom edge goes to the main MCU (STM32F407).
+  - Flash rusEFI over it in ST's DFU mode: hold BOOT, tap RESET.
+  - Tune over it with TunerStudio; the tune is stored in the MCU's flash.
+- **The wideband MCU (STM32F042) is programmed through the main MCU.** A serial link runs to the F042's built-in ST
+  bootloader, and the main MCU also controls the F042's BOOT0 and reset lines. The SWD Tag-Connect pads on the bottom of
+  the daughterboard (J102) are a fallback.
+- **rusEFI support still to write:** the rusEFI board definition for this pinout, and the wideband-programming feature,
+  aren't written yet. The full pin map is in the daughterboard's parts spreadsheet ("MCU Pin Map").
+
+## Air temperature sensor
+Each motherboard has an IAT jumper (JP1, a 3-pin header with a removable shunt) next to the IAT connector:
+- **EXT (default):** the aftermarket M12 thermistor on the IAT connector.
+- **STOCK:** the stock sensor through the harness. It sits inside the flap-type AFM on 1989–97 and inside the MAF on
+  1999–2005, so it's only available while that meter stays in the intake.
+
+Set the matching sensor curve in TunerStudio; the pull-up is 2.7 kΩ.
 
 ## Things to know before ordering
 - **1996–2005 case geometry is a placeholder.** These motherboards use the NA board outline and mounting holes until a

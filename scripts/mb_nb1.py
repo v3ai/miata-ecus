@@ -16,7 +16,8 @@ HDR_1A = (26.35, 18.13)
 CASE_NOTE = L.CASE_NOTE_PROVISIONAL
 HEADER_DESC = ('TE **176122-6** (4-174518-7), 64 positions: plug 1 = 1A-1V (22), plug 2 = 2A-2P (16), plug 3 = 3A-3Z (26). '
                'Fitted by hand.')
-CHANGES = ['Rev 0.2: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.',
+CHANGES = ['Rev 0.3: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
+           'Rev 0.2: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.',
            'Rev 0.1: first release (design complete, case geometry provisional).']
 VERIFY = ['**The case outline, mounting holes and header position (provisional here).**',
           '2K: tach output per three sources, "unused" per one; check on the harness.',
@@ -45,7 +46,7 @@ HARNESS = {
     '1U': 'OUT_VVT',     # front HO2S heater (PWM low side; no VVT on NB1)
     '1V': '',            # neutral switch (not read)
     '2A': '',            # fuel tank pressure sensor (not read)
-    '2B': 'HARN_IAT',    # intake air temperature (fit R5 instead of R4 to use it)
+    '2B': 'HARN_IAT',    # intake air temperature (IAT jumper JP1 on STOCK to use it)
     '2C': 'IN_AUX2',     # front HO2S
     '2D': 'IN_SW1',      # vehicle speed sensor
     '2E': 'IN_CLT',      # coolant temperature

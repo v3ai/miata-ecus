@@ -131,6 +131,9 @@ mcu = {
     '51': 'CAN_RX', '52': 'CAN_TX',            # CAN2 PB12/PB13
     '63': 'UART_TX', '64': 'UART_RX',          # USART6 PC6/PC7
     '59': 'LED_RUN', '60': 'LED_COMM', '61': 'LED_WARN', '62': 'LED_ERR',  # PD12-15
+    # wideband MCU programming link (rev 0.4): USART3 on PD8/PD9 to the F042's ROM-bootloader USART1
+    # (PA10/PA9), PD10 drives its BOOT0 (10k pull-down stays), PD11 (open drain) its NRST
+    '55': 'WB_PROG_TX', '56': 'WB_PROG_RX', '57': 'WB_BOOT0', '58': 'WB_NRST',
     '70': 'USB_DM', '71': 'USB_DP',            # OTG_FS PA11/PA12
     '72': 'SWDIO', '76': 'SWCLK',              # PA13/PA14
 }

@@ -1,4 +1,4 @@
-# Miata ECU motherboard 1999-2000 (NB1), rev 0.2
+# Miata ECU motherboard 1999-2000 (NB1), rev 0.3
 
 The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**. It carries:
 
@@ -7,6 +7,7 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 - the sockets for the universal daughterboard, which does all the engine control (including the wideband controller).
 
 ## Changes in this revision
+- Rev 0.3: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.
 - Rev 0.2: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.
 - Rev 0.1: first release (design complete, case geometry provisional).
 
@@ -49,7 +50,7 @@ TE **176122-6** (4-174518-7), 64 positions: plug 1 = 1A-1V (22), plug 2 = 2A-2P 
 | 1R | `OUT_FAN` | fan relay | radiator cooling fan relay |
 | 1S | `OUT_AC` | A/C relay | A/C compressor relay |
 | 1U | `OUT_VVT` | PWM low side (VVT driver) | front HO2S heater (PWM low side; no VVT on NB1) |
-| 2B | `HARN_IAT` | stock air-temp sensor (fit R5 to use it) | intake air temperature (fit R5 instead of R4 to use it) |
+| 2B | `HARN_IAT` | stock air-temp sensor (JP1 on STOCK) | intake air temperature (IAT jumper JP1 on STOCK to use it) |
 | 2C | `IN_AUX2` | spare analog 2 | front HO2S |
 | 2D | `IN_SW1` | 12 V switch input 1 | vehicle speed sensor |
 | 2E | `IN_CLT` | coolant temp | coolant temperature |
@@ -83,7 +84,8 @@ Not connected: 1A, 1C, 1D, 1F, 1G, 1H, 1J, 1K, 1L, 1M, 1N, 1Q, 1T, 1V, 2A, 2G, 2
 | Ref | What | Notes |
 |---|---|---|
 | J2 | LSU 4.9 (Molex Micro-Fit 2×3, right angle) | Pin n = LSU pin n: 1 IP, 2 VM, 3 H−, 4 H+, 5 RT, 6 UN. Heater fed from the main relay through F1 (2 A hold, 30 V). The controller is on the daughterboard |
-| J3 | IAT (Micro-Fit 1×2) | M12×1.5 open-element thermistor. R4 (fitted) selects it; fit R5 instead to use the stock air-temp sensor |
+| J3 | IAT (Micro-Fit 1×2) | M12×1.5 open-element thermistor, used when the IAT jumper JP1 is on EXT |
+| JP1 | IAT source jumper (1×3, 2.54 mm) | Shunt on **2-3 (EXT, default)**: the IAT connector J3. Shunt on **1-2 (STOCK)**: the stock air-temp sensor through the harness (inside the AFM on 1989-97, the MAF on 1999-2005). Set the matching sensor curve in TunerStudio; the pull-up is 2.7 kΩ |
 | J4 | USB-C | USB 2.0 device: tuning, logging, DFU |
 | U2 | MPX5700AP | Absolute MAP sensor (15-700 kPa, case 867B). Lies flat on 2 × M3, marking side up, leads bent 90° down, the single barb toward the board centre |
 
@@ -93,7 +95,7 @@ Not connected: 1A, 1C, 1D, 1F, 1G, 1H, 1J, 1K, 1L, 1M, 1N, 1Q, 1T, 1V, 2A, 2G, 2
 
 ## Assembly
 - The daughterboard plugs into JD1/JD2 (8.5 mm sockets) on four M3 × 11 mm standoffs.
-- Fitted by hand: the harness header (salvage from a stock ECU or use a clone), and any not-fitted option links.
+- Fitted by hand: the harness header (salvage from a stock ECU or use a clone), the IAT jumper shunt on JP1 (LCSC C5305; EXT or STOCK), and any not-fitted option links.
 - The case needs cut-outs in its bottom edge for the LSU, IAT, USB-C and MAP hose.
 
 ## Still to verify

@@ -60,6 +60,8 @@ def choose(p):
         return 'Connector_Generic', 'Conn_02x08_Odd_Even'
     if r == 'J6':
         return 'Connector_Generic', 'Conn_01x06'
+    if r == 'JP1':
+        return 'Jumper', 'Jumper_3_Open'
     if r.startswith('JP'):
         return 'Jumper', 'SolderJumper_2_Open'
     if r.startswith('F'):
@@ -157,12 +159,13 @@ def sheet_io(s):
     s.stub('C3.2'); s.lab('IN_MAP', (MX + 25.4, MY - 2.54), 'right')
 
     # ---- IAT
-    s.text('IAT: onboard connector (R4, default) or stock harness (R5)', 193.04, 86.36)
+    s.text('IAT source jumper JP1: 2-3 EXT = onboard connector J3 (default), 1-2 STOCK = stock harness sensor', 193.04, 86.36)
     s.place('J3', 203.2, 104.14, 180)
-    s.o2('R4', 220.98, 101.6, 'h'); s.o2('R5', 220.98, 111.76, 'h')
-    s.wire('R4.2', (231.14, 101.6), (231.14, 111.76), 'R5.2'); s.wire((231.14, 101.6), (238.76, 101.6))
-    s.lab('IN_IAT', (238.76, 101.6), 'right')
-    s.text('R5 not fitted', 213.36, 116.84, 1.27)
+    s.place('JP1', 226.06, 104.14, 0)
+    jx, jy = s.P('JP1.2')
+    s.wire('JP1.2', (jx, jy + 7.62)); s.wire((jx, jy + 7.62), (jx + 12.7, jy + 7.62))
+    s.lab('IN_IAT', (jx + 12.7, jy + 7.62), 'right')
+    s.text('shunt LCSC C5305, fitted by hand', 213.36, 119.38, 1.27)
 
     # ---- USB
     s.text('USB-C (device): tuning, logs, DFU firmware update', 279.4, 22.86)

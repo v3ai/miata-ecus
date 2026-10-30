@@ -112,6 +112,15 @@ def build(modname, out):
         t.SetPosition(P(x + w / 2, y + h / 2)); t.SetTextSize(VECTOR2I(FromMM(1.5), FromMM(1.5)))
         t.SetTextThickness(FromMM(0.2)); board.Add(t)
     rect(*M.DAUGHTER, 125.0, 60.0, 'DAUGHTERBOARD')
+    # IAT source jumper: position names over its end pins, the function under the middle one
+    jp = board.FindFootprintByReference('JP1')
+    if jp:
+        pads = {p.GetNumber(): p.GetPosition() for p in jp.Pads()}
+        for num, label, dy in (('1', 'STOCK', -2.3), ('3', 'EXT', -2.3), ('2', 'IAT', 2.3)):
+            t = pcbnew.PCB_TEXT(board); t.SetText(label); t.SetLayer(pcbnew.F_SilkS)
+            t.SetPosition(VECTOR2I(pads[num].x, pads[num].y + FromMM(dy)))
+            t.SetTextSize(VECTOR2I(FromMM(1.0), FromMM(1.0))); t.SetTextThickness(FromMM(0.15)); board.Add(t)
+        jp.Reference().SetVisible(False)
     t = pcbnew.PCB_TEXT(board); t.SetText(M.TITLE + '  rev ' + os.environ.get('MBREV', '0.3')); t.SetLayer(pcbnew.F_SilkS)
     t.SetPosition(P(M.W / 2, M.DAUGHTER[1] + 81.0)); t.SetTextSize(VECTOR2I(FromMM(1.6), FromMM(1.6))); t.SetTextThickness(FromMM(0.22))
     board.Add(t)

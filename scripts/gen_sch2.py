@@ -370,7 +370,7 @@ class Sheet:
 
 
 CNT = [0]
-REV, DATE = '0.3', '2026-10-29'
+REV, DATE = '0.4', '2026-10-29'
 TITLE_PREFIX = 'Miata ECU daughterboard - '
 COMMENT = 'Generated from scripts/design.py; netlist identical to the routed board'
 
@@ -872,6 +872,7 @@ def sheet_wideband(s):
     s.lab('WB_NRST', (66.04, 203.2), 'left')
     s.o2('R129', 73.66, 241.3, 'v-')
     s.wire('U102.31', (73.66, 233.68)); s.wire((73.66, 233.68), 'R129.2'); s.stub('R129.1')
+    s.wire((73.66, 233.68), (68.58, 233.68)); s.lab('WB_BOOT0', (68.58, 233.68), 'left')   # main MCU drives it (prog link)
     # battery divider into PB0
     s.o2('R120', 50.8, 208.28, 'v'); s.o2('R121', 50.8, 223.52, 'v'); s.o2('C106', 40.64, 223.52, 'v')
     s.stub('R120.1'); s.wire('R120.2', (50.8, 215.9), 'R121.1')
@@ -933,12 +934,12 @@ def main():
                      f'(property "Sheetname" {Q(s.title)} (at {x} {r2(y - 0.71)} 0) (effects (font (size 1.524 1.524)) (justify left bottom))) '
                      f'(property "Sheetfile" {Q(s.fname)} (at {x} {r2(y + 31.07)} 0) (effects (font (size 1.27 1.27)) (justify left top))) '
                      f'(instances (project {Q(PROJECT)} (path {Q("/" + root_uuid)} (page {Q(str(s.page))})))))')
-    note = ('Miata ECU daughterboard rev 0.3 (on-board wideband controller). Block sheets connect through global labels; GND, +3V3, +5V and +12V '
+    note = ('Miata ECU daughterboard rev 0.4 (on-board wideband controller, flashed through the main MCU). Block sheets connect through global labels; GND, +3V3, +5V and +12V '
             'are power symbols. J1 = power in and outputs (top edge), J2 = inputs and comms (bottom edge). '
             '4-layer board: In1 GND plane, In2 +3V3 plane.')
     items.append(f'(text {Q(note)} (at 30.48 165.1 0) (effects (font (size 1.524 1.524)) (justify left bottom)) (uuid {U()}))')
     root = (f'(kicad_sch (version 20230121) (generator eeschema) (uuid {root_uuid}) (paper "A4") '
-            f'(title_block (title "Miata ECU daughterboard") (date "2026-10-29") (rev "0.3")) (lib_symbols) '
+            f'(title_block (title "Miata ECU daughterboard") (date "2026-10-29") (rev "0.4")) (lib_symbols) '
             + '\n'.join(items) + ' (sheet_instances (path "/" (page "1"))))')
     open(os.path.join(OUT, PROJECT + '.kicad_sch'), 'w').write(root)
     with open(os.path.join(OUT, 'fp_paths.txt'), 'w') as f:

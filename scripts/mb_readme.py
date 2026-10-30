@@ -22,7 +22,7 @@ used = [(p, n) for p, n in H.items() if n]
 unused = [p for p, n in H.items() if not n]
 
 ROLE = {'VBAT_IN': 'ECU power (main relay)', 'VIGN_IN': 'ignition switch sense', 'GND': 'ground',
-        'V5_SENS': 'sensor 5 V reference (out)', 'HARN_IAT': 'stock air-temp sensor (fit R5 to use it)'}
+        'V5_SENS': 'sensor 5 V reference (out)', 'HARN_IAT': 'stock air-temp sensor (JP1 on STOCK)'}
 for n in ('INJ1', 'INJ2', 'INJ3', 'INJ4'):
     ROLE['OUT_' + n] = f'injector {n[-1]}'
 ROLE.update({'OUT_IGN1': 'ignition 1 (5 V logic)', 'OUT_IGN2': 'ignition 2 (5 V logic)', 'OUT_IACV': 'idle air valve',
@@ -75,7 +75,8 @@ o.append(f'\nNot connected: {", ".join(sorted(unused))}.\n')
 o.append('## Bottom edge, left to right')
 o.append('| Ref | What | Notes |\n|---|---|---|')
 o.append('| J2 | LSU 4.9 (Molex Micro-Fit 2×3, right angle) | Pin n = LSU pin n: 1 IP, 2 VM, 3 H−, 4 H+, 5 RT, 6 UN. Heater fed from the main relay through F1 (2 A hold, 30 V). The controller is on the daughterboard |')
-o.append('| J3 | IAT (Micro-Fit 1×2) | M12×1.5 open-element thermistor. R4 (fitted) selects it; fit R5 instead to use the stock air-temp sensor |')
+o.append('| J3 | IAT (Micro-Fit 1×2) | M12×1.5 open-element thermistor, used when the IAT jumper JP1 is on EXT |')
+o.append('| JP1 | IAT source jumper (1×3, 2.54 mm) | Shunt on **2-3 (EXT, default)**: the IAT connector J3. Shunt on **1-2 (STOCK)**: the stock air-temp sensor through the harness (inside the AFM on 1989-97, the MAF on 1999-2005). Set the matching sensor curve in TunerStudio; the pull-up is 2.7 kΩ |')
 o.append('| J4 | USB-C | USB 2.0 device: tuning, logging, DFU |')
 o.append('| U2 | MPX5700AP | Absolute MAP sensor (15-700 kPa, case 867B). Lies flat on 2 × M3, marking side up, leads bent 90° down, the single barb toward the board centre |\n')
 o.append('**CAN:** R1 + R6 terminate the bus at the ECU end; remove R6 if the bus is terminated elsewhere.\n')
@@ -86,7 +87,7 @@ if any(p['ref'] in ('R7', 'R10') for p in C.parts):
              'or the two VR links for a 2-wire magnetic sensor. The default for this car is assembled; see the parts list.\n')
 o.append('## Assembly')
 o.append('- The daughterboard plugs into JD1/JD2 (8.5 mm sockets) on four M3 × 11 mm standoffs.')
-o.append('- Fitted by hand: the harness header (salvage from a stock ECU or use a clone), and any not-fitted option links.')
+o.append('- Fitted by hand: the harness header (salvage from a stock ECU or use a clone), the IAT jumper shunt on JP1 (LCSC C5305; EXT or STOCK), and any not-fitted option links.')
 o.append('- The case needs cut-outs in its bottom edge for the LSU, IAT, USB-C and MAP hose.\n')
 o.append('## Still to verify')
 o += [f'- {v}' for v in getattr(M, 'VERIFY', ['The case geometry, against a stock case with calipers.'])]

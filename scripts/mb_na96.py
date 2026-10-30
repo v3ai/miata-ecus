@@ -17,7 +17,8 @@ CASE_NOTE = L.CASE_NOTE_PROVISIONAL
 HEADER_DESC = ('TE **178780-1**, 76 positions (alternates 174915-6, 3-178780-6): OEM plug 1 = 1A-1V (22), plug 2 = '
                '2A-2L (12, no harness plug: left open), plug 3 = 3A-3P (16), plug 4 = 4A-4Z (26). Hellen\'s board names '
                'the same cavities 1 / 4 / 2 / 3. Fitted by hand.')
-CHANGES = ['Rev 0.2: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.',
+CHANGES = ['Rev 0.3: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
+           'Rev 0.2: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.',
            'Rev 0.1: first release (design complete, case geometry provisional).']
 VERIFY = ['**The case outline, mounting holes and header position (provisional here).**',
           'The 76-position header housing is 130 mm wide and reaches into the top-corner notches of the provisional (NA) outline; the real 1996-97 case must clear it.',
@@ -55,7 +56,7 @@ HARNESS = {
     '3H': '',
     '3I': 'V5_SENS',     # +5 V sensor reference (TPS, MAF)
     '3J': '',
-    '3K': 'HARN_IAT',    # intake air temperature sensor (fit R5 instead of R4 to use it)
+    '3K': 'HARN_IAT',    # intake air temperature sensor (IAT jumper JP1 on STOCK to use it)
     '3L': '',            # ground per one source only: left open
     '3M': 'OUT_VVT',     # front HO2S heater (PWM low side; no VVT on this engine)
     '3N': '',

@@ -41,10 +41,11 @@ def common_parts():
     # IAT: open-element sensor with M12x1.5 thread, 2 wires
     add('J3', 'IAT', 'Connector_Molex:Molex_Micro-Fit_3.0_43650-0200_1x02_P3.00mm_Horizontal', 'C587650',
         {1: 'IAT_EXT', 2: 'GND'}, 'Intake air temperature sensor (M12x1.5 thermistor, 2 wires)')
-    add('R4', '0R', 'Resistor_SMD:R_0603_1608Metric', 'C21189', {1: 'IAT_EXT', 2: 'IN_IAT'},
-        'IAT source: fitted = onboard IAT connector (default)')
-    add('R5', '0R', 'Resistor_SMD:R_0603_1608Metric', '', {1: 'HARN_IAT', 2: 'IN_IAT'},
-        'IAT source: fit instead of R4 to use the stock harness / AFM air temperature sensor (not fitted)')
+    # IAT source: 1x3 header + removable shunt. 1-2 = STOCK (harness / AFM / MAF sensor), 2-3 = EXT (J3, default)
+    add('JP1', 'IAT SEL', 'Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical', 'C49257',
+        {1: 'HARN_IAT', 2: 'IN_IAT', 3: 'IAT_EXT'},
+        'IAT source jumper: shunt on 1-2 (STOCK) = stock harness air-temp sensor, on 2-3 (EXT) = IAT connector J3 '
+        '(default). Shunt: 2.54 mm jumper cap, LCSC C5305, fitted by hand')
 
     # MAP
     add('U2', 'MPX5700AP', MBLIB.split('/')[-1].replace('.pretty', '') + ':MPX5700AP_867B_Flat', 'C90152',
