@@ -9,6 +9,21 @@ A plug-in [rusEFI](https://rusefi.com) engine computer for the 1989–2005 Mazda
 
 The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 standoffs.
 
+![The daughterboard plugged into the 1989–93 motherboard](docs/images/assembly_1989-93.jpg)
+
+<table>
+<tr>
+<td width="50%"><img src="docs/images/assembly_lifted.jpg" alt="The daughterboard lifted off the motherboard's sockets and standoffs"></td>
+<td width="50%"><img src="docs/images/daughterboard.jpg" alt="The daughterboard on its own, headers underneath"></td>
+</tr>
+<tr>
+<td align="center"><sub>Daughterboard lifted off its sockets and standoffs</sub></td>
+<td align="center"><sub>The universal daughterboard (rev 0.3)</sub></td>
+</tr>
+</table>
+
+<sub>Renders from the 3D viewer in <a href="viewer/"><code>viewer/</code></a>. The harness header, the LSU and IAT connectors and the MAP sensor are simplified stand-in models.</sub>
+
 > **Status:** every board is fully routed and passes KiCad DRC (no clearance errors, no unconnected items), and each
 > schematic's netlist has been checked pad-by-pad against its board. **None of them has been built or tested yet**, and
 > no person has reviewed the schematics. Read each board's README, especially its *Still to verify* or *Before ordering* list.
