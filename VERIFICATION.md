@@ -111,8 +111,10 @@ Everything matched except these:
 - **Signal polarity.** An inverted NB crank/cam signal does not sync. Our hall inputs are non-inverting, so polarity
   should match the captures; if a car won't sync, try the invert settings.
 - **Merge tool fills gaps with leftover data.** The tool that merges OpenBLT and the app into one DFU image fills
-  address gaps with leftover buffer data instead of 0xFF. In this build it only hits unused padding (0x080081E8-FF) and
-  is covered by the CRC, so it is harmless here; worth reporting upstream.
+  address gaps with leftover buffer data instead of 0xFF. In this build it only hits 30 bytes of unused padding
+  (0x080081E8-FF), and each image's CRC covers its own fill, so it is harmless here; worth reporting upstream. (It also
+  means the standalone and merged app images differ in those bytes, so CI compares them only where the firmware
+  defines data.)
 
 ### Limits of the simulation
 The engine tests run the board's own configuration code (`miata_board.cpp`) inside rusEFI's unit-test engine, not the
