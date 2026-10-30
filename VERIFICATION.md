@@ -111,8 +111,8 @@ Everything matched except these:
 - **Signal polarity.** An inverted NB crank/cam signal does not sync. Our hall inputs are non-inverting, so polarity
   should match the captures; if a car won't sync, try the invert settings.
 - **Merge tool fills gaps with leftover data.** The tool that merges OpenBLT and the app into one DFU image fills
-  address gaps with leftover buffer data instead of 0xFF. In this build it only hits 30 bytes of unused padding
-  (0x080081E8-FF), and each image's CRC covers its own fill, so it is harmless here; worth reporting upstream. (It also
+  address gaps with leftover buffer data instead of 0xFF. It only hits a few bytes of unused padding (8 in the CI
+  build, just below 0x08008200), and each image's CRC covers its own fill, so it is harmless here; worth reporting upstream. (It also
   means the standalone and merged app images differ in those bytes, so CI compares them only where the firmware
   defines data.)
 
