@@ -136,63 +136,63 @@ pins:
     type: ls
 
   - pin: J2-3
-    id: [A3, EFI_ADC_3]
+    id: EFI_ADC_3
     class: analog_inputs
     function: "Knock sensor (NB)"
     ts_name: "KNOCK - knock sensor"
     type: av
 
   - pin: J2-4
-    id: [A4, EFI_ADC_4]
+    id: EFI_ADC_4
     class: analog_inputs
     function: "Throttle position sensor"
     ts_name: "TPS - throttle position"
     type: av
 
   - pin: J2-5
-    id: [A5, EFI_ADC_5]
+    id: EFI_ADC_5
     class: analog_inputs
     function: "On-board MAP sensor (MPX5700AP)"
     ts_name: "MAP - on-board MPX5700AP"
     type: av
 
   - pin: J2-6
-    id: [A6, EFI_ADC_6]
+    id: EFI_ADC_6
     class: analog_inputs
     function: "Coolant temperature (2.7k pull-up)"
     ts_name: "CLT - coolant temperature"
     type: at
 
   - pin: J2-7
-    id: [A7, EFI_ADC_7]
+    id: EFI_ADC_7
     class: analog_inputs
     function: "Intake air temperature (2.7k pull-up), source picked by JP1"
     ts_name: "IAT - air temperature (JP1)"
     type: at
 
   - pin: J2-8
-    id: [C4, EFI_ADC_14]
+    id: EFI_ADC_14
     class: analog_inputs
     function: "External 0-5 V wideband input"
     ts_name: "AFR - external 0-5 V wideband"
     type: av
 
   - pin: J2-9
-    id: [C5, EFI_ADC_15]
+    id: EFI_ADC_15
     class: analog_inputs
     function: "Spare analog: rear HO2S (1996-2005), idle switch or electrical load (1989-95)"
     ts_name: "AUX1 - rear O2 / idle switch"
     type: av
 
   - pin: J2-10
-    id: [B0, EFI_ADC_8]
+    id: EFI_ADC_8
     class: analog_inputs
     function: "Spare analog: front narrowband O2"
     ts_name: "AUX2 - front O2"
     type: av
 
   - pin: J2-11
-    id: [B1, EFI_ADC_9]
+    id: EFI_ADC_9
     class: analog_inputs
     function: "Air flow meter / MAF signal"
     ts_name: "AUX3 - AFM / MAF"
@@ -247,14 +247,12 @@ pins:
     ts_name: "VR2 - spare VR"
     type: vr
 
-  - pin: onboard
-    id: [A1, EFI_ADC_1]
+  - id: EFI_ADC_1
     class: analog_inputs
     function: "Battery voltage (33k/6.8k)"
     ts_name: "VBATT - battery sense"
 
-  - pin: onboard
-    id: [A2, EFI_ADC_2]
+  - id: EFI_ADC_2
     class: analog_inputs
     function: "Ignition switch voltage (33k/6.8k)"
     ts_name: "VIGN - ignition sense"

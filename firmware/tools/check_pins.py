@@ -105,7 +105,7 @@ for p in y['pins']:
         errors.append(f'yaml {p["pin"]}: ids {ids} name different MCU pins')
         continue
     port = ports.pop()
-    if p['pin'] == 'onboard':
+    if 'pin' not in p:  # on-board signal, no header pin
         continue
     hdr, num = p['pin'].split('-')
     hnet = (design.J1 if hdr == 'J1' else design.J2)[int(num)]
