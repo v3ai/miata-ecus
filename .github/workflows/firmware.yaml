@@ -1,0 +1,49 @@
+# Builds the rusEFI firmware for the miata-ecus board with rusEFI's own custom-board action.
+# rusEFI is the firmware/ext/rusefi submodule, pinned to a tested commit.
+name: Firmware
+
+on:
+  push:
+    paths:
+      - 'firmware/**'
+      - '.github/workflows/firmware.yaml'
+      - '.gitmodules'
+  pull_request:
+    paths:
+      - 'firmware/**'
+      - '.github/workflows/firmware.yaml'
+      - '.gitmodules'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true   # rusEFI itself; the action fetches rusEFI's own submodules
+
+      - name: Check the pin map against the board design
+        run: |
+          python3 -c 'import yaml' 2>/dev/null || pip install --break-system-packages pyyaml
+          python3 firmware/tools/check_pins.py
+
+      - name: Build firmware
+        uses: ./firmware/ext/rusefi/.github/workflows/custom-board-build
+        with:
+          rusefi_dir: firmware/ext/rusefi
+          meta_info: firmware/board/meta-info.env
+          meta_output: firmware/generated/
+          sim_output: firmware/generated/
+          push: 'false'
+          uploads: ''
+          artifacts: bin hex dfu map elf srec bootloader bundle
+
+      - name: Upload TunerStudio .ini
+        uses: actions/upload-artifact@v4
+        with:
+          name: rusefi_miata-ecu.ini
+          path: firmware/generated/tunerstudio/generated/*.ini

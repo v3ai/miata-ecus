@@ -44,15 +44,21 @@ Each board folder contains:
 - renders;
 - a README with the pinout, assembly notes and open questions.
 
-## Flashing and tuning
+## Firmware and flashing
+The rusEFI board definition is in [`firmware/`](firmware/): pin map, year presets, and a flasher for the wideband MCU.
+GitHub Actions builds it on every push: the firmware, the rusEFI console bundle and the TunerStudio `.ini`.
+See [`firmware/README.md`](firmware/README.md). It compiles, but hasn't run on hardware yet.
 - **One USB-C port for everything.** The USB-C on the motherboard's bottom edge goes to the main MCU (STM32F407).
-  - Flash rusEFI over it in ST's DFU mode: hold BOOT, tap RESET.
-  - Tune over it with TunerStudio; the tune is stored in the MCU's flash.
-- **The wideband MCU (STM32F042) is programmed through the main MCU.** A serial link runs to the F042's built-in ST
-  bootloader, and the main MCU also controls the F042's BOOT0 and reset lines. The SWD Tag-Connect pads on the bottom of
-  the daughterboard (J102) are a fallback.
-- **rusEFI support still to write:** the rusEFI board definition for this pinout, and the wideband-programming feature,
-  aren't written yet. The full pin map is in the daughterboard's parts spreadsheet ("MCU Pin Map").
+  - **First flash:** ST's DFU mode (hold BOOT, tap RESET).
+  - **Later updates:** from the rusEFI console through the OpenBLT bootloader, with no buttons to press.
+  - **Tuning:** TunerStudio over the same port. Popular Vehicles picks the model year; the tune is stored in the
+    MCU's flash.
+- **The wideband MCU (STM32F042) is programmed through the main MCU.** With the engine off, press "Flash on-board
+  wideband" in TunerStudio, or type `wbo_uart_flash` in the rusEFI console.
+  - The main MCU controls the F042's BOOT0 and reset lines and writes the wideband firmware through the F042's
+    built-in ST serial bootloader.
+  - After that, rusEFI can also update the wideband over CAN.
+  - The SWD Tag-Connect pads on the bottom of the daughterboard (J102) are a fallback.
 
 ## Air temperature sensor
 Each motherboard has an IAT jumper (JP1, a 3-pin header with a removable shunt) next to the IAT connector:
@@ -60,7 +66,7 @@ Each motherboard has an IAT jumper (JP1, a 3-pin header with a removable shunt) 
 - **STOCK:** the stock sensor through the harness. It sits inside the flap-type AFM on 1989–97 and inside the MAF on
   1999–2005, so it's only available while that meter stays in the intake.
 
-Set the matching sensor curve in TunerStudio; the pull-up is 2.7 kΩ.
+Pick the matching sensor curve in TunerStudio. The firmware already accounts for the board's 2.7 kΩ pull-up and divider.
 
 ## Things to know before ordering
 - **1996–2005 case geometry is a placeholder.** These motherboards use the NA board outline and mounting holes until a
@@ -80,6 +86,8 @@ Set the matching sensor curve in TunerStudio; the pull-up is 2.7 kΩ.
 | `mb/ecu_mb.pretty/` | Project footprints (harness headers named by OEM terminal, the flat MPX5700AP, USB-C, M4 case hole) |
 | `research/` | Pinout research for 1996–2005 (sources compared per pin) |
 | `viewer/` | Interactive 3D viewer: the daughterboard alone, or assembled on any year's motherboard. Click a part for its details and shop links |
+| `firmware/` | The rusEFI board definition, the wideband flasher, and the pin cross-check. rusEFI itself is a submodule in `firmware/ext/rusefi` |
+| `.github/workflows/firmware.yaml` | CI: checks the pin map against the board design and builds the firmware |
 
 ## Rebuilding
 You need:
@@ -100,6 +108,8 @@ Routing takes 10–40 minutes per board.
 
 `mk_hdr_fp.py` reads the harness-header geometry from the rusEFI hellen-one boards and KiCad library. Point it at them
 with `MIATA_REF` and `RUSEFI_LIBS`. The generated footprints are already in `mb/ecu_mb.pretty/`.
+
+The firmware build is described in [`firmware/README.md`](firmware/README.md).
 
 The viewer is a static page. To open it, run `cd viewer && python3 -m http.server`, then browse to `http://localhost:8000`.
 `viewer/pcb3d.py` rebuilds its assets from a board; it also needs `trimesh`, `cascadio`, `Pillow` and `gltfpack`.
