@@ -72,6 +72,7 @@ The viewer is a static page. To open it, run `cd viewer && python3 -m http.serve
 `viewer/pcb3d.py` rebuilds its assets from a board; it also needs `trimesh`, `cascadio`, `Pillow` and `gltfpack`.
 
 ## Credits and licences
+- This project (the board designs, scripts and viewer) is released under the [MIT licence](LICENSE).
 - The wideband controller circuit is the FOME / rusEFI open-source wideband module
   ([mck1117/wideband](https://github.com/mck1117/wideband), `board_module` rev C, MIT licence). Its source files and
   licence are in `scripts/wideband_ref/`.
