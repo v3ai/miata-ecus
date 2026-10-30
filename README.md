@@ -29,18 +29,26 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 > no person has reviewed the schematics. Read each board's README, especially its *Still to verify* or *Before ordering* list.
 >
 > **Verification (desk + simulation, 2026-10-30):** [VERIFICATION.md](VERIFICATION.md). Pinouts and firmware check out
-> for all five years (after fixing a firmware bug that would have cut fuel and spark on 1996-2002 cars). It lists four
-> hardware changes to make before building (low-side driver input level, idle/VVT freewheel diodes, BOOT1 pull-down,
-> 2003-05 key-off back-feed), fuses and clamps to add, and two wires to check on a car.
+> for all five years (after fixing a firmware bug that would have cut fuel and spark on 1996-2002 cars). The hardware
+> changes it called for are in daughterboard rev 0.5 and motherboards rev 0.6 (1989-95) / 0.4 (1996-2005):
+> - 5 V drive for the low-side drivers, held off until the firmware runs;
+> - freewheel diodes on the idle and VVT valves;
+> - BOOT1 pull-down;
+> - no 2003-05 key-off back-feed;
+> - a fused, clamped logic supply and a fused AUX +12 V pin;
+> - clamped crank/cam inputs;
+> - two drivers per injector wire on 1989-93.
+>
+> Every fix was re-simulated. Two wires still need checking on a car.
 
 | Board | Folder | Rev | Harness header | Case fit |
 |---|---|---|---|---|
-| Daughterboard (all years) | [`daughterboard/`](daughterboard/) | 0.4 | 2 × 1×40 to the motherboard | 125 × 60 mm, 4 layers |
-| 1989–93 (NA6) | [`motherboards/1989-93/`](motherboards/1989-93/) | 0.5 | TE 174917-6, 48 pins | stock NA case outline |
-| 1994–95 (NA8) | [`motherboards/1994-95/`](motherboards/1994-95/) | 0.5 | TE 174917-6, 48 pins | stock NA case outline |
-| 1996–97 (NA8, OBD-II) | [`motherboards/1996-97/`](motherboards/1996-97/) | 0.3 | TE 178780-1, 76 positions | **provisional** (NA outline) |
-| 1999–2000 (NB1) | [`motherboards/1999-2000/`](motherboards/1999-2000/) | 0.3 | TE 176122-6, 64 positions | **provisional** (NA outline) |
-| 2001–05 (NB2, VVT) | [`motherboards/2001-05/`](motherboards/2001-05/) | 0.3 | TE 353830-5, 72 positions | **provisional** (NA outline) |
+| Daughterboard (all years) | [`daughterboard/`](daughterboard/) | 0.5 | 2 × 1×40 to the motherboard | 125 × 60 mm, 4 layers |
+| 1989–93 (NA6) | [`motherboards/1989-93/`](motherboards/1989-93/) | 0.6 | TE 174917-6, 48 pins | stock NA case outline |
+| 1994–95 (NA8) | [`motherboards/1994-95/`](motherboards/1994-95/) | 0.6 | TE 174917-6, 48 pins | stock NA case outline |
+| 1996–97 (NA8, OBD-II) | [`motherboards/1996-97/`](motherboards/1996-97/) | 0.4 | TE 178780-1, 76 positions | **provisional** (NA outline) |
+| 1999–2000 (NB1) | [`motherboards/1999-2000/`](motherboards/1999-2000/) | 0.4 | TE 176122-6, 64 positions | **provisional** (NA outline) |
+| 2001–05 (NB2, VVT) | [`motherboards/2001-05/`](motherboards/2001-05/) | 0.4 | TE 353830-5, 72 positions | **provisional** (NA outline) |
 
 Each board folder contains:
 - the KiCad 7 project (schematic and board);

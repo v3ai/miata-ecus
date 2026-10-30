@@ -45,7 +45,7 @@ A blank board starts with the 1989–93 settings.
 
 | Button | rusEFI engine type | Trigger | Injection | Ignition sense | Year-specific outputs |
 |---|---|---|---|---|---|
-| 1989-93 (NA6, 1.6) | `MAZDA_MIATA_NA6` | NA CAS: SGC on HALL2, SGT on HALL1 | batch, INJ1/INJ2 only | 1C | none (VVT driver = purge, not driven) |
+| 1989-93 (NA6, 1.6) | `MAZDA_MIATA_NA6` | NA CAS: SGC on HALL2, SGT on HALL1 | batch, two drivers per wire | 1C | none (VVT driver = purge, not driven) |
 | 1994-95 (NA8, 1.8) | `MAZDA_MIATA_NA94` | NA CAS | sequential | 1C | none (ALT driver = pressure regulator solenoid, not driven) |
 | 1996-97 (NA8, OBD-II) | `MAZDA_MIATA_NA96` | NA CAS | sequential | none | O2 heater on the VVT driver |
 | 1999-2000 (NB1) | `MAZDA_MIATA_NB1` | NB crank on HALL1, cam on HALL2 | sequential | none | O2 heater on VVT, alternator field on ALT |
@@ -59,8 +59,18 @@ gets no fuel or spark with the key on, check that you didn't pick 2003-05 on a 2
 
 - **NA years** use rusEFI's own Miata presets (`setMazdaMiataNA6`, `setMazdaMiataNA94`, `setMazdaMiata96`), which
   include base fuel and ignition tables.
-- **1989-93:** INJ3/INJ4 are left unassigned. The stock harness has nothing on 3Y and uses 3Z for the automatic
-  transmission's control unit; assign them only after a sequential conversion (and never on an automatic).
+- **1989-93:** the stock harness has two injectors on each of its two injector wires (2U, 2V). The 1989-93
+  motherboard (rev 0.6) wires INJ1 + INJ4 to 2U and INJ2 + INJ3 to 2V, and the preset assigns all four in batch
+  mode. rusEFI fires each cylinder's output together with the cylinder 360° away (1 with 4, 3 with 2), so the two
+  drivers on a wire switch together and each carries one injector. 2Y and 2Z (2Z is the A/T control unit on
+  automatics) are not connected. For a sequential conversion, move the motherboard links (R23/R24 out, R25/R26 in)
+  and set the injection mode to sequential.
+  - **Needs the rev 0.6 1989-93 motherboard.** On an older 1989-93 motherboard INJ3/INJ4 go to the unused 2Y/2Z
+    pins, so with this preset 2Z (the A/T control unit's pin on automatics) would be pulsed. On an older board set
+    injection pins 3 and 4 to "none" until it is replaced.
+  - The 47 V injector clamps (D3/D4, SMCJ40A) close the injectors a little more slowly than the drivers' own 65 V
+    clamp would. Check the injector dead time on the car. At high rpm and duty they dissipate about 1 W each,
+    which the SMC package handles.
 - **1994-95:** four injector wires (2U/2V/2Y/2Z), sequential, as in rusEFI's own 1994 preset.
 - **NB years:** rusEFI builds its NB presets for its Hellen boards only, so the engine facts are repeated here
   (displacement, trigger, injector flow, idle and alternator PID, VVT PID). The VE, ignition and VVT target tables
@@ -76,6 +86,16 @@ gets no fuel or spark with the key on, check that you didn't pick 2003-05 on a 2
 - **Wideband:** the on-board unit, over CAN.
 
 ### Board facts the firmware pins (TunerStudio can't change them)
+- **Low-side enable (PA8):** the injector, idle, VVT, boost and alternator drivers sit behind a 5 V level shifter
+  whose enable is pulled up on the board, so they stay off through reset, boot, the bootloader and DFU. The firmware
+  releases them a few slow ticks (about 200 ms) after start, once every output is configured, and never while a
+  fatal error is active. It also takes them off for the whole of a configuration change (when rusEFI releases and
+  re-starts its pins) and enables them again afterwards. The pin is driven open drain with inverted logic, so it is
+  released (drivers off) from the moment it is set up, and the writes are forced so they also hold in hardware QC
+  mode. It shows up as "Low-side enable" in the pin list.
+- **Unused low-side control pins** (for example ALT on the NA years) are parked as inputs with pull-down by the board
+  code: at start-up, after every configuration change and on every slow tick. rusEFI's own "unused" state is a
+  pull-up, which would switch that driver on.
 - **Analog dividers:** analog inputs ×1.56 (5.6k/10k). Battery and ignition sense ×5.85 (33k/6.8k). The ignition
   sense channel itself is part of the year defaults (table above).
 - **CLT/IAT pull-up:** 2.7 kΩ to 5 V, and the ADC divider loads the same node. Together they behave like a
@@ -108,6 +128,7 @@ bootloader + FOME/rusEFI wideband firmware for the F042 module). Once it is on t
 | IGN1 / IGN2 / IGN3 / IGN4 | PE1 / PE0 / PB9 / PB8 | J1-14..17 | ignition pins 1 / 3 / 2 / 4 |
 | INJ1 / INJ2 / INJ3 / INJ4 | PB7 / PB6 / PB5 / PB4 | J1-19, 22, 25, 28 | injection pins 1-4 |
 | IACV / VVT / BOOST / ALT | PB3 / PD7 / PD6 / PD5 | J1-31, 34, 37, 40 | idle solenoid / VVT or O2 heater / boost / alternator |
+| Low-side enable | PA8 | on board | fixed: open drain, low = the eight low sides above are enabled |
 | FP / MAINRLY / AC / FAN | PC14 / PC13 / PE6 / PE5 | J1-6..9 | fuel pump / main relay (2003-05) / A/C relay / fan |
 | CEL / TACH / LS7 | PE4 / PE3 / PE2 | J1-10..12 | check engine / tach / fan 2 |
 | HALL1 / HALL2 | PE7 / PE8 | J2-13, 14 | crank / cam (see the year table) |
@@ -136,16 +157,20 @@ Read this before the engine runs for the first time.
 4. **Trigger.** Crank with the injectors unplugged and look at the trigger log. If rusEFI won't sync, the hall
    input may need the opposite polarity: try the trigger "invert" settings.
 5. **Switch inputs** are 12 V inputs through a 33k/10k divider, with no pull-up. Check that your car's VSS, A/C
-   and clutch signals actually drive the line high. A signal that only pulls to ground won't register without an
-   external pull-up.
-6. **NB alternator:** the engine computer regulates the charging voltage, and alternator control is on by default.
+   and clutch signals actually drive the line high. A signal that only pulls to ground needs the motherboard's
+   pull-up for that input fitted (R20-R22, 4.7k 0603, not fitted by default). Don't fit one on a line the car
+   drives to 12 V.
+6. **Battery voltage reads low.** VBATT is measured after the board's reverse diode and fuse, so it reads about
+   0.3-0.4 V below the battery. Compare it with a voltmeter on the first start; it shifts the NB charging voltage
+   by the same amount.
+7. **NB alternator:** the engine computer regulates the charging voltage, and alternator control is on by default.
    The field current hasn't been measured (VERIFICATION.md M5). Watch battery voltage on the first start and switch
    alternator control off if it misbehaves.
-7. **NB tables:** set VE, ignition and (NB2) the VVT target before driving. The defaults are generic.
-8. **Hard acceleration and the check engine light:** rusEFI logs a trigger timing warning when a tooth lands >10°
+8. **NB tables:** set VE, ignition and (NB2) the VVT target before driving. The defaults are generic.
+9. **Hard acceleration and the check engine light:** rusEFI logs a trigger timing warning when a tooth lands >10°
    from where it predicted it. In simulation that happened at 1526 rpm/s and not at 763 rpm/s (free revving). The engine keeps running; the light
    blinks the code for a few seconds, then the board's warning expiry clears it.
-9. **Outputs left alone:** the NA purge solenoid (1989-93), the pressure-regulator solenoid (1994-95) and the NB1
+10. **Outputs left alone:** the NA purge solenoid (1989-93), the pressure-regulator solenoid (1994-95) and the NB1
    VICS solenoid have no rusEFI function. They stay off unless you set them up as general-purpose PWM outputs.
 
 ## Building

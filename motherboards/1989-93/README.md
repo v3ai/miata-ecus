@@ -1,4 +1,4 @@
-# Miata ECU motherboard 1989-1993 (NA6), rev 0.5
+# Miata ECU motherboard 1989-1993 (NA6), rev 0.6
 
 The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**. It carries:
 
@@ -7,6 +7,7 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 - the sockets for the universal daughterboard, which does all the engine control (including the wideband controller).
 
 ## Changes in this revision
+- Rev 0.6: freewheel diode D1 on the idle valve and D2 on the purge solenoid (2X) to its +12 V feed (the PWM turn-off energy no longer goes into the daughterboard driver); F4 resettable fuse on the AUX +12 V pin J5-15; not-fitted 12 V pull-up options R20-R22 for the VSS / A/C / clutch inputs. INJ1+INJ4 drive 2U and INJ2+INJ3 drive 2V in parallel (R23/R24), with an SMCJ40A clamp per wire (D3/D4), so no driver carries two injectors; 2Y/2Z are only reached through the not-fitted sequential-conversion links R25/R26.
 - Rev 0.5: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.
 - Rev 0.4: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.
 - Rev 0.3: sensor 5 V now on both 1N (NA6, per the Hellen NA6 map) and 2K; spare low side on 1R (the early cars' BLK/GRN fan-relay wire); 2S left open (it is only used on 94-95).
@@ -73,12 +74,12 @@ TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); ru
 | 2P | `HARN_IAT` | stock air-temp sensor (JP1 on STOCK) | AFM air temp (IAT jumper JP1 on STOCK to use it) |
 | 2Q | `IN_CLT` | coolant temp |  |
 | 2T | `OUT_FP` | fuel pump relay | fuel pump relay |
-| 2U | `OUT_INJ1` | injector 1 | stock: injectors 1+3 (batch) |
-| 2V | `OUT_INJ2` | injector 2 | stock: injectors 2+4 (batch) |
+| 2U | `OUT_INJ1` | injector 1 | stock: two injectors on this wire (batch); INJ1 + INJ4 drive it in parallel (R23) |
+| 2V | `OUT_INJ2` | injector 2 | stock: the other two injectors (batch); INJ2 + INJ3 in parallel (R24) |
 | 2W | `OUT_IACV` | idle air valve |  |
 | 2X | `OUT_VVT` | PWM low side (VVT driver) | purge solenoid (VVT driver reused, set as purge / generic PWM) |
-| 2Y | `OUT_INJ3` | injector 3 | sequential conversion: add wire |
-| 2Z | `OUT_INJ4` | injector 4 | sequential conversion: add wire |
+| 2Y | `HARN_2Y` |  | empty on manual cars: INJ3 only through R25 (not fitted) after a sequential conversion |
+| 2Z | `HARN_2Z` |  | A/T control unit on automatics: INJ4 only through R26 (not fitted), never on an automatic |
 
 Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J, 2R, 2S.
 
@@ -94,6 +95,12 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J, 2R, 2S.
 **CAN:** R1 + R6 terminate the bus at the ECU end; remove R6 if the bus is terminated elsewhere.
 
 **AUX (J5, 2×8 box header):** what the stock harness has no pins for: COP 3/4, boost, alternator and main-relay outputs, knock input, VR crank/cam inputs, external AFR input, UART, 5 V sensor supply, +12 V and GND.
+
+**Protection (motherboard rev 0.4 / 0.6):** D1 (and D2 where the VVT driver runs a coil) freewheel the PWM valve coils into their own +12 V feed, so the drivers don't absorb the turn-off energy. F4 fuses the AUX +12 V pin (0.5 A hold).
+
+**Switch inputs (R20-R22, not fitted):** the VSS, A/C and clutch inputs read signals that are driven to 12 V. If your car's signal only switches to ground (or is open collector), fit the 4.7 kΩ pull-up for that input. Never fit it for a switch that drives 12 V: the input would always read on.
+
+**Injectors (1989-93):** the stock harness has two injectors on each of 2U and 2V (about 1.8 A per wire). Two daughterboard drivers share each wire through R23 (INJ1 + INJ4 on 2U) and R24 (INJ2 + INJ3 on 2V); rusEFI's batch mode fires each pair together. D3/D4 clamp each wire at about 45-50 V, so the drivers' own clamps never take the turn-off energy. For a sequential conversion (new wires to 2Y/2Z), remove R23/R24, fit R25/R26 and switch the firmware to sequential. **Never fit R26 on an automatic: 2Z goes to the A/T control unit.**
 
 ## Assembly
 - The daughterboard plugs into JD1/JD2 (8.5 mm sockets) on four M3 × 11 mm standoffs.

@@ -370,7 +370,7 @@ class Sheet:
 
 
 CNT = [0]
-REV, DATE = '0.4', '2026-10-29'
+REV, DATE = '0.5', '2026-10-30'
 TITLE_PREFIX = 'Miata ECU daughterboard - '
 COMMENT = 'Generated from scripts/design.py; netlist identical to the routed board'
 
@@ -428,6 +428,9 @@ def sheet_inputs(s):
     s.text('Hall (open collector, 1k pull-up) and 12 V switch inputs', 182.88, 22.86)
     for (n, y, k) in zip(['HALL1', 'HALL2', 'SW1', 'SW2', 'SW3'], rows(40.64), ['hall', 'hall', 'switch', 'switch', 'switch']):
         channel(187.96, y, n, k)
+    # rev 0.5: clamps to +3V3 (PE7/PE8 are 5 V tolerant, with no clamp of their own)
+    for d, y in (('D13', 40.64), ('D14', 66.04)):
+        s.o2(d, 243.84, y - 3.81, 'v')
 
     # ---- knock amplifier
     s.text('Knock: AC-coupled, biased to 1.65 V, gain 5.7', 271.78, 22.86)
@@ -520,7 +523,7 @@ def sheet_outputs(s):
     s.text('Protected low-side drivers (AUIPS2041L): injectors, IACV, VVT, boost, alternator', 20.32, 22.86)
 
     def lowside(q, n, x0, y0):
-        CTL, OUT = n + '_CTL', 'OUT_' + n
+        CTL, OUT = n + '_IN', 'OUT_' + n      # driven at 5 V by U11
         s.place(q, x0 + 22.86, y0)
         pd = find(CTL, 'GND')
         s.lab(CTL, (x0 - 2.54, y0), 'left')
@@ -565,13 +568,20 @@ def sheet_outputs(s):
     s.rail('RN1', 'GND')
     s.text('Ignition inputs pulled low (coils stay off while the MCU boots)', 20.32, 200.66, 1.27)
 
-    s.text('Relay, lamp and tach outputs (ULN2003, flyback to +12V)', 254.0, 147.32)
+    s.text('Relay, lamp and tach outputs (ULN2003; flyback clamp: SMAJ33A TVS on COM)', 254.0, 147.32)
     s.place('U5', 299.72, 180.34)
+    s.o2('D11', 337.82, 180.34, 'v')
+    s.text('COM is not tied to +12V: a battery-fed relay coil cannot back-feed the ECU with the key off', 254.0, 213.36, 1.27)
+
+    s.text('3.3 V -> 5 V level shifter for the low-side inputs (DIR low: B -> A)', 254.0, 22.86)
+    s.place('U11', 299.72, 76.2)
+    s.o2('C57', 345.44, 50.8, 'v'); s.o2('C58', 358.14, 50.8, 'v'); s.o2('R71', 345.44, 101.6, 'v')
+    s.text('~OE pulled up: all eight drivers off until the firmware drives DRV_EN_N low', 254.0, 127.0, 1.27)
 
 
 def sheet_power(s):
     Y0 = 50.8
-    s.text('Input protection and 5 V buck (LMR14020, 5 V / 2 A)', 20.32, 30.48)
+    s.text('Input protection (fused, TVS-clamped logic supply) and 5 V buck (LMR14020, 5 V / 2 A)', 20.32, 30.48)
     s.lab('VBAT_IN', (25.4, Y0), 'left')
     s.o2('D6', 38.1, Y0 + 6.35, 'v')
     s.o2('D7', 48.26, Y0, 'h-')
@@ -580,13 +590,19 @@ def sheet_power(s):
     s.stub('D6.2')
     B = (58.42, Y0)
     s.wire('D7.1', B)
-    s.pwr('+12V', B, 'up')
     s.o2('D8', 48.26, Y0 + 20.32, 'h-')
     s.lab('VIGN_IN', (30.48, Y0 + 20.32), 'left')
     s.wire((30.48, Y0 + 20.32), 'D8.2')
     s.wire('D8.1', (58.42, Y0 + 20.32), B)
+    # rev 0.5: PTC on the logic supply, TVS after it
+    s.o2('F1', 58.42, Y0 - 6.35, 'v-')
+    s.wire(B, 'F1.1')
+    s.wire('F1.2', (62.23, Y0 - 10.16), (66.04, Y0 - 10.16), (66.04, Y0))
+    s.pwr('+12V', (62.23, Y0 - 10.16), 'up')
+    s.o2('D12', 72.39, Y0 - 10.16, 'h')
+    s.wire((66.04, Y0 - 10.16), 'D12.1'); s.stub('D12.2')
     s.o2('R7', 66.04, Y0 + 6.35, 'v'); s.o2('C16', 66.04, Y0 + 16.51, 'v')
-    s.wire(B, (66.04, Y0), 'R7.1'); s.wire('R7.2', 'C16.1'); s.stub('C16.2')
+    s.wire((66.04, Y0), 'R7.1'); s.wire('R7.2', 'C16.1'); s.stub('C16.2')
     s.o2('L1', 78.74, Y0, 'h')
     s.wire((66.04, Y0), 'L1.1')
     s.o2('C17', 91.44, Y0 + 6.35, 'v'); s.o2('C18', 104.14, Y0 + 6.35, 'v')
@@ -623,6 +639,7 @@ def sheet_power(s):
     s.wire('L2.2', (VO, Y0 + 2.54), (VO + 7.62, Y0 + 2.54), (VO + 17.78, Y0 + 2.54), 'D10.1')
     s.wire((VO + 7.62, Y0 + 2.54), 'C22.1'); s.wire((VO + 17.78, Y0 + 2.54), 'C23.1')
     s.stub('C22.2'); s.stub('C23.2')
+    s.o2('C59', VO + 25.4, Y0 + 8.89, 'v'); s.wire((VO + 25.4, Y0 + 2.54), 'C59.1'); s.stub('C59.2')
     s.pwr('+5V', (VO, Y0 + 2.54), 'up')
     s.wire('D10.2', (VO + 45.72, Y0 + 2.54)); s.lab('USB_VBUS', (VO + 45.72, Y0 + 2.54), 'right')
     s.text('USB VBUS powers the logic on the bench', VO + 22.86, Y0 + 22.86, 1.27)
@@ -703,6 +720,8 @@ def sheet_mcu(s):
     s.wire((17.78, 167.64), (25.4, 167.64), 'SW2.1'); s.wire((25.4, 167.64), 'C15.1'); s.stub('C15.2')
     s.lab('NRST', (17.78, 167.64), 'left')
     s.wire('SW2.2', (50.8, 167.64), (50.8, 170.18)); s.pwr('GND', (50.8, 170.18), 'down')
+    s.text('BOOT1 (PB2) low: DFU needs BOOT0 = 1, BOOT1 = 0', 63.5, 132.08, 1.27)
+    s.o2('R72', 76.2, 148.59, 'v')
     s.text('SWD (Tag-Connect TC2030-NL pads)', 20.32, 195.58)
     s.place('J3', 38.1, 218.44)
     s.text('Status LEDs', 330.2, 22.86)
@@ -934,12 +953,12 @@ def main():
                      f'(property "Sheetname" {Q(s.title)} (at {x} {r2(y - 0.71)} 0) (effects (font (size 1.524 1.524)) (justify left bottom))) '
                      f'(property "Sheetfile" {Q(s.fname)} (at {x} {r2(y + 31.07)} 0) (effects (font (size 1.27 1.27)) (justify left top))) '
                      f'(instances (project {Q(PROJECT)} (path {Q("/" + root_uuid)} (page {Q(str(s.page))})))))')
-    note = ('Miata ECU daughterboard rev 0.4 (on-board wideband controller, flashed through the main MCU). Block sheets connect through global labels; GND, +3V3, +5V and +12V '
+    note = ('Miata ECU daughterboard rev 0.5 (on-board wideband controller, flashed through the main MCU; 5 V low-side drive, fused logic supply). Block sheets connect through global labels; GND, +3V3, +5V and +12V '
             'are power symbols. J1 = power in and outputs (top edge), J2 = inputs and comms (bottom edge). '
             '4-layer board: In1 GND plane, In2 +3V3 plane.')
     items.append(f'(text {Q(note)} (at 30.48 165.1 0) (effects (font (size 1.524 1.524)) (justify left bottom)) (uuid {U()}))')
     root = (f'(kicad_sch (version 20230121) (generator eeschema) (uuid {root_uuid}) (paper "A4") '
-            f'(title_block (title "Miata ECU daughterboard") (date "2026-10-29") (rev "0.4")) (lib_symbols) '
+            f'(title_block (title "Miata ECU daughterboard") (date "2026-10-30") (rev "0.5")) (lib_symbols) '
             + '\n'.join(items) + ' (sheet_instances (path "/" (page "1"))))')
     open(os.path.join(OUT, PROJECT + '.kicad_sch'), 'w').write(root)
     with open(os.path.join(OUT, 'fp_paths.txt'), 'w') as f:

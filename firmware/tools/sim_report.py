@@ -18,9 +18,20 @@ sys.path.insert(0, os.path.join(ROOT, 'scripts'))
 cwd = os.getcwd()
 os.chdir(os.path.join(ROOT, 'scripts'))
 import design  # noqa: E402
-MB = {y: importlib.import_module(m).HARNESS for y, m in
-      [('1989-93', 'mb_na6'), ('1994-95', 'mb_na8'), ('1996-97', 'mb_na96'), ('1999-2000', 'mb_nb1'), ('2001-02', 'mb_nb2'),
-       ('2003-05', 'mb_nb2')]}
+YEARS = [('1989-93', 'mb_na6'), ('1994-95', 'mb_na8'), ('1996-97', 'mb_na96'), ('1999-2000', 'mb_nb1'),
+         ('2001-02', 'mb_nb2'), ('2003-05', 'mb_nb2')]
+MB = {y: importlib.import_module(m).HARNESS for y, m in YEARS}
+# fitted 0R links on each motherboard join nets (e.g. 1989-93: INJ4 reaches harness 2U through R23)
+LINKED = {}
+for y, m in YEARS:
+    group = {}
+    for p in importlib.import_module(m).build_parts():
+        if p['value'] == '0R' and p['lcsc'] and len(p['pads']) == 2:
+            a, b = p['pads'].values()
+            ga, gb = group.get(a, {a}), group.get(b, {b})
+            for n in ga | gb:
+                group[n] = ga | gb
+    LINKED[y] = group
 os.chdir(cwd)
 
 PINS = {int(n): name for n, name in (l.split(':') for l in open(os.path.join(ROOT, 'scripts', 'stm32f407v_lqfp100_pins.txt')).read().split())}
@@ -35,7 +46,9 @@ PORT_NET = {PINS[int(p)]: net for p, net in design.mcu.items()}
 # ignKey is the ignition-switch sense input: rusEFI cuts fuel and spark while it reads "off", so it must be configured
 # exactly on the years whose harness has the wire (1C on 1989-95, 4S on 2003-05) and nowhere else.
 EXPECTED = {
-    '1989-93': {'ign1&4': '1G', 'ign2&3': '1H', 'inj1': '2U', 'inj2': '2V', 'fuelPump': '2T', 'fan': '1L',
+    # 1989-93: two drivers per batch injector wire (the motherboard's R23 / R24 links)
+    '1989-93': {'ign1&4': '1G', 'ign2&3': '1H', 'inj1': '2U', 'inj2': '2V', 'inj3': '2V', 'inj4': '2U',
+                'fuelPump': '2T', 'fan': '1L',
                 'fan2': '1R', 'acRelay': '1J', 'cel': '1E', 'tach': '2I', 'idle': '2W', 'vss': '1M',
                 'acSwitch': '1Q', 'clutch': '1V', 'crank(SGT)': '2E', 'cam(SGC)': '2G', 'ignKey': '1C'},
     '1994-95': {'ign1&4': '1G', 'ign2&3': '1H', 'inj1': '2U', 'inj2': '2V', 'inj3': '2Y', 'inj4': '2Z',
@@ -78,7 +91,8 @@ def harness_pin(year, port):
         header = 'IN_' + net
     else:
         header = net
-    hits = [k for k, v in MB[year].items() if v == header]
+    nets = LINKED[year].get(header, {header})
+    hits = [k for k, v in MB[year].items() if v in nets]
     return hits[0] if len(hits) == 1 else (hits or None)
 
 

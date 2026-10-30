@@ -13,7 +13,7 @@ parts = M.build_parts()
 S.PARTS = {p['ref']: p for p in parts}
 S.PROJECT = PROJ
 S.OUT = OUTDIR
-S.REV, S.DATE = os.environ.get('MBREV', '0.3'), '2026-10-29'
+S.REV, S.DATE = os.environ.get('MBREV', '0.3'), '2026-10-30'
 
 # header symbol: terminals in OEM order (plug, then A..Z, AA..), first half on the left, the rest on the right
 _keys = sorted(M.HARNESS, key=lambda k: (k[0], len(k), k))
@@ -177,14 +177,27 @@ def sheet_io(s):
     # ---- AUX / SWD
     fz = sorted(r for r in S.PARTS if r.startswith('F') and r != 'F1')
     if fz:
-        s.text('Fused +12 V feeds to harness actuators', 20.32, 172.72)
+        s.text('Fused +12 V feeds (harness actuators, AUX)', 20.32, 172.72)
         for k, r in enumerate(fz):
             y = 185.42 + k * 10.16
             s.o2(r, 40.64, y, 'h')
             s.wire((30.48, y), f'{r}.1'); s.lab('VBAT_IN', (30.48, y), 'left')
             s.wire(f'{r}.2', (53.34, y)); s.lab(S.PARTS[r]['pads']['2'], (53.34, y), 'right')
-    s.text('AUX: add-on I/O the stock harness has no pins for', 193.04, 147.32)
+    s.text('AUX: add-on I/O the stock harness has no pins for (+12 V through F4)', 193.04, 147.32)
     s.place('J5', 220.98, 177.8)
+
+    # ---- protection and fit options
+    s.text('Valve freewheel diodes (to each valve\'s +12 V feed) and fit options', 279.4, 142.24)
+    for k, r in enumerate(x for x in ('D1', 'D2') if x in S.PARTS):
+        s.o2(r, 294.64 + k * 20.32, 165.1, 'v')
+    s.text('Switch-input 12 V pull-ups, NOT fitted: fit only for a signal that switches to ground', 279.4, 187.96, 1.27)
+    for k, r in enumerate(('R20', 'R21', 'R22')):
+        s.o2(r, 294.64 + k * 20.32, 203.2, 'v')
+    if 'R23' in S.PARTS:
+        s.text('1989-93 batch harness: two drivers per injector wire, TVS clamp per wire', 279.4, 226.06)
+        s.text('Sequential conversion: remove R23/R24, fit R25/R26 (never R26 on an automatic)', 279.4, 231.14, 1.27)
+        for k, r in enumerate(('R23', 'R24', 'R25', 'R26', 'D3', 'D4')):
+            s.o2(r, 294.64 + k * 17.78, 254.0, 'v')
 
 
 BUILD = [('harness', 'Harness', sheet_harness), ('daughter', 'Daughterboard', sheet_daughter),
@@ -214,7 +227,7 @@ def main():
             '(wideband, MAP, IAT, USB-C). All engine control is on the daughterboard.')
     items.append(f'(text {Q(note)} (at 30.48 100.0 0) (effects (font (size 1.524 1.524)) (justify left bottom)) (uuid {gen_sch.U()}))')
     root = (f'(kicad_sch (version 20230121) (generator eeschema) (uuid {root_uuid}) (paper "A4") '
-            f'(title_block (title {Q(M.TITLE)}) (date "2026-10-29") (rev "' + os.environ.get('MBREV', '0.3') + '")) (lib_symbols) '
+            f'(title_block (title {Q(M.TITLE)}) (date "2026-10-30") (rev "' + os.environ.get('MBREV', '0.3') + '")) (lib_symbols) '
             + '\n'.join(items) + ' (sheet_instances (path "/" (page "1"))))')
     open(os.path.join(OUTDIR, PROJ + '.kicad_sch'), 'w').write(root)
     with open(os.path.join(OUTDIR, 'fp_paths.txt'), 'w') as f:

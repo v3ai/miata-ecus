@@ -16,7 +16,8 @@ HDR_1A = (26.35, 18.13)
 CASE_NOTE = L.CASE_NOTE_PROVISIONAL
 HEADER_DESC = ('TE **176122-6** (4-174518-7), 64 positions: plug 1 = 1A-1V (22), plug 2 = 2A-2P (16), plug 3 = 3A-3Z (26). '
                'Fitted by hand.')
-CHANGES = ['Rev 0.3: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
+CHANGES = ['Rev 0.4: freewheel diode D1 on the idle valve to its +12 V feed (the PWM turn-off energy no longer goes into the daughterboard driver); F4 resettable fuse on the AUX +12 V pin J5-15; not-fitted 12 V pull-up options R20-R22 for the VSS / A/C / clutch inputs.',
+           'Rev 0.3: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
            'Rev 0.2: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.',
            'Rev 0.1: first release (design complete, case geometry provisional).']
 VERIFY = ['**The case outline, mounting holes and header position (provisional here).**',
@@ -79,9 +80,11 @@ FUSES = [('F2', 'IAC_12V', 'idle valve +12 V feed (3O)')]
 
 
 def build_parts():
-    return L.build('ecu_mb:TE_176122-6_64P', 'TE 176122-6', 'Stock harness header, 64 positions. Hand-solder; salvage '
-                   'from a stock ECU or use a clone', HARNESS, FUSES, holes=CASE_HOLES)
+    parts = L.build('ecu_mb:TE_176122-6_64P', 'TE 176122-6', 'Stock harness header, 64 positions. Hand-solder; salvage '
+                    'from a stock ECU or use a clone', HARNESS, FUSES, holes=CASE_HOLES)
+    L.C.protection_parts('IAC_12V')
+    return parts
 
 
 def placement():
-    return L.place(HDR_1A, [f[0] for f in FUSES])
+    return L.C.protection_place(L.place(HDR_1A, [f[0] for f in FUSES]), vvt=False)

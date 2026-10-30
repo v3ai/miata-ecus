@@ -85,6 +85,19 @@ o.append('**AUX (J5, 2×8 box header):** what the stock harness has no pins for:
 if any(p['ref'] in ('R7', 'R10') for p in C.parts):
     o.append('**Crank / cam sensor type:** each trigger has three 0R links. Fit the hall link for a hall / open-collector sensor, '
              'or the two VR links for a 2-wire magnetic sensor. The default for this car is assembled; see the parts list.\n')
+o.append('**Protection (motherboard rev 0.4 / 0.6):** D1 (and D2 where the VVT driver runs a coil) freewheel the PWM '
+         'valve coils into their own +12 V feed, so the drivers don\'t absorb the turn-off energy. F4 fuses the AUX +12 V '
+         'pin (0.5 A hold).\n')
+o.append('**Switch inputs (R20-R22, not fitted):** the VSS, A/C and clutch inputs read signals that are driven to 12 V. If '
+         'your car\'s signal only switches to ground (or is open collector), fit the 4.7 kΩ pull-up for that input. Never fit '
+         'it for a switch that drives 12 V: the input would always read on.\n')
+if any(p['ref'] == 'R23' for p in C.parts):
+    o.append('**Injectors (1989-93):** the stock harness has two injectors on each of 2U and 2V (about 1.8 A per wire). '
+             'Two daughterboard drivers share each wire through R23 (INJ1 + INJ4 on 2U) and R24 (INJ2 + INJ3 on 2V); '
+             'rusEFI\'s batch mode fires each pair together. D3/D4 clamp each wire at about 45-50 V, so the drivers\' '
+             'own clamps never take the turn-off energy. For a sequential conversion (new wires to 2Y/2Z), remove R23/R24, '
+             'fit R25/R26 and switch the firmware to sequential. **Never fit R26 on an automatic: 2Z goes to the A/T '
+             'control unit.**\n')
 o.append('## Assembly')
 o.append('- The daughterboard plugs into JD1/JD2 (8.5 mm sockets) on four M3 × 11 mm standoffs.')
 o.append('- Fitted by hand: the harness header (salvage from a stock ECU or use a clone), the IAT jumper shunt on JP1 (LCSC C5305; EXT or STOCK), and any not-fitted option links.')

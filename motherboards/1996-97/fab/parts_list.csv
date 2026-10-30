@@ -24,4 +24,9 @@ J4,USB-C,ecu_mb:USB_C_GCT_USB4105_16P,C3020560,JLC,USB-C for tuning and firmware
 R2,5.1k,Resistor_SMD:R_0603_1608Metric,C23186,JLC,USB-C sink CC1
 R3,5.1k,Resistor_SMD:R_0603_1608Metric,C23186,JLC,USB-C sink CC2
 U4,USBLC6-2SC6,Package_TO_SOT_SMD:SOT-23-6,C7519,JLC,USB ESD protection
-J5,AUX 2x8,Connector_IDC:IDC-Header_2x08_P2.54mm_Vertical,C3406,JLC,"Add-on I/O: COP 3/4, boost, alternator, main relay, knock, VR crank/cam, external AFR, UART, 5 V, +12 V"
+J5,AUX 2x8,Connector_IDC:IDC-Header_2x08_P2.54mm_Vertical,C3406,JLC,"Add-on I/O: COP 3/4, boost, alternator, main relay, knock, VR crank/cam, external AFR, UART, 5 V, +12 V (fused, F4)"
+F4,0.5A hold,Fuse:Fuse_1206_3216Metric,C209741,JLC,"Resettable fuse for the AUX +12 V pin J5-15 (SMD1206P050TF/24: 0.5 A hold, 1 A trip, 24 V)"
+D1,SS34,Diode_SMD:D_SMA,C8678,JLC,"Idle valve freewheel diode (to its +12 V feed, VBAT_IN): keeps the PWM turn-off energy out of the driver"
+R20,4.7k,Resistor_SMD:R_0603_1608Metric,,hand-fit / not fitted,"NOT FITTED: 12 V pull-up for the vehicle speed input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the switch closed) only if your car's signal switches to ground or is open collector; a switch that drives 12 V must not have it"
+R21,4.7k,Resistor_SMD:R_0603_1608Metric,,hand-fit / not fitted,"NOT FITTED: 12 V pull-up for the A/C switch input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the switch closed) only if your car's signal switches to ground or is open collector; a switch that drives 12 V must not have it"
+R22,4.7k,Resistor_SMD:R_0603_1608Metric,,hand-fit / not fitted,"NOT FITTED: 12 V pull-up for the clutch switch input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the switch closed) only if your car's signal switches to ground or is open collector; a switch that drives 12 V must not have it"

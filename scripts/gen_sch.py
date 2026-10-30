@@ -133,7 +133,20 @@ CUSTOM = {
                      'desc': 'Analog Devices MAX9926 dual VR sensor interface'},
     'AUIPS2041LTR': {'left': [('1', 'IN', 'input'), ('3', 'S', 'power_in')],
                      'right': [('2', 'D', 'passive'), ('4', 'D', 'passive')],
-                     'desc': 'Infineon AUIPS2041L protected low-side switch, 39V clamp'},
+                     'desc': 'Infineon AUIPS2041L protected low-side switch, 63-75V active clamp'},
+    'SN74LVC4245APWR': {'left': [('21', 'B1', 'bidirectional'), ('20', 'B2', 'bidirectional'),
+                                 ('19', 'B3', 'bidirectional'), ('18', 'B4', 'bidirectional'),
+                                 ('17', 'B5', 'bidirectional'), ('16', 'B6', 'bidirectional'),
+                                 ('15', 'B7', 'bidirectional'), ('14', 'B8', 'bidirectional'),
+                                 ('2', 'DIR', 'input'), ('22', '~{OE}', 'input'),
+                                 ('23', 'VCCB', 'power_in'), ('24', 'VCCB', 'power_in')],
+                        'right': [('3', 'A1', 'bidirectional'), ('4', 'A2', 'bidirectional'),
+                                  ('5', 'A3', 'bidirectional'), ('6', 'A4', 'bidirectional'),
+                                  ('7', 'A5', 'bidirectional'), ('8', 'A6', 'bidirectional'),
+                                  ('9', 'A7', 'bidirectional'), ('10', 'A8', 'bidirectional'),
+                                  ('1', 'VCCA', 'power_in'), ('11', 'GND', 'power_in'),
+                                  ('12', 'GND', 'power_in'), ('13', 'GND', 'power_in')],
+                        'desc': 'TI SN74LVC4245A octal transceiver, 5 V A port / 3.3 V B port (DIR low: B -> A)'},
     'TLS115B0EJ': {'left': [('8', 'I', 'power_in'), ('7', 'EN', 'input'), ('5', 'ADJ', 'input'),
                             ('3', 'GND', 'power_in'), ('9', 'EP', 'power_in')],
                    'right': [('1', 'Q', 'power_out'), ('4', 'PG', 'open_collector'), ('2', 'NC', 'no_connect'),
@@ -188,6 +201,8 @@ def choose(p):
         return 'Device', 'C'
     if r.startswith('FB'):
         return 'Device', 'FerriteBead'
+    if r.startswith('F'):
+        return 'Device', 'Fuse'
     if r.startswith('L'):
         return 'Device', 'L'
     if r.startswith('Y'):
@@ -203,8 +218,10 @@ def choose(p):
     if r.startswith('D'):
         if 'LED' in fpn:
             return 'Device', 'LED'
-        if v.startswith('SMCJ'):
+        if v.startswith(('SMCJ', 'SMAJ', 'MMSZ')):
             return 'Device', 'D_Zener'
+        if v.startswith('1N4148'):
+            return 'Device', 'D'
         return 'Device', 'D_Schottky'
     if r == 'J102':
         return 'Connector', 'Conn_ARM_SWD_TagConnect_TC2030-NL'
@@ -347,12 +364,13 @@ def snap(v):
 
 SHEET_OF = {}
 for r in ['U1', 'FB1', 'Y1', 'R1', 'SW1', 'SW2', 'J3'] + [f'C{i}' for i in range(1, 16)] + \
-        [f'R{i}' for i in range(2, 7)] + [f'D{i}' for i in range(1, 6)]:
+        [f'R{i}' for i in range(2, 7)] + [f'D{i}' for i in range(1, 6)] + ['R72']:
     SHEET_OF[r] = 'mcu'
 for r in ['U2', 'U3', 'U4', 'L1', 'L2'] + [f'D{i}' for i in range(6, 11)] + [f'R{i}' for i in range(7, 15)] + \
-        [f'C{i}' for i in range(16, 30)]:
+        [f'C{i}' for i in range(16, 30)] + ['F1', 'D12', 'C59']:
     SHEET_OF[r] = 'power'
-for r in ['U5', 'U6', 'U7', 'RN1', 'C34', 'C35'] + [f'Q{i}' for i in range(1, 9)] + [f'R{i}' for i in range(15, 27)]:
+for r in ['U5', 'U6', 'U7', 'RN1', 'C34', 'C35', 'U11', 'C57', 'C58', 'R71', 'D11'] + [f'Q{i}' for i in range(1, 9)] + \
+        [f'R{i}' for i in range(15, 27)]:
     SHEET_OF[r] = 'outputs'
 for r in ['J1', 'J2', 'U10', 'C56', 'H1', 'H2', 'H3', 'H4']:
     SHEET_OF[r] = 'connectors'

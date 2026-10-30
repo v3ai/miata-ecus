@@ -25,7 +25,7 @@ _d = list(R.Router.astar.__defaults__); _d[-1] = 8000000; R.Router.astar.__defau
 R.WIDTH = {
     'IAC_12V': 0.8, 'OCV_12V': 0.8,
     'VBAT_IN': 1.2, 'HTR_PWR': 1.0, 'LSU_HTR_N': 1.0, 'VIGN_IN': 0.4, 'V5_SENS': 0.4, '+5V': 0.5,
-    'USB_VBUS': 0.4,
+    'USB_VBUS': 0.4, 'AUX_VBAT': 0.5, 'HARN_2Y': 0.8, 'HARN_2Z': 0.8,
     'OUT_INJ1': 0.8, 'OUT_INJ2': 0.8, 'OUT_INJ3': 0.8, 'OUT_INJ4': 0.8, 'OUT_IACV': 0.8, 'OUT_VVT': 0.8,
     'OUT_BOOST': 0.8, 'OUT_ALT': 0.6, 'OUT_FP': 0.5, 'OUT_MAINRLY': 0.5, 'OUT_AC': 0.5, 'OUT_FAN': 0.5,
     'OUT_CEL': 0.4, 'OUT_TACH': 0.4, 'OUT_LS7': 0.4,
@@ -303,6 +303,14 @@ def main(inp, out):
     print(f'routed in {time.time() - t0:.0f}s, failed: {r.failed}', flush=True)
     r.thermal_and_stitch(pitch=4.0)       # tie the two GND pours together everywhere
     r.commit()
+    # header GND pins the bus lanes box in on both layers: tie each to a neighbouring GND pin (year module GND_TIES)
+    for ref, pa, pb, layer in getattr(M, 'GND_TIES', []):
+        fp = r.board.FindFootprintByReference(ref)
+        pads = {p.GetNumber(): p for p in fp.Pads()}
+        tr = pcbnew.PCB_TRACK(r.board)
+        tr.SetStart(pads[pa].GetPosition()); tr.SetEnd(pads[pb].GetPosition())
+        tr.SetWidth(FromMM(0.6)); tr.SetLayer(pcbnew.B_Cu if layer == 'B' else pcbnew.F_Cu)
+        tr.SetNet(pads[pb].GetNet()); r.board.Add(tr)
     add_zones(r.board)
     r.board.Save(out)
     json.dump(r.failed, open(out + '.failed.json', 'w'))
