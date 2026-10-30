@@ -66,18 +66,18 @@ TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); ru
 | 2L | `IN_AUX1` | spare analog 1 | electrical load (rear defroster) -> idle up |
 | 2M | `IN_TPS` | TPS | TPS signal (AT / VTPS conversion) |
 | 2N | `IN_AUX2` | spare analog 2 | heated O2 sensor (narrowband) |
-| 2O | `IN_AUX3` | spare analog 3 | MAF signal (94-95 have a MAF, not the flap meter) |
+| 2O | `IN_AUX3` | spare analog 3 | air flow meter signal (vane AFM; rusEFI's 1994 page calls it MAF) |
 | 2P | `HARN_IAT` | stock air-temp sensor (JP1 on STOCK) | intake air thermosensor in the AFM (IAT jumper JP1 on STOCK to use it) |
 | 2Q | `IN_CLT` | coolant temp |  |
 | 2R | `OUT_ALT` | PWM low side (alternator driver) | pressure regulator control solenoid (generic low side) |
 | 2S | `OUT_LS7` | spare low side | condenser fan relay |
 | 2T | `OUT_FP` | fuel pump relay | fuel pump relay |
-| 2U | `OUT_INJ1` | injector 1 | stock: injectors 1+3 (batch) |
-| 2V | `OUT_INJ2` | injector 2 | stock: injectors 2+4 (batch) |
+| 2U | `OUT_INJ1` | injector 1 | injector No.1 (94-95: one wire per injector, sequential) |
+| 2V | `OUT_INJ2` | injector 2 | injector No.2 |
 | 2W | `OUT_IACV` | idle air valve |  |
 | 2X | `OUT_VVT` | PWM low side (VVT driver) | purge solenoid (VVT driver reused, set as purge / generic PWM) |
-| 2Y | `OUT_INJ3` | injector 3 | sequential conversion: add wire |
-| 2Z | `OUT_INJ4` | injector 4 | sequential conversion: add wire |
+| 2Y | `OUT_INJ3` | injector 3 | injector No.3 |
+| 2Z | `OUT_INJ4` | injector 4 | injector No.4 |
 
 Not connected: 1A, 1D, 1F, 1I, 1K, 1N, 1O, 1P, 1R, 1S, 1T, 1U, 2H, 2J.
 

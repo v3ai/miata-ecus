@@ -62,16 +62,16 @@ DEFINES = {
     'IN_VBATT': 'AN_VBATT', 'IN_VIGN': 'AN_VIGN', 'IN_TPS': 'AN_TPS', 'IN_MAP': 'AN_MAP', 'IN_CLT': 'AN_CLT',
     'IN_IAT': 'AN_IAT', 'IN_AFR': 'AN_AFR', 'IN_AUX1': 'AN_AUX1', 'IN_AUX2': 'AN_AUX2', 'IN_AUX3': 'AN_AUX3',
 }
-cfg = open(os.path.join(BOARD, 'board_configuration.cpp')).read()
-found = dict(re.findall(r'^#define MIATA_(\w+)\s+(\S+)', cfg, re.M))
+cfg = open(os.path.join(BOARD, 'board_configuration.cpp')).read() + open(os.path.join(BOARD, 'miata_board.cpp')).read()
+found = dict(re.findall(r'^#define MIATA_(\w+)\s+(\S+)', open(os.path.join(BOARD, 'miata_pins.h')).read(), re.M))
 for name, net in DEFINES.items():
     if name not in found:
-        errors.append(f'board_configuration.cpp: MIATA_{name} missing')
+        errors.append(f'miata_pins.h: MIATA_{name} missing')
     else:
         expect(f'MIATA_{name}', found[name], {net})
 for name in found:
     if name not in DEFINES:
-        errors.append(f'board_configuration.cpp: MIATA_{name} is not checked by check_pins.py')
+        errors.append(f'miata_pins.h: MIATA_{name} is not checked by check_pins.py')
 
 # LEDs, CAN, wideband link
 leds = dict(re.findall(r'Gpio get(\w+)LedPin\(\) \{\s+return (Gpio::\w+);', cfg))
