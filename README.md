@@ -29,8 +29,9 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 > no person has reviewed the schematics. Read each board's README, especially its *Still to verify* or *Before ordering* list.
 >
 > **Verification (desk + simulation, 2026-10-30):** [VERIFICATION.md](VERIFICATION.md). Pinouts and firmware check out
-> for all five years; it lists four hardware changes to make before building (low-side driver input level, freewheel
-> diodes, BOOT1 pull-down, 2003-05 key-off back-feed) and further recommendations.
+> for all five years (after fixing a firmware bug that would have cut fuel and spark on 1996-2002 cars). It lists four
+> hardware changes to make before building (low-side driver input level, idle/VVT freewheel diodes, BOOT1 pull-down,
+> 2003-05 key-off back-feed), fuses and clamps to add, and two wires to check on a car.
 
 | Board | Folder | Rev | Harness header | Case fit |
 |---|---|---|---|---|

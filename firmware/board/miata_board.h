@@ -22,3 +22,5 @@ void miataAfterTuneDefaults(engine_type_e engineType);
 // SD logging) polls, so with no laptop connected a one-off start-up warning (e.g. NB "not firing until cam sync") would
 // keep the check engine light blinking.
 void miataPeriodicSlowCallback();
+// Makes the next MAZDA_MIATA_NB2 preset the 2001-02 variant (no ignition sense, no main-relay control).
+void miataSelectNb2Early(bool early);

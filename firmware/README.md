@@ -43,13 +43,19 @@ custom-board build. Open the run on the repository's *Actions* tab and download 
 Connect TunerStudio, open **Popular Vehicles** and press your year. That resets the tune to that year's defaults.
 A blank board starts with the 1989–93 settings.
 
-| Button | rusEFI engine type | Trigger | Injection | Year-specific outputs |
-|---|---|---|---|---|
-| 1989-93 (NA6, 1.6) | `MAZDA_MIATA_NA6` | NA CAS: SGC on HALL2, SGT on HALL1 | batch, INJ1/INJ2 only | none (VVT driver = purge, not driven) |
-| 1994-95 (NA8, 1.8) | `MAZDA_MIATA_NA94` | NA CAS | sequential | none (ALT driver = pressure regulator solenoid, not driven) |
-| 1996-97 (NA8, OBD-II) | `MAZDA_MIATA_NA96` | NA CAS | sequential | O2 heater on the VVT driver |
-| 1999-2000 (NB1) | `MAZDA_MIATA_NB1` | NB crank on HALL1, cam on HALL2 | sequential | O2 heater on VVT, alternator field on ALT |
-| 2001-05 (NB2, VVT) | `MAZDA_MIATA_NB2` | NB crank + VVT cam | sequential | VVT valve, alternator field, main relay (2003-05) |
+| Button | rusEFI engine type | Trigger | Injection | Ignition sense | Year-specific outputs |
+|---|---|---|---|---|---|
+| 1989-93 (NA6, 1.6) | `MAZDA_MIATA_NA6` | NA CAS: SGC on HALL2, SGT on HALL1 | batch, INJ1/INJ2 only | 1C | none (VVT driver = purge, not driven) |
+| 1994-95 (NA8, 1.8) | `MAZDA_MIATA_NA94` | NA CAS | sequential | 1C | none (ALT driver = pressure regulator solenoid, not driven) |
+| 1996-97 (NA8, OBD-II) | `MAZDA_MIATA_NA96` | NA CAS | sequential | none | O2 heater on the VVT driver |
+| 1999-2000 (NB1) | `MAZDA_MIATA_NB1` | NB crank on HALL1, cam on HALL2 | sequential | none | O2 heater on VVT, alternator field on ALT |
+| 2001-02 (NB2, VVT) | `MAZDA_MIATA_NB2` without main relay or ignition sense | NB crank + VVT cam | sequential | none | VVT valve, alternator field |
+| 2003-05 (NB2, VVT) | `MAZDA_MIATA_NB2` | NB crank + VVT cam | sequential | 4S | VVT valve, alternator field, main relay (3H) |
+
+**Pick the right NB2 button.** 2001-02 and 2003-05 use the same motherboard but are wired differently. rusEFI cuts
+fuel and spark while the ignition-sense input reads "off", so that input is only switched on for the years whose
+harness carries the wire (1C, 4S). A car without the wire uses battery voltage instead, rusEFI's default. If an NB2
+gets no fuel or spark with the key on, check that you didn't pick 2003-05 on a 2001-02 car.
 
 - **NA years** use rusEFI's own Miata presets (`setMazdaMiataNA6`, `setMazdaMiataNA94`, `setMazdaMiata96`), which
   include base fuel and ignition tables.
@@ -70,7 +76,8 @@ A blank board starts with the 1989–93 settings.
 - **Wideband:** the on-board unit, over CAN.
 
 ### Board facts the firmware pins (TunerStudio can't change them)
-- **Analog dividers:** analog inputs ×1.56 (5.6k/10k). Battery and ignition sense ×5.85 (33k/6.8k).
+- **Analog dividers:** analog inputs ×1.56 (5.6k/10k). Battery and ignition sense ×5.85 (33k/6.8k). The ignition
+  sense channel itself is part of the year defaults (table above).
 - **CLT/IAT pull-up:** 2.7 kΩ to 5 V, and the ADC divider loads the same node. Together they behave like a
   4.26 V supply behind 2.30 kΩ, and the firmware uses exactly that. Only pick the sensor curve in TunerStudio (stock
   or the M12 sensor, as set by JP1).
@@ -101,7 +108,7 @@ bootloader + FOME/rusEFI wideband firmware for the F042 module). Once it is on t
 | IGN1 / IGN2 / IGN3 / IGN4 | PE1 / PE0 / PB9 / PB8 | J1-14..17 | ignition pins 1 / 3 / 2 / 4 |
 | INJ1 / INJ2 / INJ3 / INJ4 | PB7 / PB6 / PB5 / PB4 | J1-19, 22, 25, 28 | injection pins 1-4 |
 | IACV / VVT / BOOST / ALT | PB3 / PD7 / PD6 / PD5 | J1-31, 34, 37, 40 | idle solenoid / VVT or O2 heater / boost / alternator |
-| FP / MAINRLY / AC / FAN | PC14 / PC13 / PE6 / PE5 | J1-6..9 | fuel pump / main relay (NB2) / A/C relay / fan |
+| FP / MAINRLY / AC / FAN | PC14 / PC13 / PE6 / PE5 | J1-6..9 | fuel pump / main relay (2003-05) / A/C relay / fan |
 | CEL / TACH / LS7 | PE4 / PE3 / PE2 | J1-10..12 | check engine / tach / fan 2 |
 | HALL1 / HALL2 | PE7 / PE8 | J2-13, 14 | crank / cam (see the year table) |
 | SW1 / SW2 / SW3 | PE9 / PE10 / PE11 | J2-15..17 | VSS / A/C switch / clutch |
@@ -109,7 +116,7 @@ bootloader + FOME/rusEFI wideband firmware for the F042 module). Once it is on t
 | TPS / MAP / CLT / IAT | PA4 / PA5 / PA6 / PA7 | J2-4..7 | ADC 4 / 5 / 6 / 7 |
 | AFR / AUX1 / AUX2 / AUX3 | PC4 / PC5 / PB0 / PB1 | J2-8..11 | AFR / spare / spare / MAF |
 | KNOCK | PA3 (ADC3) | J2-3 | software knock (on for NB) |
-| VBATT / VIGN | PA1 / PA2 | on board | battery / ignition key sense |
+| VBATT / VIGN | PA1 / PA2 | on board (VIGN from J1-3) | battery / ignition key sense (1989-95, 2003-05) |
 | CAN2 RX / TX | PB12 / PB13 | J2-27, 28 (bus) | CAN2 |
 | LEDs run / comms / warning / error | PD12 / PD13 / PD14 / PD15 | on board | fixed |
 | Wideband link TX / RX / BOOT0 / NRST | PD8 / PD9 / PD10 / PD11 | on board | fixed |
@@ -118,20 +125,27 @@ Which harness pin each signal reaches is in each motherboard's README.
 
 ## First start
 Read this before the engine runs for the first time.
-1. **Wideband first.** Power the board on the bench, flash the wideband and check `wbo_uart_status`. Then check that
+1. **Year button and ignition.** Press your year in Popular Vehicles (2001-02 and 2003-05 are separate). With the key
+   on, crank briefly with the injectors unplugged and check that the injector and spark outputs are active (trigger and
+   output logs). If they stay silent, rusEFI thinks the ignition is off: check you picked the right NB2 button.
+2. **Tach wire (1989-95).** Our board drives the tach cavity 2I as an output, as rusEFI's Hellen NA6 does, but the
+   rusEFI wiki lists it as an input. Check your car's wiring diagram before the first start: if 2I is fed by the
+   igniter rather than the ECU, set the tachometer output to none in TunerStudio.
+3. **Wideband first.** Power the board on the bench, flash the wideband and check `wbo_uart_status`. Then check that
    TunerStudio shows the wideband on CAN before you fit the sensor in the exhaust.
-2. **Trigger.** Crank with the injectors unplugged and look at the trigger log. If rusEFI won't sync, the hall
+4. **Trigger.** Crank with the injectors unplugged and look at the trigger log. If rusEFI won't sync, the hall
    input may need the opposite polarity: try the trigger "invert" settings.
-3. **Switch inputs** are 12 V inputs through a 33k/10k divider, with no pull-up. Check that your car's VSS, A/C
+5. **Switch inputs** are 12 V inputs through a 33k/10k divider, with no pull-up. Check that your car's VSS, A/C
    and clutch signals actually drive the line high. A signal that only pulls to ground won't register without an
    external pull-up.
-4. **NB alternator:** the engine computer regulates the charging voltage. Watch battery voltage on the first start
-   and switch alternator control off if it misbehaves.
-5. **NB tables:** set VE, ignition and (NB2) the VVT target before driving. The defaults are generic.
-6. **Hard acceleration and the check engine light:** rusEFI logs a trigger timing warning when a tooth lands >10°
-   from where it predicted it, which happens above about 1000 rpm/s (free revving). The engine keeps running; the light
+6. **NB alternator:** the engine computer regulates the charging voltage, and alternator control is on by default.
+   The field current hasn't been measured (VERIFICATION.md M5). Watch battery voltage on the first start and switch
+   alternator control off if it misbehaves.
+7. **NB tables:** set VE, ignition and (NB2) the VVT target before driving. The defaults are generic.
+8. **Hard acceleration and the check engine light:** rusEFI logs a trigger timing warning when a tooth lands >10°
+   from where it predicted it. In simulation that happened at 1526 rpm/s and not at 763 rpm/s (free revving). The engine keeps running; the light
    blinks the code for a few seconds, then the board's warning expiry clears it.
-7. **Outputs left alone:** the NA purge solenoid (1989-93), the pressure-regulator solenoid (1994-95) and the NB1
+9. **Outputs left alone:** the NA purge solenoid (1989-93), the pressure-regulator solenoid (1994-95) and the NB1
    VICS solenoid have no rusEFI function. They stay off unless you set them up as general-purpose PWM outputs.
 
 ## Building

@@ -37,6 +37,7 @@ namespace {
 
 engine_type_e g_year;
 bool g_knockRequested;
+bool g_nb2Early; // build the 2001-02 variant of the NB2 preset
 
 // rusEFI's unit-test build has no software knock (the board build enables it in board.mk), and rusEFI refuses a tune
 // asking for it there. Record what the preset asked for, then switch it off for the simulation only.
@@ -56,7 +57,9 @@ std::string pinName(Gpio pin) {
 }
 
 void applyYearHook(engine_type_e) {
+	miataSelectNb2Early(g_nb2Early);
 	miataApplyYearPreset(g_year);
+	miataSelectNb2Early(false);
 }
 
 // On the real board resetConfigurationExt() calls DefaultConfiguration then ConfigOverrides (EFI_PROD_CODE only);
@@ -95,7 +98,7 @@ const char* yearName(engine_type_e t) {
 	case engine_type_e::MAZDA_MIATA_NA94: return "1994-95";
 	case engine_type_e::MAZDA_MIATA_NA96: return "1996-97";
 	case engine_type_e::MAZDA_MIATA_NB1: return "1999-2000";
-	case engine_type_e::MAZDA_MIATA_NB2: return "2001-05";
+	case engine_type_e::MAZDA_MIATA_NB2: return g_nb2Early ? "2001-02" : "2003-05";
 	default: return "?";
 	}
 }
@@ -521,8 +524,8 @@ void runYear(engine_type_e year) {
 	printf("|firmwareError=%d\n", hasFirmwareError());
 	EXPECT_FALSE(hasFirmwareError()) << getCriticalErrorMessage();
 
-	if (year == engine_type_e::MAZDA_MIATA_NB2) {
-		EXPECT_TRUE(rec.get("mainRelay").last) << "NB2 main relay held on";
+	if (year == engine_type_e::MAZDA_MIATA_NB2 && !g_nb2Early) {
+		EXPECT_TRUE(rec.get("mainRelay").last) << "2003-05 main relay held on";
 	}
 }
 
@@ -593,6 +596,7 @@ void checkConfiguration(engine_type_e year) {
 	// year-specific outputs
 	switch (year) {
 	case engine_type_e::MAZDA_MIATA_NA6:
+		EXPECT_EQ(MIATA_IN_VIGN, engineConfiguration->ignKeyAdcChannel) << "1C ignition sense";
 		EXPECT_EQ(IM_BATCH, engineConfiguration->injectionMode);
 		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->injectionPins[2]);
 		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->injectionPins[3]);
@@ -601,6 +605,7 @@ void checkConfiguration(engine_type_e year) {
 		EXPECT_NEAR(1.6f, engineConfiguration->displacement, 0.01);
 		break;
 	case engine_type_e::MAZDA_MIATA_NA94:
+		EXPECT_EQ(MIATA_IN_VIGN, engineConfiguration->ignKeyAdcChannel) << "1C ignition sense";
 		EXPECT_EQ(IM_SEQUENTIAL, engineConfiguration->injectionMode);
 		EXPECT_EQ(MIATA_INJ3, engineConfiguration->injectionPins[2]);
 		EXPECT_EQ(MIATA_INJ4, engineConfiguration->injectionPins[3]);
@@ -608,11 +613,14 @@ void checkConfiguration(engine_type_e year) {
 		EXPECT_NEAR(1.8f, engineConfiguration->displacement, 0.05);
 		break;
 	case engine_type_e::MAZDA_MIATA_NA96:
+		// no ignition-sense wire on this harness: a channel would read "key off" and cut fuel and spark
+		EXPECT_EQ(EFI_ADC_NONE, engineConfiguration->ignKeyAdcChannel);
 		EXPECT_EQ(IM_SEQUENTIAL, engineConfiguration->injectionMode);
 		EXPECT_EQ(MIATA_VVT, engineConfiguration->o2heaterPin) << "front O2 heater on 3M";
 		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->alternatorControlPin);
 		break;
 	case engine_type_e::MAZDA_MIATA_NB1:
+		EXPECT_EQ(EFI_ADC_NONE, engineConfiguration->ignKeyAdcChannel) << "no ignition-sense wire on NB1";
 		EXPECT_EQ(IM_SEQUENTIAL, engineConfiguration->injectionMode);
 		EXPECT_EQ(MIATA_VVT, engineConfiguration->o2heaterPin) << "front O2 heater on 1U";
 		EXPECT_EQ(MIATA_ALT, engineConfiguration->alternatorControlPin);
@@ -621,11 +629,16 @@ void checkConfiguration(engine_type_e year) {
 		EXPECT_NEAR(256, engineConfiguration->injector.flow, 0.1);
 		break;
 	case engine_type_e::MAZDA_MIATA_NB2:
+		if (g_nb2Early) {
+			EXPECT_EQ(EFI_ADC_NONE, engineConfiguration->ignKeyAdcChannel) << "2001-02: 4S not wired";
+		} else {
+			EXPECT_EQ(MIATA_IN_VIGN, engineConfiguration->ignKeyAdcChannel) << "2003-05: 4S ignition sense";
+		}
 		EXPECT_EQ(IM_SEQUENTIAL, engineConfiguration->injectionMode);
 		EXPECT_EQ(MIATA_VVT, engineConfiguration->vvtPins[0]) << "OCV on 4R";
 		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->o2heaterPin);
 		EXPECT_EQ(MIATA_ALT, engineConfiguration->alternatorControlPin);
-		EXPECT_EQ(MIATA_MAINRLY, engineConfiguration->mainRelayPin);
+		EXPECT_EQ(g_nb2Early ? Gpio::Unassigned : MIATA_MAINRLY, engineConfiguration->mainRelayPin);
 		EXPECT_NEAR(265, engineConfiguration->injector.flow, 0.1);
 		break;
 	default:
@@ -647,6 +660,7 @@ void checkConfiguration(engine_type_e year) {
 		pinName(engineConfiguration->idle.solenoidPin).c_str(), pinName(engineConfiguration->mainRelayPin).c_str(),
 		pinName(engineConfiguration->alternatorControlPin).c_str(), pinName(engineConfiguration->o2heaterPin).c_str(),
 		pinName(engineConfiguration->vvtPins[0]).c_str(), pinName(engineConfiguration->boostControlPin).c_str());
+	printf("ignKey=%s|", engineConfiguration->ignKeyAdcChannel == MIATA_IN_VIGN ? "VIGN" : "-");
 	printf("vss=%s|acSwitch=%s|clutch=%s|mode=%s\n", pinName(engineConfiguration->vehicleSpeedSensorInputPin).c_str(),
 		pinName(engineConfiguration->acSwitch).c_str(), pinName(engineConfiguration->clutchDownPin).c_str(),
 		engineConfiguration->injectionMode == IM_BATCH ? "batch" : "sequential");
@@ -661,7 +675,19 @@ MIATA_YEAR_TESTS(NA6_1989_93, MAZDA_MIATA_NA6)
 MIATA_YEAR_TESTS(NA8_1994_95, MAZDA_MIATA_NA94)
 MIATA_YEAR_TESTS(NA8_1996_97, MAZDA_MIATA_NA96)
 MIATA_YEAR_TESTS(NB1_1999_2000, MAZDA_MIATA_NB1)
-MIATA_YEAR_TESTS(NB2_2001_05, MAZDA_MIATA_NB2)
+MIATA_YEAR_TESTS(NB2_2003_05, MAZDA_MIATA_NB2)
+
+TEST(MiataYear, Configuration_NB2_2001_02) {
+	g_nb2Early = true;
+	checkConfiguration(engine_type_e::MAZDA_MIATA_NB2);
+	g_nb2Early = false;
+}
+
+TEST(MiataYear, Running_NB2_2001_02) {
+	g_nb2Early = true;
+	runYear(engine_type_e::MAZDA_MIATA_NB2);
+	g_nb2Early = false;
+}
 
 // ---- real captures ------------------------------------------------------------------------------------------------
 
@@ -711,18 +737,62 @@ TEST(MiataRealCapture, NbInvertedPolarityNeedsTheInvertSetting) {
 	printf("MIATA|2001-05|inverted_signal|900|phase_sync=%d|rpm=%.0f\n", syncedInverted, Sensor::getOrZero(SensorType::Rpm));
 }
 
-// Rev limiter: the presets set 7200 rpm; fuel must be cut above it.
+// Rev limiter: every preset sets 7200 rpm; fuel and spark must be cut above it and come back below it.
 TEST(MiataLimits, RevLimiter) {
-	MiataEcu ecu(engine_type_e::MAZDA_MIATA_NB2);
-	Recorder rec;
-	Clock clock(ecu.eth, rec);
-	runNb(clock, 7600, 12);
-	rec.clear();
-	runNb(clock, 7600, 6);
-	int pulses = countEdges(rec.get("inj1"), true) + countEdges(rec.get("inj2"), true) + countEdges(rec.get("inj3"), true)
-		+ countEdges(rec.get("inj4"), true);
-	printf("MIATA|2001-05|revlimit|7600|injector_pulses=%d\n", pulses);
-	EXPECT_EQ(0, pulses) << "fuel must be cut at 7600 rpm with a 7200 rpm limit";
+	for (auto year : {engine_type_e::MAZDA_MIATA_NA6, engine_type_e::MAZDA_MIATA_NA94, engine_type_e::MAZDA_MIATA_NA96,
+			engine_type_e::MAZDA_MIATA_NB1, engine_type_e::MAZDA_MIATA_NB2}) {
+		MiataEcu ecu(year);
+		Recorder rec;
+		Clock clock(ecu.eth, rec);
+		if (isNb(year)) {
+			runNb(clock, 7600, 12);
+		} else {
+			runNa(clock, 7600, 12);
+		}
+		rec.clear();
+		if (isNb(year)) {
+			runNb(clock, 7600, 6);
+		} else {
+			runNa(clock, 7600, 6);
+		}
+		int pulses = 0;
+		for (int i = 1; i <= 4; i++) {
+			// only injectors with a pin reach the harness
+			if (engineConfiguration->injectionPins[i - 1] != Gpio::Unassigned) {
+				pulses += countEdges(rec.get("inj" + std::to_string(i)), true);
+			}
+		}
+		float rpm = Sensor::getOrZero(SensorType::Rpm);
+		int sparks = countEdges(rec.get("coil1"), false) + countEdges(rec.get("coil3"), false);
+		// rusEFI's default also cuts spark at the hard limit (cutSparkOnHardLimit)
+		EXPECT_EQ(0, sparks) << yearName(year);
+		// still synced, so the silence is the limiter and not lost sync...
+		EXPECT_NEAR(7600, rpm, 150) << yearName(year);
+		// ...and fuel and spark come back below the limit
+		if (isNb(year)) {
+			runNb(clock, 7600.0f, 6500.0f, 40);
+		} else {
+			runNa(clock, 7600.0f, 6500.0f, 40);
+		}
+		rec.clear();
+		if (isNb(year)) {
+			runNb(clock, 6500, 6);
+		} else {
+			runNa(clock, 6500, 6);
+		}
+		int pulsesBelow = 0;
+		for (int i = 1; i <= 4; i++) {
+			if (engineConfiguration->injectionPins[i - 1] != Gpio::Unassigned) {
+				pulsesBelow += countEdges(rec.get("inj" + std::to_string(i)), true);
+			}
+		}
+		int sparksBelow = countEdges(rec.get("coil1"), false) + countEdges(rec.get("coil3"), false);
+		printf("MIATA|%s|revlimit|7600|rpm=%.0f|sparks=%d|injector_pulses=%d|at6500_sparks=%d|at6500_pulses=%d\n",
+			yearName(year), rpm, sparks, pulses, sparksBelow, pulsesBelow);
+		EXPECT_GT(sparksBelow, 0) << yearName(year);
+		EXPECT_GT(pulsesBelow, 0) << yearName(year);
+		EXPECT_EQ(0, pulses) << "fuel must be cut at 7600 rpm with a 7200 rpm limit, " << yearName(year);
+	}
 }
 
 // rusEFI warns (code 9007/9008) when a trigger tooth lands >10 degrees from where the previous tooth's speed predicted
