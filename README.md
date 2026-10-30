@@ -27,6 +27,10 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 > **Status:** every board is fully routed and passes KiCad DRC (no clearance errors, no unconnected items), and each
 > schematic's netlist has been checked pad-by-pad against its board. **None of them has been built or tested yet**, and
 > no person has reviewed the schematics. Read each board's README, especially its *Still to verify* or *Before ordering* list.
+>
+> **Verification (desk + simulation, 2026-10-30):** [VERIFICATION.md](VERIFICATION.md). Pinouts and firmware check out
+> for all five years; it lists four hardware changes to make before building (low-side driver input level, freewheel
+> diodes, BOOT1 pull-down, 2003-05 key-off back-feed) and further recommendations.
 
 | Board | Folder | Rev | Harness header | Case fit |
 |---|---|---|---|---|
@@ -86,7 +90,8 @@ Pick the matching sensor curve in TunerStudio. The firmware already accounts for
 | `mb/ecu_mb.pretty/` | Project footprints (harness headers named by OEM terminal, the flat MPX5700AP, USB-C, M4 case hole) |
 | `research/` | Pinout research for 1996–2005 (sources compared per pin) |
 | `viewer/` | Interactive 3D viewer: the daughterboard alone, or assembled on any year's motherboard. Click a part for its details and shop links |
-| `firmware/` | The rusEFI board definition, the wideband flasher, and the pin cross-check. rusEFI itself is a submodule in `firmware/ext/rusefi` |
+| `firmware/` | The rusEFI board definition, the wideband flasher, the simulation tests and the verification tools. rusEFI itself is a submodule in `firmware/ext/rusefi` |
+| `VERIFICATION.md` | Pinout, datasheet, simulation, flashing and safety review, with the hardware changes it calls for |
 | `.github/workflows/firmware.yaml` | CI: checks the pin map against the board design and builds the firmware |
 
 ## Rebuilding

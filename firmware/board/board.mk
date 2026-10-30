@@ -1,5 +1,6 @@
 # rusEFI board definition for the miata-ecus daughterboard (STM32F407VGT6).
 BOARDCPPSRC += $(BOARD_DIR)/board_configuration.cpp \
+	$(BOARD_DIR)/miata_board.cpp \
 	$(BOARD_DIR)/wideband_uart_flash.cpp
 
 DDEFS += -DSTM32F407xx

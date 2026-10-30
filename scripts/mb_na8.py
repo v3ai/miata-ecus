@@ -26,7 +26,7 @@ HARNESS.update({
     '1R': '',            # 94-95: not the fan any more (fan relay is 1L)
     '1C': 'VIGN_IN',     # VIO: ignition switch (input only)
     '2N': 'IN_AUX2',     # heated O2 sensor (narrowband)
-    '2O': 'IN_AUX3',     # MAF signal (94-95 have a MAF, not the flap meter)
+    '2O': 'IN_AUX3',     # air flow meter signal (vane AFM; rusEFI's 1994 page calls it MAF)
     '2P': 'HARN_IAT',    # intake air thermosensor in the AFM (IAT jumper JP1 on STOCK to use it)
     '1D': '',            # data link connector
     '1F': '',            # spare analog in the stock ECU
@@ -42,6 +42,10 @@ HARNESS.update({
     '2L': 'IN_AUX1',     # electrical load (rear defroster) -> idle up
     '2R': 'OUT_ALT',     # pressure regulator control solenoid (generic low side)
     '2S': 'OUT_LS7',     # condenser fan relay
+    '2U': 'OUT_INJ1',    # injector No.1 (94-95: one wire per injector, sequential)
+    '2V': 'OUT_INJ2',    # injector No.2
+    '2Y': 'OUT_INJ3',    # injector No.3
+    '2Z': 'OUT_INJ4',    # injector No.4
 })
 
 

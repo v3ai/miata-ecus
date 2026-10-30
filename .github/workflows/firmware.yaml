@@ -42,6 +42,11 @@ jobs:
           uploads: ''
           artifacts: bin hex dfu map elf srec bootloader bundle
 
+      - name: Check the images (vector tables, OpenBLT CRC header, merged DFU layout)
+        run: |
+          F=firmware/ext/rusefi/firmware
+          python3 firmware/tools/check_image.py $F/bootloader/blbuild/openblt_miata-ecu.bin $F/build/rusefi_crc32.bin $F/deliver/rusefi.bin
+
       - name: Upload TunerStudio .ini
         uses: actions/upload-artifact@v4
         with:
@@ -61,3 +66,44 @@ jobs:
             echo "--- last lines ---"; tail -n 25 /tmp/retry.log; } > /tmp/err.txt
           cat /tmp/err.txt
           echo "::error title=Firmware build errors::$(sed -e 's/%/%25/g' -e 's/\r//g' /tmp/err.txt | awk '{printf "%s%%0A", $0}')"
+
+  # Verification: the board's real configuration code running inside rusEFI's engine simulator (all five years,
+  # real NA/NB trigger captures), the end-to-end harness check, the wideband flasher against an AN3155 bootloader
+  # model, the main-MCU image checks, and the circuit simulations. See firmware/VERIFICATION.md.
+  simulate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Tools and rusEFI submodules
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q ngspice stm32flash gcc-arm-none-eabi
+          python3 -c 'import yaml' 2>/dev/null || pip install --break-system-packages pyyaml
+          cd firmware/ext/rusefi && misc/git_scripts/common_submodule_init.sh
+
+      - name: Engine simulation (rusEFI unit tests + this board's tests)
+        working-directory: firmware/ext/rusefi/unit_tests
+        env:
+          BOARD_DIR: ../../../board
+        run: |
+          # rusEFI's committed f407 configuration headers are enough here; skip its Java code generation
+          make -j4 -o .tooljars-sentinel -o .config-sentinel -o .docsenums-sentinel -o .ramdisk-sentinel
+          build/rusefi_test --gtest_filter='Miata*' | tee "$GITHUB_WORKSPACE/miata_sim.txt"
+          test ${PIPESTATUS[0]} -eq 0
+
+      - name: End-to-end harness check (firmware function -> harness cavity)
+        run: python3 firmware/tools/sim_report.py miata_sim.txt
+
+      - name: Wideband flasher against the AN3155 bootloader model
+        run: bash firmware/tools/flash_sim/run_flash_sim.sh firmware/ext/rusefi /tmp/flash_sim
+
+      - name: Circuit simulations (informational)
+        run: python3 firmware/tools/circuit_sim.py /tmp/spice
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: simulation-results
+          path: miata_sim.txt

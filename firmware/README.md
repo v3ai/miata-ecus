@@ -11,13 +11,18 @@ all five motherboards. You pick the model year in TunerStudio.
 | Path | What |
 |---|---|
 | `board/meta-info.env`, `board/board.mk` | Board name (`miata-ecu`), MCU, build flags. Also: OpenBLT bootloader, red error LED, knock ADC, the USART3 link, and where the wideband image comes from |
-| `board/board_configuration.cpp` | Pin map, board facts (dividers, pull-ups, CAN2, MAP sensor) and the five year presets |
+| `board/miata_board.cpp`, `board/miata_pins.h` | Pin map, board facts (dividers, pull-ups, CAN2, MAP sensor), the five year presets and warning expiry |
+| `board/board_configuration.cpp` | Hooks the above into rusEFI and adds the hardware-only parts (LEDs, wideband flasher) |
+| `board/tests/`, `board/board_unit_tests.mk` | Engine simulation of every year inside rusEFI's unit-test engine (see [Verification](#verification)) |
 | `board/wideband_uart_flash.cpp` | Programs the wideband MCU over its ROM serial bootloader |
 | `board/connectors/daughterboard.yaml` | Pin names TunerStudio shows (J1/J2 header signals) |
 | `board/board_popular_vehicles.ini`, `board/board_commands.ini` | TunerStudio buttons: the five years and "Flash on-board wideband" |
 | `board/prepend.txt`, `board/knock_config.h` | TunerStudio menu switches, knock input |
 | `ext/rusefi` | rusEFI, as a git submodule pinned to the tested commit |
 | `tools/check_pins.py` | Checks every pin here against the board design (`scripts/design.py`) |
+| `tools/sim_report.py` | End-to-end check: firmware function → MCU pin → harness cavity, against independent pinouts |
+| `tools/flash_sim/` | Wideband flasher run on a PC against a model of the F042's ROM bootloader |
+| `tools/check_image.py`, `tools/circuit_sim.py` | Main-MCU image checks (OpenBLT header, layout); ngspice input/output circuit simulations |
 | `tools/offline_compile_check.sh` | Compile check without rusEFI's Java code generation (see [Building](#building)) |
 
 ## Getting the firmware
@@ -40,16 +45,17 @@ A blank board starts with the 1989–93 settings.
 
 | Button | rusEFI engine type | Trigger | Injection | Year-specific outputs |
 |---|---|---|---|---|
-| 1989-93 (NA6, 1.6) | `MAZDA_MIATA_NA6` | NA CAS: SGC on HALL2, SGT on HALL1 | batch, INJ1/INJ2 | none (VVT driver = purge, not driven) |
-| 1994-95 (NA8, 1.8) | `MAZDA_MIATA_NA94` | NA CAS | batch, INJ1/INJ2 | none (ALT driver = pressure regulator solenoid, not driven) |
+| 1989-93 (NA6, 1.6) | `MAZDA_MIATA_NA6` | NA CAS: SGC on HALL2, SGT on HALL1 | batch, INJ1/INJ2 only | none (VVT driver = purge, not driven) |
+| 1994-95 (NA8, 1.8) | `MAZDA_MIATA_NA94` | NA CAS | sequential | none (ALT driver = pressure regulator solenoid, not driven) |
 | 1996-97 (NA8, OBD-II) | `MAZDA_MIATA_NA96` | NA CAS | sequential | O2 heater on the VVT driver |
 | 1999-2000 (NB1) | `MAZDA_MIATA_NB1` | NB crank on HALL1, cam on HALL2 | sequential | O2 heater on VVT, alternator field on ALT |
 | 2001-05 (NB2, VVT) | `MAZDA_MIATA_NB2` | NB crank + VVT cam | sequential | VVT valve, alternator field, main relay (2003-05) |
 
 - **NA years** use rusEFI's own Miata presets (`setMazdaMiataNA6`, `setMazdaMiataNA94`, `setMazdaMiata96`), which
   include base fuel and ignition tables.
-- **1994-95:** rusEFI's preset assumes sequential injection, but this harness has two batch groups, so the board
-  switches it back to batch.
+- **1989-93:** INJ3/INJ4 are left unassigned. The stock harness has nothing on 3Y and uses 3Z for the automatic
+  transmission's control unit; assign them only after a sequential conversion (and never on an automatic).
+- **1994-95:** four injector wires (2U/2V/2Y/2Z), sequential, as in rusEFI's own 1994 preset.
 - **NB years:** rusEFI builds its NB presets for its Hellen boards only, so the engine facts are repeated here
   (displacement, trigger, injector flow, idle and alternator PID, VVT PID). The VE, ignition and VVT target tables
   stay at rusEFI's generic defaults. Load a base map for your car before driving.
@@ -122,7 +128,10 @@ Read this before the engine runs for the first time.
 4. **NB alternator:** the engine computer regulates the charging voltage. Watch battery voltage on the first start
    and switch alternator control off if it misbehaves.
 5. **NB tables:** set VE, ignition and (NB2) the VVT target before driving. The defaults are generic.
-6. **Outputs left alone:** the NA purge solenoid (1989-93), the pressure-regulator solenoid (1994-95) and the NB1
+6. **Hard acceleration and the check engine light:** rusEFI logs a trigger timing warning when a tooth lands >10°
+   from where it predicted it, which happens above about 1000 rpm/s (free revving). The engine keeps running; the light
+   blinks the code for a few seconds, then the board's warning expiry clears it.
+7. **Outputs left alone:** the NA purge solenoid (1989-93), the pressure-regulator solenoid (1994-95) and the NB1
    VICS solenoid have no rusEFI function. They stay off unless you set them up as general-purpose PWM outputs.
 
 ## Building
@@ -140,8 +149,22 @@ The output lands in `firmware/ext/rusefi/firmware/deliver/`, and the TunerStudio
 
 **Checking pins:** `python3 firmware/tools/check_pins.py` (CI runs it too).
 
+**Simulation tests** (rusEFI's unit-test engine plus this board's tests; no Java needed):
+```sh
+cd firmware/ext/rusefi/unit_tests
+BOARD_DIR=../../../board make -j8 -o .tooljars-sentinel -o .config-sentinel -o .docsenums-sentinel -o .ramdisk-sentinel
+build/rusefi_test --gtest_filter='Miata*' | tee /tmp/miata_sim.txt
+python3 ../../../tools/sim_report.py /tmp/miata_sim.txt
+bash ../../../tools/flash_sim/run_flash_sim.sh .. /tmp/flash_sim
+```
+CI runs all of these. What they cover and found is in [VERIFICATION.md](../VERIFICATION.md).
+
 **Updating rusEFI:** move the submodule to a newer commit (`cd firmware/ext/rusefi && git checkout <commit>`), run
 the build, commit the new submodule pointer.
+
+## Verification
+See [VERIFICATION.md](../VERIFICATION.md): pinout audit, datasheet review, engine and circuit simulations, flashing
+simulation and the safety review, with the hardware changes they call for.
 
 ## Licences
 - **This folder** is MIT, like the rest of the repository. A few NB engine values are taken from rusEFI's
