@@ -1,0 +1,752 @@
+{
+ "C113610": {
+  "correct_lcsc": null,
+  "desc": "Automotive low-side intelligent power switch, 60V, 1.4A, 100mohm, SOT-223",
+  "match": true,
+  "mfr": "Infineon Technologies",
+  "mpn": "AUIPS2041LTR",
+  "note": ""
+ },
+ "C115962": {
+  "correct_lcsc": null,
+  "desc": "Crystal 8MHz +/-10ppm, 20pF load, SMD 5032-2P",
+  "match": true,
+  "mfr": "YXC Crystal Oscillators",
+  "mpn": "X50328MSB2GI",
+  "note": ""
+ },
+ "C11702": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 1k 1% 62.5mW 0402",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0402WGF1001TCE",
+  "note": ""
+ },
+ "C12084": {
+  "correct_lcsc": null,
+  "desc": "3.3V CAN transceiver 1Mbps, SOIC-8",
+  "match": true,
+  "mfr": "Texas Instruments",
+  "mpn": "SN65HVD230DR",
+  "note": ""
+ },
+ "C12345": {
+  "correct_lcsc": null,
+  "desc": "MCU ARM Cortex-M4F 168MHz, 1MB Flash, 192KB SRAM, LQFP-100 (14x14)",
+  "match": true,
+  "mfr": "STMicroelectronics",
+  "mpn": "STM32F407VGT6",
+  "note": "Verified on both LCSC and JLCPCB: C12345 really is STM32F407VGT6. Code is correct despite looking suspicious."
+ },
+ "C124412": {
+  "correct_lcsc": null,
+  "desc": "Female socket 1x40, 2.54mm, through-hole, 8.5mm",
+  "match": true,
+  "mfr": "Ckmtw(Shenzhen Cankemeng)",
+  "mpn": "B-2200S40P-A120",
+  "note": ""
+ },
+ "C12624": {
+  "correct_lcsc": null,
+  "desc": "LED 0603 emerald green (525nm), water clear",
+  "match": true,
+  "mfr": "Hubei KENTO Elec",
+  "mpn": "KT-0603G",
+  "note": ""
+ },
+ "C127367": {
+  "correct_lcsc": null,
+  "desc": "Micro-Fit 3.0 header, male, 2x3 (6P), 3.0mm, right angle, through-hole",
+  "match": true,
+  "mfr": "MOLEX",
+  "mpn": "430450600",
+  "note": ""
+ },
+ "C13585": {
+  "correct_lcsc": null,
+  "desc": "MLCC 10uF 50V X5R +/-10% 1206",
+  "match": true,
+  "mfr": "Samsung Electro-Mechanics",
+  "mpn": "CL31A106KBHNNNE",
+  "note": ""
+ },
+ "C139506": {
+  "correct_lcsc": null,
+  "desc": "Power inductor 10uH +/-20%, 3.2A/3.5A, 125mohm, MWSA0503 SMD",
+  "match": true,
+  "mfr": "Sunlord",
+  "mpn": "MWSA0503-100MT",
+  "note": "LCSC product page returns 'Part not found' (delisted on lcsc.com); data from jlcpcb.com/partdetail/C139506."
+ },
+ "C14663": {
+  "correct_lcsc": null,
+  "desc": "MLCC 100nF 50V X7R +/-10% 0603",
+  "match": true,
+  "mfr": "YAGEO",
+  "mpn": "CC0603KRX7R9BB104",
+  "note": ""
+ },
+ "C14709": {
+  "correct_lcsc": "C80165",
+  "desc": "Ferrite bead 120 ohm @100MHz, 2A, 50mohm, 0603",
+  "match": false,
+  "mfr": "Murata Electronics",
+  "mpn": "BLM18PG121SN1D",
+  "note": "MISMATCH: design expects BLM18PG221 (220 ohm @100MHz) but C14709 is BLM18PG121SN1D (120 ohm). Correct part BLM18PG221SN1D is C80165 (JLC Extended; 1.4A, 100mohm).",
+  "superseded": true
+ },
+ "C15195": {
+  "correct_lcsc": null,
+  "desc": "MLCC 10nF 50V X7R +/-10% 0402",
+  "match": true,
+  "mfr": "Samsung Electro-Mechanics",
+  "mpn": "CL05B103KB5NNNC",
+  "note": ""
+ },
+ "C1523": {
+  "correct_lcsc": null,
+  "desc": "MLCC 1nF 50V X7R +/-10% 0402",
+  "match": true,
+  "mfr": "FH(Guangdong Fenghua Advanced Tech)",
+  "mpn": "0402B102K500NT",
+  "note": ""
+ },
+ "C1523548": {
+  "correct_lcsc": null,
+  "desc": "Dual VR sensor interface w/ adaptive threshold, QSOP-16",
+  "match": true,
+  "mfr": "Analog Devices / Maxim Integrated",
+  "mpn": "MAX9926UAEE+",
+  "note": ""
+ },
+ "C1525": {
+  "correct_lcsc": null,
+  "desc": "MLCC 100nF 16V X7R +/-10% 0402",
+  "match": true,
+  "mfr": "Samsung Electro-Mechanics",
+  "mpn": "CL05B104KO5NNNC",
+  "note": ""
+ },
+ "C15849": {
+  "correct_lcsc": null,
+  "desc": "MLCC 1uF 50V X5R +/-10% 0603",
+  "match": true,
+  "mfr": "Samsung Electro-Mechanics",
+  "mpn": "CL10A105KB8NNNC",
+  "note": ""
+ },
+ "C1585": {
+  "correct_lcsc": null,
+  "desc": "MLCC 33nF 50V Y5V +/-20% 0402",
+  "match": true,
+  "mfr": "FH(Guangdong Fenghua Advanced Tech)",
+  "mpn": "0402F333M500NT",
+  "note": "Value/package match, but dielectric is Y5V (+22/-82% over temp, strong DC-bias loss). Consider an X7R part, e.g. C285077 (FH 0402B333K100NT, 33nF 10V X7R) if voltage allows.",
+  "superseded": true
+ },
+ "C15850": {
+  "correct_lcsc": null,
+  "desc": "MLCC 10uF 25V X5R +/-10% 0805",
+  "match": true,
+  "mfr": "Samsung Electro-Mechanics",
+  "mpn": "CL21A106KAYNNNE",
+  "note": ""
+ },
+ "C1603": {
+  "correct_lcsc": null,
+  "desc": "MLCC 220pF 50V X7R +/-10% 0603",
+  "match": true,
+  "mfr": "Samsung Electro-Mechanics",
+  "mpn": "CL10B221KB8NNNC",
+  "note": ""
+ },
+ "C1620": {
+  "correct_lcsc": null,
+  "desc": "MLCC 470pF 50V X7R +/-10% 0603",
+  "match": true,
+  "mfr": "FH(Guangdong Fenghua Advanced Tech)",
+  "mpn": "0603B471K500NT",
+  "note": ""
+ },
+ "C1653": {
+  "correct_lcsc": null,
+  "desc": "MLCC 22pF 50V C0G +/-5% 0603",
+  "match": true,
+  "mfr": "Samsung Electro-Mechanics",
+  "mpn": "CL10C220JB8NNNC",
+  "note": ""
+ },
+ "C17408": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 100 ohm 1% 125mW 0805",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0805W8F1000T5E",
+  "note": ""
+ },
+ "C187824": {
+  "correct_lcsc": null,
+  "desc": "Buck converter 4-40V in, 2A, 200kHz-2.5MHz, SO PowerPAD-8 (HSOP-8-EP)",
+  "match": true,
+  "mfr": "Texas Instruments",
+  "mpn": "LMR14020SDDAR",
+  "note": ""
+ },
+ "C19666": {
+  "correct_lcsc": null,
+  "desc": "MLCC 4.7uF 16V X5R +/-10% 0603",
+  "match": true,
+  "mfr": "Samsung Electro-Mechanics",
+  "mpn": "CL10A475KO8NNNC",
+  "note": ""
+ },
+ "C20551": {
+  "correct_lcsc": null,
+  "desc": "Dual 1.5A non-inverting MOSFET driver, 4.5-18V, SOIC-8",
+  "match": true,
+  "mfr": "Microchip",
+  "mpn": "TC4427AEOA713",
+  "note": ""
+ },
+ "C21010": {
+  "correct_lcsc": null,
+  "desc": "PTC resettable fuse 2A hold / 4A trip, 8V max, 1812",
+  "match": true,
+  "mfr": "RUILON",
+  "mpn": "SMD1812P200TF",
+  "note": "Value/package match, but max voltage is only 8V - OK on a 5V rail, not on 12V battery.",
+  "superseded": true
+ },
+ "C21189": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 0 ohm jumper 0603",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0603WAF0000T5E",
+  "note": ""
+ },
+ "C21190": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 1k 1% 100mW 0603",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0603WAF1001T5E",
+  "note": ""
+ },
+ "C223413": {
+  "correct_lcsc": null,
+  "desc": "2.2uH 930mA 1210 inductor",
+  "match": true,
+  "mfr": "Taiyo Yuden",
+  "mpn": "LBC3225T2R2MR",
+  "note": "replacement"
+ },
+ "C22787": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 120 ohm 1% 100mW 0603",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0603WAF1200T5E",
+  "note": ""
+ },
+ "C22790": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 12k 1% 100mW 0603",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0603WAF1202T5E",
+  "note": ""
+ },
+ "C2286": {
+  "correct_lcsc": null,
+  "desc": "LED 0603 red, water clear",
+  "match": true,
+  "mfr": "Hubei KENTO Elec",
+  "mpn": "KT-0603R",
+  "note": ""
+ },
+ "C2288": {
+  "correct_lcsc": null,
+  "desc": "LED 0603 blue (469nm), water clear",
+  "match": true,
+  "mfr": "Hubei KENTO Elec",
+  "mpn": "KT-0603B",
+  "note": ""
+ },
+ "C22936": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 1 ohm 1% 100mW 0603",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0603WAF100KT5E",
+  "note": ""
+ },
+ "C23092": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 61.9 ohm 1% 100mW 0603",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0603WAF619JT5E",
+  "note": ""
+ },
+ "C23138": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 330 ohm 1% 100mW 0603",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0603WAF3300T5E",
+  "note": ""
+ },
+ "C23186": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 5.1k 1% 100mW 0603",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0603WAF5101T5E",
+  "note": ""
+ },
+ "C23221": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 62k 1% 100mW 0603",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0603WAF6202T5E",
+  "note": ""
+ },
+ "C23231": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 68k 1% 100mW 0603",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0603WAF6802T5E",
+  "note": ""
+ },
+ "C23630": {
+  "correct_lcsc": null,
+  "desc": "MLCC 2.2uF 16V X5R +/-10% 0603",
+  "match": true,
+  "mfr": "Samsung Electro-Mechanics",
+  "mpn": "CL10A225KO8NNNC",
+  "note": ""
+ },
+ "C25077": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 10 ohm 1% 62.5mW 0402",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0402WGF100JTCE",
+  "note": ""
+ },
+ "C25118": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 47 ohm 1% 62.5mW 0402",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0402WGF470JTCE",
+  "note": ""
+ },
+ "C25741": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 100k 1% 62.5mW 0402",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0402WGF1003TCE",
+  "note": ""
+ },
+ "C25744": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 10k 1% 62.5mW 0402",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0402WGF1002TCE",
+  "note": ""
+ },
+ "C25768": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 22k 1% 62.5mW 0402",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0402WGF2202TCE",
+  "note": ""
+ },
+ "C25770": {
+  "correct_lcsc": "C25885",
+  "desc": "Thick film resistor 270k 1% 62.5mW 0402",
+  "match": false,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0402WGF2703TCE",
+  "note": "MISMATCH: design expects 2.7k but C25770 is 270k (0402WGF2703TCE), 100x too high. Correct 2.7k 0402 is C25885 (0402WGF2701TCE, same UNI-ROYAL series; JLC Extended - no 0402 2.7k Basic part found).",
+  "superseded": true
+ },
+ "C25771": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 27k 1% 62.5mW 0402",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0402WGF2702TCE",
+  "note": ""
+ },
+ "C25779": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 33k 1% 62.5mW 0402",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0402WGF3302TCE",
+  "note": ""
+ },
+ "C25792": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 47k 1% 62.5mW 0402",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0402WGF4702TCE",
+  "note": ""
+ },
+ "C25803": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 100k 1% 100mW 0603",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0603WAF1003T5E",
+  "note": ""
+ },
+ "C25804": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 10k 1% 100mW 0603",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0603WAF1002T5E",
+  "note": ""
+ },
+ "C25819": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 47k 1% 100mW 0603",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0603WAF4702T5E",
+  "note": ""
+ },
+ "C25885": {
+  "correct_lcsc": null,
+  "desc": "2.7k 1% 0402 resistor",
+  "match": true,
+  "mfr": "UNI-ROYAL",
+  "mpn": "0402WGF2701TCE",
+  "note": "replacement"
+ },
+ "C25890": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 3.3k 1% 62.5mW 0402",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0402WGF3301TCE",
+  "note": ""
+ },
+ "C25900": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 4.7k 1% 62.5mW 0402",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0402WGF4701TCE",
+  "note": ""
+ },
+ "C25908": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 5.6k 1% 62.5mW 0402",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0402WGF5601TCE",
+  "note": ""
+ },
+ "C25917": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 6.8k 1% 62.5mW 0402",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0402WGF6801TCE",
+  "note": ""
+ },
+ "C2649436": {
+  "correct_lcsc": null,
+  "desc": "OMNIFET II fully autoprotected power MOSFET, 12A, 35mohm, DPAK (TO-252)",
+  "match": true,
+  "mfr": "STMicroelectronics",
+  "mpn": "VND14NV04TR-E",
+  "note": ""
+ },
+ "C27438": {
+  "correct_lcsc": null,
+  "desc": "Female socket 1x8, 2.54mm, through-hole, 8.5mm",
+  "match": true,
+  "mfr": "BOOMELE(Boom Precision Elec)",
+  "mpn": "2.54-1*8P",
+  "note": ""
+ },
+ "C27834": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 5.1k 1% 125mW 0805",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0805W8F5101T5E",
+  "note": ""
+ },
+ "C285077": {
+  "correct_lcsc": null,
+  "desc": "33nF 10V X7R 0402",
+  "match": true,
+  "mfr": "FH",
+  "mpn": "0402B333K100NT",
+  "note": "replacement"
+ },
+ "C29309": {
+  "correct_lcsc": null,
+  "desc": "Zero-drift RRIO op amp 2.5MHz, SOT-23-5 (TSOT-23-5 footprint compatible)",
+  "match": true,
+  "mfr": "Analog Devices",
+  "mpn": "AD8628ARTZ-REEL7",
+  "note": ""
+ },
+ "C29718": {
+  "correct_lcsc": null,
+  "desc": "Resistor array 4x10k 5% 62.5mW, 0603x4 (8-pin, convex)",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "4D03WGJ0103T5E",
+  "note": "Convex/concave style not stated in LCSC text; UNI-ROYAL 4D03 series is the convex 4x0603 array, consistent with the footprint."
+ },
+ "C2977586": {
+  "correct_lcsc": null,
+  "desc": "Pin header, male, 1x40, 2.54mm, through-hole, vertical",
+  "match": true,
+  "mfr": "ZHOURI",
+  "mpn": "2.54-1*40",
+  "note": ""
+ },
+ "C3020560": {
+  "correct_lcsc": null,
+  "desc": "USB Type-C receptacle USB 2.0, 16P SMT, top mount",
+  "match": true,
+  "mfr": "Global Connector Technology (GCT)",
+  "mpn": "USB4105-GF-A",
+  "note": ""
+ },
+ "C310046": {
+  "correct_lcsc": null,
+  "desc": "TVS diode unidirectional 30V Vrwm, 48.4V clamp, 1.5kW, SMC (DO-214AB)",
+  "match": true,
+  "mfr": "Brightking",
+  "mpn": "SMCJ30A/TR13",
+  "note": ""
+ },
+ "C318884": {
+  "correct_lcsc": null,
+  "desc": "Tactile switch SPST, SMD 5.1x5.1mm, 1.5mm height, 160gf",
+  "match": true,
+  "mfr": "XKB Connection",
+  "mpn": "TS-1187A-B-A-B",
+  "note": ""
+ },
+ "C3406": {
+  "correct_lcsc": null,
+  "desc": "IDC box header 2x8 (16P), 2.54mm, through-hole",
+  "match": true,
+  "mfr": "BOOMELE(Boom Precision Elec)",
+  "mpn": "2.54-2*8P",
+  "note": ""
+ },
+ "C36658": {
+  "correct_lcsc": null,
+  "desc": "Voltage reference 3.3V +/-0.2%, 50ppm/C, SOT-23-3",
+  "match": true,
+  "mfr": "Texas Instruments",
+  "mpn": "REF3033AIDBZR",
+  "note": ""
+ },
+ "C36828": {
+  "correct_lcsc": null,
+  "desc": "Wire-wound chip inductor 2.2uH +/-5%, 320mA, 1 ohm DCR, 1210",
+  "match": true,
+  "mfr": "MetalLions",
+  "mpn": "MLW3225-2R2(F)",
+  "note": "Value/package match, but only 320mA rated with 1 ohm DCR (signal-grade). Fine for a filter; not suitable if this sits in a power path carrying >300mA.",
+  "superseded": true
+ },
+ "C36871": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 68k 1% 62.5mW 0402",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0402WGF6802TCE",
+  "note": ""
+ },
+ "C3743696": {
+  "correct_lcsc": null,
+  "desc": "150mA tracking regulator DSO-8",
+  "match": true,
+  "mfr": "Infineon",
+  "mpn": "TLS115B0EJ",
+  "note": "replacement"
+ },
+ "C410772": {
+  "correct_lcsc": null,
+  "desc": "Pressure sensor 0-700kPa differential, 5V, ratiometric analog out, SIP-6 (867C)",
+  "match": true,
+  "mfr": "NXP",
+  "mpn": "MPX5700DP",
+  "note": ""
+ },
+ "C46641168": {
+  "correct_lcsc": null,
+  "desc": "PTC fuse 2A hold 30V 1812",
+  "match": true,
+  "mfr": "R+O",
+  "mpn": "SMD1812-200-30",
+  "note": "replacement"
+ },
+ "C46653": {
+  "correct_lcsc": null,
+  "desc": "MLCC 1nF 50V X7R +/-10% 0805",
+  "match": true,
+  "mfr": "Samsung Electro-Mechanics",
+  "mpn": "CL21B102KBCNNNC",
+  "note": ""
+ },
+ "C50282": {
+  "correct_lcsc": null,
+  "desc": "Quad op amp RRIO 1MHz, 1.8-5.5V, TSSOP-14",
+  "match": true,
+  "mfr": "Microchip",
+  "mpn": "MCP6004T-I/ST",
+  "note": ""
+ },
+ "C52923": {
+  "correct_lcsc": null,
+  "desc": "MLCC 1uF 25V X5R +/-10% 0402",
+  "match": true,
+  "mfr": "Samsung Electro-Mechanics",
+  "mpn": "CL05A105KA5NQNC",
+  "note": ""
+ },
+ "C540242": {
+  "correct_lcsc": "C3743696",
+  "desc": "LDO / tracking regulator, PG-DSO-8 EP",
+  "match": false,
+  "mfr": "Infineon Technologies",
+  "mpn": "TLS115D0EJ",
+  "note": "MISMATCH: design expects TLS115B0EJ but C540242 is TLS115D0EJ (different variant). LCSC product page is delisted ('Part not found'); identity taken from jlcpcb.com. Correct TLS115B0EJ (150mA, 45V, adjustable 2-14V tracker, DSO-8 EP) is C3743696.",
+  "superseded": true
+ },
+ "C57112": {
+  "correct_lcsc": null,
+  "desc": "MLCC 10nF 50V X7R +/-10% 0603",
+  "match": true,
+  "mfr": "FH(Guangdong Fenghua Advanced Tech)",
+  "mpn": "0603B103K500NT",
+  "note": ""
+ },
+ "C587650": {
+  "correct_lcsc": null,
+  "desc": "Micro-Fit 3.0 header, 1x2 (2P), 3.0mm, right angle, through-hole",
+  "match": true,
+  "mfr": "MOLEX",
+  "mpn": "436500202",
+  "note": "LCSC product page returns 'Part not found' (delisted on lcsc.com); data from jlcpcb.com/partdetail/C587650. Matches 43650-0200 footprint."
+ },
+ "C6186": {
+  "correct_lcsc": null,
+  "desc": "LDO 3.3V 1A, SOT-223",
+  "match": true,
+  "mfr": "Advanced Monolithic Systems",
+  "mpn": "AMS1117-3.3",
+  "note": ""
+ },
+ "C69216": {
+  "correct_lcsc": null,
+  "desc": "MCU ARM Cortex-M0 48MHz, 32KB Flash, 6KB SRAM, USB/CAN, LQFP-32 (7x7)",
+  "match": true,
+  "mfr": "STMicroelectronics",
+  "mpn": "STM32F042K6T6",
+  "note": ""
+ },
+ "C72038": {
+  "correct_lcsc": null,
+  "desc": "LED 0603 yellow (591nm), water clear",
+  "match": true,
+  "mfr": "EVERLIGHT",
+  "mpn": "19-213/Y2C-CQ2R2L/3T(CY)",
+  "note": ""
+ },
+ "C72041": {
+  "correct_lcsc": null,
+  "desc": "LED 0603 blue (468nm), water clear",
+  "match": true,
+  "mfr": "EVERLIGHT",
+  "mpn": "19-217/BHC-ZL1M2RY/3T",
+  "note": ""
+ },
+ "C72043": {
+  "correct_lcsc": null,
+  "desc": "LED 0603 emerald green (518nm), water clear",
+  "match": true,
+  "mfr": "EVERLIGHT",
+  "mpn": "19-217/GHC-YR1S2/3T",
+  "note": ""
+ },
+ "C7512": {
+  "correct_lcsc": null,
+  "desc": "7-ch Darlington array 50V 500mA, SOIC-16",
+  "match": true,
+  "mfr": "Texas Instruments",
+  "mpn": "ULN2003ADR",
+  "note": ""
+ },
+ "C7519": {
+  "correct_lcsc": null,
+  "desc": "USB ESD protection, 2 lines + VBUS, SOT-23-6",
+  "match": true,
+  "mfr": "STMicroelectronics",
+  "mpn": "USBLC6-2SC6",
+  "note": ""
+ },
+ "C7972": {
+  "correct_lcsc": null,
+  "desc": "Single op amp, RRO, 1MHz, 2.7-5.5V, SOT-23-5",
+  "match": true,
+  "mfr": "Texas Instruments",
+  "mpn": "LMV321IDBVR",
+  "note": ""
+ },
+ "C80165": {
+  "correct_lcsc": null,
+  "desc": "220R@100MHz ferrite bead 0603",
+  "match": true,
+  "mfr": "Murata",
+  "mpn": "BLM18PG221SN1D",
+  "note": "replacement"
+ },
+ "C8598": {
+  "correct_lcsc": null,
+  "desc": "Schottky diode 40V 1A, SOD-123",
+  "match": true,
+  "mfr": "JSCJ",
+  "mpn": "B5819W SL",
+  "note": ""
+ },
+ "C8678": {
+  "correct_lcsc": null,
+  "desc": "Schottky diode 40V 3A, SMA (DO-214AC)",
+  "match": true,
+  "mfr": "MDD(Microdiode Semiconductor)",
+  "mpn": "SS34",
+  "note": ""
+ },
+ "C90152": {
+  "correct_lcsc": null,
+  "desc": "Pressure sensor 15-700kPa absolute, 5V, ratiometric analog out, unibody single port (867B)",
+  "match": true,
+  "mfr": "NXP",
+  "mpn": "MPX5700AP",
+  "note": "replaces MPX5700DP (C410772)"
+ }
+}
