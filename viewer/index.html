@@ -214,21 +214,24 @@ scene.add(ground);
 // parts table (<pre>parts.json: size, centre in board mm, rows with 3D pick boxes in board-local mm).
 const MODELS = {
   d: {title:'Miata ECU daughterboard', scale:'125.0 × 60.0 mm',
-      sub:'Rev 0.4, as routed. The on-board wideband controller sits on the right, above the LSU pins of J2. Components are KiCad 3D models at their placed positions (a few are drawn to their datasheet sizes where the library has none). The two 40-pin headers hang underneath to plug into the motherboard.',
+      sub:'Rev 0.5, as routed. New in rev 0.5: the 5 V level shifter for the low-side drivers (U11), the fused and clamped logic supply (F1, D12), the relay-driver clamp (D11) and the crank/cam input clamps (D13, D14). The on-board wideband controller sits on the right, above the LSU pins of J2. Components are KiCad 3D models at their placed positions (a few are drawn to their datasheet sizes where the library has none). The two 40-pin headers hang underneath to plug into the motherboard.',
       specs:[['Size','125 × 60 mm, 1.6 mm'],['Stack-up','4 layers: sig / GND / 3V3 / sig'],['Parts','<span id="partcount"></span>'],
              ['MCU','STM32F407VGT6 + STM32F042 (wideband)'],['Headers','Bottom side, pins down: J1 power+outputs · J2 inputs+comms+LSU']],
-      jumps:[['U1','MCU'],['U2','5V buck'],['U5','Relay driver'],['U6','Coil driver'],['Q1','Injector 1'],['U9','VR input'],
+      jumps:[['U1','MCU'],['U2','5V buck'],['U11','Level shifter'],['U5','Relay driver'],['U6','Coil driver'],['Q1','Injector 1'],['U9','VR input'],
              ['U8','Knock amp'],['U10','CAN'],['U102','Wideband MCU'],['Q101','LSU heater'],['J1','Header J1'],['J2','Header J2']]},
 };
 // one motherboard per model year; all share the daughterboard and its position
 const YEARS = {
-  '8993': {name:'1989–93', chassis:'NA6', rev:'0.5', hdr:'TE 174917-6, 48 pins (plugs 1 and 2)', prov:false},
-  '9495': {name:'1994–95', chassis:'NA8', rev:'0.5', hdr:'TE 174917-6, 48 pins (plugs 1 and 2)', prov:false},
-  '9697': {name:'1996–97', chassis:'NA8, OBD-II', rev:'0.3', hdr:'TE 178780-1, 76 positions (plugs 1, 3, 4; plug 2 unused)', prov:true},
-  '9900': {name:'1999–2000', chassis:'NB1', rev:'0.3', hdr:'TE 176122-6, 64 positions (plugs 1–3)', prov:true,
-           extra:[['F2','Idle valve fuse']]},
-  '0105': {name:'2001–05', chassis:'NB2, VVT', rev:'0.3', hdr:'TE 353830-5, 72 positions in 3 rows (plugs 2–4)', prov:true,
-           extra:[['F2','Idle valve fuse'],['F3','VVT valve fuse']]},
+  '8993': {name:'1989–93', chassis:'NA6', rev:'0.6', hdr:'TE 174917-6, 48 pins (plugs 1 and 2)', prov:false,
+           extra:[['D1','Idle valve diode'],['R23','Injector pair link'],['D3','Injector clamp']]},
+  '9495': {name:'1994–95', chassis:'NA8', rev:'0.6', hdr:'TE 174917-6, 48 pins (plugs 1 and 2)', prov:false,
+           extra:[['D1','Idle valve diode']]},
+  '9697': {name:'1996–97', chassis:'NA8, OBD-II', rev:'0.4', hdr:'TE 178780-1, 76 positions (plugs 1, 3, 4; plug 2 unused)', prov:true,
+           extra:[['D1','Idle valve diode']]},
+  '9900': {name:'1999–2000', chassis:'NB1', rev:'0.4', hdr:'TE 176122-6, 64 positions (plugs 1–3)', prov:true,
+           extra:[['F2','Idle valve fuse'],['D1','Idle valve diode']]},
+  '0105': {name:'2001–05', chassis:'NB2, VVT', rev:'0.4', hdr:'TE 353830-5, 72 positions in 3 rows (plugs 2–4)', prov:true,
+           extra:[['F2','Idle valve fuse'],['F3','VVT valve fuse'],['D2','VVT valve diode']]},
 };
 function assyModel(y){
   const Y = YEARS[y];

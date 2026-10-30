@@ -11,3 +11,4 @@ mb/release_*/
 mb/*.zip
 *.state.pkl
 *.failed.json
+viewer/work_*/
