@@ -245,6 +245,8 @@ function assyModel(y){
     jumps:[['J1','Harness header'],['JD1','Socket JD1'],['J5','AUX header'],['J2','LSU 4.9'],['J3','IAT'],['J4','USB-C'],
            ['U2','MAP sensor'],['F1','Heater fuse'], ...(Y.extra || []),['U102','Wideband MCU'],['U1','Main MCU']]};
 }
+// bump when the board assets change, so browsers don't keep showing cached older boards
+const ASSET_V = '?v=d05-mb06';
 const PCBS = {d:{pre:'', label:'Daughterboard'}};
 for (const y in YEARS) PCBS['mb' + y] = {pre:`mb${y}_`, label:`Motherboard ${YEARS[y].name}`};
 let year = '8993';
@@ -275,8 +277,8 @@ async function fetchModel(url){
 // stage 1: board surface + parts table (small files) so something shows right away
 async function loadSurface(pcb){
   const tl = new THREE.TextureLoader(), pre = pcb.pre;
-  const maps = side => Promise.all(['albedo', 'orm', 'normal'].map(k => tl.loadAsync(`${pre}${side}_${k}.webp`)));
-  const [top, bot, tab] = await Promise.all([maps('top'), maps('bottom'), fetch(`${pre}parts.json`).then(r => r.json())]);
+  const maps = side => Promise.all(['albedo', 'orm', 'normal'].map(k => tl.loadAsync(`${pre}${side}_${k}.webp${ASSET_V}`)));
+  const [top, bot, tab] = await Promise.all([maps('top'), maps('bottom'), fetch(`${pre}parts.json${ASSET_V}`).then(r => r.json())]);
   const [BW, BH] = tab.size;
   pcb.centre = tab.centre; pcb.size = tab.size;
   pcb.group = new THREE.Group(); scene.add(pcb.group);
@@ -310,7 +312,7 @@ async function loadSurface(pcb){
 
 // stage 2: the component models (one compressed file, ~15 merged meshes)
 async function loadParts(pcb){
-  const gltf = await fetchModel(`${pcb.pre}board.glb.gz.b64.txt`);
+  const gltf = await fetchModel(`${pcb.pre}board.glb.gz.b64.txt${ASSET_V}`);
   gltf.scene.traverse(o => {
     if (!o.isMesh) return;
     const c = o.material.color;                // the board is the only mesh in the solder-mask green
