@@ -290,7 +290,10 @@ async function loadSurface(pcb){
     const mat = new THREE.MeshPhysicalMaterial({map:alb, alphaTest:0.5, side,
       roughnessMap:orm, metalnessMap:orm, roughness:1, metalness:1,
       clearcoat:1, clearcoatMap:orm, clearcoatRoughness:0.1,
-      normalMap:nrm, normalScale:new THREE.Vector2(1, side === THREE.BackSide ? -1 : 1)});
+      normalMap:nrm, normalScale:new THREE.Vector2(1, side === THREE.BackSide ? -1 : 1),
+      // the surface sits 0.012 mm off the board slab: pull it forward in depth so the slab's own faces
+      // (fanned out from every drill hole) never show through at assembly-view distances
+      polygonOffset:true, polygonOffsetFactor:-2, polygonOffsetUnits:-8});
     const m = new THREE.Mesh(new THREE.PlaneGeometry(BW, BH), mat);
     m.rotation.x = -Math.PI/2; m.position.y = y; m.receiveShadow = true;
     pcb.group.add(m);
