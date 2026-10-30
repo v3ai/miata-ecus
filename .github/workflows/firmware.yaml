@@ -45,7 +45,15 @@ jobs:
       - name: Check the images (vector tables, OpenBLT CRC header, merged DFU layout)
         run: |
           F=firmware/ext/rusefi/firmware
-          python3 firmware/tools/check_image.py $F/bootloader/blbuild/openblt_miata-ecu.bin $F/build/rusefi_crc32.bin $F/deliver/rusefi.bin
+          set +e
+          { ls -l $F/bootloader/blbuild/*.bin $F/build/*.bin $F/deliver/ 2>&1
+            python3 firmware/tools/check_image.py $F/bootloader/blbuild/openblt_miata-ecu.bin $F/build/rusefi_crc32.bin $F/deliver/rusefi.bin 2>&1
+            echo "exit=$?"; } > /tmp/img.txt
+          cat /tmp/img.txt
+          # put the result in an annotation, which is readable from the run summary without the full log
+          LEVEL=notice; grep -q '^exit=0$' /tmp/img.txt || LEVEL=error
+          echo "::$LEVEL title=Image check::$(sed -e 's/%/%25/g' -e 's/\r//g' /tmp/img.txt | awk '{printf "%s%%0A", $0}')"
+          grep -q '^exit=0$' /tmp/img.txt
 
       - name: Upload TunerStudio .ini
         uses: actions/upload-artifact@v4

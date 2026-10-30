@@ -104,8 +104,22 @@ static void setInputs() {
 	// Used only if the CAN wideband below is switched off.
 	engineConfiguration->afr.hwChannel = MIATA_IN_AFR;
 
-	engineConfiguration->ignKeyAdcChannel = MIATA_IN_VIGN;
+	// Ignition-switch sense: only years whose harness has the wire set it (see setIgnitionSense()). With a channel
+	// assigned rusEFI trusts it, and a missing wire would read "key off" and cut fuel and spark. Without one it uses
+	// the battery voltage, which comes from the key-switched main relay on 1996-2002.
+	engineConfiguration->ignKeyAdcChannel = EFI_ADC_NONE;
 	engineConfiguration->ignKeyAdcDivider = MIATA_VBATT_DIVIDER;
+}
+
+// 1989-95: 1C (VIO); 2003-05: 4S (IG1). The ECU needs it on 2003-05 to know when to drop the main relay it holds.
+static void setIgnitionSense() {
+	engineConfiguration->ignKeyAdcChannel = MIATA_IN_VIGN;
+}
+
+static bool nb2Early = false;
+
+void miataSelectNb2Early(bool early) {
+	nb2Early = early;
 }
 
 /**
@@ -203,8 +217,12 @@ static void setMiataNb2() {
 	engineConfiguration->fuelReferencePressure = 400; // returnless system, 58 psi
 	engineConfiguration->injectorCompensationMode = ICM_FixedRailPressure;
 
-	// Main relay control (pin 3H, 2003-05; not connected on 2001-02).
-	engineConfiguration->mainRelayPin = MIATA_MAINRLY;
+	if (!nb2Early) {
+		// 2003-05: the ECU holds the main relay (3H) and senses the key on 4S.
+		engineConfiguration->mainRelayPin = MIATA_MAINRLY;
+		setIgnitionSense();
+	}
+	// 2001-02: the key switches the main relay and 4S/3H are not wired, so neither is used.
 
 	// VVT oil control valve (pin 4R). The target table starts at rusEFI's default: fill in vvtTable1.
 	engineConfiguration->vvtPins[0] = MIATA_VVT;
@@ -225,6 +243,7 @@ void miataApplyYearPreset(engine_type_e engineType) {
 	case engine_type_e::MAZDA_MIATA_NA6:
 		// 1989-93: batch fire on INJ1 (3U, injectors 1+3) and INJ2 (3V, 2+4), VAF, wasted spark.
 		setMazdaMiataNA6();
+		setIgnitionSense();
 		// INJ3/INJ4 reach 3Y/3Z, which the stock 1990-93 harness leaves empty on manual cars but uses for the A/T
 		// control unit (3Z) on automatics: don't drive them unless the harness has been converted to sequential.
 		engineConfiguration->injectionPins[2] = Gpio::Unassigned;
@@ -233,6 +252,7 @@ void miataApplyYearPreset(engine_type_e engineType) {
 	case engine_type_e::MAZDA_MIATA_NA94:
 		// 1994-95: four injector wires (2U/2V/2Y/2Z), sequential like rusEFI's own 1994 preset.
 		setMazdaMiataNA94();
+		setIgnitionSense();
 		break;
 	case engine_type_e::MAZDA_MIATA_NA96:
 		// 1996-97: sequential; the VVT driver runs the front O2 heater (harness pin 3M).

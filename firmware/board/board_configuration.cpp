@@ -10,6 +10,8 @@
 #include "board_overrides.h"
 #include "wideband_uart_flash.h"
 #include "miata_board.h"
+#include "settings.h"
+#include "tunerstudio.h"
 
 // LEDs (active high through 1k). The red error LED is LED_CRITICAL_ERROR_BRAIN_PIN in board.mk.
 Gpio getRunningLedPin() {
@@ -33,6 +35,12 @@ static void miataBoardInitHardware() {
 static void miataBoardTsCommand(uint16_t /*subsystem*/, uint16_t index) {
 	if (index == MIATA_TS_WBO_UART_FLASH) {
 		startWidebandUartFlash();
+	} else if (index == MIATA_TS_PRESET_NB2_EARLY) {
+		// Popular Vehicles "2001-02": the NB2 preset without ignition sense or main-relay control
+		miataSelectNb2Early(true);
+		setEngineType((int)engine_type_e::MAZDA_MIATA_NB2);
+		miataSelectNb2Early(false);
+		onApplyPreset();
 	}
 }
 
