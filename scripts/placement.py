@@ -73,7 +73,7 @@ put('C3', 50.4, 35.2, 0)        # pin 19/20 (left)
 put('C4', 73.8, 36.4, 0)        # 3rd bottom-edge decoupler, right of the corner (planes via vias)
 put('C5', 70.4, 38.9, 0)        # pin 49/50 (bottom-right corner)
 put('C6', 70.6, 22.6, 0)        # pin 74/75 (top-right corner)
-put('C7', 73.6, 22.6, 0)        # bulk 4.7u
+put('C7', 73.4, 25.0, 90)       # bulk 4.7u (rev 0.5: below the shifter's input path)
 put('C8', 49.8, 23.6, 0)        # bulk 4.7u
 put('C9', 70.4, 40.6, 0)        # VCAP1 (pin 49)
 put('C10', 71.4, 25.4, 90)      # VCAP2 (pin 73), clear of the USB/SWD exits (pin 73)
@@ -85,11 +85,11 @@ put('Y1', 44.6, 32.4, 90)
 put('C13', 41.2, 30.6, 0)
 put('C14', 41.2, 34.2, 0)
 # reset/boot
-put('R1', 75.5, 20.8, 0)        # BOOT0 pull-down
+put('R1', 114.0, 36.0, 0)       # BOOT0 pull-down, by the BOOT button (rev 0.5: off the shifter's input path)
 put('C15', 41.8, 37.4, 0)       # NRST cap
 put('SW1', 119.5, 37.6, 0)      # BOOT   (right edge, under the LED column)
 put('SW2', 119.5, 45.4, 0)      # RESET
-put('J3', 82.5, 22.4, 0)        # Tag-Connect SWD, by the SWD pins (MCU top-right corner)
+put('J3', 79.4, 33.0, 0)        # Tag-Connect SWD, right of the MCU (rev 0.5: its old spot holds U11)
 # LEDs: neat column at the right edge
 for i, (r, d) in enumerate([('R2', 'D1'), ('R3', 'D2'), ('R4', 'D3'), ('R5', 'D4'), ('R6', 'D5')]):
     y = 20.0 + i * 3.0
@@ -101,7 +101,10 @@ put('D6', 14.6, 9.4, 0)         # TVS, pad1 (VBAT_IN) left
 put('D7', 13.8, 14.4, 180)      # SS34, K(+12V) right? pad1=K -> rot180 puts pad1 right
 put('D8', 22.0, 8.6, 180)       # VIGN -> +12V
 put('R7', 20.4, 13.4, 0)
-put('C16', 23.2, 13.4, 0)
+put('C16', 24.4, 13.4, 0)       # rev 0.5: 1206, 50 V
+put('F1', 24.6, 16.2, 0)        # rev 0.5: logic supply PTC, then the TVS below it
+put('D12', 25.7, 19.15, 0)
+put('C59', 33.2, 19.0, 90)      # rev 0.5: third buck output cap
 put('L1', 7.2, 19.4, 90)
 put('C17', 4.4, 25.0, 90)
 put('C18', 7.4, 25.0, 90)
@@ -138,14 +141,24 @@ put('U7', 51.735, 14.6, 90)     # TC4427 #2 -> IGN3/4
 for k, n in enumerate(['IGN1', 'IGN2', 'IGN3', 'IGN4']):
     r = find(n + '_DRV', 'OUT_' + n)
     vert(r, hx(14 + k), 6.6, first_on_bottom=True)
+put('D11', 39.2, 19.3, 0)       # rev 0.5: ULN2003 COM clamp TVS (SMA)
 put('C34', 47.29, 9.6, 90)
 put('C35', 52.37, 9.6, 90)
 put('RN1', 48.2, 20.6, 90)
 for i, n in enumerate(design.HS_OUT):
     x = hx(19 + 3 * i)
     put(f'Q{1+i}', x, 10.0, 90)                 # tab (drain) up to the header pin
-    r = find(n + '_CTL', 'GND')
-    vert(r, x - 3.4, 16.6, first_on_bottom=False)   # CTL on top, beside the IN-pin lane
+    r = find(n + '_IN', 'GND')
+    # pull-down beside the IN-pin lane; INJ4's and IACV's step aside for the level shifter
+    rx, ry = {'INJ4': (73.6, 16.4)}.get(n, (x - 3.4, 16.6))
+    vert(r, rx, ry, first_on_bottom=False)
+# rev 0.5: 3.3 V -> 5 V level shifter for the low-side inputs, under Q4. Standing on end (rot 180): the MCU-side
+# column (B, INJ1 at the top ... ALT, then the enable) faces left, into the bundle from the MCU's top edge, in the
+# order the lines leave it; the driver-side column (A) faces right, toward Q5-Q8 (Q1-Q4 go back over the top)
+put('U11', 80.0, 21.6, 180)     # B column starts below the Q2-Q4 pull-downs
+put('C57', 85.0, 25.6, 0)       # VCCA (pin 1, bottom right)
+put('C58', 75.9, 27.2, 0)       # VCCB (pins 23/24, bottom left)
+put('R71', 78.4, 27.2, 0)       # enable pull-up (pin 22)
 
 # --- bottom band: conditioning columns ----------------------------------------------
 Y_SER, Y_PAIR, Y_PULL = 54.0, 51.6, 55.62
@@ -187,6 +200,10 @@ put(find('KN_N', 'KN_BIAS')[0], 8.0, 46.8, 0)
 put(find('KN_OUT', 'AN_KNOCK')[0], 15.6, 42.6, 0)
 put(find('AN_KNOCK', 'GND')[0], 15.6, 44.4, 0)
 put('C47', 12.0, 48.6, 0)       # LMV321 decoupling
+# rev 0.5: hall input clamps (below the analog lanes) and the BOOT1 pull-down
+put('D13', 43.48, 48.3, 270)    # straight above each hall column's filter cap, anode down
+put('D14', 46.02, 48.3, 270)
+put('R72', 59.7, 44.6, 90)      # in the wedge between AN_AUX3's lane and HALL1's escape
 
 # VR: MAX9926 under the right half of the MCU, legs in their header columns
 put('U9', 67.6, 46.3, 270)

@@ -57,7 +57,7 @@ DEFINES = {
     'INJ1': 'INJ1_CTL', 'INJ2': 'INJ2_CTL', 'INJ3': 'INJ3_CTL', 'INJ4': 'INJ4_CTL',
     'IACV': 'IACV_CTL', 'VVT': 'VVT_CTL', 'BOOST': 'BOOST_CTL', 'ALT': 'ALT_CTL',
     'FP': 'FP_CTL', 'MAINRLY': 'MAINRLY_CTL', 'AC': 'AC_CTL', 'FAN': 'FAN_CTL', 'CEL': 'CEL_CTL',
-    'TACH': 'TACH_CTL', 'LS7': 'LS7_CTL',
+    'TACH': 'TACH_CTL', 'LS7': 'LS7_CTL', 'DRV_EN': 'DRV_EN_N',
     'HALL1': 'HALL1', 'HALL2': 'HALL2', 'SW1': 'SW1', 'SW2': 'SW2', 'SW3': 'SW3',
     'IN_VBATT': 'AN_VBATT', 'IN_VIGN': 'AN_VIGN', 'IN_TPS': 'AN_TPS', 'IN_MAP': 'AN_MAP', 'IN_CLT': 'AN_CLT',
     'IN_IAT': 'AN_IAT', 'IN_AFR': 'AN_AFR', 'IN_AUX1': 'AN_AUX1', 'IN_AUX2': 'AN_AUX2', 'IN_AUX3': 'AN_AUX3',

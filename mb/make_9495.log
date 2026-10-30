@@ -1,0 +1,11 @@
+built /home/claude/miata-ecus/scripts/../mb/work_9495/9495_placed.kicad_pcb 34 parts 60 nets
+routed in 1669s, failed: []
+removed 51 GND vias
+schematic sheets ['harness.kicad_sch', 'daughter.kicad_sch', 'io.kicad_sch'] symbols 34
+pads checked 199 mismatches 0 extra 0 merged 0
+linked 34 footprints; renamed 6 nets
+removed 0 GND vias
+{'silk_overlap': 5, 'silk_over_copper': 49, 'starved_thermal': 4, 'lib_footprint_issues': 34, 'silk_edge_clearance': 2, 'hole_clearance': 4}
+exported /home/claude/miata-ecus/scripts/../mb/release_9495/fab 18 BOM lines
+released /home/claude/miata-ecus/scripts/../mb/release_9495
+made /home/claude/miata-ecus/scripts/../mb/release_9495

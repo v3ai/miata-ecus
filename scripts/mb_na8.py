@@ -13,7 +13,8 @@ TITLE = 'Miata ECU motherboard 1994-1995 (NA8)'
 BASES = ['mb_na6']
 CASE_NOTE = base.CASE_NOTE
 HEADER_DESC = base.HEADER_DESC
-CHANGES = ['Rev 0.5: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
+CHANGES = ['Rev 0.6: freewheel diode D1 on the idle valve and D2 on the purge solenoid (2X) to its +12 V feed (the PWM turn-off energy no longer goes into the daughterboard driver); F4 resettable fuse on the AUX +12 V pin J5-15; not-fitted 12 V pull-up options R20-R22 for the VSS / A/C / clutch inputs.',
+           'Rev 0.5: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
            'Rev 0.4: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.',
            'Rev 0.3: first release, from the 89-93 rev 0.3 template: same case, outline, holes and 48-pin header; 94-95 pin map '
            '(rusEFI "Mazda Miata 1994" page and the Hellen NA6/94 connector map).']
@@ -50,4 +51,4 @@ HARNESS.update({
 
 
 def build_parts():
-    return base.build_parts(HARNESS)
+    return base.build_parts(HARNESS, paired_injectors=False)   # 94-95: one wire per injector

@@ -1,20 +1,21 @@
 /**
  * @file miata_pins.h
- * @brief Pin map of the miata-ecus daughterboard (rev 0.4). Must match scripts/design.py ("mcu" dict);
+ * @brief Pin map of the miata-ecus daughterboard (rev 0.5). Must match scripts/design.py ("mcu" dict);
  * firmware/tools/check_pins.py cross-checks the two.
  */
 
 #pragma once
 
 // ---------------------------------------------------------------------------------------------------------------
-// Pin map (daughterboard rev 0.4)
+// Pin map (daughterboard rev 0.5)
 // ---------------------------------------------------------------------------------------------------------------
 // Ignition: TC4427 5 V push-pull drivers, active high. The stock harness only has IGN1 (coil pack 1&4) and IGN2 (2&3).
 #define MIATA_IGN1 Gpio::E1
 #define MIATA_IGN2 Gpio::E0
 #define MIATA_IGN3 Gpio::B9
 #define MIATA_IGN4 Gpio::B8
-// AUIPS2041L protected low sides, active high (10k pull-downs keep them off in reset).
+// AUIPS2041L protected low sides, active high. Rev 0.5: driven at 5 V through an SN74LVC4245A whose output enable is
+// MIATA_DRV_EN (open drain, active low, pulled up to 5 V): all eight stay off until the firmware enables them.
 #define MIATA_INJ1 Gpio::B7
 #define MIATA_INJ2 Gpio::B6
 #define MIATA_INJ3 Gpio::B5
@@ -24,15 +25,17 @@
 #define MIATA_BOOST Gpio::D6  // AUX header only
 #define MIATA_ALT Gpio::D5    // NB alternator field; 1994-95 pressure regulator solenoid
 // ULN2003 relay / lamp drivers, active high.
-#define MIATA_FP Gpio::C14
-#define MIATA_MAINRLY Gpio::C13 // NB2 (2003-05) main relay; NB1 VICS solenoid
+#define MIATA_FP Gpio::C14      // backup-domain pin: fine for a ULN2003 input (0.72 mA; ST's switch limit 3 mA)
+#define MIATA_MAINRLY Gpio::C13 // 2003-05 main relay; NB1 VICS solenoid
 #define MIATA_AC Gpio::E6
 #define MIATA_FAN Gpio::E5
 #define MIATA_CEL Gpio::E4
 #define MIATA_TACH Gpio::E3
 #define MIATA_LS7 Gpio::E2      // second fan / condenser fan relay
+// Low-side driver enable (PA8): drive low to enable the eight AUIPS2041 inputs.
+#define MIATA_DRV_EN Gpio::A8
 // Digital inputs.
-#define MIATA_HALL1 Gpio::E7    // crank (NA: CAS SGT, NB: CKP), 1k pull-up to 5 V on the board
+#define MIATA_HALL1 Gpio::E7    // crank (NA: CAS SGT, NB: CKP), 1k pull-up to 5 V, clamped to 3.3 V on the board
 #define MIATA_HALL2 Gpio::E8    // cam (NA: CAS SGC, NB: CMP)
 #define MIATA_SW1 Gpio::E9      // 12 V input through 33k/10k: vehicle speed on every motherboard
 #define MIATA_SW2 Gpio::E10     // A/C switch

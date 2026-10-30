@@ -56,7 +56,8 @@ CASE_NOTE = ('Stock NA case (same for 1990-95). Outline and holes come from the 
              'NA6 KiCad board (rev a/b), which uses the same Mazda case outline. H1 is a recessed boss: stack 3 M4 washers under the board.')
 HEADER_DESC = ('TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); rusEFI\'s 1990 page calls the '
                'second plug 3A-3Z. TE lists it as not currently available: desolder one from a stock ECU or use a clone. Fitted by hand.')
-CHANGES = ['Rev 0.5: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
+CHANGES = ['Rev 0.6: freewheel diode D1 on the idle valve and D2 on the purge solenoid (2X) to its +12 V feed (the PWM turn-off energy no longer goes into the daughterboard driver); F4 resettable fuse on the AUX +12 V pin J5-15; not-fitted 12 V pull-up options R20-R22 for the VSS / A/C / clutch inputs. INJ1+INJ4 drive 2U and INJ2+INJ3 drive 2V in parallel (R23/R24), with an SMCJ40A clamp per wire (D3/D4), so no driver carries two injectors; 2Y/2Z are only reached through the not-fitted sequential-conversion links R25/R26.',
+           'Rev 0.5: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
            'Rev 0.4: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.',
            'Rev 0.3: sensor 5 V now on both 1N (NA6, per the Hellen NA6 map) and 2K; spare low side on 1R (the early cars\' '
            'BLK/GRN fan-relay wire); 2S left open (it is only used on 94-95).',
@@ -112,23 +113,47 @@ HARNESS = {
     '2R': '',
     '2S': '',            # unused on 1990-93 (94-95: condenser fan relay)
     '2T': 'OUT_FP',      # fuel pump relay
-    '2U': 'OUT_INJ1',    # stock: injectors 1+3 (batch)
-    '2V': 'OUT_INJ2',    # stock: injectors 2+4 (batch)
+    '2U': 'OUT_INJ1',    # stock: two injectors on this wire (batch); INJ1 + INJ4 drive it in parallel (R23)
+    '2V': 'OUT_INJ2',    # stock: the other two injectors (batch); INJ2 + INJ3 in parallel (R24)
     '2W': 'OUT_IACV',
     '2X': 'OUT_VVT',     # purge solenoid (VVT driver reused, set as purge / generic PWM)
-    '2Y': 'OUT_INJ3',    # sequential conversion: add wire
-    '2Z': 'OUT_INJ4',    # sequential conversion: add wire
+    '2Y': 'HARN_2Y',     # empty on manual cars: INJ3 only through R25 (not fitted) after a sequential conversion
+    '2Z': 'HARN_2Z',     # A/T control unit on automatics: INJ4 only through R26 (not fitted), never on an automatic
 }
 
 
-def build_parts(harness=None):
+def build_parts(harness=None, paired_injectors=True):
     C.parts.clear()
     C.add('J1', 'TE 174917-6', 'ecu_mb:TE_174917-6_48P', '', harness or HARNESS,
           'Stock harness header, 48 pins (22 + 26). Hand-solder; salvage from a stock ECU or use a clone')
     for ref in CASE_HOLES:
         C.add(ref, 'M4', 'ecu_mb:MountingHole_M4_4.5mm_Pad7', '', {1: 'GND'}, 'Case mounting boss, M4 x 10')
     C.common_parts()
+    # idle valve 2W and purge solenoid 2X: both fed from the main relay
+    C.protection_parts('VBAT_IN', 'VBAT_IN')
+    if paired_injectors:
+        injector_pairs()
     return C.parts
+
+
+def injector_pairs():
+    """1989-93 batch harness: each injector wire (2U, 2V) feeds two injectors, about 1.8 A. Two drivers share each
+    wire (rusEFI's batch mode fires cylinder 1's and 4's outputs together, and 3's and 2's), so each driver carries
+    one injector's current, and a TVS per wire takes the turn-off energy that the drivers' own clamps would
+    otherwise absorb. Moving the links (R23/R24 out, R25/R26 in) gives a sequential conversion its own 2Y/2Z
+    drivers instead; never fit R26 on an automatic (2Z is the A/T control unit)."""
+    r0805 = 'Resistor_SMD:R_0805_2012Metric'
+    C.add('R23', '0R', r0805, 'C17477', {1: 'OUT_INJ4', 2: 'OUT_INJ1'},
+          'Batch: INJ4 driver in parallel with INJ1 on 2U (remove for a sequential conversion)')
+    C.add('R24', '0R', r0805, 'C17477', {1: 'OUT_INJ3', 2: 'OUT_INJ2'},
+          'Batch: INJ3 driver in parallel with INJ2 on 2V (remove for a sequential conversion)')
+    C.add('R25', '0R', r0805, '', {1: 'OUT_INJ3', 2: 'HARN_2Y'},
+          'NOT FITTED: sequential conversion only, INJ3 to 2Y (fit instead of R24)')
+    C.add('R26', '0R', r0805, '', {1: 'OUT_INJ4', 2: 'HARN_2Z'},
+          'NOT FITTED: sequential conversion only, INJ4 to 2Z (fit instead of R23). NEVER on an automatic: 2Z is the A/T unit')
+    for ref, net, pin in (('D3', 'OUT_INJ1', '2U'), ('D4', 'OUT_INJ2', '2V')):
+        C.add(ref, 'SMCJ40A', 'Diode_SMD:D_SMC', 'C224052', {1: net, 2: 'GND'},
+              f'Injector clamp for the two injectors on {pin} (40 V standoff, about 45-50 V clamp, below the drivers\' 63 V)')
 
 
 def placement():
@@ -160,4 +185,12 @@ def placement():
     P['C3'] = (143.6, 148.0, 90)
     # AUX box header, body centred on the board below the daughterboard (set in mb_build)
     P['J5'] = ('centre', W / 2, 113.0, -90)
+    C.protection_place(P)
+    # 1989-93 injector pairing links and clamps, under the daughterboard between JD1's injector pins
+    P['R23'] = (84.6, 49.0, 0)
+    P['R24'] = (84.6, 53.0, 0)
+    P['R25'] = (90.0, 57.5, 0)
+    P['R26'] = (96.0, 57.5, 0)
+    P['D3'] = (72.0, 64.0, 0)
+    P['D4'] = (86.0, 64.0, 0)
     return P

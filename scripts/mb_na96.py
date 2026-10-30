@@ -17,7 +17,8 @@ CASE_NOTE = L.CASE_NOTE_PROVISIONAL
 HEADER_DESC = ('TE **178780-1**, 76 positions (alternates 174915-6, 3-178780-6): OEM plug 1 = 1A-1V (22), plug 2 = '
                '2A-2L (12, no harness plug: left open), plug 3 = 3A-3P (16), plug 4 = 4A-4Z (26). Hellen\'s board names '
                'the same cavities 1 / 4 / 2 / 3. Fitted by hand.')
-CHANGES = ['Rev 0.3: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
+CHANGES = ['Rev 0.4: freewheel diode D1 on the idle valve to its +12 V feed (the PWM turn-off energy no longer goes into the daughterboard driver); F4 resettable fuse on the AUX +12 V pin J5-15; not-fitted 12 V pull-up options R20-R22 for the VSS / A/C / clutch inputs.',
+           'Rev 0.3: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
            'Rev 0.2: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.',
            'Rev 0.1: first release (design complete, case geometry provisional).']
 VERIFY = ['**The case outline, mounting holes and header position (provisional here).**',
@@ -87,9 +88,11 @@ for k in 'ABCDEFGHIJKL':
 
 
 def build_parts():
-    return L.build('ecu_mb:TE_178780-1_76P', 'TE 178780-1', 'Stock harness header, 76 positions (OEM plugs 1/3/4 used). '
-                   'Hand-solder; salvage from a stock ECU or use a clone', HARNESS, holes=CASE_HOLES)
+    parts = L.build('ecu_mb:TE_178780-1_76P', 'TE 178780-1', 'Stock harness header, 76 positions (OEM plugs 1/3/4 used). '
+                    'Hand-solder; salvage from a stock ECU or use a clone', HARNESS, holes=CASE_HOLES)
+    L.C.protection_parts('VBAT_IN')       # idle valve fed from the main relay; the VVT driver runs the O2 heater
+    return parts
 
 
 def placement():
-    return L.place(HDR_1A)
+    return L.C.protection_place(L.place(HDR_1A), vvt=False)

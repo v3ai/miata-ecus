@@ -1,9 +1,35 @@
-# Miata ECU — daughterboard rev 0.4 (routed, unverified)
+# Miata ECU — daughterboard rev 0.5 (routed, unverified)
 
 125 × 60 mm, **4 layers**. All SMD parts are on top; the two 1×40 2.54 mm male headers are mounted on the
 **bottom side** (plastic under the board, pins pointing down) so the board plugs straight into female
 headers on the year-specific motherboard. J1 on the top edge carries power and outputs, J2 on the
 bottom edge carries inputs, comms and the LSU 4.9 wideband sensor.
+
+## What changed in rev 0.5
+The fixes from the verification review (`VERIFICATION.md` in the repository root). Existing designators are unchanged;
+new parts have new numbers.
+- **5 V drive for the low-side drivers.** The AUIPS2041 input, current limit and shutdown are specified at 4-5.5 V,
+  and rev 0.4 drove them at 3.3 V.
+  - U11 (SN74LVC4245A, DIR low: B → A) now drives Q1-Q8 from the MCU's control pins.
+  - Its output enable is pulled up (R71), so the injectors, idle valve, VVT, boost and alternator stay off through
+    reset, boot, the bootloader and DFU. The firmware enables them on **PA8** (open drain, active low) once every
+    output is configured. This also covers PB3/PB4's power-up states (SWO trace, JTAG pull-up).
+  - R19-R26 now pull the driver side low. The firmware parks unused control pins with the MCU's pull-downs
+    (rusEFI's own idea of an unused pin is a pull-up, which would turn the driver on).
+- **BOOT1 (PB2) pulled low** (R72), so ST's USB DFU bootloader starts reliably.
+- **No relay back-feed.** The ULN2003's COM pin goes to an SMAJ33A TVS (D11, 36.7-40.6 V breakdown) instead of
+  +12V. A battery-fed relay coil (the 2003-05 main relay) can no longer power the ECU through the clamp diodes with
+  the key off. Relay kick-back clamps at 43 V at most (ULN2003 limit 50 V), and the TVS stays off through a 35 V load
+  dump on the relay feeds.
+- **Fused, clamped logic supply.** D7 (battery) and D8 (ignition wake) feed F1 (0.5 A PTC), then D12 (SMAJ33A) on +12V.
+  - This keeps the buck under its 44 V maximum in load-dump and ISO pulse tests, and clamps the ignition path too.
+    D12's breakdown sits above the 35 V load-dump clamp, so the input TVS D6 takes that energy and D12 only sees fast
+    spikes.
+  - An internal short trips F1 instead of waiting on the car's fuse.
+  - C16 is now 10 µF / 50 V, D9 is a 60 V SS36, and C59 adds buck output capacitance.
+- **Crank/cam input clamps.** D13/D14 (1N4148WS) clamp PE7/PE8 to +3V3. These 5 V-tolerant pins have no clamp of
+  their own, so a crank/cam wire shorted to battery would otherwise destroy them.
+- The Tag-Connect SWD pads J3 moved right of the MCU to make room for U11.
 
 ## What changed in rev 0.4
 - **Both MCUs flash over the one USB-C port.** The main MCU now has a programming link to the wideband MCU (U102):
@@ -81,7 +107,7 @@ bottom edge carries inputs, comms and the LSU 4.9 wideband sensor.
 | `../scripts/` (repo top level) | The design source: `design.py` (parts + netlist), `placement.py`, `build_pcb.py`, `route.py`, `wideband.py` (the wideband circuit, mapped from the FOME module in `wideband_ref/` under its MIT licence), `wb_clean.py` (its rev 0.3 placement and heater copper; `wb_preview.py` draws a placement preview), `wb_build.py` (the rev 0.2 transplant, kept for reference), `daughter_finish.py` |
 
 The schematic and the board are both generated from `scripts/design.py`. The schematic's exported
-netlist was checked pad-by-pad against the board's netlist (702 pads, 0 differences), and every
+netlist was checked pad-by-pad against the board's netlist (754 pads, 0 differences), and every
 footprint on the board is linked to its schematic symbol, so Update PCB from Schematic and
 cross-probing work.
 
@@ -105,22 +131,22 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
   - The MCU supply pins go inward to vias under the package.
   - About 330 GND stitching vias sit on a 3 mm grid.
 - **DRC (KiCad 7):** 0 clearance errors, 0 unconnected items. Warnings remaining:
-  - Silkscreen overlaps (16) and silkscreen clipped by a pad opening (2): cosmetic, in the main part of the board.
-  - Courtyard overlaps (13) on tightly packed passives in the main part of the board. The copper clearances still pass.
+  - Silkscreen overlaps (19) and silkscreen clipped by a pad opening (4): cosmetic.
+  - Courtyard overlaps (12) on tightly packed passives. The copper clearances still pass.
   - "Library not in configuration" notes from running headless.
 
 ## Circuit summary (topologies follow rusEFI hellen-one modules)
 | Block | Parts |
 |---|---|
 | MCU | STM32F407VGT6 (1 MB flash, rusEFI F4 target), 8 MHz crystal, 4 status LEDs, BOOT/RESET buttons, Tag-Connect TC2030 SWD pads |
-| Power | SMCJ30A load-dump TVS → SS34 reverse diode → LMR14020 5 V buck. TLS115 protected 5 V sensor supply. AMS1117 3.3 V. Ignition can wake the ECU (B5819W). USB VBUS can power it on the bench. |
-| Injectors / IACV / VVT / boost / alternator | 8× AUIPS2041L protected low-sides with 10k pull-downs (outputs stay off while the MCU is in reset) |
-| Relays, CEL, tach, spare | ULN2003 (7 ch), flyback to +12V |
+| Power | SMCJ30A load-dump TVS → SS34 reverse diode (and B5819W ignition wake) → 0.5 A PTC → SMAJ33A TVS → LMR14020 5 V buck. TLS115 protected 5 V sensor supply. AMS1117 3.3 V. USB VBUS can power it on the bench. |
+| Injectors / IACV / VVT / boost / alternator | 8× AUIPS2041L protected low-sides driven at 5 V by an SN74LVC4245A. Its output enable (PA8) is pulled off until the firmware runs; pull-downs on both sides |
+| Relays, CEL, tach, spare | ULN2003 (7 ch), flyback clamp to an SMAJ33A TVS (not +12V) |
 | Ignition (COP / smart coils) | 2× TC4427, 5 V push-pull through 100 Ω, pulled down at the inputs |
 | Crank / cam | MAX9926 dual VR (two 5.1k resistors per leg, 1 nF differential) |
 | Sensors | 8× 0–5 V inputs with a 5.6k/10k divider and 10 nF. CLT and IAT have 2.7k pull-ups to sensor 5 V. |
 | Knock | LMV321 AC-coupled gain stage (≈5.7×), biased at 1.65 V |
-| Digital inputs | 2 hall (1k pull-up), 3 switch inputs (12 V → 33k/10k) |
+| Digital inputs | 2 hall (1k pull-up, 4.7k series, clamped to 3.3 V), 3 switch inputs (12 V → 33k/10k) |
 | Comms | SN65HVD230 CAN, USB FS, USART6 |
 | Wideband (LSU 4.9) | FOME/rusEFI controller: STM32F042 running the FOME wideband firmware, MCP6004 (virtual ground, pump driver, Nernst sense and buffer), AD8628 pump-current sense, REF3033 reference, VND14NV04 protected heater low side, SN65HVD230 on the shared CAN bus |
 
@@ -131,6 +157,7 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
 - **UART:** USART6 on PC6 and PC7.
 - **USB:** PA11 / PA12.
 - **Crank/cam:** VR1 (crank) on PE13, VR2 (cam) on PE12. The MAX9926 output is inverted, which is why the + and − legs are swapped on J2.
+- **Low-side enable:** PA8, open drain, low = enabled (the board firmware handles it).
 - **Pin map:** the full pin map is in the spreadsheet's "MCU Pin Map" tab.
 - **Wideband:** in TunerStudio, enable the rusEFI CAN wideband. The controller answers at index 0, the default.
   - Flashing goes through the main MCU: USART3 on PD8 (TX) / PD9 (RX) to the F042's ROM bootloader, PD10 = its BOOT0,

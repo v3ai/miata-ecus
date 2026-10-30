@@ -17,6 +17,9 @@ FP = {
     'LED':   'LED_SMD:LED_0603_1608Metric',
     'FB':    'Inductor_SMD:L_0603_1608Metric',
     'SOD123': 'Diode_SMD:D_SOD-123',
+    'SOD323': 'Diode_SMD:D_SOD-323',
+    'TSSOP24': 'Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm',
+    'F1206': 'Fuse:Fuse_1206_3216Metric',
     'SMA':   'Diode_SMD:D_SMA',
     'SMC':   'Diode_SMD:D_SMC',
     'SOT223': 'Package_TO_SOT_SMD:SOT-223',
@@ -112,9 +115,16 @@ mcu = {
     '21': '+3V3A', '22': '+3V3A',
     '49': 'VCAP1', '73': 'VCAP2',
     '12': 'HSE_IN', '13': 'HSE_OUT', '14': 'NRST', '94': 'BOOT0',
-    # relay/lamp outputs from the top of the left edge (ULN2003 sits up-left)
+    # relay/lamp outputs from the top of the left edge (ULN2003 sits up-left). PC13/PC14 run through the backup
+    # power switch, which can supply 3 mA in total; the two ULN2003 inputs draw at most ~0.72 mA each at 3.3 V
+    # ((3.3 - 2 Vbe) / 2.7k), so 1.45 mA together, and relays need no speed (ST's limit there is 2 MHz).
     '1': 'LS7_CTL', '2': 'TACH_CTL', '3': 'CEL_CTL', '4': 'FAN_CTL', '5': 'AC_CTL',
     '7': 'MAINRLY_CTL', '8': 'FP_CTL',
+    # rev 0.5: PB2 is BOOT1; pulled low so ST's DFU bootloader starts reliably (BOOT0 = 1, BOOT1 = 0)
+    '37': 'BOOT1',
+    # rev 0.5: low-side driver enable (PA8, active low, pulled up to +5V: drivers off until firmware enables).
+    # On the right edge, so it reaches U11's ~OE from below instead of adding a ninth line to the top-edge bundle.
+    '67': 'DRV_EN_N',
     # ignition + smart low sides from the top edge, ordered left->right like the driver row
     '98': 'IGN1_CTL', '97': 'IGN2_CTL', '96': 'IGN3_CTL', '95': 'IGN4_CTL',
     '93': 'INJ1_CTL', '92': 'INJ2_CTL', '91': 'INJ3_CTL', '90': 'INJ4_CTL',
@@ -170,10 +180,17 @@ add('D5', 'GREEN', 'LED', 'C72043', {'1': 'GND', '2': 'PWR_LED_A'}, 'power LED')
 # Power (topology copied from rusEFI hellen-one power_12and5V)
 # ---------------------------------------------------------------------------
 add('D6', 'SMCJ30A', 'SMC', 'C310046', {'1': 'VBAT_IN', '2': 'GND'}, 'load dump TVS')
-add('D7', 'SS34', 'SMA', 'C8678', {'1': '+12V', '2': 'VBAT_IN'}, 'reverse battery')
-add('D8', 'B5819W', 'SOD123', 'C8598', {'1': '+12V', '2': 'VIGN_IN'}, 'wake on ignition')
+add('D7', 'SS34', 'SMA', 'C8678', {'1': '+12V_IN', '2': 'VBAT_IN'}, 'reverse battery')
+add('D8', 'B5819W', 'SOD123', 'C8598', {'1': '+12V_IN', '2': 'VIGN_IN'}, 'wake on ignition')
+# rev 0.5: resettable fuse on the logic supply (an internal fault no longer waits on the car's 15-30 A fuse;
+# same part and position as Hellen's power-12V module), then a TVS that also clamps the ignition-wake path and fast
+# spikes for the buck. SMAJ33A: 36.7 V minimum breakdown, above a 35 V (suppressed) load dump, so it never has to
+# soak up a 400 ms dump through F1 (D6 on the input does that, as in Hellen's design).
+add('F1', 'SMD1206P050TF/24', 'F1206', 'C209741', {'1': '+12V_IN', '2': '+12V'},
+    'PTC 0.5 A hold / 1 A trip, 24 V: logic supply fuse')
+add('D12', 'SMAJ33A', 'SMA', 'C3720609', {'1': '+12V', '2': 'GND'}, 'TVS on the fused logic supply (Bourns)')
 R('R7', '1', '+12V', 'DAMP')
-C('C16', '4.7u', 'DAMP', 'GND')   # damping (4.7u 0603 rated 25V in hellen BOM)
+C('C16', '10u/50V', 'DAMP', 'GND', '1206')   # rev 0.5: 50 V part (was 4.7u 16 V)
 add('L1', '2.2uH', 'L1210', 'C223413', {'1': '+12V', '2': '+12V_F'}, 'input filter (Taiyo Yuden LBC3225T2R2MR, 930 mA, 80 mOhm)')
 C('C17', '10u/50V', '+12V_F', 'GND', '1206')
 C('C18', '10u/50V', '+12V_F', 'GND', '1206')
@@ -183,13 +200,14 @@ add('U2', 'LMR14020', 'SOIC8EP', 'C187824',
 C('C19', '100n', 'BUCK_BOOT', 'BUCK_SW')
 R('R8', '10k', 'BUCK_RT', 'GND')
 C('C20', '10n', 'BUCK_SS', 'GND')
-add('D9', 'SS34', 'SMA', 'C8678', {'1': 'BUCK_SW', '2': 'GND'}, 'catch diode')
+add('D9', 'SS36', 'SMA', 'C7428237', {'1': 'BUCK_SW', '2': 'GND'}, 'catch diode, 60 V 3 A SMA (rev 0.5)')
 add('L2', '10uH', 'L5050', 'C139506', {'1': 'BUCK_SW', '2': '+5V'})
 R('R9', '68k', '+5V', 'BUCK_FB')
 C('C21', '220p', '+5V', 'BUCK_FB')
 R('R10', '12k', 'BUCK_FB', 'GND')
 C('C22', '10u', '+5V', 'GND', '0805')
 C('C23', '10u', '+5V', 'GND', '0805')
+C('C59', '10u', '+5V', 'GND', '0805')   # rev 0.5: third output cap (about 30 uF effective, TI example 47 uF)
 add('D10', 'B5819W', 'SOD123', 'C8598', {'1': '+5V', '2': 'USB_VBUS'}, 'bench power from USB')
 # protected 5V sensor supply, tracks +5V
 add('U3', 'TLS115B0EJ', 'DSO8EP', 'C3743696',
@@ -212,12 +230,17 @@ C('C29', '100n', 'AN_VIGN', 'GND', '0402')
 # ---------------------------------------------------------------------------
 # Outputs
 # ---------------------------------------------------------------------------
-# 7x relay/lamp/tach low side: ULN2003 (COM = flyback to +12V)
-uln = {'8': 'GND', '9': '+12V'}
+# 7x relay/lamp/tach low side: ULN2003. Rev 0.5: COM goes to a TVS (SMAJ33A, 36.7-40.6 V breakdown) instead of
+# +12V. Relay kick-back still clamps (about 41 V worst case, under the ULN's 50 V), a battery-fed relay coil (2003-05
+# main relay) can no longer back-feed the ECU through the clamp diodes with the key off, and a 35 V load dump on the
+# relay and lamp feeds doesn't reach the breakdown (a small zener here would conduct and could fail short, which
+# would switch every relay on).
+uln = {'8': 'GND', '9': 'ULN_COM'}
 for i, n in enumerate(['FP', 'MAINRLY', 'AC', 'FAN', 'CEL', 'TACH', 'LS7']):
     uln[str(1 + i)] = n + '_CTL'
     uln[str(16 - i)] = 'OUT_' + n
 add('U5', 'ULN2003AD', 'SOIC16', 'C7512', uln, '7ch 500mA low side for relays/CEL/tach')
+add('D11', 'SMAJ33A', 'SMA', 'C3720609', {'1': 'ULN_COM', '2': 'GND'}, 'TVS: ULN2003 flyback clamp (Bourns)')
 
 # 4x ignition logic outputs (smart coils / COP): TC4427 at 5V
 for u, (a, b) in zip(['U6', 'U7'], [('IGN1', 'IGN2'), ('IGN3', 'IGN4')]):
@@ -235,14 +258,22 @@ add('RN1', '4x10k', 'RN4', 'C29718', ign_pd, 'ignition inputs pull-down')
 C(f'C{cn}', '1u', '+5V', 'GND', '0402'); cn += 1     # C34 TC4427 #1 VDD
 C(f'C{cn}', '1u', '+5V', 'GND', '0402'); cn += 1     # C35 TC4427 #2 VDD
 
-# 8x smart low side (injectors, IACV, VVT, boost, alternator): AUIPS2041L
+# 8x smart low side (injectors, IACV, VVT, boost, alternator): AUIPS2041L, 63-75 V active clamp.
+# Rev 0.5: driven at 5 V through an SN74LVC4245A (the AUIPS2041's input, current limit and shutdown are specified
+# at 4-5.5 V). Its OE is pulled up to +5V, so all eight are off (and pulled low) through reset, boot, the
+# bootloader and DFU until the firmware drives DRV_EN_N low.
 for i, n in enumerate(HS_OUT):
     add(f'Q{1+i}', 'AUIPS2041LTR', 'SOT223', 'C113610',
-        {'1': n + '_CTL', '2': 'OUT_' + n, '3': 'GND', '4': 'OUT_' + n},
-        'protected low side, 39V clamp')
-# input pull-downs keep outputs off while MCU is in reset
+        {'1': n + '_IN', '2': 'OUT_' + n, '3': 'GND', '4': 'OUT_' + n},
+        'protected low side, 63-75 V clamp')
+lvc = {'1': '+5V', '2': 'GND', '11': 'GND', '12': 'GND', '13': 'GND', '22': 'DRV_EN_N', '23': '+3V3', '24': '+3V3'}
+for i, n in enumerate(HS_OUT):           # DIR low: B (3.3 V, MCU) -> A (5 V, drivers); A7/B7 = INJ1 ... A0/B0 = ALT
+    lvc[str(10 - i)] = n + '_IN'
+    lvc[str(14 + i)] = n + '_CTL'
+add('U11', 'SN74LVC4245APWR', 'TSSOP24', 'C7859', lvc, '8-bit 3.3 V -> 5 V level shifter for the low-side inputs')
+# driver-side pull-downs keep the outputs off while the shifter is disabled
 for i, n in enumerate(HS_OUT):
-    R(f'R{rn}', '10k', n + '_CTL', 'GND'); rn += 1
+    R(f'R{rn}', '10k', n + '_IN', 'GND'); rn += 1
 
 # ---------------------------------------------------------------------------
 # Inputs
@@ -289,6 +320,10 @@ for n in ['HALL1', 'HALL2']:
     R(f'R{rn}', '4.7k', 'IN_' + n, n, '0402'); rn += 1
     R(f'R{rn}', '1k', 'V5_SENS', 'IN_' + n, '0402'); rn += 1
     C(f'C{cn}', '1n', n, 'GND', '0402'); cn += 1
+# rev 0.5: clamp diodes to +3V3 (PE7/PE8 are 5 V-tolerant pins with no clamp of their own; a crank/cam wire
+# shorted to battery would otherwise put ~14 V on them). 4.7k limits the clamp current to ~2 mA.
+add('D13', '1N4148WS', 'SOD323', 'C2128', {'1': '+3V3', '2': 'HALL1'}, 'HALL1 clamp to +3V3')
+add('D14', '1N4148WS', 'SOD323', 'C2128', {'1': '+3V3', '2': 'HALL2'}, 'HALL2 clamp to +3V3')
 
 # 12V switch inputs: 33k/10k divider, 10n filter
 for n in ['SW1', 'SW2', 'SW3']:
@@ -300,6 +335,16 @@ for n in ['SW1', 'SW2', 'SW3']:
 add('U10', 'SN65HVD230DR', 'SOIC8', 'C12084',
     {'1': 'CAN_TX', '2': 'GND', '3': '+3V3', '4': 'CAN_RX', '5': '', '6': 'CAN_L', '7': 'CAN_H', '8': 'GND'})
 C(f'C{cn}', '100n', '+3V3', 'GND'); cn += 1
+
+# rev 0.5 additions (refs above the rev 0.4 range, so no existing designator changes)
+C('C57', '100n', '+5V', 'GND', '0402')        # U11 VCCA
+C('C58', '100n', '+3V3', 'GND', '0402')       # U11 VCCB
+R('R71', '10k', '+5V', 'DRV_EN_N', '0402')    # drivers disabled until the firmware pulls DRV_EN_N low
+R('R72', '10k', 'BOOT1', 'GND', '0402')       # PB2 / BOOT1 low
+# The MCU-side control lines have no pull-downs (no room between the MCU and U11). While U11 is disabled its
+# outputs are high-impedance and R19-R26 hold the drivers off, so a floating MCU pin does nothing. Once enabled,
+# the board firmware parks every control pin rusEFI isn't using as an input with pull-down (rusEFI's own
+# "unused" state is a pull-UP, which would switch the driver on).
 
 # mounting holes
 for i in range(4):

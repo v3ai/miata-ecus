@@ -183,6 +183,9 @@ static void setMiataNbCommon() {
 	// The NB charging system is regulated by the engine computer through the alternator field (ALT output).
 	engineConfiguration->alternatorControlPin = MIATA_ALT;
 	engineConfiguration->isAlternatorControlEnabled = true;
+	// VBATT is measured on the board's +12V rail, after the reverse diode D7 and the PTC F1, so it reads about
+	// 0.3-0.4 V below the battery. A 14.0 V target therefore holds the battery near 14.3-14.4 V, inside the stock NB
+	// regulator's range; lower the table if a voltmeter at the battery says otherwise.
 	setTable(config->alternatorVoltageTargetTable, 14.0f);
 	engineConfiguration->alternatorControl.offset = 20;
 	engineConfiguration->alternatorControl.pFactor = 16;
@@ -241,13 +244,22 @@ static void setMiataNb2() {
 void miataApplyYearPreset(engine_type_e engineType) {
 	switch (engineType) {
 	case engine_type_e::MAZDA_MIATA_NA6:
-		// 1989-93: batch fire on INJ1 (3U, injectors 1+3) and INJ2 (3V, 2+4), VAF, wasted spark.
+		// 1989-93: batch fire, VAF, wasted spark. The stock harness has two injectors on each of 2U and 2V. The 1989-93
+		// motherboard (rev 0.6) wires two drivers to each wire: INJ1 + INJ4 to 2U, INJ2 + INJ3 to 2V. rusEFI's batch
+		// mode fires each cylinder's output together with the cylinder 360 degrees away (1 with 4, 3 with 2 in the
+		// 1-3-4-2 order), so each pair switches together and each driver carries one injector. 2Y/2Z (2Z is the A/T
+		// unit on automatics) are not connected unless the motherboard links are moved for a sequential conversion.
+		// The "cylinder" numbers below are rusEFI's output slots, not the injectors on each wire: in the car 2U feeds
+		// injectors 1 and 3 and 2V feeds 2 and 4. In batch mode that doesn't matter; it only pairs the drivers.
+		// This needs the rev 0.6 1989-93 motherboard: on an older one INJ3/INJ4 would drive the unused 2Y/2Z pins
+		// and each 2U/2V driver would carry two injectors on its own.
 		setMazdaMiataNA6();
 		setIgnitionSense();
-		// INJ3/INJ4 reach 3Y/3Z, which the stock 1990-93 harness leaves empty on manual cars but uses for the A/T
-		// control unit (3Z) on automatics: don't drive them unless the harness has been converted to sequential.
-		engineConfiguration->injectionPins[2] = Gpio::Unassigned;
-		engineConfiguration->injectionPins[3] = Gpio::Unassigned;
+		engineConfiguration->injectionMode = IM_BATCH;
+		engineConfiguration->injectionPins[0] = MIATA_INJ1;   // slot 1 -> 2U
+		engineConfiguration->injectionPins[1] = MIATA_INJ2;   // slot 2 -> 2V
+		engineConfiguration->injectionPins[2] = MIATA_INJ3;   // slot 3 -> 2V, paired with slot 2
+		engineConfiguration->injectionPins[3] = MIATA_INJ4;   // slot 4 -> 2U, paired with slot 1
 		break;
 	case engine_type_e::MAZDA_MIATA_NA94:
 		// 1994-95: four injector wires (2U/2V/2Y/2Z), sequential like rusEFI's own 1994 preset.

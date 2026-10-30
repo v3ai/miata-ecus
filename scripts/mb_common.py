@@ -69,9 +69,42 @@ def common_parts():
     # AUX: everything the stock harness has no pin for
     aux = {1: 'OUT_IGN3', 2: 'OUT_IGN4', 3: 'OUT_BOOST', 4: 'OUT_ALT', 5: 'OUT_MAINRLY', 6: 'IN_KNOCK',
            7: 'VR1_P', 8: 'VR1_N', 9: 'VR2_P', 10: 'VR2_N', 11: 'IN_AFR', 12: 'UART_TX', 13: 'UART_RX',
-           14: 'V5_SENS', 15: 'VBAT_IN', 16: 'GND'}
+           14: 'V5_SENS', 15: 'AUX_VBAT', 16: 'GND'}
     add('J5', 'AUX 2x8', 'Connector_IDC:IDC-Header_2x08_P2.54mm_Vertical', 'C3406', aux,
-        'Add-on I/O: COP 3/4, boost, alternator, main relay, knock, VR crank/cam, external AFR, UART, 5 V, +12 V')
+        'Add-on I/O: COP 3/4, boost, alternator, main relay, knock, VR crank/cam, external AFR, UART, 5 V, +12 V (fused, F4)')
+    # rev 0.6/0.4: the AUX +12 V pin leaves the board, so it gets its own resettable fuse
+    add('F4', '0.5A hold', 'Fuse:Fuse_1206_3216Metric', 'C209741', {1: 'VBAT_IN', 2: 'AUX_VBAT'},
+        'Resettable fuse for the AUX +12 V pin J5-15 (SMD1206P050TF/24: 0.5 A hold, 1 A trip, 24 V)')
+
+
+def protection_parts(iac_supply, vvt_supply=None):
+    """Freewheel diodes for the PWM valve coils (idle valve always; VVT driver only where it drives a coil) to the
+    valve's own +12 V feed, and not-fitted 12 V pull-up options for the three switch inputs."""
+    add('D1', 'SS34', 'Diode_SMD:D_SMA', 'C8678', {1: iac_supply, 2: 'OUT_IACV'},
+        f'Idle valve freewheel diode (to its +12 V feed, {iac_supply}): keeps the PWM turn-off energy out of the driver')
+    if vvt_supply:
+        add('D2', 'SS34', 'Diode_SMD:D_SMA', 'C8678', {1: vvt_supply, 2: 'OUT_VVT'},
+            f'VVT-driver coil freewheel diode (to its +12 V feed, {vvt_supply})')
+    for ref, net, what in (('R20', 'IN_SW1', 'vehicle speed'), ('R21', 'IN_SW2', 'A/C switch'),
+                           ('R22', 'IN_SW3', 'clutch switch')):
+        add(ref, '4.7k', 'Resistor_SMD:R_0603_1608Metric', '', {1: 'VBAT_IN', 2: net},
+            f'NOT FITTED: 12 V pull-up for the {what} input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the '
+            'switch closed) only if your car\'s signal switches to ground or is open collector; a switch that drives '
+            '12 V must not have it')
+
+
+def protection_place(P, vvt=True):
+    """Under the daughterboard: freewheel diodes below their JD1 pins, pull-up options above their JD2 pins,
+    the AUX fuse beside J5."""
+    dx, dy = 14.5, 42.0                       # every year board puts the daughterboard here
+    pin = lambda k: dx + 13.0 + (k - 1) * 2.54
+    P['D1'] = (pin(31), dy + 10.0, 90)
+    if vvt:
+        P['D2'] = (pin(34), dy + 10.0, 90)
+    for ref, k in (('R20', 15), ('R21', 16), ('R22', 17)):
+        P[ref] = (pin(k), dy + 52.0, 90)
+    P['F4'] = (98.0, 113.0, 0)
+    return P
 
 
 def trigger_select(refs, sig, rtn, hall, vr_p, vr_n, default, label):

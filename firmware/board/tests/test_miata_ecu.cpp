@@ -26,6 +26,7 @@
 #include "malfunction_central.h"
 
 #include <cmath>
+#include <tuple>
 #include <map>
 #include <string>
 #include <vector>
@@ -433,10 +434,19 @@ void checkInjectors(Recorder& rec, int cycles, float rpm) {
 		// 1989-93: two groups, each opening once per crank revolution
 		EXPECT_EQ(2 * cycles, countEdges(i1, true)) << "INJ1 @" << rpm;
 		EXPECT_EQ(2 * cycles, countEdges(i2, true)) << "INJ2 @" << rpm;
-		// rusEFI still runs the logic of injector channels 3/4, but with no pin assigned nothing reaches PB5/PB4
-		// (3Y, and 3Z = A/T unit on automatics)
-		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->injectionPins[2]);
-		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->injectionPins[3]);
+		// The 1989-93 motherboard parallels INJ4 with INJ1 (harness 2U) and INJ3 with INJ2 (2V): each pair must switch
+		// together, or one driver would carry both injectors (or fight the other).
+		for (auto [a, b, wire] : {std::tuple{&i1, &i4, "2U"}, std::tuple{&i2, &i3, "2V"}}) {
+			ASSERT_EQ(a->edges.size(), b->edges.size()) << wire << " pair edge count @" << rpm;
+			double worst = 0;
+			for (size_t k = 0; k < a->edges.size(); k++) {
+				EXPECT_EQ(a->edges[k].on, b->edges[k].on) << wire;
+				worst = std::max(worst, std::fabs(a->edges[k].tUs - b->edges[k].tUs));
+			}
+			EXPECT_LE(worst, 5.0) << wire << ": the two drivers on one wire must switch within 5 us @" << rpm;
+			printf("MIATA|%s|pair|%.0f|%s|%s+%s|edges=%zu|max_skew_us=%.1f\n", yearName(g_year), rpm, wire,
+				a->name.c_str(), b->name.c_str(), a->edges.size(), worst);
+		}
 		// injectionDuration is per pulse; in batch mode rusEFI has already halved the fuel for the second pulse
 		EXPECT_NEAR(meanPulseMs(i1), duration, 0.05);
 		EXPECT_NEAR(meanPulseMs(i2), duration, 0.05);
@@ -598,8 +608,8 @@ void checkConfiguration(engine_type_e year) {
 	case engine_type_e::MAZDA_MIATA_NA6:
 		EXPECT_EQ(MIATA_IN_VIGN, engineConfiguration->ignKeyAdcChannel) << "1C ignition sense";
 		EXPECT_EQ(IM_BATCH, engineConfiguration->injectionMode);
-		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->injectionPins[2]);
-		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->injectionPins[3]);
+		EXPECT_EQ(MIATA_INJ3, engineConfiguration->injectionPins[2]) << "INJ3 shares 2V with INJ2";
+		EXPECT_EQ(MIATA_INJ4, engineConfiguration->injectionPins[3]) << "INJ4 shares 2U with INJ1";
 		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->o2heaterPin);
 		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->alternatorControlPin);
 		EXPECT_NEAR(1.6f, engineConfiguration->displacement, 0.01);

@@ -37,7 +37,8 @@ ALL = tuple(range(NL))
 DIRPREF = None     # e.g. 1.8: F.Cu prefers horizontal, B.Cu vertical (cost factor for the other directions)
 
 WIDTH = {
-    'VBAT_IN': 1.0, '+12V': 0.8, '+12V_F': 0.8, 'BUCK_SW': 0.8, '+5V': 0.5, 'DAMP': 0.4,
+    'VBAT_IN': 1.0, '+12V_IN': 0.8, '+12V': 0.8, '+12V_F': 0.8, 'BUCK_SW': 0.8, '+5V': 0.5, 'DAMP': 0.4,
+    'ULN_COM': 0.4,
     'V5_SENS': 0.4, 'VIGN_IN': 0.4, 'USB_VBUS': 0.4,
     'OUT_INJ1': 0.8, 'OUT_INJ2': 0.8, 'OUT_INJ3': 0.8, 'OUT_INJ4': 0.8,
     'OUT_IACV': 0.8, 'OUT_VVT': 0.8, 'OUT_BOOST': 0.8, 'OUT_ALT': 0.6,
@@ -305,6 +306,27 @@ class Router:
             self.add_locked(net, pts)
             yp = pair[0]['c'][1]
             self.add_locked(net, [(xc - 0.6, yp), (xc + 0.6, yp)])
+
+    def preroute_shifter_bus(self):
+        """rev 0.5: the eight low-side control lines from the MCU top edge (pins 93..86, INJ1..ALT) into the level
+        shifter U11, which stands on end with its MCU-side column facing them (INJ1 at the top). Each line rises to
+        its own lane (leftmost pin highest, 0.36 mm apart, above the U1-corner decoupling caps), runs right and drops
+        at 45 degrees straight into its pin, so the bundle nests without crossings."""
+        u = {p['num']: p for p in self.pads if p['fp'] == 'U11'}
+        if '14' not in u:
+            return
+        m = {p['num']: p for p in self.pads if p['fp'] == 'U1'}
+        xend = u['14']['poly'].bounds[0] - 0.55          # start of the straight run into the pad row
+        for k, (mp, up) in enumerate([('93', '14'), ('92', '15'), ('91', '16'), ('90', '17'),
+                                      ('89', '18'), ('88', '19'), ('87', '20'), ('86', '21')]):
+            net = m[mp]['net']
+            assert net == u[up]['net'], (mp, up, net, u[up]['net'])
+            xp = round(m[mp]['c'][0] / G) * G
+            ys = round((m[mp]['poly'].bounds[1] - 1.0) / G) * G      # end of the fixed escape stub
+            lane = 18.45 + 0.36 * k
+            px, py = u[up]['c']
+            d = py - lane
+            self.add_locked(net, [(xp, ys), (xp, lane), (xend - d, lane), (xend, py), (px, py)])
 
     def pad_cells(self, pad):
         cells = []
@@ -788,12 +810,17 @@ def main(inp, out):
     first = fan + [n for n in first if n not in fan]
     r.protected = set()
     r.preroute_analog_fan()
+    r.preroute_shifter_bus()
     order = first + ['+5V'] + rest + [n for n in sorted(wide, key=netlen) if n != '+5V']
     import os, pickle
     state = out + '.state.pkl'
     if os.environ.get('RESUME') and os.path.exists(state):
         r.tracks, r.vias, r.failed = pickle.load(open(state, 'rb'))
         r.rebuild_dynamic()
+        # nets a check found unconnected after an earlier run (comma-separated), queued for the finish passes
+        for n in filter(None, os.environ.get('ADD_FAILED', '').split(',')):
+            if not any(f[0] == n for f in r.failed):
+                r.failed.append((n, '', ''))
         if os.environ.get('FINISH'):
             import random, copy
             random.seed(int(os.environ.get('FSEED', '1')))
@@ -808,11 +835,15 @@ def main(inp, out):
                                 and any(LineString([t['p0'], t['p1']]).distance(Point(c)) < 1.6 for c in pos)})
                 keep = (list(r.tracks), list(r.vias), list(r.failed), set(getattr(r, 'stitched', set())))
                 print('stitch repair: ripping', neigh, flush=True)
+                # route_all() starts a fresh failure list: carry the signals that had already failed (and are not
+                # being re-routed here) over, or the finish passes below would never see them
+                prev_sig = [f for f in r.failed if 'stitch' not in f[0] and f[0] not in neigh]
                 r.rip(neigh)
                 r.failed = [f for f in r.failed if 'stitch' not in f[0]]
                 for nm, fp, num in sb:
                     r.gnd_stitch(nm.replace('-stitch', ''), 4.0, lambda p, fp=fp, num=num: p['fp'] == fp and p['num'] == num)
                 r.route_all(neigh, max_rips=100)
+                r.failed += [f for f in prev_sig if f not in r.failed]
                 bad_sig = [f for f in r.failed if 'stitch' not in f[0]]
                 n_st = len([f for f in r.failed if 'stitch' in f[0]])
                 print('  -> signals failed', len(bad_sig), 'stitches failed', n_st, 'of', len(sb), flush=True)
