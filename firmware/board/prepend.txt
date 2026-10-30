@@ -1,0 +1,17 @@
+#define MAIN_HELP_URL "https://github.com/v3ai/miata-ecus/tree/main/firmware"
+
+! dividers, pull-ups, CAN pins and the wideband's bus are facts of the board (pinned in board_configuration.cpp)
+#define ts_show_analog_divider false
+#define ts_show_vbatt false
+#define ts_show_clt_iat_pullup false
+#define ts_show_can_pins false
+#define ts_show_can2 true
+#define ts_show_tunerstudio_port false
+#define ts_show_spi false
+#define ts_show_sd_card false
+#define ts_show_sd_pins false
+#define ts_show_hardware_simulator false
+#define ts_show_etb_pins false
+#define ts_show_egt false
+#define ts_show_software_knock true
+#define ts_show_popular_vehicles true

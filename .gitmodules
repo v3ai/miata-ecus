@@ -1,0 +1,4 @@
+[submodule "firmware/ext/rusefi"]
+	path = firmware/ext/rusefi
+	url = https://github.com/rusefi/rusefi.git
+	shallow = true

@@ -18,11 +18,11 @@ bottom edge carries inputs, comms and the LSU 4.9 wideband sensor.
   BOOT0, pulses reset and then speaks ST's serial bootloader protocol (AN3155) to write the FOME firmware.
   - **Flow:**
     1. Flash rusEFI to the main MCU over USB-C (hold BOOT, tap RESET: ST's DFU bootloader).
-    2. rusEFI then flashes the wideband, either from an image it carries or by passing a PC programmer
-       (STM32CubeProgrammer / `stm32flash`) through its USB serial port.
+    2. With the engine off, press "Flash on-board wideband" in TunerStudio (Popular Vehicles) or type
+       `wbo_uart_flash` in the rusEFI console. rusEFI writes the wideband image it carries and reads it back.
     3. After that, rusEFI keeps PD10 low and PD11 released, and the wideband runs normally on CAN.
-  - **Firmware:** the link is hardware only. The rusEFI side (bootloader client or pass-through) belongs in this
-    board's rusEFI port, which hasn't been written yet.
+  - **Firmware:** `firmware/board/wideband_uart_flash.cpp` in the miata-ecus repository (compiles, not yet run on
+    hardware).
   - **Fallback:** the J102 Tag-Connect SWD pads stay as a fallback.
 
 ## What changed in rev 0.3
@@ -145,4 +145,4 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
    bottom-side assembly and adds cost. They are cheap to hand-solder, and you can square them up against
    the motherboard's female headers while the solder sets. If you do that, delete J1/J2 from the BOM.
 5. **Schematic and layout review.** No person has reviewed the schematic yet. The wideband *circuit* is the proven FOME design, but since rev 0.3 its *layout* is new to this board, so it no longer inherits the module's proven layout. Bring up the wideband on the first boards before relying on it (heater control, pump current, and lambda reading against a known sensor).
-6. **Wideband first flash.** It goes through the main MCU (rev 0.4), so no extra cable is needed once this board's rusEFI port has the programming feature. Until then, a Tag-Connect TC2030-NL cable on J102 does it.
+6. **Wideband first flash.** It goes through the main MCU (rev 0.4), so no extra cable is needed: the board's rusEFI firmware has the programming feature (`wbo_uart_flash`). A Tag-Connect TC2030-NL cable on J102 is the fallback.
