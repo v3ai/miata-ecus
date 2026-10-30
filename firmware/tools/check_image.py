@@ -6,7 +6,11 @@
   - the merged DFU image (bootloader + app) that is written at 0x08000000;
   - everything fits below rusEFI's settings sectors in the STM32F407VG's 1 MB flash.
 
-usage: check_image.py <openblt .bin> <app .bin with CRC (build/rusefi_crc32.bin)> [merged .bin]
+usage: check_image.py <openblt .bin> <app .bin with CRC (build/rusefi_crc32.bin)> [merged .bin [app .hex]]
+
+With the app's .hex (build/rusefi.hex), the merged image is compared with the app only at the addresses the firmware
+defines. rusEFI's merge tool (hex2dfu) fills gaps between hex sections with leftover buffer data, which differs
+between the standalone and the merged image; each carries a CRC over its own fill, so both are valid.
 """
 import struct
 import sys
@@ -18,6 +22,23 @@ FLASH_END = FLASH + 1024 * 1024
 SETTINGS = 0x080C0000            # rusEFI F4: configuration lives in the last two 128K sectors (10, 11)
 SRAM = (0x20000000, 0x20020000)  # 128K SRAM (CCM at 0x10000000 is not valid for the initial stack)
 ok = True
+
+
+def hex_addresses(path):
+    """Set of addresses an Intel hex file defines."""
+    out, base = set(), 0
+    for line in open(path):
+        line = line.strip()
+        if not line.startswith(':'):
+            continue
+        n, addr, typ = int(line[1:3], 16), int(line[3:7], 16), int(line[7:9], 16)
+        if typ == 0:
+            out.update(range(base + addr, base + addr + n))
+        elif typ == 4:
+            base = int(line[9:13], 16) << 16
+        elif typ == 2:
+            base = int(line[9:13], 16) << 4
+    return out
 
 
 def check(cond, msg):
@@ -65,7 +86,17 @@ if len(sys.argv) > 3:
     check(merged[0x24:0x28] == b'BL10', f"merged image carries the bootloader version stamp {bytes(merged[0x24:0x28])!r}")
     merged[0x24:0x28] = bl[0x24:0x28]
     check(merged[:len(bl)] == bl, 'merged DFU image starts with this OpenBLT at 0x08000000')
-    check(merged[APP - FLASH:APP - FLASH + len(app)] == app, 'merged DFU image holds this app at 0x08008000')
+    inside = merged[APP - FLASH:APP - FLASH + len(app)]
+    if len(sys.argv) > 4:
+        defined = hex_addresses(sys.argv[4])
+        crc_word = range(APP + 0x1C, APP + 0x20)      # written by hex2dfu, differs with the gap fill
+        diff = [a for a in defined if a not in crc_word and APP <= a < APP + len(app)
+                and inside[a - APP] != app[a - APP]]
+        gaps = len(app) - sum(1 for a in defined if APP <= a < APP + len(app))
+        check(not diff, f'merged DFU image holds this app at 0x08008000 ({len(defined)} defined bytes compared, '
+              f'{gaps} gap-fill bytes ignored)' + (f'; first difference at 0x{diff[0]:08x}' if diff else ''))
+    else:
+        check(inside == app, 'merged DFU image holds this app at 0x08008000')
     accepted, why = openblt_accepts(bytes(merged[APP - FLASH:]))
     check(accepted, 'OpenBLT accepts the app inside the merged image: ' + why)
 sys.exit(0 if ok else 1)

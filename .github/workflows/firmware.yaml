@@ -47,7 +47,7 @@ jobs:
           F=firmware/ext/rusefi/firmware
           set +e
           { ls -l $F/bootloader/blbuild/*.bin $F/build/*.bin $F/deliver/ 2>&1
-            python3 firmware/tools/check_image.py $F/bootloader/blbuild/openblt_miata-ecu.bin $F/build/rusefi_crc32.bin $F/deliver/rusefi.bin 2>&1
+            python3 firmware/tools/check_image.py $F/bootloader/blbuild/openblt_miata-ecu.bin $F/build/rusefi_crc32.bin $F/deliver/rusefi.bin $F/build/rusefi.hex 2>&1
             echo "exit=$?"; } > /tmp/img.txt
           cat /tmp/img.txt
           # put the result in an annotation, which is readable from the run summary without the full log
