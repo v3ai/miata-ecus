@@ -22,7 +22,7 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 </tr>
 </table>
 
-<sub>Renders from the 3D viewer in <a href="viewer/"><code>viewer/</code></a>, with black solder mask and ENIG gold pads (<code>MASK=black FINISH=enig</code> in <code>viewer/pcb3d.py</code>). The harness header, the LSU and IAT connectors and the MAP sensor are simplified stand-in models.</sub>
+<sub>Renders from the 3D viewer in <a href="viewer/"><code>viewer/</code></a>, with black solder mask (<code>MASK=black</code> in <code>viewer/pcb3d.py</code>). The harness header, the LSU and IAT connectors and the MAP sensor are simplified stand-in models.</sub>
 
 > **Status:** every board is fully routed and passes KiCad DRC (no clearance errors, no unconnected items), and each
 > schematic's netlist has been checked pad-by-pad against its board. **None of them has been built or tested yet**, and
