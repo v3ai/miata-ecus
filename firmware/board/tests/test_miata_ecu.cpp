@@ -522,7 +522,11 @@ void runYear(engine_type_e year) {
 				EXPECT_EQ(1, rec.get("o2heater").last) << "O2 heater on while running";
 			}
 			if (engineConfiguration->alternatorControlPin != Gpio::Unassigned) {
-				EXPECT_GT(countEdges(rec.get("alternator"), true), cycles) << "alternator field PWM running";
+				if (engineConfiguration->isAlternatorControlEnabled) {
+					EXPECT_GT(countEdges(rec.get("alternator"), true), cycles) << "alternator field PWM running";
+				} else {
+					EXPECT_EQ(0, countEdges(rec.get("alternator"), true)) << "alternator control ships off: field not driven";
+				}
 			}
 		}
 	}
@@ -634,6 +638,7 @@ void checkConfiguration(engine_type_e year) {
 		EXPECT_EQ(IM_SEQUENTIAL, engineConfiguration->injectionMode);
 		EXPECT_EQ(MIATA_VVT, engineConfiguration->o2heaterPin) << "front O2 heater on 1U";
 		EXPECT_EQ(MIATA_ALT, engineConfiguration->alternatorControlPin);
+		EXPECT_FALSE(engineConfiguration->isAlternatorControlEnabled) << "alternator control ships off until the field is measured";
 		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->vvtPins[0]);
 		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->mainRelayPin) << "MAINRLY drives VICS on NB1, not a relay";
 		EXPECT_NEAR(256, engineConfiguration->injector.flow, 0.1);
@@ -648,6 +653,7 @@ void checkConfiguration(engine_type_e year) {
 		EXPECT_EQ(MIATA_VVT, engineConfiguration->vvtPins[0]) << "OCV on 4R";
 		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->o2heaterPin);
 		EXPECT_EQ(MIATA_ALT, engineConfiguration->alternatorControlPin);
+		EXPECT_FALSE(engineConfiguration->isAlternatorControlEnabled) << "alternator control ships off until the field is measured";
 		EXPECT_EQ(g_nb2Early ? Gpio::Unassigned : MIATA_MAINRLY, engineConfiguration->mainRelayPin);
 		EXPECT_NEAR(265, engineConfiguration->injector.flow, 0.1);
 		break;

@@ -34,6 +34,7 @@ FP = {
     'XTAL':  'Crystal:Crystal_SMD_5032-2Pin_5.0x3.2mm',
     'L1210': 'Inductor_SMD:L_1210_3225Metric',
     'L5050': 'Inductor_SMD:L_Sunlord_MWSA0503S',
+    'L7066': 'Inductor_SMD:L_Sunlord_MWSA0603S',
     'BTN':   'Button_Switch_SMD:SW_Push_1P1T_XKB_TS-1187A',
     'HDR40': 'Connector_PinHeader_2.54mm:PinHeader_1x40_P2.54mm_Vertical',
     'TAG':   'Connector:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical',
@@ -51,7 +52,7 @@ LCSC_R0402 = {'6.8k': 'C25917', '1k': 'C11702', '2.2k': 'C25879', '2.7k': 'C2588
               '5.6k': 'C25908', '10k': 'C25744', '33k': 'C25779'}
 LCSC_C0402 = {'1u': 'C52923', '1n': 'C1523', '10n': 'C15195', '100n': 'C1525'}
 LCSC_R0805 = {'5.1k': 'C27834', '100': 'C17408'}
-LCSC_C0603 = {'22p': 'C1653', '220p': 'C1603', '1n': 'C1588', '10n': 'C57112',
+LCSC_C0603 = {'22p': 'C1653', '33p': 'C1663', '220p': 'C1603', '1n': 'C1588', '10n': 'C57112',
               '100n': 'C14663', '1u': 'C15849', '2.2u': 'C23630', '4.7u': 'C19666'}
 LCSC_C0805 = {'10u': 'C15850', '1n': 'C46653'}
 LCSC_C1206 = {'10u/50V': 'C13585'}
@@ -159,8 +160,9 @@ add('FB1', 'BLM18PG221', 'FB', 'C80165', {'1': '+3V3', '2': '+3V3A'}, 'VDDA ferr
 C('C11', '1u', '+3V3A', 'GND')
 C('C12', '100n', '+3V3A', 'GND')
 add('Y1', '8MHz', 'XTAL', 'C115962', {'1': 'HSE_IN', '2': 'HSE_OUT'}, 'X50328MSB2GI 20pF')
-C('C13', '22p', 'HSE_IN', 'GND')
-C('C14', '22p', 'HSE_OUT', 'GND')
+# rev 0.5: 33 pF load caps for the 20 pF crystal (C = 2 x (CL - ~4 pF pin + stray), AN2867)
+C('C13', '33p', 'HSE_IN', 'GND')
+C('C14', '33p', 'HSE_OUT', 'GND')
 R('R1', '10k', 'BOOT0', 'GND')
 C('C15', '100n', 'NRST', 'GND')
 add('SW1', 'BOOT', 'BTN', 'C318884', {'1': '+3V3', '2': 'BOOT0'}, 'hold at power-up for DFU')
@@ -201,7 +203,8 @@ C('C19', '100n', 'BUCK_BOOT', 'BUCK_SW')
 R('R8', '10k', 'BUCK_RT', 'GND')
 C('C20', '10n', 'BUCK_SS', 'GND')
 add('D9', 'SS36', 'SMA', 'C7428237', {'1': 'BUCK_SW', '2': 'GND'}, 'catch diode, 60 V 3 A SMA (rev 0.5)')
-add('L2', '10uH', 'L5050', 'C139506', {'1': 'BUCK_SW', '2': '+5V'})
+# rev 0.5: Isat 5.5 A, above the LMR14020's 3.8 A maximum current limit (the 5x5 mm MWSA0503S saturated at 3.5 A)
+add('L2', '10uH', 'L7066', 'C132141', {'1': 'BUCK_SW', '2': '+5V'}, 'buck inductor, Sunlord MWSA0603S-100MT')
 R('R9', '68k', '+5V', 'BUCK_FB')
 C('C21', '220p', '+5V', 'BUCK_FB')
 R('R10', '12k', 'BUCK_FB', 'GND')

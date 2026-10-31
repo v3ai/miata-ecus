@@ -112,11 +112,11 @@ put('U2', 14.2, 24.4, 0)        # LMR14020
 put('C19', 14.2, 20.4, 0)       # boot cap
 put('R8', 10.6, 29.2, 90)       # RT
 put('C20', 17.6, 29.2, 90)      # SS
-put('D9', 20.4, 20.4, 90)       # catch diode
-put('L2', 25.4, 24.4, 0)        # 10uH
-put('R9', 20.6, 27.0, 180)      # FB top
-put('C21', 20.6, 28.6, 180)
-put('R10', 20.6, 30.2, 0)       # FB bottom
+put('D9', 20.1, 20.4, 90)       # catch diode
+put('L2', 25.45, 25.5, 270)     # 10uH, 7 x 6.6 mm (rev 0.5): on end between D9/FB and the output caps
+put('R9', 20.3, 27.0, 180)      # FB top
+put('C21', 20.3, 28.6, 180)
+put('R10', 20.3, 30.2, 0)       # FB bottom
 put('C22', 30.0, 22.6, 90)
 put('C23', 30.0, 26.2, 90)
 put('D10', 90.3, 52.2, 90)      # USB VBUS -> 5V, next to its J2 pin

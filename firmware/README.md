@@ -48,9 +48,9 @@ A blank board starts with the 1989–93 settings.
 | 1989-93 (NA6, 1.6) | `MAZDA_MIATA_NA6` | NA CAS: SGC on HALL2, SGT on HALL1 | batch, two drivers per wire | 1C | none (VVT driver = purge, not driven) |
 | 1994-95 (NA8, 1.8) | `MAZDA_MIATA_NA94` | NA CAS | sequential | 1C | none (ALT driver = pressure regulator solenoid, not driven) |
 | 1996-97 (NA8, OBD-II) | `MAZDA_MIATA_NA96` | NA CAS | sequential | none | O2 heater on the VVT driver |
-| 1999-2000 (NB1) | `MAZDA_MIATA_NB1` | NB crank on HALL1, cam on HALL2 | sequential | none | O2 heater on VVT, alternator field on ALT |
-| 2001-02 (NB2, VVT) | `MAZDA_MIATA_NB2` without main relay or ignition sense | NB crank + VVT cam | sequential | none | VVT valve, alternator field |
-| 2003-05 (NB2, VVT) | `MAZDA_MIATA_NB2` | NB crank + VVT cam | sequential | 4S | VVT valve, alternator field, main relay (3H) |
+| 1999-2000 (NB1) | `MAZDA_MIATA_NB1` | NB crank on HALL1, cam on HALL2 | sequential | none | O2 heater on VVT, alternator field on ALT (control off by default) |
+| 2001-02 (NB2, VVT) | `MAZDA_MIATA_NB2` without main relay or ignition sense | NB crank + VVT cam | sequential | none | VVT valve, alternator field (control off by default) |
+| 2003-05 (NB2, VVT) | `MAZDA_MIATA_NB2` | NB crank + VVT cam | sequential | 4S | VVT valve, alternator field (control off by default), main relay (3H) |
 
 **Pick the right NB2 button.** 2001-02 and 2003-05 use the same motherboard but are wired differently. rusEFI cuts
 fuel and spark while the ignition-sense input reads "off", so that input is only switched on for the years whose
@@ -163,9 +163,11 @@ Read this before the engine runs for the first time.
 6. **Battery voltage reads low.** VBATT is measured after the board's reverse diode and fuse, so it reads about
    0.3-0.4 V below the battery. Compare it with a voltmeter on the first start; it shifts the NB charging voltage
    by the same amount.
-7. **NB alternator:** the engine computer regulates the charging voltage, and alternator control is on by default.
-   The field current hasn't been measured (VERIFICATION.md M5). Watch battery voltage on the first start and switch
-   alternator control off if it misbehaves.
+7. **NB alternator: control ships off.** On NB cars the engine computer regulates the charging voltage through the
+   alternator field (ALT output), but the field current hasn't been measured (VERIFICATION.md M5) and the driver is
+   rated 1.4 A. Until it's switched on the car may not charge, so watch battery voltage. Measure the field current
+   (or check the FSM); if it's within the driver's rating, turn on "Alternator control" in TunerStudio. The pin, PID
+   and 14.0 V target are already set up.
 8. **NB tables:** set VE, ignition and (NB2) the VVT target before driving. The defaults are generic.
 9. **Hard acceleration and the check engine light:** rusEFI logs a trigger timing warning when a tooth lands >10°
    from where it predicted it. In simulation that happened at 1526 rpm/s and not at 763 rpm/s (free revving). The engine keeps running; the light

@@ -63,6 +63,14 @@
   "mpn": "430450600",
   "note": ""
  },
+ "C132141": {
+  "correct_lcsc": null,
+  "desc": "Power inductor 10uH 4.5A (Isat 5.5A) 67mohm, 7x6.6mm",
+  "match": true,
+  "mfr": "Sunlord",
+  "mpn": "MWSA0603S-100MT",
+  "note": ""
+ },
  "C13585": {
   "correct_lcsc": null,
   "desc": "MLCC 10uF 50V X5R +/-10% 1206",
@@ -175,6 +183,14 @@
   "match": true,
   "mfr": "Samsung Electro-Mechanics",
   "mpn": "CL10C220JB8NNNC",
+  "note": ""
+ },
+ "C1663": {
+  "correct_lcsc": null,
+  "desc": "MLCC 33pF 50V C0G 0603",
+  "match": true,
+  "mfr": "Samsung Electro-Mechanics",
+  "mpn": "CL10C330JB8NNNC",
   "note": ""
  },
  "C17408": {

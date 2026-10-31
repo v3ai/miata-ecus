@@ -29,6 +29,9 @@ new parts have new numbers.
   - C16 is now 10 µF / 50 V, D9 is a 60 V SS36, and C59 adds buck output capacitance.
 - **Crank/cam input clamps.** D13/D14 (1N4148WS) clamp PE7/PE8 to +3V3. These 5 V-tolerant pins have no clamp of
   their own, so a crank/cam wire shorted to battery would otherwise destroy them.
+- **Buck inductor L2** is now a Sunlord MWSA0603S-100MT (7 × 6.6 mm, 5.5 A saturation), above the LMR14020's
+  3.8 A maximum current limit. The old 5 × 5 mm part saturated at 3.5 A.
+- **Crystal load caps** C13/C14 are 33 pF (were 22 pF) to match the 20 pF crystal.
 - The Tag-Connect SWD pads J3 moved right of the MCU to make room for U11.
 
 ## What changed in rev 0.4
@@ -131,7 +134,7 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
   - The MCU supply pins go inward to vias under the package.
   - About 330 GND stitching vias sit on a 3 mm grid.
 - **DRC (KiCad 7):** 0 clearance errors, 0 unconnected items. Warnings remaining:
-  - Silkscreen overlaps (19) and silkscreen clipped by a pad opening (4): cosmetic.
+  - Silkscreen overlaps (19) and silkscreen clipped by a pad opening (5): cosmetic.
   - Courtyard overlaps (12) on tightly packed passives. The copper clearances still pass.
   - "Library not in configuration" notes from running headless.
 
