@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Miata ECU Hand-Fit Parts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a parts bench sheet: build counts on top, then one table per where-it-goes group */
+:root{
+  --bg:#f3f4f1; --panel:#ffffff; --fg:#1b221e; --muted:#5d6a62; --line:#d5dbd4; --accent:#1f7a4a;
+  --warn:#9a5b00; --warn-bg:#fdf1dc; --opt:#e9ece8;
+  --f-ui:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-data:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121614; --panel:#1a201c; --fg:#e4ebe5; --muted:#95a39a; --line:#2c352f; --accent:#52c487;
+  --warn:#f0b75a; --warn-bg:#33270f; --opt:#232a25; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121614; --panel:#1a201c; --fg:#e4ebe5; --muted:#95a39a; --line:#2c352f; --accent:#52c487;
+  --warn:#f0b75a; --warn-bg:#33270f; --opt:#232a25; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--f-ui);padding:24px max(16px,4vw) 48px}
+main{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+h1{font:700 30px/1.1 var(--f-ui);font-stretch:80%;margin:0;text-wrap:balance}
+h2{font:700 19px/1.2 var(--f-ui);font-stretch:85%;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:6px 0 0;max-width:72ch}
+.counts{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-wrap:wrap;gap:14px 22px;align-items:flex-end}
+.count{display:flex;flex-direction:column;gap:4px}
+.count label{font:600 11px/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.count input{width:70px;font:500 16px var(--f-data);padding:7px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+.count input:focus-visible,button:focus-visible,a:focus-visible,input[type=checkbox]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sep{width:1px;align-self:stretch;background:var(--line)}
+.actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+button{font:600 13px/1 var(--f-ui);padding:9px 12px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+#copied{font:12px var(--f-data);color:var(--muted)}
+#groups{display:flex;flex-direction:column;gap:26px}
+section{display:flex;flex-direction:column;gap:8px}
+.sub{color:var(--muted);margin:0;max-width:80ch}
+.tbl{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:860px}
+th{font:600 11px/1.2 var(--f-ui);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.qty{font:600 17px var(--f-data);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+td.qty small{display:block;font:400 11px var(--f-data);color:var(--muted)}
+.pn{font:500 13px var(--f-data);white-space:nowrap}
+.pn a{color:var(--accent)}
+.item b{font-weight:600}
+.note{display:block;color:var(--muted);font-size:13.5px;margin-top:2px}
+.pill{display:inline-block;font:600 11px/1 var(--f-ui);padding:4px 7px;border-radius:999px;white-space:nowrap}
+.p-must{background:var(--accent);color:#fff}
+.p-opt{background:var(--opt);color:var(--muted)}
+.p-jlc{border:1px solid var(--line);color:var(--muted)}
+.p-warn{background:var(--warn-bg);color:var(--warn)}
+tr.zero{opacity:.45}
+tr.done td{text-decoration:line-through;text-decoration-color:var(--muted)}
+tr.done td:last-child{text-decoration:none}
+.check{width:18px;height:18px;accent-color:var(--accent)}
+.foot{color:var(--muted);font-size:13.5px;max-width:90ch}
+@media (max-width:640px){.actions{margin-left:0}.sep{display:none}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Miata ECU: parts JLCPCB won't fit</h1>
+    <p class="lede">Everything you buy or solder yourself for the daughterboard rev 0.5 and the five motherboards (1989-93 and 1994-95 rev 0.6, 1996-97 / 1999-2000 / 2001-05 rev 0.4). Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
+  </header>
+
+  <div class="counts" role="group" aria-label="Build counts">
+    <div class="count"><label for="n-d">Daughterboards</label><input id="n-d" type="number" min="0" value="5"></div>
+    <div class="sep"></div>
+    <div class="count"><label for="n-8993">89–93</label><input id="n-8993" type="number" min="0" value="1"></div>
+    <div class="count"><label for="n-9495">94–95</label><input id="n-9495" type="number" min="0" value="1"></div>
+    <div class="count"><label for="n-9697">96–97</label><input id="n-9697" type="number" min="0" value="1"></div>
+    <div class="count"><label for="n-9900">99–00</label><input id="n-9900" type="number" min="0" value="1"></div>
+    <div class="count"><label for="n-0105">01–05</label><input id="n-0105" type="number" min="0" value="1"></div>
+    <div class="sep"></div>
+    <div class="count"><label for="n-car">Cars to fit</label><input id="n-car" type="number" min="0" value="1"></div>
+    <div class="actions"><span id="copied" aria-live="polite"></span><button class="ghost" id="reset" type="button">Clear ticks</button><button id="copy" type="button">Copy as CSV</button></div>
+  </div>
+
+  <div id="groups"></div>
+
+  <p class="foot">Quantities are per board or per car times your counts above; buy a few spare crimp terminals and shunts. Parts marked “JLC or you” are in the JLCPCB parts list: JLCPCB fits them only with Standard PCBA (not Economic), charged per joint. Delete J1/J2 from the daughterboard parts list if you solder those headers yourself. Part numbers come from the boards' BOMs and the READMEs in <span class="pn">v3ai/miata-ecus</span>; check stock on the day you order.</p>
+</main>
+
+<script>
+// who: must = you buy and fit it; jlc = in the JLCPCB list, Standard PCBA or hand; opt = only if you need it
+// per: 'd' daughterboard, 'mb' every motherboard, a year key for one year, 'na' 1989-95 boards, 'car', 'once'
+const LCSC = c => `https://www.lcsc.com/product-detail/${c}.html`;
+const GROUPS = [
+ {id:'daughter', title:'Daughterboard', sub:'One set per daughterboard. Every daughterboard fits every motherboard.', rows:[
+  {item:'Pin header, 1×40, 2.54 mm, male', pn:'ZHOURI 2.54-1*40', lcsc:'C2977586', per:'d', q:2, who:'jlc',
+   note:'J1 and J2, on the bottom side. Cheaper to hand-solder than to pay for bottom-side assembly: plug them into a motherboard’s sockets while the solder sets so they come out straight.'},
+ ]},
+ {id:'harness', title:'Harness connectors', sub:'Not in any parts list. The one part you have to source yourself for each motherboard.', rows:[
+  {item:'TE 174917-6, 48 pins', pn:'TE 174917-6', per:'na', q:1, who:'must', warn:'Not available from TE',
+   note:'1989-93 and 1994-95. Desolder one from a stock NA ECU (junkyard) or buy a clone.'},
+  {item:'TE 178780-1, 76 positions', pn:'TE 178780-1', per:'9697', q:1, who:'must',
+   note:'1996-97. Alternates: 174915-6, 3-178780-6.'},
+  {item:'TE 176122-6, 64 positions', pn:'TE 176122-6', per:'9900', q:1, who:'must',
+   note:'1999-2000. Alternate: 4-174518-7.'},
+  {item:'TE 353830-5, 72 positions in 3 rows', pn:'TE 353830-5', per:'0105', q:1, who:'must',
+   note:'2001-05. Alternate: 1123038-2.'},
+ ]},
+ {id:'mb', title:'Every motherboard', sub:'One set per motherboard, any year.', rows:[
+  {item:'Jumper shunt, 2.54 mm', pn:'BOOMELE shunt', lcsc:'C5305', per:'mb', q:1, who:'must',
+   note:'For JP1 (IAT source). Not in the BOM. EXT reads the board’s IAT connector, STOCK the harness sensor.'},
+  {item:'MAP sensor MPX5700AP (absolute, case 867B)', pn:'NXP MPX5700AP', lcsc:'C90152', per:'mb', q:1, who:'must',
+   note:'Lies flat, marking side up, leads bent 90° down, barb toward the board centre. JLCPCB won’t bend and bolt it.'},
+  {item:'M3 screw and nut (MAP sensor)', pn:'M3 × 10 pan head + nut', per:'mb', q:2, who:'must',
+   note:'Holds the MAP sensor down through its two holes.'},
+  {item:'Standoff, M3 × 11 mm, female-female', pn:'M3 × 11 F-F hex', per:'mb', q:4, who:'must',
+   note:'Holds the daughterboard above the motherboard (8.5 mm sockets + headers).'},
+  {item:'M3 screw for the standoffs', pn:'M3 × 6 pan head', per:'mb', q:8, who:'must', note:'Two per standoff.'},
+  {item:'Socket, 1×40, 2.54 mm, female, 8.5 mm', pn:'Ckmtw B-2200S40P-A120', lcsc:'C124412', per:'mb', q:2, who:'jlc', note:'JD1 and JD2 for the daughterboard.'},
+  {item:'Micro-Fit 3.0 header, 2×3, right angle', pn:'Molex 43045-0600', lcsc:'C127367', per:'mb', q:1, who:'jlc', note:'J2, LSU 4.9 wideband.'},
+  {item:'Micro-Fit 3.0 header, 1×2, right angle', pn:'Molex 43650-0200', lcsc:'C587650', per:'mb', q:1, who:'jlc', note:'J3, IAT sensor.'},
+  {item:'Box header, 2×8, 2.54 mm', pn:'BOOMELE 2.54-2*8P', lcsc:'C3406', per:'mb', q:1, who:'jlc', note:'J5, AUX.'},
+  {item:'Pin header, 1×3, 2.54 mm', pn:'BOOMELE 2.54-1*3P', lcsc:'C49257', per:'mb', q:1, who:'jlc', note:'JP1, holds the shunt above.'},
+ ]},
+ {id:'optional', title:'Optional parts on the motherboard', sub:'Not fitted by default. Buy only if your car needs them.', rows:[
+  {item:'Resistor 4.7 kΩ, 0603', pn:'UNI-ROYAL 0603WAF4701T5E', lcsc:'C23162', per:'mb', q:3, who:'opt',
+   note:'R20-R22: pull-ups for VSS, A/C and clutch. Fit one only where that signal switches to ground. Never on a line the car drives to 12 V.'},
+  {item:'Resistor 0 Ω, 0805', pn:'UNI-ROYAL 0805W8F0000T5E', lcsc:'C17477', per:'8993', q:2, who:'opt', warn:'Never on an automatic',
+   note:'R25/R26 on the 1989-93 board: only for a sequential injection conversion (with R23/R24 removed). 2Z is the A/T unit on automatics.'},
+ ]},
+ {id:'car', title:'In the car', sub:'One set per car you install in.', rows:[
+  {item:'Bosch LSU 4.9 wideband sensor', pn:'Bosch 0 258 017 025', per:'car', q:1, who:'must', note:'The board runs it directly; no separate wideband controller.'},
+  {item:'O2 sensor weld bung, M18 × 1.5', pn:'M18 × 1.5 bung', per:'car', q:1, who:'must', note:'If the exhaust doesn’t already have a spare port.'},
+  {item:'Micro-Fit 3.0 receptacle, 2×3', pn:'Molex 43025-0600', per:'car', q:1, who:'must', note:'Mates with J2 (LSU 4.9).'},
+  {item:'Micro-Fit 3.0 female crimp terminal, 20-24 AWG', pn:'Molex 43030-0007', per:'car', q:8, who:'must', note:'6 for the LSU lead, 2 for the IAT lead.'},
+  {item:'LSU 4.9 extension lead or sensor-side connector', pn:'LSU 4.9 pigtail', per:'car', q:1, who:'must', note:'Saves crimping the sensor-side Bosch plug. Wire it to the 43025-0600 at the board end.'},
+  {item:'IAT sensor, M12 × 1.5 open element', pn:'open-element thermistor', per:'car', q:1, who:'opt', note:'Only with JP1 on EXT. On STOCK the board reads the car’s own air-temp sensor.'},
+  {item:'Micro-Fit 3.0 receptacle, 1×2', pn:'Molex 43645-0200', per:'car', q:1, who:'opt', note:'Mates with J3, for the IAT sensor above.'},
+  {item:'Vacuum hose to the intake manifold', pn:'hose to fit the MAP barb', per:'car', q:1, who:'must', note:'From the MPX5700AP barb to a manifold vacuum port.'},
+  {item:'Case', pn:'stock ECU case', per:'car', q:1, who:'must', note:'1989-95 boards fit the stock NA case: reuse yours. The 1996-2005 outlines are provisional until those cases are measured.'},
+ ]},
+ {id:'once', title:'Tools (once)', sub:'No programmer is needed: the main MCU flashes over USB and the board flashes its own wideband MCU.', rows:[
+  {item:'USB-C cable', pn:'USB-C to your computer', per:'once', q:1, who:'must', note:'Flashing (DFU) and tuning.'},
+  {item:'SWD probe (ST-Link V2 or V3)', pn:'ST-LINK', per:'once', q:1, who:'opt', note:'Fallback for first bring-up if USB or the on-board wideband flashing doesn’t work.'},
+  {item:'Tag-Connect TC2030 no-legs cable', pn:'TC2030-IDC-NL family', per:'once', q:1, who:'opt', note:'For the J3 (main MCU) and J102 (wideband) SWD pads. Pick the variant or adapter that matches your probe’s connector.'},
+ ]},
+];
+
+const YEARS = ['8993','9495','9697','9900','0105'];
+const $ = id => document.getElementById(id);
+const num = id => Math.max(0, parseInt($(id).value, 10) || 0);
+function mult(per){
+  if (per === 'd') return num('n-d');
+  if (per === 'car') return num('n-car');
+  if (per === 'once') return 1;
+  if (per === 'mb') return YEARS.reduce((s, y) => s + num('n-' + y), 0);
+  if (per === 'na') return num('n-8993') + num('n-9495');
+  return num('n-' + per);
+}
+const PER_LABEL = {d:'per daughterboard', mb:'per motherboard', na:'per 1989-95 board', car:'per car', once:'once',
+  '8993':'per 1989-93 board', '9697':'per 1996-97 board','9900':'per 1999-2000 board','0105':'per 2001-05 board'};
+const WHO = {must:['p-must','You fit it'], jlc:['p-jlc','JLC or you'], opt:['p-opt','Optional']};
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+let ticks = {};
+try { ticks = JSON.parse(localStorage.getItem('miata-shop-ticks') || '{}'); } catch (e) { ticks = {}; }
+const saveTicks = () => { try { localStorage.setItem('miata-shop-ticks', JSON.stringify(ticks)); } catch (e) {} };
+
+function render(){
+  $('groups').innerHTML = GROUPS.map(g => `
+   <section aria-labelledby="h-${g.id}">
+    <h2 id="h-${g.id}">${esc(g.title)}</h2><p class="sub">${esc(g.sub)}</p>
+    <div class="tbl"><table>
+     <thead><tr><th scope="col">Item</th><th scope="col">Part number</th><th scope="col">Fitted by</th><th scope="col" style="text-align:right">Qty</th><th scope="col">Have</th></tr></thead>
+     <tbody>${g.rows.map((r, i) => {
+       const key = g.id + i, total = r.q * mult(r.per), w = WHO[r.who];
+       const pn = r.lcsc ? `${esc(r.pn)}<br><a href="${LCSC(r.lcsc)}" target="_blank" rel="noopener noreferrer">LCSC ${r.lcsc}</a>` : esc(r.pn);
+       return `<tr class="${total === 0 ? 'zero' : ''} ${ticks[key] ? 'done' : ''}">
+        <td class="item"><b>${esc(r.item)}</b>${r.warn ? ` <span class="pill p-warn">${esc(r.warn)}</span>` : ''}<span class="note">${esc(r.note)}</span></td>
+        <td class="pn">${pn}</td>
+        <td><span class="pill ${w[0]}">${w[1]}</span></td>
+        <td class="qty">${total}<small>${r.q} ${esc(PER_LABEL[r.per])}</small></td>
+        <td><input class="check" type="checkbox" id="t-${key}" data-key="${key}" ${ticks[key] ? 'checked' : ''} aria-label="Have ${esc(r.item)}"></td>
+       </tr>`; }).join('')}</tbody></table></div>
+   </section>`).join('');
+}
+document.addEventListener('input', e => { if (e.target.matches('.count input')) render(); });
+document.addEventListener('change', e => {
+  if (!e.target.matches('.check')) return;
+  ticks[e.target.dataset.key] = e.target.checked; saveTicks();
+  e.target.closest('tr').classList.toggle('done', e.target.checked);
+});
+$('reset').addEventListener('click', () => { ticks = {}; saveTicks(); render(); });
+$('copy').addEventListener('click', async () => {
+  const q = s => `"${String(s).replace(/"/g, '""')}"`;
+  const lines = [['Group','Item','Part number','LCSC','Fitted by','Qty','Per'].map(q).join(',')];
+  for (const g of GROUPS) for (const r of g.rows) {
+    const total = r.q * mult(r.per); if (!total) continue;
+    lines.push([g.title, r.item, r.pn, r.lcsc || '', WHO[r.who][1], total, `${r.q} ${PER_LABEL[r.per]}`].map(q).join(','));
+  }
+  try { await navigator.clipboard.writeText(lines.join('\n')); $('copied').textContent = 'Copied'; }
+  catch (e) { $('copied').textContent = 'Copy was blocked by the browser'; }
+  setTimeout(() => { $('copied').textContent = ''; }, 2500);
+});
+render();
+</script>
+</body>
+</html>
