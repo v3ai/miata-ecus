@@ -20,6 +20,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SCRIPTS = os.path.join(HERE, '..', 'scripts')
 OUT = os.environ.get('OUTDIR', HERE)           # where the assets go (default: next to the viewer)
 MASK = os.environ.get('MASK', 'green')         # solder mask colour: green (the viewer) or black (README renders)
+FINISH = os.environ.get('FINISH', 'hasl')      # pad finish: hasl (tin, the default) or enig (gold, README renders)
 sys.path.insert(0, SCRIPTS)
 WORK = os.path.join(HERE, 'work_' + (PRE or 'daughter'))
 os.makedirs(WORK, exist_ok=True)
@@ -105,7 +106,7 @@ mottle = noise(64, 1.0) + noise(8, 0.35)
 MASKS = {'green': ([8, 54, 30], [22, 92, 46], [5, 26, 14]),
          'black': ([11, 12, 13], [27, 28, 30], [4, 4, 5])}
 C_LAM, C_CU, C_DIMPLE = (np.array(c, float) for c in MASKS[MASK])
-C_HASL = np.array([206, 207, 203], float); C_SILK = np.array([238, 238, 230], float)
+C_HASL = np.array([214, 178, 104] if FINISH == 'enig' else [206, 207, 203], float); C_SILK = np.array([238, 238, 230], float)
 C_BARE = np.array([92, 98, 58], float)
 
 
@@ -116,7 +117,8 @@ def build(side, cu, mask_open, silk):
     masked = ~exposed & ~outside
     h = ndi.gaussian_filter(cu * 0.035, 1.6 * PX * 0 + 1.6)
     dist = ndi.distance_transform_edt(exposed)
-    h = np.where(exposed, 0.035 + np.minimum(dist * PX, 0.25) * 0.12, h)
+    dome = 0.02 if FINISH == 'enig' else 0.12                # ENIG is flat; HASL solder domes on the pads
+    h = np.where(exposed, 0.035 + np.minimum(dist * PX, 0.25) * dome, h)
     h += ndi.gaussian_filter(silk * 0.022, 0.8)
     h -= ndi.gaussian_filter(via_hole * 0.03, 1.0)
     h += weave * 0.0012 * (~cu & masked) + mottle * 0.0008
@@ -130,14 +132,14 @@ def build(side, cu, mask_open, silk):
     col = np.where(via_hole[..., None] & masked[..., None], C_DIMPLE, col)
     s = ndi.gaussian_filter(silk.astype(float), 0.7)[..., None]
     col = col * (1 - s) + C_SILK * (1 + mottle[..., None] * 0.02) * s
-    hasl = C_HASL * (1 + (noise(4, 1.0) * 0.05)[..., None])
+    hasl = C_HASL * (1 + (noise(4, 1.0) * (0.02 if FINISH == 'enig' else 0.05))[..., None])
     bare = mask_open & ~cu & ~edge_band & ~outside
     col = np.where(bare[..., None], C_BARE * (1 + mottle[..., None] * 0.05), col)
     col = np.where(exposed[..., None], hasl, col)
     alpha = np.where(outside | holes, 0, 255).astype(np.uint8)
     albedo = np.dstack([np.clip(col, 0, 255).astype(np.uint8), alpha])
     clear = np.where(masked & ~bare & ~(s[..., 0] > 0.5), 255, 0).astype(np.uint8)
-    rough = np.where(exposed, 0.32 + noise(4, 0.08), np.where(s[..., 0] > 0.5, 0.82, np.where(bare, 0.7, 0.42 + mottle * 0.04)))
+    rough = np.where(exposed, (0.2 + noise(4, 0.03)) if FINISH == 'enig' else (0.32 + noise(4, 0.08)), np.where(s[..., 0] > 0.5, 0.82, np.where(bare, 0.7, 0.42 + mottle * 0.04)))
     orm = np.dstack([clear, np.clip(rough * 255, 0, 255).astype(np.uint8), (np.where(exposed, 255, 0)).astype(np.uint8)])
     for k, a, mode, q in (('albedo', albedo, 'RGBA', 90), ('orm', orm, 'RGB', 90), ('normal', normal, 'RGB', 92)):
         Image.fromarray(a, mode).save(f'{OUT}/{PRE}{side}_{k}.webp', quality=q, method=6)
