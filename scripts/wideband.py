@@ -21,12 +21,18 @@ ROT = -90                           # clockwise on screen
 CX, CY = 103.17, 39.3               # block centre on the daughterboard
 
 DROP = {'J1', 'J3', 'U9', 'D4', 'R18'}
+VALUE_RC = {'R10': '62'}                                     # rev 0.5b, see LCSC['R0603']
+# rev 0.5b: AD8628ARTZ is the 5-lead SOT-23 package (the module's footprint is named TSOT-23-5; the pads are identical)
+FP_OVERRIDE = {'U5': 'Package_TO_SOT_SMD:SOT-23-5'}
 LCSC = {   # from the module's rev C JLC BOM
     'R0402': {'10': 'C25077', '100k': 'C25741', '10k': 'C25744', '1k': 'C11702', '22k': 'C25768',
               '27k': 'C25771', '3.3k': 'C25890', '47': 'C25118', '47k': 'C25792', '6.8k': 'C25917',
               '68k': 'C36871'},
-    'R0603': {'61.9': 'C23092', '62k': 'C23221'},
-    'C0402': {'100n': 'C1525', '1u': 'C52923', '33n': 'C285077'},   # 33n: X7R instead of the module's Y5V C1585
+    # rev 0.5b: R110 (module R10, pump current sense) 62 ohm 1% (C23222): the 61.9 ohm part ran out at JLC, and 62 is
+    # 0.16 % off, inside its 1 % tolerance
+    'R0603': {'61.9': 'C23092', '62': 'C23222', '62k': 'C23221'},
+    # 33n: X7R instead of the module's Y5V C1585; rev 0.5b: YAGEO CC0402KRX7R9BB333 (50 V), the FH part ran out at JLC
+    'C0402': {'100n': 'C1525', '1u': 'C52923', '33n': 'C106862'},
     'C0603': {'4.7u': 'C19666'},
 }
 PARTS_LCSC = {'U1': 'C50282', 'U2': 'C69216', 'U3': 'C36658', 'U5': 'C29309', 'Q1': 'C2649436',
@@ -93,10 +99,10 @@ def parts():
     for r, f in sorted(M['fps'].items()):
         if r in DROP:
             continue
-        lib = f['lib']
+        lib = FP_OVERRIDE.get(r, f['lib'])
         if r[0] in 'RC' and r[:2] not in ('CS',):
             size = '0402' if '0402' in lib else '0603'
-            val = f['value']
+            val = VALUE_RC.get(r, f['value'])
             lc = LCSC[r[0] + size][val]
         else:
             val = VALUE.get(r, f['value']); lc = PARTS_LCSC.get(r, '')

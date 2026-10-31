@@ -8,8 +8,16 @@ bottom edge carries inputs, comms and the LSU 4.9 wideband sensor.
 ## What changed in rev 0.5
 The fixes from the verification review (`VERIFICATION.md` in the repository root). Existing designators are unchanged;
 new parts have new numbers.
-- **5 V drive for the low-side drivers.** The AUIPS2041 input, current limit and shutdown are specified at 4-5.5 V,
-  and rev 0.4 drove them at 3.3 V.
+- **Parts JLCPCB stocks (rev 0.5b).** JLCPCB's BOM check found ten lines short of stock. All replacements fit the same
+  footprints (no re-route); details in `VERIFICATION.md`.
+  - Q1-Q8: onsemi **NCV8406A** (SOT-223, same pinout, 60-70 V active clamp, current limit and thermal shutdown)
+    instead of the AUIPS2041L.
+  - F1: TECHFUSE nSMD050-33V (33 V rating). D11/D12: Littelfuse SMAJ33A. L1: FH CMI322513U2R2KT.
+    Status LEDs: Hubei KENTO KT-0603 G/B/Y. C103: YAGEO 33 nF 50 V. R110: 62 Ω (was 61.9 Ω, inside its 1 % tolerance).
+  - U9 (MAX9926, spare VR inputs no Miata uses) is not fitted; its footprint stays.
+  - U105's footprint is named SOT-23-5 to match the AD8628ARTZ (identical pads), and SW1/SW2 share one BOM line.
+- **5 V drive for the low-side drivers.** The rev 0.4 drivers (AUIPS2041) are specified at a 4-5.5 V input, and
+  rev 0.4 drove them at 3.3 V.
   - U11 (SN74LVC4245A, DIR low: B → A) now drives Q1-Q8 from the MCU's control pins.
   - Its output enable is pulled up (R71), so the injectors, idle valve, VVT, boost and alternator stay off through
     reset, boot, the bootloader and DFU. The firmware enables them on **PA8** (open drain, active low) once every
@@ -144,7 +152,7 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
 |---|---|
 | MCU | STM32F407VGT6 (1 MB flash, rusEFI F4 target), 8 MHz crystal, 4 status LEDs, BOOT/RESET buttons, Tag-Connect TC2030 SWD pads |
 | Power | SMCJ30A load-dump TVS → SS34 reverse diode (and B5819W ignition wake) → 0.5 A PTC → SMAJ33A TVS → LMR14020 5 V buck. TLS115 protected 5 V sensor supply. AMS1117 3.3 V. USB VBUS can power it on the bench. |
-| Injectors / IACV / VVT / boost / alternator | 8× AUIPS2041L protected low-sides driven at 5 V by an SN74LVC4245A. Its output enable (PA8) is pulled off until the firmware runs; pull-downs on both sides |
+| Injectors / IACV / VVT / boost / alternator | 8× NCV8406A protected low-sides driven at 5 V by an SN74LVC4245A. Its output enable (PA8) is pulled off until the firmware runs; pull-downs on both sides |
 | Relays, CEL, tach, spare | ULN2003 (7 ch), flyback clamp to an SMAJ33A TVS (not +12V) |
 | Ignition (COP / smart coils) | 2× TC4427, 5 V push-pull through 100 Ω, pulled down at the inputs |
 | Crank / cam | MAX9926 dual VR (two 5.1k resistors per leg, 1 nF differential) |

@@ -60,8 +60,9 @@ LCSC_C1206 = {'10u/50V': 'C13585'}
 parts = []   # list of dicts
 
 
-def add(ref, value, fp, lcsc, pads, desc=''):
-    parts.append(dict(ref=ref, value=value, fp=FP[fp], lcsc=lcsc, pads=pads, desc=desc))
+def add(ref, value, fp, lcsc, pads, desc='', dnp=False):
+    # dnp: footprint on the board, part not assembled by JLC (listed as optional in the self-order BOM)
+    parts.append(dict(ref=ref, value=value, fp=FP[fp], lcsc=lcsc, pads=pads, desc=desc, dnp=dnp))
 
 
 def R(ref, value, a, b, size='0603'):
@@ -170,13 +171,13 @@ add('SW2', 'RESET', 'BTN', 'C318884', {'1': 'NRST', '2': 'GND'})
 add('J3', 'SWD', 'TAG', '', {'1': '+3V3', '2': 'SWDIO', '3': 'NRST', '4': 'SWCLK', '5': 'GND', '6': ''},
     'Tag-Connect TC2030-NL footprint (no part placed)')
 
-# status LEDs
-for i, (net, col, lc) in enumerate([('LED_RUN', 'GREEN', 'C72043'), ('LED_COMM', 'BLUE', 'C72041'),
-                                    ('LED_WARN', 'YELLOW', 'C72038'), ('LED_ERR', 'RED', 'C2286')]):
+# status LEDs (rev 0.5b: Hubei KENTO KT-0603 series, which JLC stocks; the Everlight parts ran out)
+for i, (net, col, lc) in enumerate([('LED_RUN', 'GREEN', 'C12624'), ('LED_COMM', 'BLUE', 'C2288'),
+                                    ('LED_WARN', 'YELLOW', 'C2287'), ('LED_ERR', 'RED', 'C2286')]):
     R(f'R{2+i}', '1k', net, f'{net}_A')
     add(f'D{1+i}', col, 'LED', lc, {'1': 'GND', '2': f'{net}_A'})   # pad1 = K
 R('R6', '1k', '+3V3', 'PWR_LED_A')
-add('D5', 'GREEN', 'LED', 'C72043', {'1': 'GND', '2': 'PWR_LED_A'}, 'power LED')
+add('D5', 'GREEN', 'LED', 'C12624', {'1': 'GND', '2': 'PWR_LED_A'}, 'power LED')
 
 # ---------------------------------------------------------------------------
 # Power (topology copied from rusEFI hellen-one power_12and5V)
@@ -188,12 +189,16 @@ add('D8', 'B5819W', 'SOD123', 'C8598', {'1': '+12V_IN', '2': 'VIGN_IN'}, 'wake o
 # same part and position as Hellen's power-12V module), then a TVS that also clamps the ignition-wake path and fast
 # spikes for the buck. SMAJ33A: 36.7 V minimum breakdown, above a 35 V (suppressed) load dump, so it never has to
 # soak up a 400 ms dump through F1 (D6 on the input does that, as in Hellen's design).
-add('F1', 'SMD1206P050TF/24', 'F1206', 'C209741', {'1': '+12V_IN', '2': '+12V'},
-    'PTC 0.5 A hold / 1 A trip, 24 V: logic supply fuse')
-add('D12', 'SMAJ33A', 'SMA', 'C3720609', {'1': '+12V', '2': 'GND'}, 'TVS on the fused logic supply (Bourns)')
+# rev 0.5b: TECHFUSE nSMD050-33V (same 0.5 A hold / 1 A trip / 100 A, 1206; rated 33 V instead of 24 V, so a
+# tripped fuse during an overvoltage stays inside its rating). The SMD1206P050TF/24 ran out at JLC.
+add('F1', 'nSMD050-33V', 'F1206', 'C70077', {'1': '+12V_IN', '2': '+12V'},
+    'PTC 0.5 A hold / 1 A trip, 33 V: logic supply fuse')
+add('D12', 'SMAJ33A', 'SMA', 'C223988', {'1': '+12V', '2': 'GND'}, 'TVS on the fused logic supply (Littelfuse)')
 R('R7', '1', '+12V', 'DAMP')
 C('C16', '10u/50V', 'DAMP', 'GND', '1206')   # rev 0.5: 50 V part (was 4.7u 16 V)
-add('L1', '2.2uH', 'L1210', 'C223413', {'1': '+12V', '2': '+12V_F'}, 'input filter (Taiyo Yuden LBC3225T2R2MR, 930 mA, 80 mOhm)')
+# rev 0.5b: FH CMI322513U2R2KT (500 mA, 0.3 ohm; the buck draws about 0.15 A at 12 V). The Taiyo Yuden
+# LBC3225T2R2MR ran out at JLC.
+add('L1', '2.2uH', 'L1210', 'C70960', {'1': '+12V', '2': '+12V_F'}, 'input filter (FH CMI322513U2R2KT, 500 mA, 0.3 ohm)')
 C('C17', '10u/50V', '+12V_F', 'GND', '1206')
 C('C18', '10u/50V', '+12V_F', 'GND', '1206')
 add('U2', 'LMR14020', 'SOIC8EP', 'C187824',
@@ -243,7 +248,7 @@ for i, n in enumerate(['FP', 'MAINRLY', 'AC', 'FAN', 'CEL', 'TACH', 'LS7']):
     uln[str(1 + i)] = n + '_CTL'
     uln[str(16 - i)] = 'OUT_' + n
 add('U5', 'ULN2003AD', 'SOIC16', 'C7512', uln, '7ch 500mA low side for relays/CEL/tach')
-add('D11', 'SMAJ33A', 'SMA', 'C3720609', {'1': 'ULN_COM', '2': 'GND'}, 'TVS: ULN2003 flyback clamp (Bourns)')
+add('D11', 'SMAJ33A', 'SMA', 'C223988', {'1': 'ULN_COM', '2': 'GND'}, 'TVS: ULN2003 flyback clamp (Littelfuse)')
 
 # 4x ignition logic outputs (smart coils / COP): TC4427 at 5V
 for u, (a, b) in zip(['U6', 'U7'], [('IGN1', 'IGN2'), ('IGN3', 'IGN4')]):
@@ -261,14 +266,15 @@ add('RN1', '4x10k', 'RN4', 'C29718', ign_pd, 'ignition inputs pull-down')
 C(f'C{cn}', '1u', '+5V', 'GND', '0402'); cn += 1     # C34 TC4427 #1 VDD
 C(f'C{cn}', '1u', '+5V', 'GND', '0402'); cn += 1     # C35 TC4427 #2 VDD
 
-# 8x smart low side (injectors, IACV, VVT, boost, alternator): AUIPS2041L, 63-75 V active clamp.
-# Rev 0.5: driven at 5 V through an SN74LVC4245A (the AUIPS2041's input, current limit and shutdown are specified
-# at 4-5.5 V). Its OE is pulled up to +5V, so all eight are off (and pulled low) through reset, boot, the
+# 8x smart low side (injectors, IACV, VVT, boost, alternator). Rev 0.5b: onsemi NCV8406A (SOT-223, same pinout:
+# 1 gate, 2/tab drain, 3 source; 60-70 V active clamp, 210 mOhm at 5 V, current limit and thermal shutdown,
+# AEC-Q101). It replaces the AUIPS2041L (63-75 V clamp), which ran out at JLC and LCSC.
+# Rev 0.5: driven at 5 V through an SN74LVC4245A (full enhancement and current limit at 5 V). Its OE is pulled up to +5V, so all eight are off (and pulled low) through reset, boot, the
 # bootloader and DFU until the firmware drives DRV_EN_N low.
 for i, n in enumerate(HS_OUT):
-    add(f'Q{1+i}', 'AUIPS2041LTR', 'SOT223', 'C113610',
+    add(f'Q{1+i}', 'NCV8406ASTT3G', 'SOT223', 'C459816',
         {'1': n + '_IN', '2': 'OUT_' + n, '3': 'GND', '4': 'OUT_' + n},
-        'protected low side, 63-75 V clamp')
+        'protected low side, 60-70 V clamp')
 lvc = {'1': '+5V', '2': 'GND', '11': 'GND', '12': 'GND', '13': 'GND', '22': 'DRV_EN_N', '23': '+3V3', '24': '+3V3'}
 for i, n in enumerate(HS_OUT):           # DIR low: B (3.3 V, MCU) -> A (5 V, drivers); A7/B7 = INJ1 ... A0/B0 = ALT
     lvc[str(10 - i)] = n + '_IN'
@@ -304,10 +310,12 @@ add('U8', 'LMV321IDBVR', 'SOT235', 'C7972',
     {'1': 'KN_P', '2': 'GND', '3': 'KN_N', '4': 'KN_OUT', '5': '+3V3'}, 'knock amp')
 
 # VR: MAX9926 dual, adaptive threshold (hellen-one vr module topology)
+# rev 0.5b: not fitted. Out of stock at JLC and LCSC, and no Miata year uses a VR sensor (VR1/VR2 are spare
+# inputs). The footprint stays; solder one on if you need VR inputs.
 add('U9', 'MAX9926UAEE+', 'QSOP16', 'C1523548',
     {'1': 'GND', '2': '', '3': 'GND', '4': 'VR1_OUT', '5': 'VR2_OUT', '6': 'GND', '7': '',
      '8': 'GND', '9': 'VR2_INP', '10': 'VR2_INN', '11': 'GND', '12': 'GND', '13': 'GND',
-     '14': '+5V', '15': 'VR1_INN', '16': 'VR1_INP'}, 'dual VR conditioner (crank/cam)')
+     '14': '+5V', '15': 'VR1_INN', '16': 'VR1_INP'}, 'dual VR conditioner (spare VR inputs; not fitted)', dnp=True)
 # outputs are inverted, so harness + goes to IN-
 for ch in ['1', '2']:
     R(f'R{rn}', '5.1k', f'VR{ch}_N', f'VR{ch}_A', '0805'); rn += 1

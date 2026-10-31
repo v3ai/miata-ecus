@@ -21,7 +21,8 @@ Line,Item,Quantity,For,Manufacturer,Manufacture Part Number,LCSC Part Number,Req
 20,"O2 sensor weld bung, M18 x 1.5",1,car,,M18 x 1.5 weld bung,,Yes,,Unless the exhaust has a spare port
 21,"Vacuum hose, MAP barb to intake manifold",1,car,,vacuum hose to fit the MPX5700AP barb,,Yes,,
 22,"Wideband sensor, Bosch LSU 4.9",1,car,Bosch,0 258 017 025,,Yes,https://www.digikey.com/en/products/result?keywords=0%20258%20017%20025,The board runs it directly
-23,Thick film resistor 0 ohm 0805,2,1989-93,UNI-ROYAL(Uniroyal Elec),0805W8F0000T5E,C17477,Optional,https://www.lcsc.com/product-detail/C17477.html,"sequential conversion only, INJ3 to 2Y (fit instead of R24)"
-24,Thick film resistor 4.7k 1% 100mW 0603,15,every motherboard,UNI-ROYAL(Uniroyal Elec),0603WAF4701T5E,C23162,Optional,https://www.lcsc.com/product-detail/C23162.html,"12 V pull-up for the vehicle speed input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the switch closed) only if your car's signal switches to ground or is open collector; a switch that drives 12 V must not have it"
-25,"IAT sensor, M12 x 1.5 open element",1,car,,open-element air temperature sensor,,Optional,,Only with JP1 on EXT; on STOCK the car's own sensor is used
-26,"Micro-Fit 3.0 receptacle, 1x2",1,car,Molex,43645-0200,,Optional,https://www.digikey.com/en/products/result?keywords=43645-0200,"Mates with J3, only with an external IAT (JP1 on EXT)"
+23,"Dual VR sensor interface w/ adaptive threshold, QSOP-16",5,daughterboard,Analog Devices / Maxim Integrated,MAX9926UAEE+,C1523548,Optional,https://www.lcsc.com/product-detail/C1523548.html,dual VR conditioner (spare VR inputs; not fitted)
+24,Thick film resistor 0 ohm 0805,2,1989-93,UNI-ROYAL(Uniroyal Elec),0805W8F0000T5E,C17477,Optional,https://www.lcsc.com/product-detail/C17477.html,"sequential conversion only, INJ3 to 2Y (fit instead of R24)"
+25,Thick film resistor 4.7k 1% 100mW 0603,15,every motherboard,UNI-ROYAL(Uniroyal Elec),0603WAF4701T5E,C23162,Optional,https://www.lcsc.com/product-detail/C23162.html,"12 V pull-up for the vehicle speed input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the switch closed) only if your car's signal switches to ground or is open collector; a switch that drives 12 V must not have it"
+26,"IAT sensor, M12 x 1.5 open element",1,car,,open-element air temperature sensor,,Optional,,Only with JP1 on EXT; on STOCK the car's own sensor is used
+27,"Micro-Fit 3.0 receptacle, 1x2",1,car,Molex,43645-0200,,Optional,https://www.digikey.com/en/products/result?keywords=43645-0200,"Mates with J3, only with an external IAT (JP1 on EXT)"

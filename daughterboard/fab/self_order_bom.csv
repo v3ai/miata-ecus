@@ -1,2 +1,3 @@
 Line,Item,Quantity,Designator,Manufacturer,Manufacture Part Number,LCSC Part Number,Required,Find it,Notes
 1,"Pin header, male, 1x40, 2.54mm, through-hole, vertical",2,"J1,J2",ZHOURI,2.54-1*40,C2977586,Yes,https://www.lcsc.com/product-detail/C2977586.html,Bottom side. Solder while plugged into a motherboard's sockets so they come out straight
+2,"Dual VR sensor interface w/ adaptive threshold, QSOP-16",1,U9,Analog Devices / Maxim Integrated,MAX9926UAEE+,C1523548,Optional,https://www.lcsc.com/product-detail/C1523548.html,dual VR conditioner (spare VR inputs; not fitted)
