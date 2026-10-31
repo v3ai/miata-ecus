@@ -223,8 +223,9 @@ record('CLT/IAT', 'temperature error -20..120 C (incl. 1 uA ADC leakage)',
        f'board firmware {worst_new:.1f} C worst; a plain 2.7k pull-up setting would be off by {worst_naive:.1f} C',
        'OK' if worst_new < 1.5 else 'CHECK', '; '.join(rows[i] for i in (0, 2, 6, 9)))
 
-# ---- D. low-side outputs: turn-off energy into the AUIPS2041's active clamp ----------------------------------------
-# AUIPS2041L modelled as a switch (Rds(on) 0.13 ohm) with its drain clamp (typ 68 V). Loads (not datasheet values,
+# ---- D. low-side outputs: turn-off energy into the NCV8406A's active clamp ----------------------------------------
+# NCV8406A (rev 0.5b; was the AUIPS2041L) modelled as a switch (Rds(on) 0.24 ohm, its maximum at 5 V) with its drain
+# clamp at the 60 V minimum (60-70 V), the worst case for the 1989-93 TVS coordination below. Loads (not datasheet values,
 # typical published figures): Miata high-impedance injector 14 ohm / 8 mH; idle (BAC) valve 11 ohm / 20 mH.
 def clamp_energy(r_load, l_load, vbat, on_ms, diode=False):
     fly = 'Dfw out vb dfw\n.model dfw d(is=1e-9 n=1.5 rs=0.05)' if diode else ''
@@ -234,10 +235,10 @@ Rl vb a {r_load}
 Ll a out {l_load}
 Vg g 0 PULSE(5 0 {on_ms}m 1n 1n 10m 20m)
 Sw out 0 g 0 swmod
-.model swmod sw(vt=2.5 ron=0.13 roff=1meg)
-* active clamp: drain-gate zener turns the FET back on at ~68 V
+.model swmod sw(vt=2.5 ron=0.24 roff=1meg)
+* active clamp: drain-gate zener turns the FET back on at 60 V (minimum)
 Dcl 0 out dclamp
-.model dclamp d(bv=68 ibv=1m is=1e-14 rs=0.2)
+.model dclamp d(bv=60 ibv=1m is=1e-14 rs=0.2)
 {fly}
 .tran 0.2u {on_ms + 3}m
 .control
@@ -255,9 +256,9 @@ wrdata @DAT@ @VEC@
     return e, max(v), (vbat - 0) / r_load
 
 
-# Rev 0.5 drives the AUIPS2041 inputs at 5 V through an SN74LVC4245A (VOH >= 4.3 V at 5 V and -24 mA; the driver
-# input draws well under 1 mA), inside the 4.0-5.5 V the datasheet specifies; rev 0.4 drove them at 3.3 V.
-record('Low-side output', 'AUIPS2041 input high level', 'rev 0.5: about 5.0 V from the level shifter (spec 4.0-5.5 V); '
+# Rev 0.5 drives the low-side gates at 5 V through an SN74LVC4245A (VOH >= 4.3 V at 5 V and -24 mA). The NCV8406A's
+# Rds(on) and current limit are specified at 5 V and 10 V; its gate draws 30 uA (6 mA in thermal shutdown).
+record('Low-side output', 'NCV8406A gate drive', 'about 5.0 V from the level shifter (threshold 1.2-2.0 V, max 14 V); '
        'rev 0.4: 3.3 V from the MCU', 'OK')
 e, vpk, ipk = clamp_energy(14, 8e-3, 14, 6)
 record('Low-side output', '1 injector per driver, sequential, 7000 rpm',
@@ -286,8 +287,8 @@ Ll1 a1 out 8m
 Rl2 vb a2 14
 Ll2 a2 out 8m
 {chr(10).join(sw)}
-.model swmod sw(vt=2.5 ron=0.13 roff=1meg)
-.model dclamp d(bv=68 ibv=1m is=1e-14 rs=0.2)
+.model swmod sw(vt=2.5 ron=0.24 roff=1meg)
+.model dclamp d(bv=60 ibv=1m is=1e-14 rs=0.2)
 {tv}
 .tran 0.2u 9m
 .control
@@ -312,7 +313,7 @@ ev = 7000 / 60       # batch: each wire fires once per crank revolution
 e_cl, e_tv, vpk, i_on = paired_injectors(False, False)
 record('Low-side output', '1989-93 wire, one driver, no TVS (rev 0.5 motherboard)',
        f'{i_on[0]:.2f} A in the driver, clamp {vpk:.0f} V, {e_cl[0] * ev:.2f} W in its clamp at 7000 rpm',
-       'REF', 'rev 0.5 reference: above the AUIPS2041\'s 1.4 A continuous rating at high duty, plus about 1 W of clamp loss')
+       'REF', 'rev 0.5 motherboard reference: two injectors on one driver, plus about 1 W of clamp loss at high rpm')
 for skew in (0.0, 2.0):
     e_cl, e_tv, vpk, i_on = paired_injectors(True, True, skew)
     record('Low-side output', f'1989-93 wire, two drivers + SMCJ40A (rev 0.6), turn-off skew {skew:.0f} us',
@@ -323,7 +324,7 @@ for diode in (False, True):
     e, vpk, ipk = clamp_energy(11, 20e-3, 14, 2.5, diode)
     p = e * 200  # idle valve PWM at 200 Hz
     record('Low-side output', f'idle valve 200 Hz PWM, {"with" if diode else "no"} freewheel diode',
-           f'clamp peak {vpk:.0f} V, {e * 1e3:.2f} mJ per cycle = {p:.2f} W in the AUIPS2041 clamp',
+           f'clamp peak {vpk:.0f} V, {e * 1e3:.2f} mJ per cycle = {p:.2f} W in the driver clamp',
            'OK' if p < 0.2 else ('REF' if not diode else 'FAIL'),
            'rev 0.4 reference; every motherboard now fits D1' if not diode else 'as built (motherboard D1)')
 # NB2 VVT oil control valve (about 7.5 ohm / 6 mH, typical) at 300 Hz with the motherboard's D2

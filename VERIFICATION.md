@@ -206,10 +206,35 @@ has the same pinout); SN74LVC4245APWR (C7859), SMD1206P050TF/24 (C209741), 1N414
 B5819W from rusEFI's Hellen BOMs; SMAJ33A (Bourns, C3720609), SMCJ40A (C224052), SS36 (C7428237, SMA) and the 0805 0 Ω
 links (C17477) from LCSC listings. Check LCSC stock before ordering.
 
+## Rev 0.5b: parts JLCPCB can actually assemble
+JLCPCB's BOM check for the rev 0.5 daughterboard flagged ten lines short of stock and one footprint mismatch. Every
+replacement below is in stock at JLCPCB (stock read from JLCPCB's parts library on 2026-10-31), fits the same
+footprint, and the board was not re-routed.
+
+| Ref | Was (out of stock) | Now | Why it's equivalent |
+|---|---|---|---|
+| Q1-Q8 | Infineon AUIPS2041LTR (C113610), also out at LCSC | **onsemi NCV8406ASTT3G (C459816)** | Same SOT-223 pinout (1 gate/input, 2 and tab drain, 3 source). Self-protected low side with current limit, thermal shutdown and a 60-70 V active clamp (AUIPS2041: 63-75 V), AEC-Q101. 210 mΩ at 5 V. Circuit sims rerun with its 60 V minimum clamp: the 1989-93 SMCJ40A still takes all the injector turn-off energy (0 mW in the drivers) |
+| D11, D12 | Bourns SMAJ33A (C3720609) | Littelfuse SMAJ33A (C223988) | Same part number and ratings (36.7-40.6 V breakdown, 400 W) |
+| F1 | SMD1206P050TF/24 (C209741) | TECHFUSE nSMD050-33V (C70077) | Same 1206, 0.5 A hold, 1 A trip, 100 A; rated 33 V instead of 24 V |
+| L1 | Taiyo Yuden LBC3225T2R2MR (C223413) | FH CMI322513U2R2KT (C70960) | 2.2 µH 1210; 500 mA, 0.3 Ω. The buck draws about 0.15 A at 12 V |
+| D1, D5 / D2 / D3 | Everlight 19-217 green / blue, 19-213 yellow | Hubei KENTO KT-0603G (C12624) / KT-0603B (C2288) / KT-0603Y (C2287) | Same 0603 status LEDs; the wideband already used the KENTO green and blue |
+| C103 | FH 0402B333K100NT (C285077) | YAGEO CC0402KRX7R9BB333 (C106862) | 33 nF X7R 0402, rated 50 V instead of 10 V |
+| R110 | 61.9 Ω 0603 1 % (C23092) | 62 Ω 0603 1 % (C23222) | Wideband pump-current sense resistor: 0.16 % higher, inside the 1 % tolerance |
+| U9 | MAX9926UAEE+ (C1523548), also out at LCSC | **Not fitted** | The VR inputs are spares: no Miata year uses a VR sensor. The footprint stays; it's in the self-order BOM as optional |
+
+Also fixed:
+- **U105 footprint:** the AD8628ARTZ is the 5-lead SOT-23 package, and the board called its footprint TSOT-23-5
+  (from the FOME module). KiCad's SOT-23-5 and TSOT-23-5 footprints have identical pads, so only the name changed.
+  JLCPCB no longer reports a mismatch.
+- **SW1/SW2** (same button) are one BOM line, so JLCPCB no longer warns that two lines match the same part.
+
+Re-checked: schematic netlist 754 pads, 0 differences; DRC 0 unconnected, 0 clearance; circuit sims 20 OK / 3 CHECK /
+6 REF / 0 FAIL.
+
 ## Open items
 | # | Issue | What to do |
 |---|---|---|
-| M5 | **NB alternator field drive unknown.** rusEFI's NB presets enable alternator PWM; **our firmware now ships it off** (pin and PID still set up). If the ECU drives the field coil directly (3-5 A, high inductance), the AUIPS2041 is undersized (rated 1.4 A, 10 mH maximum load inductance) and has no freewheel path | Measure the field current and its supply on a car (or check the FSM) before turning on "Alternator control" in TunerStudio. Until then the car may not charge: watch battery voltage. Add a freewheel diode only once the field's supply is known |
+| M5 | **NB alternator field drive unknown.** rusEFI's NB presets enable alternator PWM; **our firmware now ships it off** (pin and PID still set up). If the ECU drives the field coil directly (3-5 A, high inductance), a SOT-223 low-side driver (now the NCV8406A, current-limited with thermal shutdown) is likely undersized for continuous field current and has no freewheel path | Measure the field current and its supply on a car (or check the FSM) before turning on "Alternator control" in TunerStudio. Until then the car may not charge: watch battery voltage. Add a freewheel diode only once the field's supply is known |
 | M6 | **ULN2003 at full load:** 4 relays + NB1 VICS is about 0.7-1.6 W, against 0.73 W at 85 °C ambient. Fine at cabin temperature (the ECU sits in the passenger footwell) | Move VICS or the fans to a protected driver in a later revision if needed |
 | Tach | 1989-95 tach cavity 2I: our board drives it as an output (as Hellen does); the wiki tables call it an input | Kept as an output. Check the wiring diagram; if the igniter feeds 2I, set the tach output to none |
 | Switch inputs at cranking | A 12 V switch signal at 9 V gives 2.09 V at the MCU: above ST's by-design threshold (1.79 V), below its tested one (2.31 V) | Only matters while cranking; no change |
@@ -220,17 +245,17 @@ links (C17477) from LCSC listings. Check LCSC stock before ordering.
 - **Wideband STM32F042:** VDDA (REF3033, 3.300 V) can sit below VDD (up to 3.365 V). This is inherited from the FOME
   module.
 - **Unprotected outputs:** the TC4427 ignition and ULN2003 relay outputs have no short-to-battery protection (the
-  AUIPS2041 outputs do).
+  NCV8406A outputs do).
 - **Knock amplifier:** clips above about 284 mV input (gain 5.7). Fine at light load; consider lower gain.
 - **MPX5700AP:** the 15.6 kΩ divider loads it beyond its 0.1 mA typical source current above about 210 kPa. Only
   relevant with boost.
 - **NB charge-warning lamp** (NB1 1Q, NB2 3U) is not driven.
 - **CAN transceivers** are rated to 85 °C. Their bus pins are rated −4 to 16 V absolute maximum, which a 24 V jump
   start exceeds.
-- **PTC voltage ratings:** F1-F4 on the motherboards and F1 on the daughterboard are 24-30 V parts. A PTC only sees
-  the full voltage once tripped; the TVSs keep transients near 33-35 V.
-- **O2 heater on OUT_VVT (1996-97, NB1)** is continuous DC. Its cold inrush may exceed the AUIPS2041's 1.4 A rating
-  (unverified); the over-current shutdown would trip and the heater would warm more slowly.
+- **PTC voltage ratings:** F1-F4 on the motherboards are 24-30 V parts; the daughterboard's F1 is now a 33 V part
+  (rev 0.5b). A PTC only sees the full voltage once tripped; the TVSs keep transients near 33-35 V.
+- **O2 heater on OUT_VVT (1996-97, NB1)** is continuous DC. Its cold inrush (unverified) is likely within the
+  NCV8406A's current limit; if not, the driver limits it and the heater warms more slowly.
 - **Floating MCU-side inputs:** while the MCU is in reset or a bootloader, the shifter's MCU-side inputs float. Its outputs are disabled then, so this only costs a little supply current. When a configuration change releases a control pin, rusEFI briefly sets it to pull-up before the board's hook parks it low again (well under a millisecond, far shorter than an injector's opening time).
 
 ## Safety review: current, faults and fuses
@@ -262,12 +287,12 @@ None of these exceed their path's rating.
 |---|---|---|
 | Sensor 5 V shorted to ground | TLS115 is current-limited | OK |
 | Sensor 5 V or a crank/cam wire shorted to battery | TLS115 survives; D13/D14 hold the MCU pins at 3.9 V (2-4 mA). The MPX5700AP would still be damaged by 14 V on its supply | OK (MAP sensor at risk) |
-| Injector, idle, VVT, boost or alternator output shorted to battery | AUIPS2041 over-current shutdown, now with the specified 5 V input | OK |
+| Injector, idle, VVT, boost or alternator output shorted to battery | NCV8406A current limit and thermal shutdown (cycles until the short is removed), driven at 5 V | OK |
 | Relay, CEL or tach output shorted to battery | ULN2003 has no limit: the channel fails | Minor (rare fault) |
 | Ignition output shorted to battery | R15-R18 (100 Ω) take about 2 W and fail, which protects the TC4427 | Minor (rare fault) |
 | Reverse battery | See below | Low risk; no change |
 | Load dump, ISO pulse 2a, jump start | D6 on the input, then F1 and D12 after the series diodes: +12V peaks at 36.4 V (simulated, buck limit 44 V) | OK |
-| Sustained overvoltage (failed regulator) | Up to about 37 V nothing on +12V conducts. Above that D12 conducts and F1 trips. While tripped F1 sees most of the overvoltage, above its 24 V rating; it is the same part Hellen uses on its 12 V input, and a sustained 39 V on a car with a battery connected is unlikely | OK |
+| Sustained overvoltage (failed regulator) | Up to about 37 V nothing on +12V conducts. Above that D12 conducts and F1 trips. While tripped F1 sees most of the overvoltage, within its 33 V rating up to the 36.7 V D12 clamp; it is the same part Hellen uses on its 12 V input, and a sustained 39 V on a car with a battery connected is unlikely | OK |
 | Key-off drain on 2003-05 | COM TVS: no path | OK |
 | Internal short on the daughterboard 12 V rail | F1 trips at 1 A | OK |
 | Short on the AUX +12 V pin | F4 trips | OK |
@@ -284,8 +309,8 @@ None of these exceed their path's rating.
 - **The new freewheel diodes add one low-resistance path:** ground → the idle (and VVT) driver's body diode → D1/D2 →
   the valve's +12 V feed. It runs in parallel with D6 and has no load in it. Simulated with 40 mΩ of harness and fuse,
   it shares about 45 A of the roughly 200 A fault current until the fuse blows (a few milliseconds). The SS34 is
-  rated 80-100 A for 8.3 ms, so it is fine. The AUIPS2041's body diode is rated 1.4 A continuous (thermally limited)
-  with no pulse rating in the datasheet, so a hard reversal could damage the idle or VVT driver. On NB boards F2/F3
+  rated 80-100 A for 8.3 ms, so it is fine. The low-side driver's body diode has no pulse rating in its datasheet,
+  so a hard reversal could damage the idle or VVT driver. On NB boards F2/F3
   (2 A resettable) sit in this path and limit it further.
   - If that matters to you, a 1 Ω resistor (2512, 1 W) in series with D1/D2 cuts it to about 3 A and costs about
     1 V of freewheel voltage and up to 0.4 W at the idle valve. It isn't on the boards.

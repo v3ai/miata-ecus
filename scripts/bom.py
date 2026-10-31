@@ -2,6 +2,7 @@
 import csv, sys, collections
 import design
 import order_bom
+PARTS = {p["ref"]: p for p in design.parts}
 
 # every LCSC number was looked up on 2026-10-28 (scripts/mpn.json); nothing left to flag
 VERIFY = set()
@@ -34,7 +35,7 @@ GROUPS = [
 
 DESC = {
     'STM32F407VGT6': 'MCU, Cortex-M4F 168MHz, 1MB flash, LQFP-100',
-    'AUIPS2041LTR': 'Protected low-side switch, 39V clamp (inj/IACV/VVT/boost/alt)',
+    'NCV8406ASTT3G': 'Self-protected low-side driver, 60-70V clamp (inj/IACV/VVT/boost/alt)',
     'ULN2003AD': '7ch Darlington low side (relays, CEL, tach)',
     'TC4427': 'Dual 1.5A driver, 5V logic out for COP smart coils',
     'MAX9926UAEE+': 'Dual VR sensor interface, adaptive threshold',
@@ -86,12 +87,14 @@ def jlc_bom(path):
     for p in design.parts:
         if not order_bom.is_jlc('daughter', p):
             continue
-        agg.setdefault((p['value'], p['fp'].split(':')[1], p['lcsc']), []).append(p['ref'])
+        # one line per LCSC part (JLC flags two lines matched to the same part, e.g. the BOOT and RESET buttons)
+        a = agg.setdefault((p['fp'].split(':')[1], p['lcsc']), dict(value=p['value'], refs=[]))
+        a['refs'].append(p['ref'])
     with open(path, 'w', newline='') as f:
         w = csv.writer(f)
         w.writerow(['Comment', 'Designator', 'Footprint', 'LCSC Part #'])
-        for (v, fp, l), refs in agg.items():
-            w.writerow([v, ','.join(refs), fp, l])
+        for (fp, l), a in agg.items():
+            w.writerow([a['value'], ','.join(a['refs']), fp, l])
 
 
 def jlc_cpl(board_path, path):
@@ -102,7 +105,8 @@ def jlc_cpl(board_path, path):
         w.writerow(['Designator', 'Mid X', 'Mid Y', 'Layer', 'Rotation'])
         for fp in b.GetFootprints():
             r = fp.GetReference()
-            if r.startswith('H') or r in ('J3', 'J102') or r in order_bom.HAND['daughter']:
+            p = PARTS.get(r)
+            if r.startswith('H') or r in ('J3', 'J102') or p is None or not order_bom.is_jlc('daughter', p):
                 continue
             pos = fp.GetPosition()
             x = pcbnew.ToMM(pos.x) - 100.0

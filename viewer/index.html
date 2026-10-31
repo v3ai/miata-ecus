@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <meta charset="utf-8">
 <title>Miata ECU Daughterboard 3D</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -246,7 +247,7 @@ function assyModel(y){
            ['U2','MAP sensor'],['F1','Heater fuse'], ...(Y.extra || []),['U102','Wideband MCU'],['U1','Main MCU']]};
 }
 // bump when the board assets change, so browsers don't keep showing cached older boards
-const ASSET_V = '?v=d05b-mb06';
+const ASSET_V = '?v=d05c-mb06';
 const PCBS = {d:{pre:'', label:'Daughterboard'}};
 for (const y in YEARS) PCBS['mb' + y] = {pre:`mb${y}_`, label:`Motherboard ${YEARS[y].name}`};
 let year = '8993';

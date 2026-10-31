@@ -520,7 +520,7 @@ def sheet_inputs(s):
 
 
 def sheet_outputs(s):
-    s.text('Protected low-side drivers (AUIPS2041L): injectors, IACV, VVT, boost, alternator', 20.32, 22.86)
+    s.text('Protected low-side drivers (NCV8406A): injectors, IACV, VVT, boost, alternator', 20.32, 22.86)
 
     def lowside(q, n, x0, y0):
         CTL, OUT = n + '_IN', 'OUT_' + n      # driven at 5 V by U11

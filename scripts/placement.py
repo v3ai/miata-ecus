@@ -2,7 +2,7 @@
 
 Floor plan
   top edge    J1: power in, 7 relay outs, 4 ign outs, 8 smart low-side outs
-  top band    ULN2003 | 2x TC4427 | 8x AUIPS2041 (each directly under its header pin)
+  top band    ULN2003 | 2x TC4427 | 8x NCV8406A (each directly under its header pin)
   left        power supply (TVS, reverse diode, 5V buck, 5V sensor tracker, 3.3V LDO)
   centre      STM32F407 + decoupling + crystal
   right       SWD, BOOT/RESET buttons, status LEDs, USB/CAN

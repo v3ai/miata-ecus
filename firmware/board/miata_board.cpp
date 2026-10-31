@@ -182,7 +182,7 @@ static void setMiataNbCommon() {
 
 	// The NB charging system is regulated by the engine computer through the alternator field (ALT output).
 	// Alternator control ships OFF: the field current and its supply haven't been measured (VERIFICATION.md M5), and
-	// the AUIPS2041 is rated 1.4 A. The pin and PID are set up, so turning it on is one switch in TunerStudio
+	// the low-side driver is a SOT-223 part. The pin and PID are set up, so turning it on is one switch in TunerStudio
 	// (Alternator control) once the field has been measured. Until then the car may not charge: watch the battery.
 	engineConfiguration->alternatorControlPin = MIATA_ALT;
 	engineConfiguration->isAlternatorControlEnabled = false;

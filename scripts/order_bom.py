@@ -43,7 +43,7 @@ COLS = ['Line', 'Item', 'Quantity', 'Designator', 'Manufacturer', 'Manufacture P
 
 
 def is_jlc(kind, p):
-    return bool(p['lcsc']) and p['ref'] not in HAND[kind]
+    return bool(p['lcsc']) and p['ref'] not in HAND[kind] and not p.get('dnp')
 
 
 def find_url(lcsc, mpn, mfr=''):
@@ -61,7 +61,12 @@ def self_rows(kind, parts):
         r = p['ref']
         if is_jlc(kind, p) or (r.startswith('H') and not r.startswith('HD')) or r in PADS_ONLY[kind]:
             continue                                            # assembled, or a case mounting hole
-        if p['lcsc']:                                           # through-hole part you fit yourself
+        if p.get('dnp'):                                        # footprint left empty: optional
+            m = MPN.get(p['lcsc'], {})
+            agg.setdefault(('dnp', p['lcsc']), dict(item=m.get('desc') or p['value'], refs=[], mfr=m.get('mfr', ''),
+                                                    mpn=m.get('mpn', '') or p['value'], lcsc=p['lcsc'], req='Optional',
+                                                    notes=p['desc']))['refs'].append(r)
+        elif p['lcsc']:                                         # through-hole part you fit yourself
             m = MPN.get(p['lcsc'], {})
             key = (p['lcsc'],)
             note = WHY.get((kind, r)) or ''

@@ -1,4 +1,12 @@
 {
+ "C106862": {
+  "correct_lcsc": null,
+  "desc": "MLCC 33nF 50V X7R 0402",
+  "match": true,
+  "mfr": "YAGEO",
+  "mpn": "CC0402KRX7R9BB333",
+  "note": ""
+ },
  "C113610": {
   "correct_lcsc": null,
   "desc": "Automotive low-side intelligent power switch, 60V, 1.4A, 100mohm, SOT-223",
@@ -282,6 +290,14 @@
   "mpn": "LBC3225T2R2MR",
   "note": "replacement"
  },
+ "C223988": {
+  "correct_lcsc": null,
+  "desc": "TVS diode 33 V standoff, 36.7-40.6 V breakdown, 400 W, SMA",
+  "match": true,
+  "mfr": "Littelfuse",
+  "mpn": "SMAJ33A",
+  "note": ""
+ },
  "C224052": {
   "correct_lcsc": null,
   "desc": "TVS diode 40 V standoff, 64.5 V clamp, 1500 W, SMC (DO-214AB)",
@@ -312,6 +328,14 @@
   "match": true,
   "mfr": "Hubei KENTO Elec",
   "mpn": "KT-0603R",
+  "note": ""
+ },
+ "C2287": {
+  "correct_lcsc": null,
+  "desc": "LED yellow 0603",
+  "match": true,
+  "mfr": "Hubei KENTO Elec",
+  "mpn": "KT-0603Y",
   "note": ""
  },
  "C2288": {
@@ -368,6 +392,14 @@
   "match": true,
   "mfr": "UNI-ROYAL(Uniroyal Elec)",
   "mpn": "0603WAF6202T5E",
+  "note": ""
+ },
+ "C23222": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 62 ohm 1% 100mW 0603",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0603WAF620JT5E",
   "note": ""
  },
  "C23231": {
@@ -660,6 +692,14 @@
   "mpn": "MPX5700DP",
   "note": ""
  },
+ "C459816": {
+  "correct_lcsc": null,
+  "desc": "Self-protected low side driver, 65 V clamp, 210 mOhm @5V, SOT-223",
+  "match": true,
+  "mfr": "onsemi",
+  "mpn": "NCV8406ASTT3G",
+  "note": ""
+ },
  "C46641168": {
   "correct_lcsc": null,
   "desc": "PTC fuse 2A hold 30V 1812",
@@ -747,6 +787,22 @@
   "match": true,
   "mfr": "STMicroelectronics",
   "mpn": "STM32F042K6T6",
+  "note": ""
+ },
+ "C70077": {
+  "correct_lcsc": null,
+  "desc": "Resettable PTC fuse 0.5 A hold, 1 A trip, 33 V, 100 A, 1206",
+  "match": true,
+  "mfr": "TECHFUSE",
+  "mpn": "nSMD050-33V",
+  "note": ""
+ },
+ "C70960": {
+  "correct_lcsc": null,
+  "desc": "Inductor 2.2uH 500mA 0.3ohm, 1210",
+  "match": true,
+  "mfr": "FH(Guangdong Fenghua Advanced Tech)",
+  "mpn": "CMI322513U2R2KT",
   "note": ""
  },
  "C72038": {

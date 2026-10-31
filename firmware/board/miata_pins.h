@@ -14,7 +14,7 @@
 #define MIATA_IGN2 Gpio::E0
 #define MIATA_IGN3 Gpio::B9
 #define MIATA_IGN4 Gpio::B8
-// AUIPS2041L protected low sides, active high. Rev 0.5: driven at 5 V through an SN74LVC4245A whose output enable is
+// NCV8406A protected low sides (rev 0.5b; AUIPS2041L before), active high. Rev 0.5: driven at 5 V through an SN74LVC4245A whose output enable is
 // MIATA_DRV_EN (open drain, active low, pulled up to 5 V): all eight stay off until the firmware enables them.
 #define MIATA_INJ1 Gpio::B7
 #define MIATA_INJ2 Gpio::B6
@@ -32,7 +32,7 @@
 #define MIATA_CEL Gpio::E4
 #define MIATA_TACH Gpio::E3
 #define MIATA_LS7 Gpio::E2      // second fan / condenser fan relay
-// Low-side driver enable (PA8): drive low to enable the eight AUIPS2041 inputs.
+// Low-side driver enable (PA8): drive low to enable the eight low-side driver inputs.
 #define MIATA_DRV_EN Gpio::A8
 // Digital inputs.
 #define MIATA_HALL1 Gpio::E7    // crank (NA: CAS SGT, NB: CKP), 1k pull-up to 5 V, clamped to 3.3 V on the board
