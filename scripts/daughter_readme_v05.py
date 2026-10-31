@@ -55,6 +55,10 @@ rep('| Digital inputs | 2 hall (1k pull-up), 3 switch inputs (12 V → 33k/10k) 
 rep('- **Pin map:** the full pin map is in the spreadsheet\'s "MCU Pin Map" tab.',
     '- **Low-side enable:** PA8, open drain, low = enabled (the board firmware handles it).\n'
     '- **Pin map:** the full pin map is in the spreadsheet\'s "MCU Pin Map" tab.')
+rep('| `fab/jlcpcb_bom.csv`, `fab/jlcpcb_cpl.csv` | JLC assembly BOM and placement file |',
+    '| `fab/jlcpcb_bom.csv`, `fab/jlcpcb_cpl.csv` | JLC assembly BOM and placement file: every part except the two bottom-side 1×40 headers |\n| `fab/self_order_bom.csv` | What you order and fit yourself: the J1/J2 1×40 pin headers |')
+rep("4. **Headers on the bottom.** J1/J2 are listed as `Bottom` in the CPL. If you let JLC fit them, that is\n   bottom-side assembly and adds cost. They are cheap to hand-solder, and you can square them up against\n   the motherboard's female headers while the solder sets. If you do that, delete J1/J2 from the BOM.",
+    "4. **Headers on the bottom.** J1/J2 are not in the JLC BOM or CPL (they'd need bottom-side assembly). They're in\n   `fab/self_order_bom.csv`: hand-solder them, squared up against a motherboard's female sockets while the solder\n   sets.")
 t = re.sub(r'netlist was checked pad-by-pad against the board\'s netlist \(\d+ pads, 0 differences\)',
            f"netlist was checked pad-by-pad against the board's netlist ({npads} pads, 0 differences)", t)
 m = re.search(r'- \*\*DRC \(KiCad 7\):\*\*.*?(?=\n## )', t, re.S)

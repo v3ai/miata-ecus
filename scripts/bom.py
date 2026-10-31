@@ -1,6 +1,7 @@
 """Parts list + JLCPCB BOM/CPL from design.py and the routed board."""
 import csv, sys, collections
 import design
+import order_bom
 
 # every LCSC number was looked up on 2026-10-28 (scripts/mpn.json); nothing left to flag
 VERIFY = set()
@@ -80,9 +81,10 @@ def rows():
 
 
 def jlc_bom(path):
+    # JLC assembles the SMD parts; through-hole parts are in the self-order BOM (order_bom.py)
     agg = collections.OrderedDict()
     for p in design.parts:
-        if not p['lcsc']:
+        if not order_bom.is_jlc('daughter', p):
             continue
         agg.setdefault((p['value'], p['fp'].split(':')[1], p['lcsc']), []).append(p['ref'])
     with open(path, 'w', newline='') as f:
@@ -100,7 +102,7 @@ def jlc_cpl(board_path, path):
         w.writerow(['Designator', 'Mid X', 'Mid Y', 'Layer', 'Rotation'])
         for fp in b.GetFootprints():
             r = fp.GetReference()
-            if r.startswith('H') or r in ('J3', 'J102'):
+            if r.startswith('H') or r in ('J3', 'J102') or r in order_bom.HAND['daughter']:
                 continue
             pos = fp.GetPosition()
             x = pcbnew.ToMM(pos.x) - 100.0
@@ -112,6 +114,7 @@ def jlc_cpl(board_path, path):
 if __name__ == '__main__':
     out = sys.argv[1]
     jlc_bom(out + '/jlcpcb_bom.csv')
+    order_bom.write_self_bom('daughter', design.parts, out + '/self_order_bom.csv')
     if len(sys.argv) > 2:
         jlc_cpl(sys.argv[2], out + '/jlcpcb_cpl.csv')
     tot = sum(r['qty'] for r in rows())

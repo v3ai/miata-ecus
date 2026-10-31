@@ -17,7 +17,7 @@ mkdir -p $R/renders $R/scripts
 $S/render.sh $R/$P.kicad_pcb $R/renders/top_copper_silk.png F.Cu,F.SilkS,Edge.Cuts 2400
 $S/render.sh $R/$P.kicad_pcb $R/renders/bottom_copper.png B.Cu,B.SilkS,Edge.Cuts 2400
 for f in check_mb_netlist.py design.py drc.py gen_sch.py gen_sch2.py gen_sch_mb.py link_board.py mb_build.py mb_cleanup.py \
-         mb_common.py mb_export.py miata_mb_template.kicad_pro mb_na6.py mb_na8.py mb_later.py mk_hdr_fp.py mb_readme.py mb_release.sh mb_route.py mb_make.sh route.py wideband.py wb_module.py; do
+         mb_common.py mb_export.py order_bom.py mpn.json miata_mb_template.kicad_pro mb_na6.py mb_na8.py mb_later.py mk_hdr_fp.py mb_readme.py mb_release.sh mb_route.py mb_make.sh route.py wideband.py wb_module.py; do
   [ -f $S/$f ] && cp $S/$f $R/scripts/
 done
 cp $S/$MOD.py $R/scripts/ 2>/dev/null || true

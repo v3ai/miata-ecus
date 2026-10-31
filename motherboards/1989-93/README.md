@@ -18,7 +18,8 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 |---|---|
 | `miata_mb_8993.kicad_pro / .kicad_sch / .kicad_pcb` | KiCad 7 project. Root schematic plus three sheets: harness, daughterboard, I/O |
 | `miata_mb_8993_schematic.pdf` | Schematic PDF |
-| `fab/jlcpcb_gerbers.zip`, `fab/jlcpcb_bom.csv`, `fab/jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm) |
+| `fab/jlcpcb_gerbers.zip`, `fab/jlcpcb_bom.csv`, `fab/jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |
+| `fab/self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt, standoffs and screws, plus the not-fitted options. Its columns load into LCSC's BOM tool |
 | `fab/parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |
 | `fab/drc_report.txt` | KiCad DRC |
 | `ecu_mb.pretty/`, `fp-lib-table` | Project footprints (harness header, MAP sensor lying flat, USB-C, M4 case hole) |
@@ -104,7 +105,7 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J, 2R, 2S.
 
 ## Assembly
 - The daughterboard plugs into JD1/JD2 (8.5 mm sockets) on four M3 × 11 mm standoffs.
-- Fitted by hand: the harness header (salvage from a stock ECU or use a clone), the IAT jumper shunt on JP1 (LCSC C5305; EXT or STOCK), and any not-fitted option links.
+- Fitted by hand (all in `fab/self_order_bom.csv`): the harness header (salvage from a stock ECU or use a clone), the daughterboard sockets JD1/JD2, the LSU and IAT connectors, the AUX header, the JP1 header and its shunt (EXT or STOCK), the MAP sensor, the standoffs, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC's quote whether that needs Standard PCBA.
 - The case needs cut-outs in its bottom edge for the LSU, IAT, USB-C and MAP hose.
 
 ## Still to verify

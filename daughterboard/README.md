@@ -105,7 +105,8 @@ new parts have new numbers.
 | `mcu / power / outputs / inputs / connectors / wideband .kicad_sch` | Schematic sub-sheets, one per functional block |
 | `miata_ecu_daughter_schematic.pdf` | All schematic pages as a PDF |
 | `fab/jlcpcb_gerbers.zip` | Gerbers + drill files for JLCPCB (4-layer) |
-| `fab/jlcpcb_bom.csv`, `fab/jlcpcb_cpl.csv` | JLC assembly BOM and placement file |
+| `fab/jlcpcb_bom.csv`, `fab/jlcpcb_cpl.csv` | JLC assembly BOM and placement file: every part except the two bottom-side 1×40 headers |
+| `fab/self_order_bom.csv` | What you order and fit yourself: the J1/J2 1×40 pin headers |
 | `miata_ecu_daughterboard_parts.xlsx` | Parts list by function, J1/J2 pinout, MCU pin map |
 | `../scripts/` (repo top level) | The design source: `design.py` (parts + netlist), `placement.py`, `build_pcb.py`, `route.py`, `wideband.py` (the wideband circuit, mapped from the FOME module in `wideband_ref/` under its MIT licence), `wb_clean.py` (its rev 0.3 placement and heater copper; `wb_preview.py` draws a placement preview), `wb_build.py` (the rev 0.2 transplant, kept for reference), `daughter_finish.py` |
 
@@ -171,8 +172,8 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
 1. **LCSC numbers.** Every number was looked up against LCSC/JLCPCB in rev 0.2, and three wrong ones were fixed. Still check stock for the extended parts when you order.
 2. **Part rotations.** Check every rotation in JLC's assembly preview. JLC's footprint orientation differs from KiCad's for some packages (SOT-223, SOIC, QSOP).
 3. **Ignition outputs.** The 10 nF caps from the hellen ignition outputs were left off to keep the column tidy. If you want them back, add them on the motherboard next to the coil connector.
-4. **Headers on the bottom.** J1/J2 are listed as `Bottom` in the CPL. If you let JLC fit them, that is
-   bottom-side assembly and adds cost. They are cheap to hand-solder, and you can square them up against
-   the motherboard's female headers while the solder sets. If you do that, delete J1/J2 from the BOM.
+4. **Headers on the bottom.** J1/J2 are not in the JLC BOM or CPL (they'd need bottom-side assembly). They're in
+   `fab/self_order_bom.csv`: hand-solder them, squared up against a motherboard's female sockets while the solder
+   sets.
 5. **Schematic and layout review.** No person has reviewed the schematic yet. The wideband *circuit* is the proven FOME design, but since rev 0.3 its *layout* is new to this board, so it no longer inherits the module's proven layout. Bring up the wideband on the first boards before relying on it (heater control, pump current, and lambda reading against a known sensor).
 6. **Wideband first flash.** It goes through the main MCU (rev 0.4), so no extra cable is needed: the board's rusEFI firmware has the programming feature (`wbo_uart_flash`). A Tag-Connect TC2030-NL cable on J102 is the fallback.

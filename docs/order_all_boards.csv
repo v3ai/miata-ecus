@@ -1,0 +1,27 @@
+Line,Item,Quantity,For,Manufacturer,Manufacture Part Number,LCSC Part Number,Required,Find it,Notes
+1,Harness header TE 174917-6,2,"1989-93, 1994-95",TE Connectivity,174917-6,,Yes,https://www.digikey.com/en/products/result?keywords=174917-6,Not available from TE: salvage from a stock NA ECU or buy a clone
+2,Harness header TE 176122-6,1,1999-2000,TE Connectivity,176122-6,,Yes,https://www.digikey.com/en/products/result?keywords=176122-6,Alternate 4-174518-7
+3,Harness header TE 178780-1,1,1996-97,TE Connectivity,178780-1,,Yes,https://www.digikey.com/en/products/result?keywords=178780-1,"Alternates 174915-6, 3-178780-6"
+4,Harness header TE 353830-5,1,2001-05,TE Connectivity,353830-5,,Yes,https://www.digikey.com/en/products/result?keywords=353830-5,Alternate 1123038-2
+5,"Female socket 1x40, 2.54mm, through-hole, 8.5mm",10,every motherboard,Ckmtw(Shenzhen Cankemeng),B-2200S40P-A120,C124412,Yes,https://www.lcsc.com/product-detail/C124412.html,
+6,"IDC box header 2x8 (16P), 2.54mm, through-hole",5,every motherboard,BOOMELE(Boom Precision Elec),2.54-2*8P,C3406,Yes,https://www.lcsc.com/product-detail/C3406.html,
+7,"Jumper shunt, 2.54 mm",5,every motherboard,BOOMELE(Boom Precision Elec),2.54 Short Circuit Cap,C5305,Yes,https://www.lcsc.com/product-detail/C5305.html,"For JP1 (IAT source): EXT = board IAT connector J3, STOCK = harness sensor"
+8,"Micro-Fit 3.0 header, 1x2 (2P), 3.0mm, right angle, through-hole",5,every motherboard,MOLEX,436500202,C587650,Yes,https://www.lcsc.com/product-detail/C587650.html,
+9,"Micro-Fit 3.0 header, male, 2x3 (6P), 3.0mm, right angle, through-hole",5,every motherboard,MOLEX,430450600,C127367,Yes,https://www.lcsc.com/product-detail/C127367.html,
+10,"Pin header, male, 1x3, 2.54mm, through-hole, vertical",5,every motherboard,BOOMELE(Boom Precision Elec),2.54-1*3PPin,C49257,Yes,https://www.lcsc.com/product-detail/C49257.html,
+11,"Pin header, male, 1x40, 2.54mm, through-hole, vertical",10,daughterboard,ZHOURI,2.54-1*40,C2977586,Yes,https://www.lcsc.com/product-detail/C2977586.html,Bottom side. Solder while plugged into a motherboard's sockets so they come out straight
+12,"Pressure sensor 15-700kPa absolute, 5V, ratiometric analog out, unibody single port (867B)",5,every motherboard,NXP,MPX5700AP,C90152,Yes,https://www.lcsc.com/product-detail/C90152.html,"Lies flat, marking side up, leads bent 90 deg down, held by 2 x M3 screws"
+13,"Nut, M3",10,every motherboard,,M3 hex nut,,Yes,,MAP sensor (U2) hold-down
+14,"Screw, M3 x 10, pan head",10,every motherboard,,M3 x 10 pan head,,Yes,,MAP sensor (U2) hold-down
+15,"Screw, M3 x 6, pan head",40,every motherboard,,M3 x 6 pan head,,Yes,,Two per daughterboard standoff (HD1-HD4)
+16,"Standoff, M3 x 11 mm, hex, female-female",20,every motherboard,,M3 x 11 F-F hex standoff,,Yes,,Daughterboard above the motherboard (8.5 mm sockets + 2.5 mm header plastic)
+17,LSU 4.9 extension lead or sensor-side connector,1,car,,LSU 4.9 pigtail,,Yes,,Wire it to the 43025-0600 at the board end
+18,"Micro-Fit 3.0 female crimp terminal, 20-24 AWG",8,car,Molex,43030-0007,,Yes,https://www.digikey.com/en/products/result?keywords=43030-0007,"6 for the LSU lead, 2 for the IAT lead; buy spares"
+19,"Micro-Fit 3.0 receptacle, 2x3",1,car,Molex,43025-0600,,Yes,https://www.digikey.com/en/products/result?keywords=43025-0600,Mates with J2 (LSU 4.9)
+20,"O2 sensor weld bung, M18 x 1.5",1,car,,M18 x 1.5 weld bung,,Yes,,Unless the exhaust has a spare port
+21,"Vacuum hose, MAP barb to intake manifold",1,car,,vacuum hose to fit the MPX5700AP barb,,Yes,,
+22,"Wideband sensor, Bosch LSU 4.9",1,car,Bosch,0 258 017 025,,Yes,https://www.digikey.com/en/products/result?keywords=0%20258%20017%20025,The board runs it directly
+23,Thick film resistor 0 ohm 0805,2,1989-93,UNI-ROYAL(Uniroyal Elec),0805W8F0000T5E,C17477,Optional,https://www.lcsc.com/product-detail/C17477.html,"sequential conversion only, INJ3 to 2Y (fit instead of R24)"
+24,Thick film resistor 4.7k 1% 100mW 0603,15,every motherboard,UNI-ROYAL(Uniroyal Elec),0603WAF4701T5E,C23162,Optional,https://www.lcsc.com/product-detail/C23162.html,"12 V pull-up for the vehicle speed input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the switch closed) only if your car's signal switches to ground or is open collector; a switch that drives 12 V must not have it"
+25,"IAT sensor, M12 x 1.5 open element",1,car,,open-element air temperature sensor,,Optional,,Only with JP1 on EXT; on STOCK the car's own sensor is used
+26,"Micro-Fit 3.0 receptacle, 1x2",1,car,Molex,43645-0200,,Optional,https://www.digikey.com/en/products/result?keywords=43645-0200,"Mates with J3, only with an external IAT (JP1 on EXT)"

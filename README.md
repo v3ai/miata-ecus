@@ -53,7 +53,9 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 Each board folder contains:
 - the KiCad 7 project (schematic and board);
 - a schematic PDF;
-- JLCPCB gerbers, BOM and placement files in `fab/`, with the DRC report;
+- JLCPCB gerbers, BOM and placement files in `fab/`, with the DRC report. The JLC BOM is the SMD parts (and USB-C);
+  `fab/self_order_bom.csv` is everything you order and solder yourself, and
+  [`docs/order_all_boards.csv`](docs/order_all_boards.csv) adds up all five motherboards, five daughterboards and the in-car parts;
 - renders;
 - a README with the pinout, assembly notes and open questions.
 
