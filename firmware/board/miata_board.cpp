@@ -181,8 +181,11 @@ static void setMiataNbCommon() {
 	engineConfiguration->tachPulsePerRev = 2;
 
 	// The NB charging system is regulated by the engine computer through the alternator field (ALT output).
+	// Alternator control ships OFF: the field current and its supply haven't been measured (VERIFICATION.md M5), and
+	// the AUIPS2041 is rated 1.4 A. The pin and PID are set up, so turning it on is one switch in TunerStudio
+	// (Alternator control) once the field has been measured. Until then the car may not charge: watch the battery.
 	engineConfiguration->alternatorControlPin = MIATA_ALT;
-	engineConfiguration->isAlternatorControlEnabled = true;
+	engineConfiguration->isAlternatorControlEnabled = false;
 	// VBATT is measured on the board's +12V rail, after the reverse diode D7 and the PTC F1, so it reads about
 	// 0.3-0.4 V below the battery. A 14.0 V target therefore holds the battery near 14.3-14.4 V, inside the stock NB
 	// regulator's range; lower the table if a voltmeter at the battery says otherwise.

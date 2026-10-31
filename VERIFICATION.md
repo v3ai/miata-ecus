@@ -165,6 +165,9 @@ re-checked as listed. Refs are the new board's.
 | — | Crank/cam wire shorted to battery would destroy PE7/PE8 (no clamp on 5 V-tolerant pins) | **Daughterboard:** 1N4148WS from each hall input to +3V3 (D13/D14), after the 4.7 kΩ | Shorted to 14 V: pin at 3.9 V, 2.2 mA (was 14.4 V). At 24 V: 3.95 V, 4.3 mA. Normal signal still 0.28 / 3.81 V with 7.8 µs delay at 7200 rpm |
 | — | AUX header J5-15 carried VBAT_IN off the board unfused | **Motherboards:** F4, 0.5 A PTC (Hellen's output-module part) | Netlist |
 | — | Buck output capacitance about 20 µF (TI example 47 µF) | **Daughterboard:** third 10 µF (C59) | — |
+| — | Buck inductor L2 (Sunlord MWSA0503S-100MT) saturates at 3.5 A, below the LMR14020's current limit (2.5 / 3.2 / 3.8 A min / typ / max) | **Daughterboard:** MWSA0603S-100MT (LCSC C132141): 10 µH, 5.5 A saturation, 4.5 A rated, 67 mΩ, 7 × 6.6 mm. Placed on end; D9 and the feedback divider moved 0.3 mm left to make room | No new courtyard overlaps; routes completely |
+| — | Crystal load caps 22 pF for a 20 pF crystal | **Daughterboard:** C13/C14 33 pF C0G (C1663, basic part): C = 2 × (CL − about 4 pF of pin and stray capacitance), ST AN2867 | — |
+| M5 | NB alternator control on by default with the field current unmeasured | **Firmware:** ships off; the pin, PID and target are set up, one switch in TunerStudio turns it on | Engine sim: field not driven on NB with the default tune |
 | — | PB3/PB4 power-up states (SWO trace, JTAG pull-up) could pulse the idle valve or INJ4 | Covered by H1's output enable: nothing reaches the drivers until the firmware enables them | — |
 
 **Layout:** each board's schematic netlist matches the design pad for pad, and each routes completely.
@@ -206,7 +209,7 @@ links (C17477) from LCSC listings. Check LCSC stock before ordering.
 ## Open items
 | # | Issue | What to do |
 |---|---|---|
-| M5 | **NB alternator field drive unknown, and alternator control is on by default.** rusEFI's NB presets enable alternator PWM. If the ECU drives the field coil directly (3-5 A, high inductance), the AUIPS2041 is undersized (rated 1.4 A, 10 mH maximum load inductance) and has no freewheel path | Measure the field current and its supply on a car (or check the FSM) before relying on ALT. Until then, watch charging voltage on the first start; turning alternator control off in TunerStudio is the safe fallback. Add a freewheel diode only once the field's supply is known |
+| M5 | **NB alternator field drive unknown.** rusEFI's NB presets enable alternator PWM; **our firmware now ships it off** (pin and PID still set up). If the ECU drives the field coil directly (3-5 A, high inductance), the AUIPS2041 is undersized (rated 1.4 A, 10 mH maximum load inductance) and has no freewheel path | Measure the field current and its supply on a car (or check the FSM) before turning on "Alternator control" in TunerStudio. Until then the car may not charge: watch battery voltage. Add a freewheel diode only once the field's supply is known |
 | M6 | **ULN2003 at full load:** 4 relays + NB1 VICS is about 0.7-1.6 W, against 0.73 W at 85 °C ambient. Fine at cabin temperature (the ECU sits in the passenger footwell) | Move VICS or the fans to a protected driver in a later revision if needed |
 | Tach | 1989-95 tach cavity 2I: our board drives it as an output (as Hellen does); the wiki tables call it an input | Kept as an output. Check the wiring diagram; if the igniter feeds 2I, set the tach output to none |
 | Switch inputs at cranking | A 12 V switch signal at 9 V gives 2.09 V at the MCU: above ST's by-design threshold (1.79 V), below its tested one (2.31 V) | Only matters while cranking; no change |
@@ -214,9 +217,6 @@ links (C17477) from LCSC listings. Check LCSC stock before ordering.
 ### Minor (not changed)
 - **AMS1117:** rated 0 °C minimum and about 125 °C junction at 85 °C ambient; consider an automotive-temperature
   LDO.
-- **Crystal:** 22 pF load caps for a 20 pF crystal; about 33 pF is closer (a few tens of ppm; USB and CAN tolerate
-  it).
-- **L2:** the part number couldn't be confirmed; check its saturation current is at least 3.8 A.
 - **Wideband STM32F042:** VDDA (REF3033, 3.300 V) can sit below VDD (up to 3.365 V). This is inherited from the FOME
   module.
 - **Unprotected outputs:** the TC4427 ignition and ULN2003 relay outputs have no short-to-battery protection (the

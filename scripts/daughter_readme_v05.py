@@ -39,6 +39,9 @@ new parts have new numbers.
   - C16 is now 10 µF / 50 V, D9 is a 60 V SS36, and C59 adds buck output capacitance.
 - **Crank/cam input clamps.** D13/D14 (1N4148WS) clamp PE7/PE8 to +3V3. These 5 V-tolerant pins have no clamp of
   their own, so a crank/cam wire shorted to battery would otherwise destroy them.
+- **Buck inductor L2** is now a Sunlord MWSA0603S-100MT (7 × 6.6 mm, 5.5 A saturation), above the LMR14020's
+  3.8 A maximum current limit. The old 5 × 5 mm part saturated at 3.5 A.
+- **Crystal load caps** C13/C14 are 33 pF (were 22 pF) to match the 20 pF crystal.
 - The Tag-Connect SWD pads J3 moved right of the MCU to make room for U11.
 
 ## What changed in rev 0.4''')
