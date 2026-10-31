@@ -69,7 +69,7 @@ tr.done td:last-child{text-decoration:none}
 <main>
   <header>
     <h1>Miata ECU: parts JLCPCB won't fit</h1>
-    <p class="lede">Everything you buy or solder yourself for the daughterboard rev 0.5 and the five motherboards (1989-93 and 1994-95 rev 0.6, 1996-97 / 1999-2000 / 2001-05 rev 0.4). Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
+    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.5 and the five motherboards (1989-93 and 1994-95 rev 0.6, 1996-97 / 1999-2000 / 2001-05 rev 0.4). Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
   </header>
 
   <div class="counts" role="group" aria-label="Build counts">
@@ -87,7 +87,7 @@ tr.done td:last-child{text-decoration:none}
 
   <div id="groups"></div>
 
-  <p class="foot">Quantities are per board or per car times your counts above; buy a few spare crimp terminals and shunts. Parts marked “JLC or you” are in the JLCPCB parts list: JLCPCB fits them only with Standard PCBA (not Economic), charged per joint. Delete J1/J2 from the daughterboard parts list if you solder those headers yourself. Part numbers come from the boards' BOMs and the READMEs in <span class="pn">v3ai/miata-ecus</span>; check stock on the day you order.</p>
+  <p class="foot">Quantities are per board or per car times your counts above; buy a few spare crimp terminals and shunts. The JLCPCB parts lists (<span class="pn">fab/jlcpcb_bom.csv</span>) now hold only the SMD parts and USB-C, so nothing here is double-ordered. The same list is in each board’s <span class="pn">fab/self_order_bom.csv</span>, and <span class="pn">docs/order_all_boards.csv</span> adds up the whole build in a format LCSC’s BOM tool reads. Part numbers come from the boards' BOMs and the READMEs in <span class="pn">v3ai/miata-ecus</span>; check stock on the day you order.</p>
 </main>
 
 <script>
@@ -96,7 +96,7 @@ tr.done td:last-child{text-decoration:none}
 const LCSC = c => `https://www.lcsc.com/product-detail/${c}.html`;
 const GROUPS = [
  {id:'daughter', title:'Daughterboard', sub:'One set per daughterboard. Every daughterboard fits every motherboard.', rows:[
-  {item:'Pin header, 1×40, 2.54 mm, male', pn:'ZHOURI 2.54-1*40', lcsc:'C2977586', per:'d', q:2, who:'jlc',
+  {item:'Pin header, 1×40, 2.54 mm, male', pn:'ZHOURI 2.54-1*40', lcsc:'C2977586', per:'d', q:2, who:'must',
    note:'J1 and J2, on the bottom side. Cheaper to hand-solder than to pay for bottom-side assembly: plug them into a motherboard’s sockets while the solder sets so they come out straight.'},
  ]},
  {id:'harness', title:'Harness connectors', sub:'Not in any parts list. The one part you have to source yourself for each motherboard.', rows:[
@@ -119,11 +119,11 @@ const GROUPS = [
   {item:'Standoff, M3 × 11 mm, female-female', pn:'M3 × 11 F-F hex', per:'mb', q:4, who:'must',
    note:'Holds the daughterboard above the motherboard (8.5 mm sockets + headers).'},
   {item:'M3 screw for the standoffs', pn:'M3 × 6 pan head', per:'mb', q:8, who:'must', note:'Two per standoff.'},
-  {item:'Socket, 1×40, 2.54 mm, female, 8.5 mm', pn:'Ckmtw B-2200S40P-A120', lcsc:'C124412', per:'mb', q:2, who:'jlc', note:'JD1 and JD2 for the daughterboard.'},
-  {item:'Micro-Fit 3.0 header, 2×3, right angle', pn:'Molex 43045-0600', lcsc:'C127367', per:'mb', q:1, who:'jlc', note:'J2, LSU 4.9 wideband.'},
-  {item:'Micro-Fit 3.0 header, 1×2, right angle', pn:'Molex 43650-0200', lcsc:'C587650', per:'mb', q:1, who:'jlc', note:'J3, IAT sensor.'},
-  {item:'Box header, 2×8, 2.54 mm', pn:'BOOMELE 2.54-2*8P', lcsc:'C3406', per:'mb', q:1, who:'jlc', note:'J5, AUX.'},
-  {item:'Pin header, 1×3, 2.54 mm', pn:'BOOMELE 2.54-1*3P', lcsc:'C49257', per:'mb', q:1, who:'jlc', note:'JP1, holds the shunt above.'},
+  {item:'Socket, 1×40, 2.54 mm, female, 8.5 mm', pn:'Ckmtw B-2200S40P-A120', lcsc:'C124412', per:'mb', q:2, who:'must', note:'JD1 and JD2 for the daughterboard.'},
+  {item:'Micro-Fit 3.0 header, 2×3, right angle', pn:'Molex 43045-0600', lcsc:'C127367', per:'mb', q:1, who:'must', note:'J2, LSU 4.9 wideband.'},
+  {item:'Micro-Fit 3.0 header, 1×2, right angle', pn:'Molex 43650-0200', lcsc:'C587650', per:'mb', q:1, who:'must', note:'J3, IAT sensor.'},
+  {item:'Box header, 2×8, 2.54 mm', pn:'BOOMELE 2.54-2*8P', lcsc:'C3406', per:'mb', q:1, who:'must', note:'J5, AUX.'},
+  {item:'Pin header, 1×3, 2.54 mm', pn:'BOOMELE 2.54-1*3P', lcsc:'C49257', per:'mb', q:1, who:'must', note:'JP1, holds the shunt above.'},
  ]},
  {id:'optional', title:'Optional parts on the motherboard', sub:'Not fitted by default. Buy only if your car needs them.', rows:[
   {item:'Resistor 4.7 kΩ, 0603', pn:'UNI-ROYAL 0603WAF4701T5E', lcsc:'C23162', per:'mb', q:3, who:'opt',

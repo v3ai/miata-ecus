@@ -676,6 +676,14 @@
   "mpn": "CL21B102KBCNNNC",
   "note": ""
  },
+ "C49257": {
+  "correct_lcsc": null,
+  "desc": "Pin header, male, 1x3, 2.54mm, through-hole, vertical",
+  "match": true,
+  "mfr": "BOOMELE(Boom Precision Elec)",
+  "mpn": "2.54-1*3PPin",
+  "note": ""
+ },
  "C50282": {
   "correct_lcsc": null,
   "desc": "Quad op amp RRIO 1MHz, 1.8-5.5V, TSSOP-14",
@@ -690,6 +698,14 @@
   "match": true,
   "mfr": "Samsung Electro-Mechanics",
   "mpn": "CL05A105KA5NQNC",
+  "note": ""
+ },
+ "C5305": {
+  "correct_lcsc": null,
+  "desc": "Jumper shunt, 1x2, 2.54mm, open top",
+  "match": true,
+  "mfr": "BOOMELE(Boom Precision Elec)",
+  "mpn": "2.54 Short Circuit Cap",
   "note": ""
  },
  "C540242": {

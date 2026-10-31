@@ -1,0 +1,14 @@
+Line,Item,Quantity,Designator,Manufacturer,Manufacture Part Number,LCSC Part Number,Required,Find it,Notes
+1,Harness header TE 174917-6,1,J1,TE Connectivity,174917-6,,Yes,https://www.digikey.com/en/products/result?keywords=174917-6,Not available from TE: salvage from a stock NA ECU or buy a clone
+2,"Female socket 1x40, 2.54mm, through-hole, 8.5mm",2,"JD1,JD2",Ckmtw(Shenzhen Cankemeng),B-2200S40P-A120,C124412,Yes,https://www.lcsc.com/product-detail/C124412.html,
+3,"IDC box header 2x8 (16P), 2.54mm, through-hole",1,J5,BOOMELE(Boom Precision Elec),2.54-2*8P,C3406,Yes,https://www.lcsc.com/product-detail/C3406.html,
+4,"Jumper shunt, 2.54 mm",1,,BOOMELE(Boom Precision Elec),2.54 Short Circuit Cap,C5305,Yes,https://www.lcsc.com/product-detail/C5305.html,"For JP1 (IAT source): EXT = board IAT connector J3, STOCK = harness sensor"
+5,"Micro-Fit 3.0 header, 1x2 (2P), 3.0mm, right angle, through-hole",1,J3,MOLEX,436500202,C587650,Yes,https://www.lcsc.com/product-detail/C587650.html,
+6,"Micro-Fit 3.0 header, male, 2x3 (6P), 3.0mm, right angle, through-hole",1,J2,MOLEX,430450600,C127367,Yes,https://www.lcsc.com/product-detail/C127367.html,
+7,"Pin header, male, 1x3, 2.54mm, through-hole, vertical",1,JP1,BOOMELE(Boom Precision Elec),2.54-1*3PPin,C49257,Yes,https://www.lcsc.com/product-detail/C49257.html,
+8,"Pressure sensor 15-700kPa absolute, 5V, ratiometric analog out, unibody single port (867B)",1,U2,NXP,MPX5700AP,C90152,Yes,https://www.lcsc.com/product-detail/C90152.html,"Lies flat, marking side up, leads bent 90 deg down, held by 2 x M3 screws"
+9,"Nut, M3",2,,,M3 hex nut,,Yes,,MAP sensor (U2) hold-down
+10,"Screw, M3 x 10, pan head",2,,,M3 x 10 pan head,,Yes,,MAP sensor (U2) hold-down
+11,"Screw, M3 x 6, pan head",8,,,M3 x 6 pan head,,Yes,,Two per daughterboard standoff (HD1-HD4)
+12,"Standoff, M3 x 11 mm, hex, female-female",4,"HD1,HD2,HD3,HD4",,M3 x 11 F-F hex standoff,,Yes,,Daughterboard above the motherboard (8.5 mm sockets + 2.5 mm header plastic)
+13,Thick film resistor 4.7k 1% 100mW 0603,3,"R20,R21,R22",UNI-ROYAL(Uniroyal Elec),0603WAF4701T5E,C23162,Optional,https://www.lcsc.com/product-detail/C23162.html,"12 V pull-up for the vehicle speed input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the switch closed) only if your car's signal switches to ground or is open collector; a switch that drives 12 V must not have it"

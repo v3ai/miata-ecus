@@ -20,10 +20,12 @@ if os.path.exists(out + '/jlcpcb_gerbers.zip'):
     os.remove(out + '/jlcpcb_gerbers.zip')
 shutil.make_archive(out + '/jlcpcb_gerbers', 'zip', out + '/gerbers')
 
-# JLC BOM: assembled parts only (have an LCSC number)
+# JLC BOM: the SMD parts JLC assembles. Through-hole parts and everything without an LCSC number go in the
+# self-order BOM (order_bom.py)
+import order_bom
 agg = collections.OrderedDict()
 for p in parts:
-    if p['lcsc']:
+    if order_bom.is_jlc('mb', p):
         agg.setdefault((p['value'], p['fp'].split(':')[1], p['lcsc']), []).append(p['ref'])
 with open(out + '/jlcpcb_bom.csv', 'w', newline='') as f:
     w = csv.writer(f); w.writerow(['Comment', 'Designator', 'Footprint', 'LCSC Part #'])
@@ -31,7 +33,7 @@ with open(out + '/jlcpcb_bom.csv', 'w', newline='') as f:
         w.writerow([v, ','.join(refs), fp, l])
 
 b = pcbnew.LoadBoard(board_path)
-lcsc = {p['ref'] for p in parts if p['lcsc']}
+lcsc = {p['ref'] for p in parts if order_bom.is_jlc('mb', p)}
 with open(out + '/jlcpcb_cpl.csv', 'w', newline='') as f:
     w = csv.writer(f); w.writerow(['Designator', 'Mid X', 'Mid Y', 'Layer', 'Rotation'])
     for fp in b.GetFootprints():
@@ -48,6 +50,8 @@ with open(out + '/jlcpcb_cpl.csv', 'w', newline='') as f:
 with open(out + '/parts_list.csv', 'w', newline='') as f:
     w = csv.writer(f); w.writerow(['Ref', 'Value', 'Footprint', 'LCSC', 'Assembly', 'Description'])
     for p in parts:
-        asm = 'JLC' if p['lcsc'] else ('mechanical' if p['ref'].startswith('H') else 'hand-fit / not fitted')
+        asm = 'JLC' if order_bom.is_jlc('mb', p) else ('mechanical' if p['ref'].startswith('H') else
+                                                        ('hand-fit' if p['lcsc'] else 'hand-fit / not fitted'))
         w.writerow([p['ref'], p['value'], p['fp'], p['lcsc'], asm, p['desc']])
+order_bom.write_self_bom('mb', parts, out + '/self_order_bom.csv')
 print('exported', out, len(agg), 'BOM lines')

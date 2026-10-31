@@ -25,7 +25,7 @@ rm -rf $OUT/fab/gerbers
 bash $S/render.sh $OUT/$P.kicad_pcb $OUT/renders/top_copper_silk.png F.Cu,F.SilkS,Edge.Cuts
 bash $S/render.sh $OUT/$P.kicad_pcb $OUT/renders/bottom_copper.png B.Cu,B.SilkS,Edge.Cuts
 mkdir -p $OUT/scripts
-for f in bom.py build_pcb.py check_sch_netlist.py daughter_finish.py daughter_make.sh daughter_release.sh design.py drc.py \
+for f in bom.py order_bom.py build_pcb.py check_sch_netlist.py daughter_finish.py daughter_make.sh daughter_release.sh design.py drc.py \
          export.sh flip_headers.py gen_sch.py gen_sch2.py link_board.py mpn.json parts_xlsx.py placement.py render.sh \
          route.py sympins.py $P.kicad_pro stm32f407v_lqfp100_pins.txt wb_build.py wb_module.py wideband.py wb_clean.py wb_preview.py daughter_readme_v03.py daughter_readme_v04.py daughter_readme_v05.py; do
   cp $S/$f $OUT/scripts/
