@@ -18,6 +18,8 @@ BOARD, PRE, KIND = sys.argv[1], sys.argv[2], sys.argv[3]
 LONG = int(sys.argv[4]) if len(sys.argv) > 4 else 4096
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCRIPTS = os.path.join(HERE, '..', 'scripts')
+OUT = os.environ.get('OUTDIR', HERE)           # where the assets go (default: next to the viewer)
+MASK = os.environ.get('MASK', 'green')         # solder mask colour: green (the viewer) or black (README renders)
 sys.path.insert(0, SCRIPTS)
 WORK = os.path.join(HERE, 'work_' + (PRE or 'daughter'))
 os.makedirs(WORK, exist_ok=True)
@@ -99,9 +101,12 @@ def noise(scale, amp):
 
 weave = (np.sin(xx * PX * 2 * np.pi / 0.42) * np.sin(yy * PX * 2 * np.pi / 0.42)) * 0.5
 mottle = noise(64, 1.0) + noise(8, 0.35)
-C_LAM = np.array([8, 54, 30], float); C_CU = np.array([22, 92, 46], float)
+# solder mask over bare laminate / over copper, plugged-via dimples
+MASKS = {'green': ([8, 54, 30], [22, 92, 46], [5, 26, 14]),
+         'black': ([11, 12, 13], [27, 28, 30], [4, 4, 5])}
+C_LAM, C_CU, C_DIMPLE = (np.array(c, float) for c in MASKS[MASK])
 C_HASL = np.array([206, 207, 203], float); C_SILK = np.array([238, 238, 230], float)
-C_DIMPLE = np.array([5, 26, 14], float); C_BARE = np.array([92, 98, 58], float)
+C_BARE = np.array([92, 98, 58], float)
 
 
 def build(side, cu, mask_open, silk):
@@ -135,7 +140,7 @@ def build(side, cu, mask_open, silk):
     rough = np.where(exposed, 0.32 + noise(4, 0.08), np.where(s[..., 0] > 0.5, 0.82, np.where(bare, 0.7, 0.42 + mottle * 0.04)))
     orm = np.dstack([clear, np.clip(rough * 255, 0, 255).astype(np.uint8), (np.where(exposed, 255, 0)).astype(np.uint8)])
     for k, a, mode, q in (('albedo', albedo, 'RGBA', 90), ('orm', orm, 'RGB', 90), ('normal', normal, 'RGB', 92)):
-        Image.fromarray(a, mode).save(f'{HERE}/{PRE}{side}_{k}.webp', quality=q, method=6)
+        Image.fromarray(a, mode).save(f'{OUT}/{PRE}{side}_{k}.webp', quality=q, method=6)
 
 
 build('top', lay('F.Cu'), lay('F.Mask'), lay('F.SilkS'))
@@ -370,7 +375,7 @@ if brd is not None:
 scene.export(f'{WORK}/merged.glb', include_normals=True)
 subprocess.run([GLTFPACK, '-i', f'{WORK}/merged.glb', '-o', f'{WORK}/q.glb'], check=True, capture_output=True)
 import gzip, base64
-open(f'{HERE}/{PRE}board.glb.gz.b64.txt', 'w').write(base64.b64encode(gzip.compress(open(f'{WORK}/q.glb', 'rb').read(), 9)).decode())
+open(f'{OUT}/{PRE}board.glb.gz.b64.txt', 'w').write(base64.b64encode(gzip.compress(open(f'{WORK}/q.glb', 'rb').read(), 9)).decode())
 
 # pick boxes: union of meshes whose centre falls in the footprint rectangle
 cent = np.array([(b[0] + b[1]) / 2 for b in boxes])
@@ -384,5 +389,5 @@ for p in rows:
     hi[1] = max(hi[1], 1.8)
     p['box'] = [round(float(x), 3) for x in (*lo, *hi)]
 json.dump(dict(size=[round(BW, 4), round(BH, 4)], centre=[round(CX - 100, 4), round(CZ - 50, 4)], parts=rows),
-          open(f'{HERE}/{PRE}parts.json', 'w'), separators=(',', ':'))
+          open(f'{OUT}/{PRE}parts.json', 'w'), separators=(',', ':'))
 print('parts', len(rows), 'meshes', len(boxes), 'groups', len(groups), 'board mesh', brd is not None)
