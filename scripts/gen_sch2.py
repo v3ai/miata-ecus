@@ -370,7 +370,7 @@ class Sheet:
 
 
 CNT = [0]
-REV, DATE = '0.5', '2026-10-30'
+REV, DATE = '0.5b', '2026-10-31'
 TITLE_PREFIX = 'Miata ECU daughterboard - '
 COMMENT = 'Generated from scripts/design.py; netlist identical to the routed board'
 
@@ -481,14 +481,14 @@ def sheet_inputs(s):
     s.stub(pin_of(r47, 'GND')); s.stub(pin_of(c45, 'GND'))
 
     # ---- VR conditioner
-    s.text('Crank / cam VR inputs: MAX9926 (outputs inverted, so harness + goes to IN-)', 271.78, 129.54)
+    s.text('Crank / cam VR inputs (spare): LM2903 comparator, 1M hysteresis, BAT54S clamps, biased to 1.65 V', 271.78, 129.54)
     VX, VY = 355.6, 175.26
     s.place('U9', VX, VY)
     nodex = VX - 38.1
-    rows = [('VR1_N', 'VR1_A', 'VR1_INP', '16', VY - 20.32, VX - 25.4),
-            ('VR1_P', 'VR1_B', 'VR1_INN', '15', VY - 12.7, VX - 30.48),
-            ('VR2_N', 'VR2_A', 'VR2_INP', '9', VY + 5.08, VX - 30.48),
-            ('VR2_P', 'VR2_B', 'VR2_INN', '10', VY + 12.7, VX - 25.4)]
+    rows = [('VR1_N', 'VR1_A', 'VR1_INP', '5', VY - 20.32, VX - 25.4),
+            ('VR1_P', 'VR1_B', 'VR1_INN', '6', VY - 12.7, VX - 30.48),
+            ('VR2_N', 'VR2_A', 'VR2_INP', '3', VY + 5.08, VX - 30.48),
+            ('VR2_P', 'VR2_B', 'VR2_INN', '2', VY + 12.7, VX - 25.4)]
     for (src, mid, dst, pn, y, jx) in rows:
         ra, rb = find(src, mid), find(mid, dst)
         s.o2(ra, nodex - 17.78, y, 'h' if PARTS[ra]['pads']['1'] == src else 'h-')
@@ -502,21 +502,52 @@ def sheet_inputs(s):
     for (cap_a, cap_b, y) in [('VR1_INP', 'VR1_INN', VY - 20.32), ('VR2_INP', 'VR2_INN', VY + 5.08)]:
         c = find(cap_a, cap_b)
         s.o2(c, nodex, y + 3.81, 'v' if PARTS[c]['pads']['1'] == cap_a else 'v-')
-    for (pn, net, yy) in [('4', 'VR1_OUT', VY - 10.16), ('5', 'VR2_OUT', VY - 7.62)]:
+        s.touched.update({(c, '1'), (c, '2')})          # both pins sit on the input rows' wire ends
+    # outputs: open collector, 10k pull-up to +3V3 (OUT B above its wire, OUT A below), label on to the MCU
+    for (pn, net, xx, up) in [('7', 'VR1_OUT', VX + 22.86, True), ('1', 'VR2_OUT', VX + 30.48, False)]:
         pu = find('+3V3', net)
         px, py = s.P(f'U9.{pn}')
-        xx = VX + 22.86 if pn == '4' else VX + 30.48
-        s.o2(pu, xx, py - 7.62, 'v' if PARTS[pu]['pads']['1'] == '+3V3' else 'v-')
+        first_top = (PARTS[pu]['pads']['1'] == '+3V3') == up
+        s.o2(pu, xx, py - 7.62 if up else py + 7.62, 'v' if first_top else 'v-')
         s.wire(f'U9.{pn}', (xx, py), (VX + 38.1, py))
         s.wire((xx, py), pin_of(pu, net))
         s.stub(pin_of(pu, '+3V3'))
         s.lab(net, (VX + 38.1, py), 'right')
+    px, py = s.P('U9.8')
     s.o2('C50', VX - 21.59, VY + 24.13, 'v')
-    s.wire('U9.14', (VX - 21.59, VY), 'C50.1')
+    s.wire('U9.8', (VX - 21.59, py), 'C50.1')
     s.wire('C50.1', (VX - 27.94, VY + 20.32)); s.pwr('+5V', (VX - 27.94, VY + 20.32), 'up')
     s.stub('C50.2')
-    s.wire('U9.11', (VX - 19.05, VY + 2.54), (VX - 19.05, VY + 5.08)); s.pwr('GND', (VX - 19.05, VY + 5.08), 'down')
-    s.rail('U9', 'GND', pins=['1', '8', '3', '6', '13', '12'])
+    px, py = s.P('U9.4')
+    s.wire('U9.4', (VX - 16.51, py), (VX - 16.51, py + 5.08)); s.pwr('GND', (VX - 16.51, py + 5.08), 'down')
+    # per input: BAT54S clamp (to GND and +5V) and 100k to VR_BIAS; per channel: 1M hysteresis OUT -> IN+.
+    # Drawn left of the comparator, joined to it by net labels.
+    x0, y0 = 203.2, 177.8
+    s.text('VR input clamps, bias and hysteresis', x0 - 15.24, y0 - 12.7, 1.5)
+    for i, (d, node) in enumerate((('D15', 'VR1_INP'), ('D16', 'VR1_INN'), ('D17', 'VR2_INP'), ('D18', 'VR2_INN'))):
+        x, y = x0 + (i % 2) * 38.1, y0 + (i // 2) * 38.1
+        s.place(d, x, y)
+        s.stub(f'{d}.1', 'GND'); s.stub(f'{d}.2', '+5V')
+        rb = find(node, 'VR_BIAS')
+        s.o2(rb, x, y + 15.24, 'v' if PARTS[rb]['pads']['1'] == node else 'v-')
+        s.wire(f'{d}.3', (x, y + 7.62), pin_of(rb, node))
+        s.wire((x, y + 7.62), (x + 7.62, y + 7.62)); s.lab(node, (x + 7.62, y + 7.62), 'right')
+        s.stub(pin_of(rb, 'VR_BIAS'))
+    y1 = y0 + 76.2
+    for i, (r, out) in enumerate((('R77', 'VR1_OUT'), ('R78', 'VR2_OUT'))):
+        s.o2(r, x0 + 12.7 + i * 12.7, y1, 'v' if PARTS[r]['pads']['1'] == out else 'v-')
+        s.stub(f'{r}.1'); s.stub(f'{r}.2')
+    # VR_BIAS: 1.65 V from +3V3
+    bx, by = x0 + 45.72, y1
+    s.o2('R79', bx, by - 3.81 + 1.27, 'v' if PARTS['R79']['pads']['1'] == '+3V3' else 'v-')
+    s.o2('R80', bx, by + 10.16, 'v' if PARTS['R80']['pads']['1'] == 'VR_BIAS' else 'v-')
+    s.o2('C60', bx + 7.62, by + 10.16, 'v' if PARTS['C60']['pads']['1'] == 'VR_BIAS' else 'v-')
+    s.stub(pin_of('R79', '+3V3'))
+    yb = (s.P(pin_of('R79', 'VR_BIAS'))[1] + s.P(pin_of('R80', 'VR_BIAS'))[1]) / 2
+    s.wire(pin_of('R79', 'VR_BIAS'), (bx, yb), pin_of('R80', 'VR_BIAS'))
+    s.wire((bx, yb), (bx + 7.62, yb), pin_of('C60', 'VR_BIAS'))
+    s.wire((bx + 7.62, yb), (bx + 15.24, yb)); s.lab('VR_BIAS', (bx + 15.24, yb), 'right')
+    s.stub(pin_of('R80', 'GND')); s.stub(pin_of('C60', 'GND'))
 
 
 def sheet_outputs(s):

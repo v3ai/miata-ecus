@@ -215,7 +215,7 @@ scene.add(ground);
 // parts table (<pre>parts.json: size, centre in board mm, rows with 3D pick boxes in board-local mm).
 const MODELS = {
   d: {title:'Miata ECU daughterboard', scale:'125.0 × 60.0 mm',
-      sub:'Rev 0.5, as routed. New in rev 0.5: the 5 V level shifter for the low-side drivers (U11), the fused and clamped logic supply (F1, D12), the relay-driver clamp (D11) and the crank/cam input clamps (D13, D14). The on-board wideband controller sits on the right, above the LSU pins of J2. Components are KiCad 3D models at their placed positions (a few are drawn to their datasheet sizes where the library has none). The two 40-pin headers hang underneath to plug into the motherboard.',
+      sub:'Rev 0.5b, as routed. New in rev 0.5: the 5 V level shifter for the low-side drivers (U11), the fused and clamped logic supply (F1, D12), the relay-driver clamp (D11) and the crank/cam input clamps (D13, D14). Rev 0.5b: an LM2903 comparator for the spare VR inputs (U9, with clamps D15-D18) and parts JLCPCB stocks. The on-board wideband controller sits on the right, above the LSU pins of J2. Components are KiCad 3D models at their placed positions (a few are drawn to their datasheet sizes where the library has none). The two 40-pin headers hang underneath to plug into the motherboard.',
       specs:[['Size','125 × 60 mm, 1.6 mm'],['Stack-up','4 layers: sig / GND / 3V3 / sig'],['Parts','<span id="partcount"></span>'],
              ['MCU','STM32F407VGT6 + STM32F042 (wideband)'],['Headers','Bottom side, pins down: J1 power+outputs · J2 inputs+comms+LSU']],
       jumps:[['U1','MCU'],['U2','5V buck'],['U11','Level shifter'],['U5','Relay driver'],['U6','Coil driver'],['Q1','Injector 1'],['U9','VR input'],
@@ -247,7 +247,7 @@ function assyModel(y){
            ['U2','MAP sensor'],['F1','Heater fuse'], ...(Y.extra || []),['U102','Wideband MCU'],['U1','Main MCU']]};
 }
 // bump when the board assets change, so browsers don't keep showing cached older boards
-const ASSET_V = '?v=d05c-mb06';
+const ASSET_V = '?v=d05d-mb06';
 const PCBS = {d:{pre:'', label:'Daughterboard'}};
 for (const y in YEARS) PCBS['mb' + y] = {pre:`mb${y}_`, label:`Motherboard ${YEARS[y].name}`};
 let year = '8993';

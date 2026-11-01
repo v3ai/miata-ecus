@@ -195,7 +195,7 @@
     (at 198 163)
     (descr "Fuse SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator")
     (tags "fuse")
-    (property "LCSC" "C209741")
+    (property "LCSC" "C70077")
     (path "/3c3ec378-9296-4b3e-8302-9d41bb4e64ed/2bc563e5-36c2-40c1-9284-0af6a8dccd0e")
     (attr smd)
     (fp_text reference "F4" (at 0 -1.82) (layer "F.SilkS")

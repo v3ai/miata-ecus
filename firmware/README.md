@@ -133,7 +133,7 @@ bootloader + FOME/rusEFI wideband firmware for the F042 module). Once it is on t
 | CEL / TACH / LS7 | PE4 / PE3 / PE2 | J1-10..12 | check engine / tach / fan 2 |
 | HALL1 / HALL2 | PE7 / PE8 | J2-13, 14 | crank / cam (see the year table) |
 | SW1 / SW2 / SW3 | PE9 / PE10 / PE11 | J2-15..17 | VSS / A/C switch / clutch |
-| VR1 / VR2 (spare) | PE13 / PE12 | J2-21, 20 | not assigned |
+| VR1 / VR2 (spare) | PE13 / PE12 | J2-21, 20 | not assigned (LM2903 comparator outputs, for VR sensors) |
 | TPS / MAP / CLT / IAT | PA4 / PA5 / PA6 / PA7 | J2-4..7 | ADC 4 / 5 / 6 / 7 |
 | AFR / AUX1 / AUX2 / AUX3 | PC4 / PC5 / PB0 / PB1 | J2-8..11 | AFR / spare / spare / MAF |
 | KNOCK | PA3 (ADC3) | J2-3 | software knock (on for NB) |

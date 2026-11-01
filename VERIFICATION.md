@@ -209,7 +209,7 @@ links (C17477) from LCSC listings. Check LCSC stock before ordering.
 ## Rev 0.5b: parts JLCPCB can actually assemble
 JLCPCB's BOM check for the rev 0.5 daughterboard flagged ten lines short of stock and one footprint mismatch. Every
 replacement below is in stock at JLCPCB (stock read from JLCPCB's parts library on 2026-10-31), fits the same
-footprint, and the board was not re-routed.
+footprint. Replacing U9 added parts, so the board was re-routed (rev 0.5b).
 
 | Ref | Was (out of stock) | Now | Why it's equivalent |
 |---|---|---|---|
@@ -220,16 +220,43 @@ footprint, and the board was not re-routed.
 | D1, D5 / D2 / D3 | Everlight 19-217 green / blue, 19-213 yellow | Hubei KENTO KT-0603G (C12624) / KT-0603B (C2288) / KT-0603Y (C2287) | Same 0603 status LEDs; the wideband already used the KENTO green and blue |
 | C103 | FH 0402B333K100NT (C285077) | YAGEO CC0402KRX7R9BB333 (C106862) | 33 nF X7R 0402, rated 50 V instead of 10 V |
 | R110 | 61.9 Ω 0603 1 % (C23092) | 62 Ω 0603 1 % (C23222) | Wideband pump-current sense resistor: 0.16 % higher, inside the 1 % tolerance |
-| U9 | MAX9926UAEE+ (C1523548), also out at LCSC | **Not fitted** | The VR inputs are spares: no Miata year uses a VR sensor. The footprint stays; it's in the self-order BOM as optional |
+| U9 | MAX9926UAEE+ (C1523548), also out at LCSC | **TI LM2903DR (C7549)**, plus D15-D18 BAT54SLT1G (C19726), R73-R80, C60 | The VR inputs are spares (no Miata year uses a VR sensor), but a single-source part was the wrong choice for them. The LM2903 is made by TI, onsemi (C57474), UMW (C668214), ST and others. See "VR input conditioner" below |
+| F4 (all motherboards) | SMD1206P050TF/24 (C209741): out of stock at JLCPCB, delisted at LCSC | TECHFUSE nSMD050-33V (C70077) | The daughterboard's F1 part: same 1206, 0.5 A hold, 1 A trip, 33 V rating instead of 24 V |
+| D6 | Brightking SMCJ30A (C310046), in stock but thin (about 3,000) | Littelfuse SMCJ30A (C224048) | Same part number and ratings, from a maker stocked at JLCPCB (18k) and at US distributors |
+| D9 | "NH" SS36 (C7428237), unknown brand, no US distribution | Diodes Inc B360A-13-F (C94193) | Same SMA package, 60 V 3 A, 0.7 V at 3 A; JLC 128k, Mouser 150k |
+
+The last three came from a review of every part's availability at JLCPCB and US distributors (October 2026). The
+parts it flagged that need a design change rather than a swap (the MPX5700AP MAP sensor, now NRND at ST, and the
+legacy TE harness headers) are listed under Open items.
 
 Also fixed:
 - **U105 footprint:** the AD8628ARTZ is the 5-lead SOT-23 package, and the board called its footprint TSOT-23-5
   (from the FOME module). KiCad's SOT-23-5 and TSOT-23-5 footprints have identical pads, so only the name changed.
   JLCPCB no longer reports a mismatch.
 - **SW1/SW2** (same button) are one BOM line, so JLCPCB no longer warns that two lines match the same part.
+- **Placement files (all boards).** The CPLs were written relative to the board's corner with KiCad's rotations, so
+  JLCPCB's preview showed parts offset and several packages turned. They now use the gerbers' own coordinates (KiCad
+  X, KiCad Y negated, no offset), and rotations get JLC's per-package corrections, read off JLC's placement preview
+  of the rev 0.5 daughterboard: SOT-223, TO-252 and SOT-23 (3, 5 and 6 pin) +180°; SOIC, TSSOP and LQFP +270°;
+  the 4-resistor arrays +90°; chip parts, SMA/SMC/SOD diodes, LEDs and the crystal unchanged (`scripts/order_bom.py`).
+  The SOT-23-6 and USB4105 entries on the motherboards were not in that preview: check them in JLC's viewer.
 
-Re-checked: schematic netlist 754 pads, 0 differences; DRC 0 unconnected, 0 clearance; circuit sims 20 OK / 3 CHECK /
-6 REF / 0 FAIL.
+### VR input conditioner (rev 0.5b)
+Per channel: the harness legs go through 2 × 5.1k to the LM2903's inputs with 1 nF across them, as before. Each input
+has a BAT54S to GND and +5V (holding it at -0.3 to 5.3 V; the LM2903's inputs take -0.3 to 36 V at any supply), and
+100k to a 1.65 V bias (R79/R80 from +3V3, C60). 1M from the open-collector output back to IN+ gives about 30 mV of
+hysteresis. Output polarity is the MAX9926's (high while harness − is above +), into PE13/PE12 with the existing 10k
+pull-ups to +3V3, so the J2 wiring and firmware are unchanged.
+
+`firmware/tools/circuit_sim.py` section H drives it with a 600 Ω / 100 mH sensor on a 36-1 wheel: 0.1 V peak at
+150 rpm cranking (also with 40 mV of 47 kHz noise), 2 V at idle and 80 V at 7000 rpm all give one clean edge per
+tooth, with one input always inside the common-mode range (0 to VCC − 2 V). With the sensor's − leg grounded at the
+engine, the 80 V case still gives clean edges but both inputs briefly leave that range (CHECK): wire VR sensors with
+both legs to the ECU.
+
+Re-checked after the re-route: schematic netlist 778 pads, 0 differences; DRC 0 unconnected, 0 clearance (the
+autorouter left HALL1 open and one AN_AUX3 track 0.05 mm from the new clamps; `scripts/daughter_patch_05b.py` routes
+HALL1 and moves that track, and the release is built from its output); circuit sims 25 OK / 4 CHECK / 6 REF / 0 FAIL.
 
 ## Open items
 | # | Issue | What to do |
@@ -238,6 +265,9 @@ Re-checked: schematic netlist 754 pads, 0 differences; DRC 0 unconnected, 0 clea
 | M6 | **ULN2003 at full load:** 4 relays + NB1 VICS is about 0.7-1.6 W, against 0.73 W at 85 °C ambient. Fine at cabin temperature (the ECU sits in the passenger footwell) | Move VICS or the fans to a protected driver in a later revision if needed |
 | Tach | 1989-95 tach cavity 2I: our board drives it as an output (as Hellen does); the wiki tables call it an input | Kept as an output. Check the wiring diagram; if the igniter feeds 2I, set the tach output to none |
 | Switch inputs at cranking | A 12 V switch signal at 9 V gives 2.09 V at the MCU: above ST's by-design threshold (1.79 V), below its tested one (2.31 V) | Only matters while cranking; no change |
+| Supply | **MPX5700AP (MAP sensor, every motherboard) is NRND at ST**, which took over NXP's sensor line in 2026 (LCSC 191, Mouser 74 on 2026-10-31) | Kept for this revision: buy the sensors you need now. Next motherboard revision: add a connector for an external MAP sensor, fed from the protected 5 V sensor supply |
+| Supply | **Harness headers:** TE lists all four as "not currently available"; 176122-6 (1999-2000) and 178780-1 (1996-97) are obsolete at Mouser. 174915-6 (76-pin, Mouser 263) and 353830-5 (72-pin, Mouser 252) are still stocked | Buy the headers ahead. Next revision: fit the 1996-97 board with 174915-6, and consider moving the 1989-95 and 1999-2000 boards to it as rusEFI's Hellen boards do (fit-check a real plug first) |
+| Supply | **STM32F042K6T6 (wideband MCU):** 72 left at LCSC; Mouser 2,344, Arrow 5,156 | Order early, or buy in the US and consign to JLCPCB |
 
 ### Minor (not changed)
 - **AMS1117:** rated 0 °C minimum and about 125 °C junction at 85 °C ambient; consider an automotive-temperature

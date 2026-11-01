@@ -205,8 +205,18 @@ put('D13', 43.48, 48.3, 270)    # straight above each hall column's filter cap, 
 put('D14', 46.02, 48.3, 270)
 put('R72', 59.7, 44.6, 90)      # in the wedge between AN_AUX3's lane and HALL1's escape
 
-# VR: MAX9926 under the right half of the MCU, legs in their header columns
-put('U9', 67.6, 46.3, 270)
+# VR: LM2903 (rev 0.5b) under the right half of the MCU, legs in their header columns. VR2 on the left (comparator A,
+# pins 1-3), VR1 on the right (comparator B, pins 5-7); each input's BAT54S clamp and bias resistors sit beside it.
+put('U9', 67.0, 46.3, 0)
+put('D15', 69.25, 50.8, 0)       # VR1_INP clamp
+put('D16', 73.15, 50.8, 0)       # VR1_INN clamp
+for i, ref in enumerate(('R73', 'R74', 'R77', 'R79', 'R80', 'C60')):   # VR1 bias, hysteresis, VR_BIAS divider
+    put(ref, 68.2 + 1.15 * i, 54.0, 90)
+put('D17', 56.6, 47.4, 0)        # VR2_INP clamp
+put('D18', 52.6, 47.4, 0)        # VR2_INN clamp
+put('R75', 55.4, 50.6, 90)       # VR2_INP bias
+put('R76', 56.9, 50.6, 90)       # VR2_INN bias
+put('R78', 55.4, 53.3, 90)       # VR2 hysteresis
 for pin, n, inner in [(19, 'VR2_N', 'VR2_A'), (20, 'VR2_P', 'VR2_B'),
                       (21, 'VR1_P', 'VR1_B'), (22, 'VR1_N', 'VR1_A')]:
     x = hx(pin)
@@ -217,7 +227,7 @@ vert(find('VR2_INP', 'VR2_INN'), 61.2, 46.6, first_on_bottom=True)
 vert(find('VR1_INP', 'VR1_INN'), 71.8, 47.0, first_on_bottom=True)
 put(find('+3V3', 'VR1_OUT')[0], 74.4, 43.4, 0)
 put(find('+3V3', 'VR2_OUT')[0], 74.4, 45.0, 0)
-put('C50', 74.4, 48.4, 0)       # MAX9926 VCC
+put('C50', 71.8, 43.4, 90)      # LM2903 VCC, next to pin 8
 
 # CAN transceiver above its header pins (CANL/CANH face J2)
 put('U10', (hx(27) + hx(28)) / 2, 48.6, 270)

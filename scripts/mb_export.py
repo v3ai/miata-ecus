@@ -40,11 +40,7 @@ with open(out + '/jlcpcb_cpl.csv', 'w', newline='') as f:
         r = fp.GetReference()
         if r not in lcsc:
             continue
-        pos = fp.GetPosition()
-        x = pcbnew.ToMM(pos.x) - 100.0
-        y = -(pcbnew.ToMM(pos.y) - 50.0 - M.H)
-        w.writerow([r, f'{x:.3f}mm', f'{y:.3f}mm', 'Bottom' if fp.IsFlipped() else 'Top',
-                    f'{fp.GetOrientationDegrees() % 360:.0f}'])
+        w.writerow(order_bom.cpl_row(fp))         # gerber coordinates, JLC rotation offsets
 
 # full parts list (incl. hand-fitted parts) for the README / ordering
 with open(out + '/parts_list.csv', 'w', newline='') as f:

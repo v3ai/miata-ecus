@@ -26,6 +26,7 @@ FP = {
     'SOT223T2': 'Package_TO_SOT_SMD:SOT-223-3_TabPin2',
     'SOT235': 'Package_TO_SOT_SMD:SOT-23-5',
     'SOIC8': 'Package_SO:SOIC-8_3.9x4.9mm_P1.27mm',
+    'SOT23': 'Package_TO_SOT_SMD:SOT-23',
     'SOIC8EP': 'Package_SO:SOIC-8-1EP_3.9x4.9mm_P1.27mm_EP2.29x3mm',
     'DSO8EP': 'Package_SO:Infineon_PG-DSO-8-27_3.9x4.9mm_EP2.65x3mm',
     'SOIC16': 'Package_SO:SOIC-16_3.9x9.9mm_P1.27mm',
@@ -49,7 +50,7 @@ LCSC_R0603 = {'0': 'C21189', '1': 'C22936', '47': 'C23182', '100': 'C22775', '33
               '12k': 'C22790', '33k': 'C4216', '47k': 'C25819', '68k': 'C23231',
               '100k': 'C25803'}
 LCSC_R0402 = {'6.8k': 'C25917', '1k': 'C11702', '2.2k': 'C25879', '2.7k': 'C25885', '4.7k': 'C25900',
-              '5.6k': 'C25908', '10k': 'C25744', '33k': 'C25779'}
+              '5.6k': 'C25908', '10k': 'C25744', '33k': 'C25779', '100k': 'C25741', '1M': 'C26083'}
 LCSC_C0402 = {'1u': 'C52923', '1n': 'C1523', '10n': 'C15195', '100n': 'C1525'}
 LCSC_R0805 = {'5.1k': 'C27834', '100': 'C17408'}
 LCSC_C0603 = {'22p': 'C1653', '33p': 'C1663', '220p': 'C1603', '1n': 'C1588', '10n': 'C57112',
@@ -182,7 +183,7 @@ add('D5', 'GREEN', 'LED', 'C12624', {'1': 'GND', '2': 'PWR_LED_A'}, 'power LED')
 # ---------------------------------------------------------------------------
 # Power (topology copied from rusEFI hellen-one power_12and5V)
 # ---------------------------------------------------------------------------
-add('D6', 'SMCJ30A', 'SMC', 'C310046', {'1': 'VBAT_IN', '2': 'GND'}, 'load dump TVS')
+add('D6', 'SMCJ30A', 'SMC', 'C224048', {'1': 'VBAT_IN', '2': 'GND'}, 'load dump TVS')
 add('D7', 'SS34', 'SMA', 'C8678', {'1': '+12V_IN', '2': 'VBAT_IN'}, 'reverse battery')
 add('D8', 'B5819W', 'SOD123', 'C8598', {'1': '+12V_IN', '2': 'VIGN_IN'}, 'wake on ignition')
 # rev 0.5: resettable fuse on the logic supply (an internal fault no longer waits on the car's 15-30 A fuse;
@@ -207,7 +208,7 @@ add('U2', 'LMR14020', 'SOIC8EP', 'C187824',
 C('C19', '100n', 'BUCK_BOOT', 'BUCK_SW')
 R('R8', '10k', 'BUCK_RT', 'GND')
 C('C20', '10n', 'BUCK_SS', 'GND')
-add('D9', 'SS36', 'SMA', 'C7428237', {'1': 'BUCK_SW', '2': 'GND'}, 'catch diode, 60 V 3 A SMA (rev 0.5)')
+add('D9', 'B360A', 'SMA', 'C94193', {'1': 'BUCK_SW', '2': 'GND'}, 'catch diode, 60 V 3 A SMA (rev 0.5; Diodes B360A-13-F since 0.5b)')
 # rev 0.5: Isat 5.5 A, above the LMR14020's 3.8 A maximum current limit (the 5x5 mm MWSA0503S saturated at 3.5 A)
 add('L2', '10uH', 'L7066', 'C132141', {'1': 'BUCK_SW', '2': '+5V'}, 'buck inductor, Sunlord MWSA0603S-100MT')
 R('R9', '68k', '+5V', 'BUCK_FB')
@@ -309,13 +310,27 @@ C(f'C{cn}', '100n', '+3V3', 'GND'); cn += 1
 add('U8', 'LMV321IDBVR', 'SOT235', 'C7972',
     {'1': 'KN_P', '2': 'GND', '3': 'KN_N', '4': 'KN_OUT', '5': '+3V3'}, 'knock amp')
 
-# VR: MAX9926 dual, adaptive threshold (hellen-one vr module topology)
-# rev 0.5b: not fitted. Out of stock at JLC and LCSC, and no Miata year uses a VR sensor (VR1/VR2 are spare
-# inputs). The footprint stays; solder one on if you need VR inputs.
-add('U9', 'MAX9926UAEE+', 'QSOP16', 'C1523548',
-    {'1': 'GND', '2': '', '3': 'GND', '4': 'VR1_OUT', '5': 'VR2_OUT', '6': 'GND', '7': '',
-     '8': 'GND', '9': 'VR2_INP', '10': 'VR2_INN', '11': 'GND', '12': 'GND', '13': 'GND',
-     '14': '+5V', '15': 'VR1_INN', '16': 'VR1_INP'}, 'dual VR conditioner (spare VR inputs; not fitted)', dnp=True)
+# VR (spare inputs; no Miata year uses a VR sensor). Rev 0.5b: LM2903 dual comparator, made by TI, onsemi, ST, Diodes,
+# UMW and others, instead of the single-source MAX9926 (out of stock everywhere). Per channel: the harness legs go through
+# 2 x 5.1k to the comparator inputs, 1 nF across them, a BAT54S on each input to GND and +5V (holds them at -0.3..5.3 V;
+# the LM2903 inputs take up to 36 V and down to -0.3 V), 100k from each input to VBIAS (1.65 V), and 1M from the
+# open-collector output back to IN+ for about 30 mV of hysteresis. Output high when harness - is above harness +
+# (the MAX9926's polarity), 10k pull-up to +3V3 into PE13/PE12. See firmware/tools/circuit_sim.py section H.
+# comparator A (pins 1-3) takes VR2 and B (5-7) VR1, so each channel's pins face its own header columns
+add('U9', 'LM2903DR', 'SOIC8', 'C7549',
+    {'1': 'VR2_OUT', '2': 'VR2_INN', '3': 'VR2_INP', '4': 'GND',
+     '5': 'VR1_INP', '6': 'VR1_INN', '7': 'VR1_OUT', '8': '+5V'}, 'dual comparator: VR conditioner (spare VR inputs)')
+for ref, node in (('D15', 'VR1_INP'), ('D16', 'VR1_INN'), ('D17', 'VR2_INP'), ('D18', 'VR2_INN')):
+    # BAT54S: pad 1 anode of the lower diode (GND), pad 2 cathode of the upper diode (+5V), pad 3 the input
+    add(ref, 'BAT54S', 'SOT23', 'C19726', {'1': 'GND', '2': '+5V', '3': node}, f'VR input clamp ({node})')
+for ref, a_, b_ in (('R73', 'VR1_INP', 'VR_BIAS'), ('R74', 'VR1_INN', 'VR_BIAS'),
+                    ('R75', 'VR2_INP', 'VR_BIAS'), ('R76', 'VR2_INN', 'VR_BIAS')):
+    R(ref, '100k', a_, b_, '0402')
+R('R77', '1M', 'VR1_OUT', 'VR1_INP', '0402')    # hysteresis
+R('R78', '1M', 'VR2_OUT', 'VR2_INP', '0402')
+R('R79', '10k', '+3V3', 'VR_BIAS', '0402')
+R('R80', '10k', 'VR_BIAS', 'GND', '0402')
+C('C60', '100n', 'VR_BIAS', 'GND', '0402')
 # outputs are inverted, so harness + goes to IN-
 for ch in ['1', '2']:
     R(f'R{rn}', '5.1k', f'VR{ch}_N', f'VR{ch}_A', '0805'); rn += 1
