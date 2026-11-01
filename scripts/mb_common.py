@@ -73,8 +73,8 @@ def common_parts():
     add('J5', 'AUX 2x8', 'Connector_IDC:IDC-Header_2x08_P2.54mm_Vertical', 'C3406', aux,
         'Add-on I/O: COP 3/4, boost, alternator, main relay, knock, VR crank/cam, external AFR, UART, 5 V, +12 V (fused, F4)')
     # rev 0.6/0.4: the AUX +12 V pin leaves the board, so it gets its own resettable fuse
-    add('F4', '0.5A hold', 'Fuse:Fuse_1206_3216Metric', 'C209741', {1: 'VBAT_IN', 2: 'AUX_VBAT'},
-        'Resettable fuse for the AUX +12 V pin J5-15 (SMD1206P050TF/24: 0.5 A hold, 1 A trip, 24 V)')
+    add('F4', '0.5A hold', 'Fuse:Fuse_1206_3216Metric', 'C70077', {1: 'VBAT_IN', 2: 'AUX_VBAT'},
+        'Resettable fuse for the AUX +12 V pin J5-15 (TECHFUSE nSMD050-33V: 0.5 A hold, 1 A trip, 33 V)')
 
 
 def protection_parts(iac_supply, vvt_supply=None):

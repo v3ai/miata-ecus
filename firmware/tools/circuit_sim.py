@@ -469,6 +469,100 @@ record('Knock input', 'input amplitude that reaches the rails (gain 5.7)', f'{cl
        'CHECK', 'piezo knock sensors give ~20-30 mV/g; a few hundred mV at high rpm will clip; rusEFI software knock '
        'works on band energy, clipping compresses the knock/no-knock ratio at high load')
 
+# ---- H. VR inputs (spare): LM2903 comparator, rev 0.5b --------------------------------------------------------
+# Per channel: harness VRx_N -> 2 x 5.1k -> IN+ (VRx_INP), VRx_P -> 2 x 5.1k -> IN- (VRx_INN), 1 nF across the inputs,
+# a BAT54S on each input (to GND and to +5V), 100k from each input to VR_BIAS (1.65 V from +3V3, 10k/10k, 100 nF),
+# 1M from the output back to IN+ (hysteresis), 10k pull-up to +3V3 on the open-collector output. LM2903 on +5V.
+# Sensor: 600 ohm, 100 mH coil; EMF a sine at the tooth frequency (36-1 wheel), amplitude rising with rpm.
+# The LM2903 is modelled by its input ESD to GND, a 3 mV offset and an open-collector output switch. Its common-mode
+# range is 0 to VCC-2 V over temperature; the output stays valid while either input is inside it (TI datasheet).
+def vr_netlist(amp, freq, cycles, single_ended=False, noise=0.0, rfb='1meg'):
+    tstop = cycles / freq
+    gnd_leg = 'Vsn sn 0 0' if single_ended else 'Rsn sn 0 1g'
+    nz = f'Vnz e2 sp SIN(0 {noise} 47k)' if noise else 'Vnz e2 sp 0'
+    return f"""* VR input, LM2903
+Ve e1 sn SIN(0 {amp} {freq})
+Rc e1 e2 600
+Lc sp spx 100m
+Rdummy spx sp2 1m
+{nz}
+{gnd_leg}
+* harness: sensor + to VR_P, sensor - to VR_N; sp2 is the + terminal after the coil
+Rp1 sp2 b 5.1k
+Rp2 b inn 5.1k
+Rn1 sn a 5.1k
+Rn2 a inp 5.1k
+Cf inp inn 1n
+* BAT54S on each input: to GND and to +5V
+Dl1 0 inp dsch
+Dh1 inp v5 dsch
+Dl2 0 inn dsch
+Dh2 inn v5 dsch
+.model dsch d(is=2e-7 n=1.05 rs=2.5 cjo=10p)
+* bias
+Vb33 v33 0 3.3
+Vb5 v5 0 5
+Rb1 v33 vb 10k
+Rb2 vb 0 10k
+Cb vb 0 100n
+Rbp inp vb 100k
+Rbn inn vb 100k
+* LM2903: input ESD to GND, offset, open-collector output
+De1 0 inp desd
+De2 0 inn desd
+.model desd d(is=1e-14 n=1)
+Vos inn innx 3m
+Scmp out 0 innx inp swc
+.model swc sw(vt=0 vh=0.5m ron=60 roff=1g)
+Cout out 0 20p
+Rpu v33 out 10k
+Rfb out inp {rfb}
+.tran {1 / freq / 400} {tstop}
+.control
+run
+wrdata @DAT@ @VEC@
+.endc
+.end
+"""
+
+
+def vr_edges(t, v, lo=0.99, hi=2.31, t0=0.0):
+    n = 0; state = None
+    for tt, x in zip(t, v):
+        if tt < t0:
+            continue
+        if x > hi and state != 1:
+            if state == 0:
+                n += 1
+            state = 1
+        elif x < lo and state != 0:
+            state = 0
+    return n
+
+
+
+for label, rpm, amp, se, nz in [
+        ('cranking 150 rpm, 0.1 V peak', 150, 0.1, False, 0.0),
+        ('cranking 150 rpm, 0.2 V peak', 150, 0.2, False, 0.0),
+        ('cranking 150 rpm, 0.2 V peak + 40 mV of 47 kHz noise', 150, 0.2, False, 0.04),
+        ('idle 900 rpm, 2 V peak', 900, 2.0, False, 0.0),
+        ('7000 rpm, 80 V peak', 7000, 80.0, False, 0.0),
+        ('7000 rpm, 80 V peak, sensor - grounded (single-ended wiring)', 7000, 80.0, True, 0.0)]:
+    f = rpm / 60 * 36
+    cyc = 12
+    d = spice('vr', vr_netlist(amp, f, cyc, se, nz), ['v(out)', 'v(inp)', 'v(inn)'])
+    n = vr_edges(d['time'], d['v(out)'], t0=2 / f)
+    vmin = min(min(d['v(inp)']), min(d['v(inn)']))
+    vmax = max(max(d['v(inp)']), max(d['v(inn)']))
+    inr = all((-0.3 <= a <= 3.0) or (-0.3 <= b <= 3.0) for a, b in zip(d['v(inp)'], d['v(inn)']))
+    clean = abs(n - (cyc - 2)) <= 1
+    ok = clean and inr and vmax < 5.6 and vmin > -0.4
+    record('VR input', label, f'{n} output edges for {cyc - 2} teeth; inputs {vmin:.2f} to {vmax:.2f} V',
+           'OK' if ok else ('CHECK' if clean else 'FAIL'),
+           '' if ok else 'both inputs briefly above the common-mode range on the fast edges (the 1 nF couples the '
+           'grounded leg up while the other clamps at +5V); edges still clean. Wire VR sensors differentially, '
+           'both legs to the ECU')
+
 # ---- report -----------------------------------------------------------------------------------------------------
 w = max(len(r[1]) for r in results)
 for area, check, value, verdict, note in results:

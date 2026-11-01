@@ -124,13 +124,10 @@ CUSTOM = {
                'right': [('7', 'OUT_A', 'output'), ('5', 'OUT_B', 'output'), ('1', 'NC', 'no_connect'),
                          ('8', 'NC', 'no_connect')],
                'desc': 'Microchip TC4427 dual 1.5A non-inverting MOSFET driver'},
-    'MAX9926UAEE+': {'left': [('16', 'IN1+', 'input'), ('15', 'IN1-', 'input'), ('9', 'IN2+', 'input'),
-                              ('10', 'IN2-', 'input'), ('14', 'VCC', 'power_in'), ('11', 'GND', 'power_in')],
-                     'right': [('4', 'COUT1', 'open_collector'), ('5', 'COUT2', 'open_collector'),
-                               ('1', 'INT_THRS1', 'input'), ('8', 'INT_THRS2', 'input'),
-                               ('3', 'BIAS1', 'input'), ('6', 'BIAS2', 'input'), ('2', 'EXT1', 'input'),
-                               ('7', 'EXT2', 'input'), ('13', 'ZERO_EN', 'input'), ('12', 'DIRN', 'input')],
-                     'desc': 'Analog Devices MAX9926 dual VR sensor interface'},
+    'LM2903DR': {'left': [('5', 'IN B+', 'input'), ('6', 'IN B-', 'input'), ('3', 'IN A+', 'input'),
+                          ('2', 'IN A-', 'input'), ('8', 'V+', 'power_in'), ('4', 'GND', 'power_in')],
+                 'right': [('7', 'OUT B', 'open_collector'), ('1', 'OUT A', 'open_collector')],
+                 'desc': 'TI LM2903 dual comparator, open-collector outputs'},
     'NCV8406ASTT3G': {'left': [('1', 'G', 'input'), ('3', 'S', 'power_in')],
                       'right': [('2', 'D', 'passive'), ('4', 'D', 'passive')],
                       'desc': 'onsemi NCV8406A self-protected low-side driver, 60-70V active clamp'},
@@ -215,6 +212,8 @@ def choose(p):
         return 'Connector_Generic', 'Conn_01x40'
     if r == 'J3':
         return 'Connector', 'Conn_ARM_SWD_TagConnect_TC2030-NL'
+    if v == 'BAT54S':
+        return 'Diode', 'BAT54S'
     if r.startswith('D'):
         if 'LED' in fpn:
             return 'Device', 'LED'

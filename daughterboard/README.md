@@ -8,13 +8,21 @@ bottom edge carries inputs, comms and the LSU 4.9 wideband sensor.
 ## What changed in rev 0.5
 The fixes from the verification review (`VERIFICATION.md` in the repository root). Existing designators are unchanged;
 new parts have new numbers.
-- **Parts JLCPCB stocks (rev 0.5b).** JLCPCB's BOM check found ten lines short of stock. All replacements fit the same
-  footprints (no re-route); details in `VERIFICATION.md`.
+- **Parts JLCPCB stocks (rev 0.5b).** JLCPCB's BOM check found ten lines short of stock. The replacements fit the
+  same footprints; details in `VERIFICATION.md`.
   - Q1-Q8: onsemi **NCV8406A** (SOT-223, same pinout, 60-70 V active clamp, current limit and thermal shutdown)
     instead of the AUIPS2041L.
   - F1: TECHFUSE nSMD050-33V (33 V rating). D11/D12: Littelfuse SMAJ33A. L1: FH CMI322513U2R2KT.
     Status LEDs: Hubei KENTO KT-0603 G/B/Y. C103: YAGEO 33 nF 50 V. R110: 62 Ω (was 61.9 Ω, inside its 1 % tolerance).
-  - U9 (MAX9926, spare VR inputs no Miata uses) is not fitted; its footprint stays.
+  - VR inputs (spares, no Miata year uses a VR sensor): U9 is now a **LM2903** dual comparator (TI, onsemi, UMW and
+    others make it) instead of the MAX9926, which is out of stock everywhere. Each input gets a BAT54S clamp to GND
+    and +5V and 100k to a 1.65 V bias, and each output 1M of hysteresis (D15-D18, R73-R80, C60). The board was
+    re-routed for these parts; `scripts/daughter_patch_05b.py` adds the one track the autorouter left open (HALL1,
+    through a via under the MCU) and nudges AN_AUX3 clear of the new clamps.
+  - `fab/jlcpcb_cpl.csv` now uses the gerbers' own coordinates (no offset), with JLC's rotation corrections for
+    SOT-223, TO-252, SOT-23, SOIC, TSSOP, LQFP and the resistor arrays, read off JLC's placement preview.
+  - From the parts-availability review: D6 is now Littelfuse's SMCJ30A and D9 a Diodes B360A (both mainstream
+    parts stocked at JLCPCB and US distributors; same footprints and ratings).
   - U105's footprint is named SOT-23-5 to match the AD8628ARTZ (identical pads), and SW1/SW2 share one BOM line.
 - **5 V drive for the low-side drivers.** The rev 0.4 drivers (AUIPS2041) are specified at a 4-5.5 V input, and
   rev 0.4 drove them at 3.3 V.
@@ -34,7 +42,7 @@ new parts have new numbers.
     D12's breakdown sits above the 35 V load-dump clamp, so the input TVS D6 takes that energy and D12 only sees fast
     spikes.
   - An internal short trips F1 instead of waiting on the car's fuse.
-  - C16 is now 10 µF / 50 V, D9 is a 60 V SS36, and C59 adds buck output capacitance.
+  - C16 is now 10 µF / 50 V, D9 is a 60 V 3 A Schottky (Diodes B360A), and C59 adds buck output capacitance.
 - **Crank/cam input clamps.** D13/D14 (1N4148WS) clamp PE7/PE8 to +3V3. These 5 V-tolerant pins have no clamp of
   their own, so a crank/cam wire shorted to battery would otherwise destroy them.
 - **Buck inductor L2** is now a Sunlord MWSA0603S-100MT (7 × 6.6 mm, 5.5 A saturation), above the LMR14020's
@@ -119,7 +127,7 @@ new parts have new numbers.
 | `../scripts/` (repo top level) | The design source: `design.py` (parts + netlist), `placement.py`, `build_pcb.py`, `route.py`, `wideband.py` (the wideband circuit, mapped from the FOME module in `wideband_ref/` under its MIT licence), `wb_clean.py` (its rev 0.3 placement and heater copper; `wb_preview.py` draws a placement preview), `wb_build.py` (the rev 0.2 transplant, kept for reference), `daughter_finish.py` |
 
 The schematic and the board are both generated from `scripts/design.py`. The schematic's exported
-netlist was checked pad-by-pad against the board's netlist (754 pads, 0 differences), and every
+netlist was checked pad-by-pad against the board's netlist (778 pads, 0 differences), and every
 footprint on the board is linked to its schematic symbol, so Update PCB from Schematic and
 cross-probing work.
 
@@ -143,8 +151,8 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
   - The MCU supply pins go inward to vias under the package.
   - About 330 GND stitching vias sit on a 3 mm grid.
 - **DRC (KiCad 7):** 0 clearance errors, 0 unconnected items. Warnings remaining:
-  - Silkscreen overlaps (19) and silkscreen clipped by a pad opening (5): cosmetic.
-  - Courtyard overlaps (12) on tightly packed passives. The copper clearances still pass.
+  - Silkscreen overlaps (20) and silkscreen clipped by a pad opening (6): cosmetic.
+  - Courtyard overlaps (11) on tightly packed passives. The copper clearances still pass.
   - "Library not in configuration" notes from running headless.
 
 ## Circuit summary (topologies follow rusEFI hellen-one modules)
@@ -155,7 +163,7 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
 | Injectors / IACV / VVT / boost / alternator | 8× NCV8406A protected low-sides driven at 5 V by an SN74LVC4245A. Its output enable (PA8) is pulled off until the firmware runs; pull-downs on both sides |
 | Relays, CEL, tach, spare | ULN2003 (7 ch), flyback clamp to an SMAJ33A TVS (not +12V) |
 | Ignition (COP / smart coils) | 2× TC4427, 5 V push-pull through 100 Ω, pulled down at the inputs |
-| Crank / cam | MAX9926 dual VR (two 5.1k resistors per leg, 1 nF differential) |
+| Crank / cam | LM2903 dual comparator for VR sensors (two 5.1k resistors per leg, 1 nF differential, BAT54S clamps, 1.65 V bias, 1M hysteresis). Spare: Miatas use hall/optical sensors on the hall inputs |
 | Sensors | 8× 0–5 V inputs with a 5.6k/10k divider and 10 nF. CLT and IAT have 2.7k pull-ups to sensor 5 V. |
 | Knock | LMV321 AC-coupled gain stage (≈5.7×), biased at 1.65 V |
 | Digital inputs | 2 hall (1k pull-up, 4.7k series, clamped to 3.3 V), 3 switch inputs (12 V → 33k/10k) |
@@ -168,7 +176,7 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
 - **CAN:** CAN2 on PB12 (RX) and PB13 (TX).
 - **UART:** USART6 on PC6 and PC7.
 - **USB:** PA11 / PA12.
-- **Crank/cam:** VR1 (crank) on PE13, VR2 (cam) on PE12. The MAX9926 output is inverted, which is why the + and − legs are swapped on J2.
+- **Crank/cam:** VR1 (crank) on PE13, VR2 (cam) on PE12. The comparator output is high while the harness − leg is above the + leg, which is why the legs are swapped on J2. Wire VR sensors with both legs to the ECU (not one grounded at the engine).
 - **Low-side enable:** PA8, open drain, low = enabled (the board firmware handles it).
 - **Pin map:** the full pin map is in the spreadsheet's "MCU Pin Map" tab.
 - **Wideband:** in TunerStudio, enable the rusEFI CAN wideband. The controller answers at index 0, the default.

@@ -143,3 +143,35 @@ def write_order_all(boards, daughters, cars, path):
             w.writerow([i, a['item'], a['qty'], where, a['mfr'], a['mpn'], a['lcsc'], a['req'],
                         find_url(a['lcsc'], a['mpn'], a['mfr']), a['notes']])
     return rows
+
+
+# ---- JLC placement file -------------------------------------------------------------------------------------------
+# JLC reads the CPL in the gerbers' own coordinates: KiCad X, and Y negated (gerbers are y-up), with no offset.
+# Rotation: JLC's part models don't all share KiCad's zero orientation. These offsets come from JLC's placement
+# preview of the rev 0.5 daughterboard (pin 1 of JLC's model against the board's pin-1 pad), October 2026.
+# Footprints not listed matched with no offset (chip R/C/L, SMA/SMC/SOD diodes, LEDs, crystal, buttons).
+import re
+JLC_ROT = [
+    (r'^SOT-223', 180),                 # seen: 3 pins / tab swapped
+    (r'^TO-252', 180),                  # seen
+    (r'^(T?SOT-23)', 180),              # seen on SOT-23 and SOT-23-5; SOT-23-6 assumed the same
+    (r'^(SOIC|Infineon_PG-DSO)', 270),  # seen on SOIC-8 and SOIC-16
+    (r'^(TSSOP|LQFP)', 270),            # seen on LQFP-32; TSSOP rows/columns seen swapped
+    (r'^R_Array_Convex', 90),           # seen
+]
+
+
+def jlc_rotation(fp_name, kicad_deg):
+    for pat, off in JLC_ROT:
+        if re.match(pat, fp_name):
+            return (kicad_deg + off) % 360
+    return kicad_deg % 360
+
+
+def cpl_row(fp):
+    """Designator, Mid X, Mid Y, Layer, Rotation for one footprint (pcbnew FOOTPRINT)."""
+    import pcbnew
+    pos = fp.GetPosition()
+    name = fp.GetFPIDAsString().split(':')[-1]
+    return [fp.GetReference(), f'{pcbnew.ToMM(pos.x):.3f}mm', f'{-pcbnew.ToMM(pos.y):.3f}mm',
+            'Bottom' if fp.IsFlipped() else 'Top', f'{jlc_rotation(name, fp.GetOrientationDegrees()):.0f}']

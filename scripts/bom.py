@@ -38,7 +38,8 @@ DESC = {
     'NCV8406ASTT3G': 'Self-protected low-side driver, 60-70V clamp (inj/IACV/VVT/boost/alt)',
     'ULN2003AD': '7ch Darlington low side (relays, CEL, tach)',
     'TC4427': 'Dual 1.5A driver, 5V logic out for COP smart coils',
-    'MAX9926UAEE+': 'Dual VR sensor interface, adaptive threshold',
+    'LM2903DR': 'Dual comparator, VR input conditioner (spare VR inputs)',
+    'BAT54S': 'Dual series Schottky, VR input clamp',
     'LMV321IDBVR': 'Op-amp, knock sensor gain stage',
     'LMR14020': '40V 2A buck converter, 12V -> 5V',
     'TLS115B0EJ': '5V sensor supply tracker, short-to-battery protected',
@@ -46,6 +47,7 @@ DESC = {
     'SN65HVD230DR': '3.3V CAN transceiver',
     'SMCJ30A': '1500W TVS, load dump',
     'SS34': '3A 40V Schottky',
+    'B360A': '3A 60V Schottky, buck catch diode',
     'B5819W': '1A 40V Schottky',
     'X50328MSB2GI': '',
     '8MHz': '8MHz crystal 5032, 20pF (YXC X50328MSB2GI)',
@@ -108,11 +110,7 @@ def jlc_cpl(board_path, path):
             p = PARTS.get(r)
             if r.startswith('H') or r in ('J3', 'J102') or p is None or not order_bom.is_jlc('daughter', p):
                 continue
-            pos = fp.GetPosition()
-            x = pcbnew.ToMM(pos.x) - 100.0
-            y = -(pcbnew.ToMM(pos.y) - 50.0 - 60.0)     # JLC uses y-up from bottom-left
-            w.writerow([r, f'{x:.3f}mm', f'{y:.3f}mm', 'Bottom' if fp.IsFlipped() else 'Top',
-                        f'{fp.GetOrientationDegrees() % 360:.0f}'])
+            w.writerow(order_bom.cpl_row(fp))     # gerber coordinates, JLC rotation offsets
 
 
 if __name__ == '__main__':

@@ -900,5 +900,45 @@
   "mfr": "NXP",
   "mpn": "MPX5700AP",
   "note": "replaces MPX5700DP (C410772)"
+ },
+ "C7549": {
+  "correct_lcsc": null,
+  "desc": "Dual comparator, open-collector outputs, 2-36 V, SOIC-8",
+  "match": true,
+  "mfr": "Texas Instruments",
+  "mpn": "LM2903DR",
+  "note": "Second sources: onsemi LM2903DR2G (C57474), UMW LM2903DR (C668214)"
+ },
+ "C19726": {
+  "correct_lcsc": null,
+  "desc": "Dual series Schottky diode, 30 V 200 mA, SOT-23",
+  "match": true,
+  "mfr": "onsemi",
+  "mpn": "BAT54SLT1G",
+  "note": ""
+ },
+ "C26083": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 1M 1% 62.5mW 0402",
+  "match": true,
+  "mfr": "UNI-ROYAL(Uniroyal Elec)",
+  "mpn": "0402WGF1004TCE",
+  "note": ""
+ },
+ "C224048": {
+  "correct_lcsc": null,
+  "desc": "TVS diode 30 V standoff, 36.8 V breakdown, 48.4 V clamp, 1.5 kW, SMC",
+  "match": true,
+  "mfr": "Littelfuse",
+  "mpn": "SMCJ30A",
+  "note": ""
+ },
+ "C94193": {
+  "correct_lcsc": null,
+  "desc": "Schottky diode 60 V 3 A, SMA (DO-214AC)",
+  "match": true,
+  "mfr": "Diodes Incorporated",
+  "mpn": "B360A-13-F",
+  "note": ""
  }
 }
