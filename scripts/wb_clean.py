@@ -7,8 +7,9 @@ The heater path (VND14NV04 low side to J2 37-40) is hand-planned 1 mm copper.
 
 Floor plan (board mm, y down; J2 LSU pins 33-40 at x 94.28 .. 112.06, y 57.25):
   top      CAN transceiver U106 above the MCU's CAN pins; SWD Tag-Connect J102 underneath (B side)
-  middle   U102 STM32F042 at 90 deg: analog inputs face down, ESR drives / LEDs / BOOT0 face left,
-           heater PWM + battery sense face right
+  middle   U102 at 90 deg (rev 0.6: STM32F103C8, LQFP-48, same 10.3 mm courtyard as the F042's LQFP-32):
+           analog inputs and its crystal face down, ESR drives / LEDs / BOOT0 face left, heater PWM + battery
+           sense + BOOT1 face right
   bottom   analog front end (U101 quad op-amp, U105 current sense, REF3033) over J2 33-36;
            heater switch Q101 over J2 37-40
 """
@@ -24,10 +25,17 @@ PLACE = {
     'J102': (108.5, 23.0, 0, 'B'),
     'C113': (103.3, 25.9, 90, 'F'),
     'C110': (105.6, 25.9, 90, 'F'),
-    # under the MCU's bottom row: +3V3 / NRST / VDDA decoupling
-    'C112': (97.3, 39.6, 270, 'F'),
-    'C116': (98.8, 39.9, 270, 'F'),
-    'C109': (100.9, 39.6, 270, 'F'),
+    # rev 0.6: the F103's 8 MHz crystal stands off the MCU's bottom-left corner (where the LQFP courtyard is cut
+    # away), leaving the bottom row free for NRST, VDDA and the analog inputs; load caps beside it, VDDA
+    # decoupling under pin 9, +3V3 decoupling at the VDD corners, NRST cap up by the SWD pads
+    'Y101': (94.0, 40.6, 270, 'F'),   # pad 1 (OSC_IN) up, so OSC_IN and OSC_OUT don't cross
+    'C119': (96.6, 39.0, 270, 'F'),
+    'C120': (96.6, 41.8, 270, 'F'),
+    'C109': (101.5, 39.0, 270, 'F'),
+    'C112': (94.4, 36.6, 180, 'F'),
+    'C121': (94.4, 28.6, 180, 'F'),
+    'C116': (107.4, 27.5, 0, 'F'),
+    'R135': (106.9, 36.3, 0, 'F'),
     # left column: ESR drive resistors, BOOT0 pull-down; status LEDs further left
     'R116': (93.6, 30.3, 0, 'F'),
     'R119': (93.6, 31.3, 0, 'F'),
@@ -44,7 +52,7 @@ PLACE = {
     # --- analog: 3.3 V reference (left), quad op-amp, current-sense amp (right)
     'U103': (90.4, 41.4, 90, 'F'),
     'C108': (88.2, 41.4, 90, 'F'), 'C117': (87.0, 41.4, 90, 'F'),
-    'C107': (92.6, 41.4, 270, 'F'),
+    'C107': (90.4, 38.5, 180, 'F'),     # rev 0.6: above U103, clear of Y101
     'U101': (96.0, 46.6, 180, 'F'),
     # U101 left side (pins 8-14: UN_BUF, LSU_UN, GND, VM_REF, VM)
     'R114': (90.6, 44.6, 180, 'F'),
@@ -54,7 +62,7 @@ PLACE = {
     # the middle pins run straight out to R105 / R104 (UN_P) and R132 / R134 (PUMP_P).
     'R107': (100.35, 44.82, 90, 'F'),
     'R133': (100.35, 48.33, 90, 'F'), 'C103': (101.45, 48.33, 90, 'F'),
-    'C105': (98.0, 42.1, 0, 'F'),       # U101 +3V3 decoupling, in the open row above it
+    'C105': (98.4, 42.9, 180, 'F'),     # U101 +3V3 decoupling, in the row above it
     'R105': (104.0, 45.95, 0, 'F'), 'R104': (104.0, 44.75, 180, 'F'),
     'R132': (104.0, 47.25, 0, 'F'), 'R134': (104.0, 48.45, 180, 'F'),
     'R103': (101.4, 43.2, 180, 'F'),

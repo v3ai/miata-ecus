@@ -22,6 +22,7 @@ DDEFS += -DEFI_SOFTWARE_KNOCK=TRUE -DSTM32_ADC_USE_ADC3=TRUE
 # 64-byte read-back reply even if the flashing thread is slow to run.
 DDEFS += -DSTM32_SERIAL_USE_USART3=TRUE -DSERIAL_BUFFERS_SIZE=128
 
-# Wideband image (CAN bootloader + firmware) from the wideband submodule of the rusEFI tree being built.
-WBO_IMAGE ?= $(PROJECT_DIR)/controllers/can/wideband_firmware/release/rc/wideband_image_with_bl.bin
+# Wideband image: this board's STM32F103 build of rusEFI's wideband firmware (firmware/wideband/build.sh, which CI
+# runs and checks against this committed copy).
+WBO_IMAGE ?= $(BOARD_DIR)/../wideband/miata_wbo_f103.bin
 DDEFS += -DWBO_IMAGE_PATH=\"$(abspath $(WBO_IMAGE))\"

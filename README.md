@@ -68,11 +68,11 @@ See [`firmware/README.md`](firmware/README.md). It compiles, but hasn't run on h
   - **Later updates:** from the rusEFI console through the OpenBLT bootloader, with no buttons to press.
   - **Tuning:** TunerStudio over the same port. Popular Vehicles picks the model year; the tune is stored in the
     MCU's flash.
-- **The wideband MCU (STM32F042) is programmed through the main MCU.** With the engine off, press "Flash on-board
+- **The wideband MCU (STM32F103) is programmed through the main MCU.** With the engine off, press "Flash on-board
   wideband" in TunerStudio, or type `wbo_uart_flash` in the rusEFI console.
-  - The main MCU controls the F042's BOOT0 and reset lines and writes the wideband firmware through the F042's
-    built-in ST serial bootloader.
-  - After that, rusEFI can also update the wideband over CAN.
+  - The main MCU controls the F103's BOOT0 and reset lines and writes the wideband firmware through the F103's
+    built-in ST serial bootloader. The firmware is rusEFI's wideband controller with this board's port
+    (`firmware/wideband`), and the main firmware carries it.
   - The SWD Tag-Connect pads on the bottom of the daughterboard (J102) are a fallback.
 
 ## Air temperature sensor

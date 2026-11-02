@@ -46,13 +46,13 @@ Nothing here has been built yet, so this is a desk and simulation review. It cov
 | Header geometry | Our harness footprints compared pad-by-pad, by **position**, with the Hellen boards' footprints and nets (not just by name), so a mirrored or mislettered header would show up | All match |
 | Daughter ↔ motherboard | All 80 J1/J2 pads of the daughterboard (headers on the bottom) against JD1/JD2 on each finished motherboard PCB: same position (pure translation, no mirroring) and same net | 5 × 80 OK |
 | MCU pins | Power, VCAP, VDDA, BOOT0, crystal; alternate functions (USART3 PD8/PD9, CAN2 PB12/13, USB PA11/12, USART6 PC6/7, ADC channels, ADC3 on PA3) | OK (PB2 and PC13/14 fixed in rev 0.5) |
-| Wideband MCU | F042 pins against the rusEFI wideband `f0_module` firmware we flash (ADC channels, heater/pump PWM, LEDs, ESR, CAN, UART, ID straps) | Matches; floating ID straps give CAN index 0, as rusEFI expects |
+| Wideband MCU | Rev 0.6: STM32F103C8 pins (`scripts/wideband.py` U2_PADS) against our port of rusEFI's wideband firmware (`firmware/wideband/miata_f1`: ADC channels, heater/pump PWM timers and remap, LEDs, the three ESR drives, CAN, UART, ID straps, crystal, BOOT1) | Matches; floating ID straps give CAN index 0, as rusEFI expects |
 | Datasheets | Every active part and sensor: supply, logic levels, current, thermal, pin functions (full notes: datasheet review, summarised below) | See findings |
 | Engine simulation | `firmware/board/tests/test_miata_ecu.cpp`: the board's real configuration code inside rusEFI's unit-test engine, all five years (2001-02 and 2003-05 separately). Real NA CAS and NB2 crank+cam logic-analyser captures, plus running from cranking to 6500 rpm with realistic acceleration, then the rev limiter. Every output edge recorded and checked against crank angle | 18/18 tests pass (rev 0.5 pins) |
 | End to end | `firmware/tools/sim_report.py`: for each year, the tune the firmware builds → STM32 pin → driver → J1/J2 → motherboard → harness cavity, compared with the cavity the references say carries that function. The expected cavities are a hand-written table of the functions the firmware drives or reads (not purge, pressure regulator, VICS or power pins). It follows the motherboards' fitted 0R links | 119/119 OK (6 configurations) |
 | Circuits | `firmware/tools/circuit_sim.py` (ngspice), as built: hall inputs at 7200 rpm and shorted to battery, 12 V switch inputs with and without the pull-up option, CLT/IAT network −20…120 °C through the firmware's conversion, injector / idle / VVT turn-off, 1989-93 paired injectors with the TVS, relay-driver key-off back-feed, kick-back and a load dump on the relay feeds (each TVS at the bad end of its tolerance), logic supply under load dump, ISO pulse 2a, jump start and a sustained overvoltage, knock amplifier | 20 OK, 3 CHECK (switch inputs at 9 V cranking, knock clipping), 6 REF (rev 0.4 or no-fix references), 0 FAIL. Details in [Rev 0.5 changes](#rev-05-changes-and-re-verification) |
 | Board layout | Every board regenerated from the design scripts, autorouted, schematic netlist compared pad by pad with the design, KiCad DRC | See [Rev 0.5 changes](#rev-05-changes-and-re-verification) |
-| Wideband flashing | `firmware/tools/flash_sim/`: our `wideband_uart_flash.cpp`, unmodified, compiled for a PC against a model of the F042 ROM bootloader (AN3155). The model was first validated with **stm32flash** (wrote and verified the image, both erase variants) | 9/9 scenarios pass |
+| Wideband flashing | `firmware/tools/flash_sim/`: our `wideband_uart_flash.cpp`, unmodified, compiled for a PC against a model of the F103 ROM bootloader (AN3155, ID 0x410). The model was first validated with **stm32flash** (identified it as an STM32F10xxx medium-density part, wrote and verified the image with both erase variants) | 9/9 scenarios pass |
 | Main-MCU image | `firmware/tools/check_image.py` on a fresh build: vector tables, OpenBLT's CRC-32 + size header (same algorithm as rusEFI's `FlashVerifyChecksum`), merged DFU layout, fit below the settings sectors | Pass; 77 KB spare |
 
 ## Pinouts: findings
@@ -144,8 +144,8 @@ replace a bench test of the real board.
   error and leave BOOT0 low.
 - **Engine turning:** the flash is refused.
 - **UART:** 115200 baud, 8 data bits + even parity, as AN3155 requires.
-- **Duration:** about 71 kB cross the wire, so expect roughly 8-10 s on the real 115200-baud link.
-- **Failed flash:** a flash that fails after the erase leaves the F042 blank. It then stays in its bootloader, so
+- **Duration:** about 59 kB cross the wire for the 26 KB F103 image (simulation: 31 kB out, 28 kB back), so expect roughly 6-8 s on the real 115200-baud link.
+- **Failed flash:** a flash that fails after the erase leaves the F103 blank. It then stays in its bootloader, so
   re-run the flash or use the J102 SWD pads.
 
 ## Rev 0.5 changes and re-verification
@@ -255,8 +255,58 @@ engine, the 80 V case still gives clean edges but both inputs briefly leave that
 both legs to the ECU.
 
 Re-checked after the re-route: schematic netlist 778 pads, 0 differences; DRC 0 unconnected, 0 clearance (the
-autorouter left HALL1 open and one AN_AUX3 track 0.05 mm from the new clamps; `scripts/daughter_patch_05b.py` routes
+autorouter left HALL1 open and one AN_AUX3 track 0.05 mm from the new clamps; `scripts/daughter_patch.py` routes
 HALL1 and moves that track, and the release is built from its output); circuit sims 25 OK / 4 CHECK / 6 REF / 0 FAIL.
+
+## Rev 0.6: STM32F103 wideband controller
+The wideband MCU (U102) is now an **STM32F103C8T6** instead of the STM32F042K6T6. rusEFI's developers have reported
+F042 shortages for years ("the availability problem is with the f042 die"), and on 2026-11-01 JLCPCB had 167 and
+LCSC about 70, against 200,215 F103C8T6 at JLCPCB. rusEFI's own newer wideband boards moved to the F103 for the same
+reason.
+
+**Hardware.** The FOME/rusEFI module's analog front end is unchanged. Only the MCU and its support parts changed:
+- U102 LQFP-48, in the F042's spot. Its courtyard is the same 10.3 mm square.
+- Pins were chosen so each group faces its parts (`scripts/wideband.py`, `U2_PADS`): ESR drives and LEDs left;
+  heater PWM, battery sense, pump PWM and BOOT1 right; CAN, the programming UART and SWDIO up; analog inputs down.
+- **Y101 8 MHz crystal** with 33 pF loads (C119/C120): the main MCU's part (C115962, JLC Basic). rusEFI's F1 boards
+  run CAN from the internal oscillator, which drifts a few percent over temperature, more than CAN bit timing allows.
+- **R135** holds BOOT1 (PB2) low, so BOOT0 high selects ST's ROM bootloader.
+- **C121** decouples the third VDD pin.
+- VDDA (REF3033, 3.300 V) against VDD (AMS1117, up to about 3.365 V): ST allows up to 300 mV between them during
+  power-up and operation (STM32F103x8 datasheet, general operating conditions). This clears the F042 note that
+  VDDA could sit below VDD.
+
+**Firmware** (`firmware/wideband`): rusEFI's wideband controller sources (the pinned rusEFI's wideband submodule) with
+our board port `miata_f1`. The port is rusEFI's F1 port with these changes:
+- this board's pins;
+- HSE 8 MHz × 6 = 48 MHz, so the bus clocks and CAN timing are the same as rusEFI's F1 boards;
+- the FOME module's analog constants (Nernst gain 2.7, 10 Ω Vm resistor, Vm measured);
+- the board's own battery sense (100k/10k), which the heater control now uses;
+- the three ESR drive resistors (6.8k / 22k / 47k for LSU 4.2 / 4.9 / ADV);
+- heater PWM on TIM2_CH3 with TIM2's partial remap, and the system tick on TIM4;
+- settings in the last 8 KB of the 64 KB flash;
+- no bootloader and no TunerStudio serial port.
+
+Build result: 26,348 bytes of a 56 KB app area, and 6.8 KB of static RAM out of 20 KB. CI rebuilds it from source
+and compares it with the committed image.
+
+**Checks:**
+
+| Check | Result |
+|---|---|
+| Pin map: `wideband.py` U2_PADS against `miata_f1/board.h` and `io/io_pins.h` (ADC channels 0/2/3/8, TIM3_CH1 on PA6, TIM2_CH3 remapped to PB10, CAN on PA11/12, USART1 on PA9/10, ESR on PB5/6/7, LEDs on PB8/9) | Match |
+| Wideband firmware build (GCC 13.2), image check (fits flash and RAM, vector table) | Pass |
+| Main firmware build with the new image and flasher (offline compile) | Compiles and links; carries the 26,348-byte image |
+| Flasher against the AN3155 model, now an F103 medium-density bootloader (ID 0x410, 64 KB, erase 0x43 by default) | 9/9 scenarios pass |
+| The model against **stm32flash** | Identified as "STM32F10xxx Medium-density"; wrote and verified the image with both erase commands |
+| Schematic netlist against the design | 795 pads, 0 differences |
+| DRC after re-route and `daughter_patch.py` | 0 unconnected, 0 clearance |
+
+**Not verified:** the wideband firmware has not run on an F103 yet. The analog scaling and control loops are
+rusEFI's, unchanged; the clocks, pin setup and timer remap are ours. rusEFI's "Update wideband firmware" over CAN
+carries the F042 module's image and does not apply. If pressed, the wideband acknowledges and resets, but with no
+CAN bootloader on the F103 it just restarts its own firmware, and rusEFI's update times out without writing
+anything. Use "Flash on-board wideband".
 
 ## Open items
 | # | Issue | What to do |
@@ -267,13 +317,10 @@ HALL1 and moves that track, and the release is built from its output); circuit s
 | Switch inputs at cranking | A 12 V switch signal at 9 V gives 2.09 V at the MCU: above ST's by-design threshold (1.79 V), below its tested one (2.31 V) | Only matters while cranking; no change |
 | Supply | **MPX5700AP (MAP sensor, every motherboard) is NRND at ST**, which took over NXP's sensor line in 2026 (LCSC 191, Mouser 74 on 2026-10-31) | Kept for this revision: buy the sensors you need now. Next motherboard revision: add a connector for an external MAP sensor, fed from the protected 5 V sensor supply |
 | Supply | **Harness headers:** TE lists all four as "not currently available"; 176122-6 (1999-2000) and 178780-1 (1996-97) are obsolete at Mouser. 174915-6 (76-pin, Mouser 263) and 353830-5 (72-pin, Mouser 252) are still stocked | Buy the headers ahead. Next revision: fit the 1996-97 board with 174915-6, and consider moving the 1989-95 and 1999-2000 boards to it as rusEFI's Hellen boards do (fit-check a real plug first) |
-| Supply | **STM32F042K6T6 (wideband MCU):** 72 left at LCSC; Mouser 2,344, Arrow 5,156 | Order early, or buy in the US and consign to JLCPCB |
 
 ### Minor (not changed)
 - **AMS1117:** rated 0 °C minimum and about 125 °C junction at 85 °C ambient; consider an automotive-temperature
   LDO.
-- **Wideband STM32F042:** VDDA (REF3033, 3.300 V) can sit below VDD (up to 3.365 V). This is inherited from the FOME
-  module.
 - **Unprotected outputs:** the TC4427 ignition and ULN2003 relay outputs have no short-to-battery protection (the
   NCV8406A outputs do).
 - **Knock amplifier:** clips above about 284 mV input (gain 5.7). Fine at light load; consider lower gain.

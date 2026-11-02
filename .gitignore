@@ -12,3 +12,4 @@ mb/*.zip
 *.state.pkl
 *.failed.json
 viewer/work_*/
+firmware/wideband/out/

@@ -940,5 +940,21 @@
   "mfr": "Diodes Incorporated",
   "mpn": "B360A-13-F",
   "note": ""
+ },
+ "C8734": {
+  "correct_lcsc": null,
+  "desc": "MCU ARM Cortex-M3 72MHz, 64KB Flash, 20KB SRAM, CAN, LQFP-48 (7x7)",
+  "match": true,
+  "mfr": "STMicroelectronics",
+  "mpn": "STM32F103C8T6",
+  "note": "Wideband controller since rev 0.6. STM32F103CBT6 (128 KB) is a drop-in"
+ },
+ "C1562": {
+  "correct_lcsc": null,
+  "desc": "MLCC 33pF 50V C0G +/-5% 0402",
+  "match": true,
+  "mfr": "FH(Guangdong Fenghua Advanced Tech)",
+  "mpn": "0402CG330J500NT",
+  "note": ""
  }
 }

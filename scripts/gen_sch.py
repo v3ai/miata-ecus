@@ -226,6 +226,7 @@ def choose(p):
         return 'Connector', 'Conn_ARM_SWD_TagConnect_TC2030-NL'
     return {'STM32F407VGT6': ('MCU_ST_STM32F4', 'STM32F407VGTx'),
             'STM32F042K6T6': ('MCU_ST_STM32F0', 'STM32F042K6Tx'),
+            'STM32F103C8T6': ('MCU_ST_STM32F1', 'STM32F103C8Tx'),
             'MCP6004': ('Amplifier_Operational', 'MCP6004'),
             'AD8628': ('Amplifier_Operational', 'AD8603'),
             'REF3033': ('Reference_Voltage', 'REF3033'),
@@ -374,7 +375,7 @@ for r in ['U5', 'U6', 'U7', 'RN1', 'C34', 'C35', 'U11', 'C57', 'C58', 'R71', 'D1
 for r in ['J1', 'J2', 'U10', 'C56', 'H1', 'H2', 'H3', 'H4']:
     SHEET_OF[r] = 'connectors'
 import wideband as _wb
-for r in list(_wb.placement()) + ['U106', 'C118']:
+for r in list(_wb.placement()) + ['U106', 'C118', 'Y101', 'C119', 'C120', 'R135', 'C121']:
     SHEET_OF[r] = 'wideband'
 QUIET = {'GND', '+3V3', '+5V', '+12V', '+12V_F', 'V5_SENS', '+3V3A'}
 

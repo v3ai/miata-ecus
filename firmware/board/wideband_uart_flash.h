@@ -1,6 +1,6 @@
 /**
  * @file wideband_uart_flash.h
- * @brief Programs the on-board wideband MCU (STM32F042) through its ROM serial bootloader.
+ * @brief Programs the on-board wideband MCU (STM32F103C8) through its ROM serial bootloader.
  */
 
 #pragma once
@@ -10,7 +10,7 @@
 // Board action 0x11: Popular Vehicles "2001-02 (NB2)" (board_configuration.cpp)
 #define MIATA_TS_PRESET_NB2_EARLY 0x11
 
-// Sets PD10 (F042 BOOT0) low and releases PD11 (F042 NRST) so the wideband runs its own firmware, and registers the
+// Sets PD10 (F103 BOOT0) low and releases PD11 (F103 NRST) so the wideband runs its own firmware, and registers the
 // console commands wbo_uart_flash and wbo_uart_status.
 void initWidebandUartFlash();
 
