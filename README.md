@@ -40,6 +40,11 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 > - two drivers per injector wire on 1989-93.
 >
 > Every fix was re-simulated. Two wires still need checking on a car.
+>
+> **Full-firmware emulation (2026-11-02):** the unmodified rusEFI firmware runs on an emulated STM32F407 through every
+> model year with 0 failures (two firmware bugs found and fixed). It flashes a blank emulated wideband STM32F103, which
+> then reports lambda over CAN (`firmware/sim/`). The expanded circuit and fault checks found 13 new hardware items,
+> not yet changed; see [New hardware findings](VERIFICATION.md#new-hardware-findings-2026-11-02).
 
 | Board | Folder | Rev | Harness header | Case fit |
 |---|---|---|---|---|

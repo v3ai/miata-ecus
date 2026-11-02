@@ -68,3 +68,6 @@ Each of these made the unmodified firmware fail in emulation while it would work
   input stage is a car fact the simulation assumes from the captures.
 - No USB (TunerStudio) model: the flasher is started by a hook that does what the TunerStudio button does.
 - Overrun, analog watchdog, injected ADC channels, DMA FIFO/burst and CAN bit-level errors are not modelled.
+- Runs stay under 51 s of virtual time: the ECU's time base (TIM5, 32 bit at 84 MHz) wraps at 51.1 s, where the
+  Renode timer gaps that `models/TimerCcrZero.cs` covers on the F103 would apply too. Put TIM5 behind the same front
+  before making longer runs.
