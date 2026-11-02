@@ -104,7 +104,9 @@ gets no fuel or spark with the key on, check that you didn't pick 2003-05 on a 2
   or the M12 sensor, as set by JP1).
 - **MAP:** MPX5700AP, 0.2 V at 0 kPa to 4.70 V at 700 kPa (custom linear MAP type). This is set with the year
   defaults, so you can change it if you fit another sensor.
-- **CAN:** CAN2 on PB12/PB13 is the only bus. The wideband is set to "CAN2".
+- **CAN:** the STM32's CAN2 peripheral on PB12/PB13 is the only bus, set up as rusEFI's first CAN bus (rusEFI picks
+  the peripheral from the pins). The wideband and everything else rusEFI sends by default use that bus. Earlier
+  firmware had it as rusEFI's second bus, which made rusEFI's default CAN broadcast raise a critical error.
 
 ## Flashing the on-board wideband
 The wideband MCU (STM32F103C8, daughterboard rev 0.6) is programmed by the main MCU. Do it once on a new board, and

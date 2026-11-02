@@ -586,11 +586,14 @@ void checkConfiguration(engine_type_e year) {
 	EXPECT_EQ(MT_CUSTOM, engineConfiguration->map.sensor.type) << "on-board MPX5700AP, not the preset's sensor";
 	EXPECT_EQ(MIATA_IN_MAP, engineConfiguration->map.sensor.hwChannel);
 	EXPECT_EQ(MIATA_IN_TPS, engineConfiguration->tps1_1AdcChannel);
-	EXPECT_EQ(Gpio::B13, engineConfiguration->can2TxPin);
-	EXPECT_EQ(Gpio::B12, engineConfiguration->can2RxPin);
-	EXPECT_EQ(Gpio::Unassigned, engineConfiguration->canTxPin);
-	EXPECT_TRUE(engineConfiguration->widebandOnSecondBus);
+	// PB12/PB13 (the CAN2 peripheral) as rusEFI's first bus, so default first-bus traffic has a device
+	EXPECT_EQ(Gpio::B13, engineConfiguration->canTxPin);
+	EXPECT_EQ(Gpio::B12, engineConfiguration->canRxPin);
+	EXPECT_EQ(Gpio::Unassigned, engineConfiguration->can2TxPin);
+	EXPECT_EQ(Gpio::Unassigned, engineConfiguration->can2RxPin);
+	EXPECT_FALSE(engineConfiguration->widebandOnSecondBus);
 	EXPECT_TRUE(engineConfiguration->enableAemXSeries);
+	EXPECT_EQ(EFI_ADC_NONE, engineConfiguration->afr.hwChannel) << "analog AFR together with the CAN wideband is a rusEFI critical error";
 	EXPECT_TRUE(engineConfiguration->canReadEnabled && engineConfiguration->canWriteEnabled);
 
 	// triggers
