@@ -17,6 +17,7 @@ resources).
 Exit code 0 when every check passes.
 """
 import argparse
+import glob
 import json
 import math
 import os
@@ -30,7 +31,9 @@ RENODE = os.environ.get('RENODE', '/home/claude/renode/renode_1.15.3_portable/re
 RUSEFI = os.environ.get('RUSEFI', '/home/claude/fw/rusefi/firmware')
 ELF = os.path.join(RUSEFI, 'build/rusefi.elf')
 APP = os.path.join(RUSEFI, 'build/rusefi_crc32.bin')
-BOOT = os.path.join(RUSEFI, 'bootloader/blbuild/openblt_f407-discovery.elf')
+# openblt_<board>.elf: f407-discovery from the offline compile check, miata-ecu from the real (CI) build
+BOOT = (sorted(glob.glob(os.path.join(RUSEFI, 'bootloader/blbuild/openblt_*.elf'))) or
+        [os.path.join(RUSEFI, 'bootloader/blbuild/openblt_f407-discovery.elf')])[0]
 CAPTURES = os.path.join(os.path.dirname(RUSEFI), 'unit_tests/tests/trigger/resources')
 sys.path.insert(0, os.path.join(SIM, 'tools'))
 
