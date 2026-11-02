@@ -349,7 +349,9 @@ def build_resc(year, out, probes, stim):
     sensors = json.dumps(SENSORS).replace('"', "'")
     L.append(f'cpu AddHook {slow:#x} "import sys, json; sys.miata_probes = sys.__dict__.get(\'miata_probes\') or '
              f'json.load(open(\'{probe_file}\')); miata_machine = self.GetMachine(); miata_log = lambda s: self.Log(LogLevel.Error, s); sys.miata_sensors = {sensors}; sys.miata_registry = {reg:#x}; '
-             f'exec(compile(open(\'{SIM}/tools/sampler.py\').read(), \'sampler\', \'exec\'))"')
+             # compile once: IronPython keeps every compiled code object, and recompiling at 20 Hz grew Renode by GBs
+             f'sys.miata_code = sys.__dict__.get(\'miata_code\') or compile(open(\'{SIM}/tools/sampler.py\').read(), \'sampler\', \'exec\'); '
+             f'exec(sys.miata_code)"')
     L.append('logLevel 3')
     for s in timeline(year, stim):
         if s[0] == 'pins':
@@ -554,6 +556,21 @@ def analyse(year, samples, phases, pins, stim, chk):
     chk.add('all', 'warning codes seen', 'INFO', ', '.join(map(str, codes)) or 'none')
 
 
+def run_renode(resc, timeout):
+    """Run Renode on a script (ending with `quit`) and return its log. The monitor listens on a free TCP port rather
+    than the console: Renode's console keeps re-queueing end-of-file from a closed stdin until it runs out of memory,
+    and with an open but idle stdin it blocks its own logging. Logs, including the SAMPLE/LSU/... lines the checks
+    read, go to stdout either way."""
+    import socket
+    with socket.socket() as sock:
+        sock.bind(('127.0.0.1', 0))
+        port = sock.getsockname()[1]
+    res = subprocess.run([RENODE, '--disable-xwt', '--plain', '-P', str(port), '-e', f'include @{resc}'],
+                         stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+                         errors='replace', timeout=timeout)
+    return re.sub(r'\x1b\[[0-9;]*m', '', res.stdout)
+
+
 def crc_image():
     """OpenBLT starts the application only if the checksum in its vector table is right: rusEFI's bundle step writes
     it (hex2dfu); redo that when the .hex is newer than the image."""
@@ -586,16 +603,14 @@ def main():
         stim = write_stimulus(YEARS[year]['family'], out)
         resc = build_resc(year, out, probes, stim)
         t0 = time.time()
-        res = subprocess.run([RENODE, '--disable-xwt', '--console', '-e', f'include @{resc}'],
-                             capture_output=True, text=True, timeout=3600, stdin=subprocess.DEVNULL)
-        log = re.sub(r'\x1b\[[0-9;]*m', '', res.stdout + res.stderr)
+        log = run_renode(resc, 3600)
         open(os.path.join(out, 'renode.log'), 'w').write(log)
         samples = parse_log(log)
         phases = [(st[1], st[2]) for st in timeline(year, stim) if st[0] == 'run']
         json.dump(samples, open(os.path.join(out, 'samples.json'), 'w'))
         pins = read_pins(os.path.join(out, 'pins.txt')) if os.path.exists(os.path.join(out, 'pins.txt')) else {}
         chk = Checks()
-        if 'Renode is quitting' not in log or not samples or samples[-1]['t'] < sum(d for _, d in phases) - 0.2:
+        if not samples or samples[-1]['t'] < sum(d for _, d in phases) - 0.2:
             chk.add('all', 'run completed', False, 'Renode stopped early; see renode.log')
         try:
             analyse(year, samples, phases, pins, stim, chk)

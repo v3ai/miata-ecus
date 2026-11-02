@@ -192,9 +192,7 @@ def main():
     stim = E.write_stimulus(E.YEARS[args.year]['family'], args.out)
     resc = build(args.year, args.out, probes, stim)
     t0 = time.time()
-    res = subprocess.run([E.RENODE, '--disable-xwt', '--console', '-e', f'include @{resc}'],
-                         capture_output=True, text=True, timeout=4 * 3600, stdin=subprocess.DEVNULL)
-    log = re.sub(r'\x1b\[[0-9;]*m', '', res.stdout + res.stderr)
+    log = E.run_renode(resc, 4 * 3600)
     open(os.path.join(args.out, 'renode.log'), 'w').write(log)
     samples = E.parse_log(log)
     json.dump(samples, open(os.path.join(args.out, 'samples.json'), 'w'))
