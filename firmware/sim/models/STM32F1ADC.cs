@@ -55,6 +55,7 @@ namespace Antmicro.Renode.Peripherals.Miata
             sr = cr1 = cr2 = smpr1 = smpr2 = sqr1 = sqr2 = sqr3 = dr = 0;
             running = false;
             position = 0;
+            clockReadAt = 0;
             IRQ.Unset();
         }
 
@@ -183,7 +184,14 @@ namespace Antmicro.Renode.Peripherals.Miata
 
         private void Start()
         {
-            adcClock = AdcClock; // RCC is a Python model: read it once per start, not once per sequence
+            // RCC is a Python model (slow to read) and the firmware sets the ADC prescaler once at start-up: read it at
+            // the first start after a reset and at most every 10 ms of virtual time after that
+            var now = machine.LocalTimeSource.ElapsedVirtualTime.TotalSeconds;
+            if(now >= clockReadAt)
+            {
+                adcClock = AdcClock;
+                clockReadAt = now + 0.01;
+            }
             running = true;
             position = 0;
             sr |= 1u << 4;
@@ -251,5 +259,6 @@ namespace Antmicro.Renode.Peripherals.Miata
         private bool running;
         private int position;
         private long adcClock = 12000000;
+        private double clockReadAt;
     }
 }
