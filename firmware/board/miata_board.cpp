@@ -38,12 +38,17 @@ void miataBoardConfigOverrides() {
 	engineConfiguration->clt.config.bias_resistor = MIATA_TEMP_BIAS;
 	engineConfiguration->iat.config.bias_resistor = MIATA_TEMP_BIAS;
 
-	// The only CAN bus: CAN2 on PB12/PB13 (SN65HVD230). The on-board wideband sits on the same bus.
-	engineConfiguration->canTxPin = Gpio::Unassigned;
-	engineConfiguration->canRxPin = Gpio::Unassigned;
-	engineConfiguration->can2TxPin = Gpio::B13;
-	engineConfiguration->can2RxPin = Gpio::B12;
-	engineConfiguration->widebandOnSecondBus = true;
+	// The only CAN bus: the STM32's CAN2 peripheral on PB12/PB13 (SN65HVD230), set up as rusEFI's FIRST bus.
+	// rusEFI picks the CAN peripheral from the pins, so PB12/PB13 on bus 1 runs on CAN2. Everything rusEFI sends on
+	// its first bus by default (the extended CAN broadcast it enables in every fresh tune, dashboard broadcasts, the
+	// wideband) then goes out on the one bus that is wired. With the pins on rusEFI's second bus instead, the first
+	// broadcast hit an unconfigured bus 1 and raised a critical error ("Send: CAN1 device not configured"), which
+	// stops fuel and spark: found by the firmware-in-the-loop run (firmware/sim).
+	engineConfiguration->canTxPin = Gpio::B13;
+	engineConfiguration->canRxPin = Gpio::B12;
+	engineConfiguration->can2TxPin = Gpio::Unassigned;
+	engineConfiguration->can2RxPin = Gpio::Unassigned;
+	engineConfiguration->widebandOnSecondBus = false;
 }
 
 /**
@@ -101,8 +106,11 @@ static void setInputs() {
 	engineConfiguration->tps1_1AdcChannel = MIATA_IN_TPS;
 	engineConfiguration->tps1_2AdcChannel = EFI_ADC_NONE;
 	engineConfiguration->mafAdcChannel = MIATA_IN_AUX3;
-	// Used only if the CAN wideband below is switched off.
-	engineConfiguration->afr.hwChannel = MIATA_IN_AFR;
+	// No analog AFR input by default: the on-board wideband reports over CAN (enableAemXSeries below), and rusEFI
+	// refuses to run with both ("Please pick either analog AFR or CAN AFR input not both" is a critical error,
+	// found by the firmware-in-the-loop run). For an external 0-5 V wideband on the AUX header, set the AFR input
+	// to MIATA_IN_AFR (PC4) in TunerStudio and turn the CAN wideband off.
+	engineConfiguration->afr.hwChannel = EFI_ADC_NONE;
 
 	// Ignition-switch sense: only years whose harness has the wire set it (see setIgnitionSense()). With a channel
 	// assigned rusEFI trusts it, and a missing wire would read "key off" and cut fuel and spark. Without one it uses

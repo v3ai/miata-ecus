@@ -1,0 +1,64 @@
+# Firmware-in-the-loop: the real OpenBLT + rusEFI images and the wideband image on emulated STM32F407/STM32F103
+# (Renode), driven through every model year and through flashing the wideband from the ECU. See firmware/sim/README.md.
+
+name: Firmware-in-the-loop
+
+# On demand only while the simulation is being brought up; schedule and push triggers follow once it passes.
+on:
+  workflow_dispatch:
+
+jobs:
+  renode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      RENODE_VERSION: 1.15.3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Tools and rusEFI submodules
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q gcc-arm-none-eabi gdb
+          cd firmware/ext/rusefi && misc/git_scripts/common_submodule_init.sh
+
+      - name: Build rusEFI and OpenBLT for this board
+        run: |
+          bash firmware/tools/offline_compile_check.sh firmware/ext/rusefi -j4 bootloader
+          bash firmware/tools/offline_compile_check.sh firmware/ext/rusefi -j4
+
+      - name: Build the wideband image (for its ELF)
+        run: bash firmware/wideband/build.sh firmware/ext/rusefi firmware/wideband/out
+
+      - name: Renode
+        run: |
+          curl -sSfL -o /tmp/renode.tar.gz \
+            "https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode-${RENODE_VERSION}.linux-portable.tar.gz"
+          mkdir -p /tmp/renode && tar -xzf /tmp/renode.tar.gz -C /tmp/renode --strip-components=1
+
+      - name: ECU, every model year
+        env:
+          RENODE: /tmp/renode/renode
+          RUSEFI: ${{ github.workspace }}/firmware/ext/rusefi/firmware
+        run: python3 firmware/sim/run_ecu.py --out /tmp/fil | tee fil_ecu.txt; test ${PIPESTATUS[0]} -eq 0
+
+      - name: ECU + wideband (flashing, CAN, lambda loop)
+        if: always()
+        env:
+          RENODE: /tmp/renode/renode
+          RUSEFI: ${{ github.workspace }}/firmware/ext/rusefi/firmware
+        run: python3 firmware/sim/run_system.py --out /tmp/fil/system | tee fil_system.txt; test ${PIPESTATUS[0]} -eq 0
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: firmware-in-the-loop
+          path: |
+            fil_*.txt
+            /tmp/fil/**/checks.json
+            /tmp/fil/**/samples.json
+            /tmp/fil/**/pins.txt
+            /tmp/fil/**/can.txt
+            /tmp/fil/**/lsu.json
+            /tmp/fil/**/renode.log

@@ -79,8 +79,9 @@ for led, net in (('Running', 'LED_RUN'), ('Comms', 'LED_COMM'), ('Warning', 'LED
     expect(f'get{led}LedPin', leds.get(led, 'Gpio::??'), {net})
 mk = open(os.path.join(BOARD, 'board.mk')).read()
 expect('LED_CRITICAL_ERROR_BRAIN_PIN', re.search(r'LED_CRITICAL_ERROR_BRAIN_PIN=(Gpio::\w+)', mk).group(1), {'LED_ERR'})
-expect('can2TxPin', re.search(r'can2TxPin = (Gpio::\w+)', cfg).group(1), {'CAN_TX'})
-expect('can2RxPin', re.search(r'can2RxPin = (Gpio::\w+)', cfg).group(1), {'CAN_RX'})
+# PB12/PB13 are the STM32's CAN2 pins, configured as rusEFI's first bus (canTxPin/canRxPin)
+expect('canTxPin', re.search(r'canTxPin = (Gpio::\w+)', cfg).group(1), {'CAN_TX'})
+expect('canRxPin', re.search(r'canRxPin = (Gpio::\w+)', cfg).group(1), {'CAN_RX'})
 wbo = open(os.path.join(BOARD, 'wideband_uart_flash.cpp')).read()
 for label, net in (('WBO BOOT0', 'WB_BOOT0'), ('WBO NRST', 'WB_NRST'), ('WBO prog TX', 'WB_PROG_TX'),
                    ('WBO prog RX', 'WB_PROG_RX')):
