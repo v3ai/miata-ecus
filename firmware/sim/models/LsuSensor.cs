@@ -13,7 +13,7 @@
 // The analog front end itself is checked by firmware/tools/circuit_sim_full.py (SPICE); this model uses the
 // firmware's own scale factors so that what is tested here is the firmware: heater control, ESR measurement and the
 // pump loop. Sensor numbers (LSU 4.9 data sheet, rounded): heater 3.2 ohm cold, about 7.5 W to hold 780 C; Nernst
-// cell 300 ohm at 780 C; pump current 0 mA at lambda 1, +2.55 mA in air.
+// cell 300 ohm at 780 C; pump current from the Bosch LSU 4.9 table (0 mA at lambda 1.003, -0.652 mA at 0.85, +2.55 mA in air).
 using System;
 using Antmicro.Renode.Core;
 using Antmicro.Renode.Logging;
@@ -54,6 +54,7 @@ namespace Antmicro.Renode.Peripherals.Miata
         public void Reset()
         {
             Temperature = Ambient;
+            cavity = 0;
             lastTime = -1;
         }
 
@@ -71,8 +72,9 @@ namespace Antmicro.Renode.Peripherals.Miata
         }
 
         // LSU 4.9 pump current (mA) needed to hold the cavity at lambda 1, by exhaust lambda
-        private static readonly double[] LamBins = { 0.65, 0.70, 0.80, 0.90, 1.00, 1.10, 1.20, 1.43, 1.70, 2.42, 10.0 };
-        private static readonly double[] IpBins = { -2.22, -1.82, -1.11, -0.50, 0.00, 0.33, 0.60, 1.00, 1.32, 1.82, 2.55 };
+        // (Bosch LSU 4.9 data sheet table; lambda 100 stands for air)
+        private static readonly double[] LamBins = { 0.650, 0.700, 0.750, 0.800, 0.822, 0.850, 0.900, 0.950, 0.970, 0.990, 1.003, 1.010, 1.050, 1.100, 1.132, 1.179, 1.429, 1.701, 1.990, 2.434, 3.413, 5.391, 7.506, 10.119, 100.0 };
+        private static readonly double[] IpBins = { -2.000, -1.602, -1.243, -0.927, -0.800, -0.652, -0.405, -0.183, -0.106, -0.040, 0.000, 0.015, 0.097, 0.193, 0.250, 0.329, 0.671, 0.938, 1.150, 1.385, 1.700, 2.000, 2.150, 2.250, 2.550 };
 
         private double Duty(ulong timerBase, long ccrOffset)
         {
@@ -121,9 +123,21 @@ namespace Antmicro.Renode.Peripherals.Miata
             var hot = Math.Max(0, Math.Min(1, (Temperature - 450) / 250));
             PumpCurrentMa = Connected ? PumpCommandMa * hot : 0;
             var need = Interp(Lambda, LamBins, IpBins);
-            // cavity balance: too little pumping in lean exhaust leaves it lean (Nernst below 450 mV), and the
-            // reverse for rich; a cold cell gives no voltage
-            NernstVolts = Connected ? hot * Math.Max(0.02, Math.Min(0.95, 0.45 + 0.5 * (PumpCurrentMa - need))) : 0;
+            // measuring cavity: oxygen balance = integral of (pump current - the current this exhaust needs), in mA s.
+            // Too little pumping in lean exhaust leaves the cavity lean (Nernst below 450 mV), too much makes it rich;
+            // the Nernst cell switches around the balance point (tanh). CavityScale sets how fast: with the
+            // firmware's pump PI (kP 50 mA/V) the cavity settles in about CavityScale / (50 x 0.4) s, 20 ms here,
+            // in the range of the sensor's response time. A cold cell gives no voltage.
+            if(dt > 0)
+            {
+                cavity += Math.Min(dt, 0.01) * (PumpCurrentMa - need);
+                cavity = Math.Max(-5 * CavityScale, Math.Min(5 * CavityScale, cavity));
+            }
+            if(hot <= 0)
+            {
+                cavity = 0;
+            }
+            NernstVolts = Connected ? hot * Math.Max(0.02, Math.Min(0.95, 0.45 + 0.4 * Math.Tanh(cavity / CavityScale))) : 0;
 
             var esrHigh = (machine.SystemBus.ReadDoubleWord(0x40010C0C) & (1 << 7)) != 0;
             var total = Esr + 10.0; // Nernst cell + R109 (VM_RESISTOR_VALUE)
@@ -152,6 +166,8 @@ namespace Antmicro.Renode.Peripherals.Miata
 
         private const double Ambient = 20.0;
         private const double UpdateStep = 20e-6;
+        private const double CavityScale = 0.4; // mA s
+        private double cavity;
         private readonly IMachine machine;
         private readonly Action<int, double> setVoltage;
         private double lastTime;

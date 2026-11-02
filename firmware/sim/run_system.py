@@ -62,7 +62,7 @@ def build(year, out, probes, stim):
                'emulation RunFor "0.01"', f'cpu RemoveHooksAt {main_loop:#x}']
     L = ['using sysbus']
     for m in ('STM32F4ADC', 'STM32F4DMA', 'TriggerWheel', 'PinRecorder', 'F103RomBootloader', 'CanSniffer',
-              'STM32F1ADC', 'STM32F1Flash', 'LsuSensor', 'NvicRettobase', 'CortexMDwt', 'HostProbe'):
+              'STM32F1ADC', 'STM32F1Flash', 'LsuSensor', 'NvicRettobase', 'CortexMDwt', 'HostProbe', 'TimerCcrZero'):
         L.append(f'include @{SIM}/models/{m}.cs')
     # Serial execution: both machines run on one host thread, taking turns each time quantum. With a thread per
     # machine (Renode's default) the run froze at a random point (4.6-5.8 s) with neither CPU executing, a race in
@@ -106,8 +106,9 @@ def build(year, out, probes, stim):
 
 
 def lsu_curve(lam):
-    lb = [0.65, 0.70, 0.80, 0.90, 1.00, 1.10, 1.20, 1.43, 1.70, 2.42, 10.0]
-    ib = [-2.22, -1.82, -1.11, -0.50, 0.00, 0.33, 0.60, 1.00, 1.32, 1.82, 2.55]
+    # Bosch LSU 4.9 data sheet table (pump current in mA by lambda), as in models/LsuSensor.cs
+    lb = [0.650, 0.700, 0.750, 0.800, 0.822, 0.850, 0.900, 0.950, 0.970, 0.990, 1.003, 1.010, 1.050, 1.100, 1.132, 1.179, 1.429, 1.701, 1.990, 2.434, 3.413, 5.391, 7.506, 10.119, 100.0]
+    ib = [-2.000, -1.602, -1.243, -0.927, -0.800, -0.652, -0.405, -0.183, -0.106, -0.040, 0.000, 0.015, 0.097, 0.193, 0.250, 0.329, 0.671, 0.938, 1.150, 1.385, 1.700, 2.000, 2.150, 2.250, 2.550]
     for i in range(1, len(lb)):
         if lam <= lb[i]:
             return ib[i - 1] + (ib[i] - ib[i - 1]) * (lam - lb[i - 1]) / (lb[i] - lb[i - 1])
@@ -151,8 +152,12 @@ def analyse(log, samples, out, chk):
     chk.add('can', 'frames on the bus by ID', 'INFO', ', '.join(f'{k}:{v}' for k, v in sorted(ids.items())[:20]))
     # sensor warm-up and loop
     a, b = bounds['warmup']
-    heat = [x for x in lsu if x['heaterDuty'] > 0.01]
-    chk.add('warmup', 'wideband drives the heater', bool(heat), f"first at {heat[0]['t']:.2f} s" if heat else 'never')
+    pre = [x for x in lsu if x['heaterDuty'] > 0.005]
+    chk.add('warmup', 'wideband preheat (condensation protection, before the engine runs)', 'INFO',
+            f"from {pre[0]['t']:.2f} s at {100 * pre[0]['heaterDuty']:.1f} % duty" if pre else 'none')
+    heat = [x for x in lsu if x['heaterDuty'] > 0.1]
+    chk.add('warmup', 'wideband heats the sensor once the engine runs', bool(heat) and heat[0]['t'] >= a,
+            f"from {heat[0]['t']:.2f} s (engine starts at {a:.1f} s)" if heat else 'never')
     end = [x for x in lsu if b - 2 <= x['t'] <= b]
     if end:
         T = sum(x['temp'] for x in end) / len(end)
@@ -179,6 +184,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--year', default='2003-05')
     ap.add_argument('--out', default=os.path.join(SIM, 'out', 'system'))
+    ap.add_argument('--reanalyse', action='store_true', help='check the renode.log already in --out, without a run')
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
     probes_args = [f'{k}={v}' for k, v in E.PROBES.items() if k not in ('critMsg', 'cfgMsg')]
@@ -196,7 +202,10 @@ def main():
     stim = E.write_stimulus(E.YEARS[args.year]['family'], args.out)
     resc = build(args.year, args.out, probes, stim)
     t0 = time.time()
-    log = E.run_renode(resc, 4 * 3600, os.path.join(args.out, 'renode.log'))
+    if args.reanalyse:
+        log = re.sub(r'\x1b\[[0-9;]*m', '', open(os.path.join(args.out, 'renode.log'), errors='replace').read())
+    else:
+        log = E.run_renode(resc, 4 * 3600, os.path.join(args.out, 'renode.log'))
     samples = E.parse_log(log)
     json.dump(samples, open(os.path.join(args.out, 'samples.json'), 'w'))
     chk = E.Checks()

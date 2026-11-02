@@ -54,7 +54,23 @@ namespace Antmicro.Renode.Peripherals.Miata
             {
                 return "no machine " + machineName;
             }
-            var btr = m.SystemBus.ReadDoubleWord(canBase + 0x1C);
+            // Renode's STMCAN returns BTR only while the controller is in init mode (silicon: always readable), so
+            // take the stored value from the model itself
+            uint btr;
+            try
+            {
+                var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public |
+                    System.Reflection.BindingFlags.Instance;
+                var can = m.SystemBus.WhatIsAt(canBase).Peripheral;
+                var regs = can.GetType().GetField("registers", flags).GetValue(can);
+                var reg = regs.GetType().GetField("CAN_BTR", flags).GetValue(regs);
+                btr = (uint)reg.GetType().GetField("RegValue", flags).GetValue(reg);
+            }
+            catch(Exception e)
+            {
+                this.Log(LogLevel.Error, "CANTIMING {0}: BTR not readable ({1})", machineName, e.Message);
+                return "BTR not readable";
+            }
             var brp = (btr & 0x3FF) + 1;
             var ts1 = ((btr >> 16) & 0xF) + 1;
             var ts2 = ((btr >> 20) & 0x7) + 1;
