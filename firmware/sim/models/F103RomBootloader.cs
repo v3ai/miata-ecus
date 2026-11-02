@@ -36,6 +36,10 @@ namespace Antmicro.Renode.Peripherals.Miata
             this.hostApb1 = hostApb1;
             this.hostUsartBase = hostUsartBase;
             host.CharReceived += OnHostByte;
+            // Renode's STM32_UART does not store CR1.M (word length) and reads it back as 0, so the frame check uses
+            // the value the firmware last wrote to CR1
+            machine.SystemBus.AddWatchpointHook(hostUsartBase + 0x0C, Antmicro.Renode.Peripherals.Bus.SysbusAccessWidth.DoubleWord,
+                Antmicro.Renode.Peripherals.Bus.Access.Write, (cpu, address, width, value) => { hostCr1 = (uint)value; });
             txTimer = new LimitTimer(machine.ClockSource, 1000000, this, "bl-tx", limit: 100, direction: Direction.Ascending,
                 enabled: false, workMode: WorkMode.OneShot, eventEnabled: true);
             txTimer.LimitReached += SendNext;
@@ -157,7 +161,7 @@ namespace Antmicro.Renode.Peripherals.Miata
         private bool HostFrameOk(out double baud)
         {
             var brr = machine.SystemBus.ReadDoubleWord(hostUsartBase + 0x08);
-            var cr1 = machine.SystemBus.ReadDoubleWord(hostUsartBase + 0x0C);
+            var cr1 = hostCr1 ?? machine.SystemBus.ReadDoubleWord(hostUsartBase + 0x0C);
             var cr2 = machine.SystemBus.ReadDoubleWord(hostUsartBase + 0x10);
             var over8 = (cr1 & (1u << 15)) != 0;
             // OVER8 = 0: baud = f / BRR. OVER8 = 1: USARTDIV = BRR[15:4] + BRR[2:0] / 8, baud = f / (8 USARTDIV)
@@ -521,6 +525,7 @@ namespace Antmicro.Renode.Peripherals.Miata
         private bool busy;
         private bool reportedFrame;
         private double hostBaud;
+        private uint? hostCr1;
         private Action afterBusy;
         private byte pending;
         private uint address;
