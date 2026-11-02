@@ -1,9 +1,21 @@
-# Miata ECU — daughterboard rev 0.5 (routed, unverified)
+# Miata ECU — daughterboard rev 0.6 (routed, unverified)
 
 125 × 60 mm, **4 layers**. All SMD parts are on top; the two 1×40 2.54 mm male headers are mounted on the
 **bottom side** (plastic under the board, pins pointing down) so the board plugs straight into female
 headers on the year-specific motherboard. J1 on the top edge carries power and outputs, J2 on the
 bottom edge carries inputs, comms and the LSU 4.9 wideband sensor.
+
+## What changed in rev 0.6
+- **Wideband MCU: STM32F103C8T6** (U102, LQFP-48) instead of the STM32F042K6T6, which has been scarce for years and
+  was down to about 100 at JLCPCB/LCSC; the F103C8T6 has over 200k there. The module's analog front end is unchanged.
+  - Pins: ESR drives and LEDs face left, heater PWM / battery sense / pump PWM / BOOT1 right, CAN and the
+    programming UART up, analog inputs down (`scripts/wideband.py`, U2_PADS).
+  - New parts: an 8 MHz crystal Y101 with 33 pF loads C119/C120 (the same crystal as the main MCU's; keeps CAN
+    timing in spec over temperature), R135 holds BOOT1 low, C121 decouples the third VDD pin.
+  - Programming link unchanged: PD8/PD9 to the F103's USART1 (PA10/PA9), PD10 to BOOT0, PD11 to NRST.
+  - Firmware: rusEFI's wideband controller with this board's port (`firmware/wideband/miata_f1`), carried by the
+    main firmware and written with "Flash on-board wideband". rusEFI's own over-CAN wideband update is for the F042
+    module and does not apply.
 
 ## What changed in rev 0.5
 The fixes from the verification review (`VERIFICATION.md` in the repository root). Existing designators are unchanged;
@@ -17,7 +29,7 @@ new parts have new numbers.
   - VR inputs (spares, no Miata year uses a VR sensor): U9 is now a **LM2903** dual comparator (TI, onsemi, UMW and
     others make it) instead of the MAX9926, which is out of stock everywhere. Each input gets a BAT54S clamp to GND
     and +5V and 100k to a 1.65 V bias, and each output 1M of hysteresis (D15-D18, R73-R80, C60). The board was
-    re-routed for these parts; `scripts/daughter_patch_05b.py` adds the one track the autorouter left open (HALL1,
+    re-routed for these parts; `scripts/daughter_patch.py` adds the one track the autorouter left open (HALL1,
     through a via under the MCU) and nudges AN_AUX3 clear of the new clamps.
   - `fab/jlcpcb_cpl.csv` now uses the gerbers' own coordinates (no offset), with JLC's rotation corrections for
     SOT-223, TO-252, SOT-23, SOIC, TSSOP, LQFP and the resistor arrays, read off JLC's placement preview.
@@ -127,7 +139,7 @@ new parts have new numbers.
 | `../scripts/` (repo top level) | The design source: `design.py` (parts + netlist), `placement.py`, `build_pcb.py`, `route.py`, `wideband.py` (the wideband circuit, mapped from the FOME module in `wideband_ref/` under its MIT licence), `wb_clean.py` (its rev 0.3 placement and heater copper; `wb_preview.py` draws a placement preview), `wb_build.py` (the rev 0.2 transplant, kept for reference), `daughter_finish.py` |
 
 The schematic and the board are both generated from `scripts/design.py`. The schematic's exported
-netlist was checked pad-by-pad against the board's netlist (778 pads, 0 differences), and every
+netlist was checked pad-by-pad against the board's netlist (795 pads, 0 differences), and every
 footprint on the board is linked to its schematic symbol, so Update PCB from Schematic and
 cross-probing work.
 
@@ -151,7 +163,7 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
   - The MCU supply pins go inward to vias under the package.
   - About 330 GND stitching vias sit on a 3 mm grid.
 - **DRC (KiCad 7):** 0 clearance errors, 0 unconnected items. Warnings remaining:
-  - Silkscreen overlaps (20) and silkscreen clipped by a pad opening (6): cosmetic.
+  - Silkscreen overlaps (22) and silkscreen clipped by a pad opening (8): cosmetic.
   - Courtyard overlaps (11) on tightly packed passives. The copper clearances still pass.
   - "Library not in configuration" notes from running headless.
 
@@ -168,7 +180,7 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
 | Knock | LMV321 AC-coupled gain stage (≈5.7×), biased at 1.65 V |
 | Digital inputs | 2 hall (1k pull-up, 4.7k series, clamped to 3.3 V), 3 switch inputs (12 V → 33k/10k) |
 | Comms | SN65HVD230 CAN, USB FS, USART6 |
-| Wideband (LSU 4.9) | FOME/rusEFI controller: STM32F042 running the FOME wideband firmware, MCP6004 (virtual ground, pump driver, Nernst sense and buffer), AD8628 pump-current sense, REF3033 reference, VND14NV04 protected heater low side, SN65HVD230 on the shared CAN bus |
+| Wideband (LSU 4.9) | FOME/rusEFI controller circuit with an STM32F103C8 (8 MHz crystal) running rusEFI's wideband firmware (board port in `firmware/wideband`), MCP6004 (virtual ground, pump driver, Nernst sense and buffer), AD8628 pump-current sense, REF3033 reference, VND14NV04 protected heater low side, SN65HVD230 on the shared CAN bus |
 
 ## rusEFI board-config notes
 - **Analog inputs:** divider ratio 1.56 on the eight sensor inputs. The battery and ignition dividers are (33k + 6.8k)/6.8k = 5.85.
@@ -180,9 +192,10 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
 - **Low-side enable:** PA8, open drain, low = enabled (the board firmware handles it).
 - **Pin map:** the full pin map is in the spreadsheet's "MCU Pin Map" tab.
 - **Wideband:** in TunerStudio, enable the rusEFI CAN wideband. The controller answers at index 0, the default.
-  - Flashing goes through the main MCU: USART3 on PD8 (TX) / PD9 (RX) to the F042's ROM bootloader, PD10 = its BOOT0,
-    PD11 = its reset (open drain). In normal running, keep PD10 low and PD11 released.
-  - The firmware is the FOME wideband `f0_module` build. Fallback: SWD through the J102 Tag-Connect pads on the bottom side.
+  - Flashing goes through the main MCU: USART3 on PD8 (TX) / PD9 (RX) to the F103's ROM bootloader, PD10 = its BOOT0,
+    PD11 = its reset (open drain); its BOOT1 is held low by R135. In normal running, keep PD10 low and PD11 released.
+  - The firmware is rusEFI's wideband controller built for this board (`firmware/wideband`). Fallback: SWD through the
+    J102 Tag-Connect pads on the bottom side.
 
 ## Before ordering
 1. **LCSC numbers.** Every number was looked up against LCSC/JLCPCB in rev 0.2, and three wrong ones were fixed. Still check stock for the extended parts when you order.

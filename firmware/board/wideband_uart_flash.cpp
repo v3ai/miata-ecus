@@ -1,20 +1,21 @@
 /**
  * @file wideband_uart_flash.cpp
- * @brief Programs the on-board wideband MCU (STM32F042, FOME/rusEFI "f0_module") through its ROM serial bootloader.
+ * @brief Programs the on-board wideband MCU (STM32F103C8, rusEFI wideband firmware) through its ROM serial bootloader.
  *
- * Wiring (daughterboard rev 0.4):
- *   PD8  USART3_TX  ->  F042 PA10 (USART1_RX)
- *   PD9  USART3_RX  <-  F042 PA9  (USART1_TX)
- *   PD10 push-pull  ->  F042 BOOT0 (10k pull-down on the board)
- *   PD11 open drain ->  F042 NRST
+ * Wiring (daughterboard rev 0.6):
+ *   PD8  USART3_TX  ->  F103 PA10 (USART1_RX)
+ *   PD9  USART3_RX  <-  F103 PA9  (USART1_TX)
+ *   PD10 push-pull  ->  F103 BOOT0 (10k pull-down on the board; BOOT1/PB2 is held low by its own 10k)
+ *   PD11 open drain ->  F103 NRST
  *
- * The main MCU raises BOOT0, resets the F042 into ST's system-memory bootloader and speaks the USART bootloader
+ * The main MCU raises BOOT0, resets the F103 into ST's system-memory bootloader and speaks the USART bootloader
  * protocol (ST application note AN3155, 8 data bits, even parity): sync, mass erase, write the image at 0x08000000,
- * read it back to verify, then drops BOOT0 and resets the F042 into its new firmware.
+ * read it back to verify, then drops BOOT0 and resets the F103 into its new firmware.
  *
- * The image is rusEFI's own release/rc/wideband_image_with_bl.bin (CAN bootloader + wideband firmware), taken from
- * the wideband submodule of the rusEFI tree being built (see WBO_IMAGE in board.mk). Once that bootloader is on the
- * chip, rusEFI's normal "Update wideband firmware" over CAN works too.
+ * The image is this board's own build of rusEFI's wideband firmware (firmware/wideband: rusEFI's wideband sources
+ * plus the miata_f1 board port), see WBO_IMAGE in board.mk. It has no CAN bootloader: rusEFI's "Update wideband
+ * firmware" over CAN carries the F042 module's image and does not apply to this board; this flasher is the way
+ * to load new wideband firmware. The mass erase also clears the wideband's saved settings (back to defaults).
  */
 
 #include "pch.h"
@@ -23,7 +24,7 @@
 #if !defined(EFI_BOOTLOADER) && EFI_PROD_CODE
 
 #ifndef WBO_IMAGE_PATH
-#error "WBO_IMAGE_PATH must point at wideband_image_with_bl.bin (set in board.mk)"
+#error "WBO_IMAGE_PATH must point at the wideband image, miata_wbo_f103.bin (set in board.mk)"
 #endif
 
 #if !STM32_SERIAL_USE_USART3
@@ -45,9 +46,9 @@ extern "C" const uint8_t wbo_image_end[];
 
 namespace {
 
-constexpr uint32_t F042_FLASH_BASE = 0x08000000;
-constexpr size_t F042_FLASH_SIZE = 32 * 1024;
-constexpr uint16_t F042_PRODUCT_ID = 0x445; // STM32F04x
+constexpr uint32_t WBO_FLASH_BASE = 0x08000000;
+constexpr size_t WBO_APP_SIZE = 56 * 1024;   // STM32F103C8: 64 KB, the last 8 KB hold the wideband's settings
+constexpr uint16_t WBO_PRODUCT_ID = 0x410;   // STM32F10x medium density (F103x8 / F103xB)
 
 constexpr uint8_t ACK = 0x79;
 constexpr uint8_t NACK = 0x1F;
@@ -87,7 +88,7 @@ void setBoot0(bool high) {
 void pulseReset(uint32_t afterMs) {
 	palClearPad(GPIOD, 11);
 	chThdSleepMilliseconds(10);
-	palSetPad(GPIOD, 11); // open drain: released, the F042's internal pull-up takes NRST high
+	palSetPad(GPIOD, 11); // open drain: released, the F103's internal pull-up takes NRST high
 	chThdSleepMilliseconds(afterMs);
 }
 
@@ -252,21 +253,21 @@ bool fail(const char* status) {
 bool flashWideband() {
 	const uint8_t* image = wbo_image_start;
 	const size_t imageSize = wbo_image_end - wbo_image_start;
-	if (imageSize == 0 || imageSize > F042_FLASH_SIZE) {
+	if (imageSize == 0 || imageSize > WBO_APP_SIZE) {
 		return fail("bad wideband image size");
 	}
-	efiPrintf("WBO UART: %d byte image, entering the F042 ROM bootloader", (int)imageSize);
+	efiPrintf("WBO UART: %d byte image, entering the F103 ROM bootloader", (int)imageSize);
 
 	setBoot0(true);
 	pulseReset(100);
 
 	if (!sync()) {
-		return fail("no answer from the F042 bootloader (check U102 power, BOOT0/NRST and the PD8/PD9 link)");
+		return fail("no answer from the F103 bootloader (check U102 power, BOOT0/BOOT1/NRST and the PD8/PD9 link)");
 	}
 	int pid = getProductId();
-	if (pid != F042_PRODUCT_ID) {
+	if (pid != WBO_PRODUCT_ID) {
 		efiPrintf("WBO UART: product ID 0x%x", pid);
-		return fail("unexpected product ID (not an STM32F04x)");
+		return fail("unexpected product ID (not an STM32F103x8/xB)");
 	}
 	int eraseCommand = getEraseCommand();
 	if (eraseCommand < 0) {
@@ -287,8 +288,8 @@ bool flashWideband() {
 		while (size % 4) {
 			chunk[size++] = 0xFF;
 		}
-		if (!writeBlock(F042_FLASH_BASE + offset, chunk, size)) {
-			efiPrintf("WBO UART: write failed at 0x%x", (unsigned int)(F042_FLASH_BASE + offset));
+		if (!writeBlock(WBO_FLASH_BASE + offset, chunk, size)) {
+			efiPrintf("WBO UART: write failed at 0x%x", (unsigned int)(WBO_FLASH_BASE + offset));
 			return fail("write failed");
 		}
 	}
@@ -297,12 +298,12 @@ bool flashWideband() {
 	uint8_t readBack[VERIFY_CHUNK];
 	for (size_t offset = 0; offset < imageSize; offset += VERIFY_CHUNK) {
 		size_t size = std::min(VERIFY_CHUNK, imageSize - offset);
-		if (!readBlock(F042_FLASH_BASE + offset, readBack, size)) {
-			efiPrintf("WBO UART: read failed at 0x%x", (unsigned int)(F042_FLASH_BASE + offset));
+		if (!readBlock(WBO_FLASH_BASE + offset, readBack, size)) {
+			efiPrintf("WBO UART: read failed at 0x%x", (unsigned int)(WBO_FLASH_BASE + offset));
 			return fail("read-back failed");
 		}
 		if (memcmp(readBack, image + offset, size) != 0) {
-			efiPrintf("WBO UART: mismatch in block at 0x%x", (unsigned int)(F042_FLASH_BASE + offset));
+			efiPrintf("WBO UART: mismatch in block at 0x%x", (unsigned int)(WBO_FLASH_BASE + offset));
 			return fail("verify mismatch");
 		}
 	}
@@ -320,7 +321,7 @@ THD_FUNCTION(wboFlashThread, arg) {
 	flashWideband();
 	linkDown();
 
-	// Whatever happened, leave the F042 running from its flash.
+	// Whatever happened, leave the F103 running from its flash.
 	setBoot0(false);
 	pulseReset(10);
 

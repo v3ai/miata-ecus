@@ -15,13 +15,14 @@ all five motherboards. You pick the model year in TunerStudio.
 | `board/board_configuration.cpp` | Hooks the above into rusEFI and adds the hardware-only parts (LEDs, wideband flasher) |
 | `board/tests/`, `board/board_unit_tests.mk` | Engine simulation of every year inside rusEFI's unit-test engine (see [Verification](#verification)) |
 | `board/wideband_uart_flash.cpp` | Programs the wideband MCU over its ROM serial bootloader |
+| `wideband/` | The wideband MCU's firmware: rusEFI's wideband controller sources with this board's STM32F103 port (`miata_f1/`), `build.sh`, and the built image the main firmware carries (`miata_wbo_f103.bin`) |
 | `board/connectors/daughterboard.yaml` | Pin names TunerStudio shows (J1/J2 header signals) |
 | `board/board_popular_vehicles.ini`, `board/board_commands.ini` | TunerStudio buttons: the five years and "Flash on-board wideband" |
 | `board/prepend.txt`, `board/knock_config.h` | TunerStudio menu switches, knock input |
 | `ext/rusefi` | rusEFI, as a git submodule pinned to the tested commit |
 | `tools/check_pins.py` | Checks every pin here against the board design (`scripts/design.py`) |
 | `tools/sim_report.py` | End-to-end check: firmware function → MCU pin → harness cavity, against independent pinouts |
-| `tools/flash_sim/` | Wideband flasher run on a PC against a model of the F042's ROM bootloader |
+| `tools/flash_sim/` | Wideband flasher run on a PC against a model of the F103's ROM bootloader |
 | `tools/check_image.py`, `tools/circuit_sim.py` | Main-MCU image checks (OpenBLT header, layout); ngspice input/output circuit simulations |
 | `tools/offline_compile_check.sh` | Compile check without rusEFI's Java code generation (see [Building](#building)) |
 
@@ -106,21 +107,30 @@ gets no fuel or spark with the key on, check that you didn't pick 2003-05 on a 2
 - **CAN:** CAN2 on PB12/PB13 is the only bus. The wideband is set to "CAN2".
 
 ## Flashing the on-board wideband
-The wideband MCU (STM32F042) is programmed by the main MCU. Do it once on a new board, with the engine off:
+The wideband MCU (STM32F103C8, daughterboard rev 0.6) is programmed by the main MCU. Do it once on a new board, and
+again whenever the wideband firmware changes, with the engine off:
 - **In TunerStudio:** Popular Vehicles → **Flash on-board wideband**;
 - **or in the rusEFI console:** `wbo_uart_flash`. `wbo_uart_status` reports progress and the result.
 
 It takes about 15 seconds. These steps run in a background thread, so TunerStudio stays connected:
-1. raise the F042's BOOT0 (PD10) and pulse its reset (PD11), which starts ST's ROM bootloader;
+1. raise the F103's BOOT0 (PD10; its BOOT1 is held low on the board) and pulse its reset (PD11), which starts ST's
+   ROM bootloader;
 2. talk to it over USART3 (PD8/PD9, 115200 8E1, ST application note AN3155);
-3. check the chip ID, mass-erase, write the image and read it all back;
-4. drop BOOT0 and reset the F042 into the new firmware.
+3. check the chip ID (0x410, STM32F103x8/xB), mass-erase, write the image and read it all back;
+4. drop BOOT0 and reset the F103 into the new firmware.
 
-**The image** is rusEFI's `wideband_image_with_bl.bin`, from the wideband submodule of the rusEFI being built (CAN
-bootloader + FOME/rusEFI wideband firmware for the F042 module). Once it is on the chip, rusEFI's normal
-**Update wideband firmware** (over CAN) works too.
+**The image** is `wideband/miata_wbo_f103.bin`: rusEFI's wideband controller firmware (the wideband submodule of
+the pinned rusEFI) built for this board by `wideband/build.sh`. The board port `wideband/miata_f1/` is rusEFI's F1
+port with this board's pins, an 8 MHz crystal (Y101) and the FOME module's analog constants; it measures battery
+voltage itself, drives the LSU 4.2 / 4.9 / ADV ESR resistors, and has no bootloader and no TunerStudio serial port,
+so it fits the F103C8 with room to spare (about 26 KB of 56 KB). CI rebuilds it and compares it with the committed
+image. The mass erase also resets the wideband's own settings to their defaults (LSU 4.9, CAN index 0).
 
-**Fallback:** if the flash fails, the J102 Tag-Connect SWD pads on the daughterboard still reach the F042.
+rusEFI's **Update wideband firmware** button (over CAN) carries the F042 module's image and does not apply to this
+board; use **Flash on-board wideband** instead.
+
+**Fallback:** if the flash fails, the J102 Tag-Connect SWD pads on the daughterboard still reach the F103: flash
+`miata_wbo_f103.bin` at 0x08000000 with any ST-Link.
 
 ## Pin map
 | Signal | MCU | Header | rusEFI setting |

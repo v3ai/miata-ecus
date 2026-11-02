@@ -23,7 +23,9 @@ CX, CY = 103.17, 39.3               # block centre on the daughterboard
 DROP = {'J1', 'J3', 'U9', 'D4', 'R18'}
 VALUE_RC = {'R10': '62'}                                     # rev 0.5b, see LCSC['R0603']
 # rev 0.5b: AD8628ARTZ is the 5-lead SOT-23 package (the module's footprint is named TSOT-23-5; the pads are identical)
-FP_OVERRIDE = {'U5': 'Package_TO_SOT_SMD:SOT-23-5'}
+FP_OVERRIDE = {'U5': 'Package_TO_SOT_SMD:SOT-23-5',
+               # rev 0.6: STM32F103C8T6 instead of the module's STM32F042K6T6 (see U2_PADS)
+               'U2': 'Package_QFP:LQFP-48_7x7mm_P0.5mm'}
 LCSC = {   # from the module's rev C JLC BOM
     'R0402': {'10': 'C25077', '100k': 'C25741', '10k': 'C25744', '1k': 'C11702', '22k': 'C25768',
               '27k': 'C25771', '3.3k': 'C25890', '47': 'C25118', '47k': 'C25792', '6.8k': 'C25917',
@@ -35,16 +37,16 @@ LCSC = {   # from the module's rev C JLC BOM
     'C0402': {'100n': 'C1525', '1u': 'C52923', '33n': 'C106862'},
     'C0603': {'4.7u': 'C19666'},
 }
-PARTS_LCSC = {'U1': 'C50282', 'U2': 'C69216', 'U3': 'C36658', 'U5': 'C29309', 'Q1': 'C2649436',
+PARTS_LCSC = {'U1': 'C50282', 'U2': 'C8734', 'U3': 'C36658', 'U5': 'C29309', 'Q1': 'C2649436',
               'D1': 'C2286', 'D2': 'C12624', 'D3': 'C2288'}
-VALUE = {'U1': 'MCP6004', 'U2': 'STM32F042K6T6', 'U3': 'REF3033', 'U5': 'AD8628', 'Q1': 'VND14NV04',
+VALUE = {'U1': 'MCP6004', 'U2': 'STM32F103C8T6', 'U3': 'REF3033', 'U5': 'AD8628', 'Q1': 'VND14NV04',
          'D1': 'RED', 'D2': 'GREEN', 'D3': 'BLUE', 'J2': 'SWD (WBO)'}
 DESC = {'U1': 'wideband: quad op-amp (virtual ground, pump driver, Nernst sense/buffer)',
-        'U2': 'wideband controller MCU (FOME/rusEFI wideband firmware)',
+        'U2': 'wideband controller MCU (rusEFI wideband firmware, board port firmware/wideband/miata_f1)',
         'U3': 'wideband: 3.3 V ADC/analog reference', 'U5': 'wideband: pump current sense amp',
         'Q1': 'wideband: LSU heater low side (protected)', 'D1': 'wideband: heater',
         'D2': 'wideband: status', 'D3': 'wideband: status',
-        'J2': 'Tag-Connect TC2030-NL footprint, wideband MCU SWD (first flash; then CAN bootloader)'}
+        'J2': 'Tag-Connect TC2030-NL footprint, wideband MCU SWD (fallback; normally flashed by the ECU)'}
 
 NETMAP = {
     '/LSU_Ip': 'LSU_IP', '/LSU_Vm': 'LSU_VM', '/LSU_Rtrim': 'LSU_RT', '/LSU_Un': 'LSU_UN',
@@ -63,9 +65,32 @@ NETMAP = {
 }
 
 
-# programming link from the main MCU (rev 0.4): the F042's USART1 (PA9 TX, PA10 RX; unused by the FOME
-# firmware) is its ROM bootloader's serial port. Net names are from the main MCU's side.
-PROG = {'19': 'WB_PROG_RX', '20': 'WB_PROG_TX'}
+# Rev 0.6: the wideband MCU is an STM32F103C8T6 (LQFP-48): the STM32F042 is scarce at JLCPCB/LCSC. The module's
+# analog front end is unchanged; the pins are chosen so each group faces its parts with U102 at 90 deg (ESR drives
+# and LEDs left, heater / battery sense / pump right, CAN and the programming UART up, analog and the crystal down).
+# firmware/wideband/miata_f1/io/io_pins.h and board.h carry the same map. PA9/PA10 (USART1) are the ROM
+# bootloader's serial port for the programming link from the main MCU; net names are from the main MCU's side.
+U2_PADS = {
+    '1': '+3V3',                          # VBAT
+    '5': 'WB_OSC_IN', '6': 'WB_OSC_OUT',  # PD0 / PD1: 8 MHz crystal Y101
+    '7': 'WB_NRST', '8': 'GND', '9': 'WB_VDDA',
+    '10': 'WB_UN_SENSE',                  # PA0 ADC_IN0
+    '11': 'LSU_VM',                       # PA1 ADC_IN1 (not sampled, as on the module)
+    '12': 'WB_IP_SENSE',                  # PA2 ADC_IN2
+    '13': 'WB_VM',                        # PA3 ADC_IN3
+    '16': 'WB_IP_DAC',                    # PA6 TIM3_CH1
+    '18': 'WB_VBAT_DIV',                  # PB0 ADC_IN8
+    '20': 'WB_BOOT1',                     # PB2 / BOOT1: R135 to GND, so BOOT0 high starts the ROM bootloader
+    '21': 'WB_HTR_PWM',                   # PB10 TIM2_CH3 (partial remap 2)
+    '23': 'GND', '24': '+3V3',
+    '30': 'WB_PROG_RX', '31': 'WB_PROG_TX',   # PA9 USART1_TX / PA10 USART1_RX
+    '32': 'WB_CAN_RX', '33': 'WB_CAN_TX',     # PA11 / PA12
+    '34': 'WB_SWDIO', '35': 'GND', '36': '+3V3', '37': 'WB_SWCLK',
+    '41': 'WB_ESR_42', '42': 'WB_ESR_ADV', '43': 'WB_ESR_49',   # PB5 / PB6 / PB7
+    '44': 'WB_BOOT0',
+    '45': 'WB_LED_B', '46': 'WB_LED_G',   # PB8 / PB9
+    '47': 'GND', '48': '+3V3',
+}
 
 
 def net(n):
@@ -111,7 +136,7 @@ def parts():
             if num:
                 pads[num] = net(pl[0][2])
         if r == 'U2':
-            pads.update(PROG)
+            pads = {str(n): U2_PADS.get(str(n), '') for n in range(1, 49)}
         out.append(dict(ref=ref(r), value=val, fp=lib, lcsc=lc, pads=pads, desc=DESC.get(r, 'wideband'),
                         mod_ref=r, side=f['side']))
     # CAN transceiver for the controller, same bus as the main MCU
@@ -120,6 +145,18 @@ def parts():
                           '7': 'CAN_H', '8': 'GND'}, desc='wideband CAN transceiver (shared CAN bus)', side='F'))
     out.append(dict(ref='C118', value='100n', fp='Capacitor_SMD:C_0402_1005Metric', lcsc='C1525',
                     pads={'1': '+3V3', '2': 'GND'}, desc='U106 decoupling', side='F'))
+    # rev 0.6, for the STM32F103: its own 8 MHz crystal (keeps CAN in spec over temperature; same part as the main
+    # MCU's Y1, 33 pF loads for its 20 pF), BOOT1 pull-down, and decoupling for its third VDD pin
+    out.append(dict(ref='Y101', value='8MHz', fp='Crystal:Crystal_SMD_5032-2Pin_5.0x3.2mm', lcsc='C115962',
+                    pads={'1': 'WB_OSC_IN', '2': 'WB_OSC_OUT'}, desc='wideband MCU crystal', side='F'))
+    out.append(dict(ref='C119', value='33p', fp='Capacitor_SMD:C_0402_1005Metric', lcsc='C1562',
+                    pads={'1': 'WB_OSC_IN', '2': 'GND'}, desc='Y101 load', side='F'))
+    out.append(dict(ref='C120', value='33p', fp='Capacitor_SMD:C_0402_1005Metric', lcsc='C1562',
+                    pads={'1': 'WB_OSC_OUT', '2': 'GND'}, desc='Y101 load', side='F'))
+    out.append(dict(ref='R135', value='10k', fp='Resistor_SMD:R_0402_1005Metric', lcsc='C25744',
+                    pads={'1': 'WB_BOOT1', '2': 'GND'}, desc='wideband MCU BOOT1 pull-down', side='F'))
+    out.append(dict(ref='C121', value='100n', fp='Capacitor_SMD:C_0402_1005Metric', lcsc='C1525',
+                    pads={'1': '+3V3', '2': 'GND'}, desc='U102 VDD decoupling', side='F'))
     return out
 
 

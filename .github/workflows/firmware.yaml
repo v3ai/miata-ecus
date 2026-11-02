@@ -75,6 +75,39 @@ jobs:
           cat /tmp/err.txt
           echo "::error title=Firmware build errors::$(sed -e 's/%/%25/g' -e 's/\r//g' /tmp/err.txt | awk '{printf "%s%%0A", $0}')"
 
+  # The on-board wideband's firmware: rusEFI's wideband sources with this board's STM32F103 port (firmware/wideband).
+  # Builds it, checks it fits the F103C8 (flash, RAM, vector table) and compares it with the committed image that the
+  # main firmware embeds; a difference (usually a different compiler) is reported, and the build is uploaded.
+  wideband:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Toolchain and the wideband sources
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q gcc-arm-none-eabi
+          cd firmware/ext/rusefi
+          git submodule update --init --depth 1 firmware/controllers/can/wideband_firmware
+          cd firmware/controllers/can/wideband_firmware
+          git submodule update --init --depth 1 firmware/ChibiOS firmware/libfirmware
+
+      - name: Build and check
+        run: |
+          arm-none-eabi-gcc --version | head -1
+          bash firmware/wideband/build.sh firmware/ext/rusefi /tmp/wbo
+          if cmp -s /tmp/wbo/miata_wbo_f103.bin firmware/wideband/miata_wbo_f103.bin; then
+            echo "::notice title=Wideband image::identical to the committed firmware/wideband/miata_wbo_f103.bin"
+          else
+            echo "::warning title=Wideband image::differs from the committed image (compiler version?); rebuild and commit it if the sources changed"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: miata_wbo_f103
+          path: /tmp/wbo/miata_wbo_f103.*
+
   # Verification: the board's real configuration code running inside rusEFI's engine simulator (all five years,
   # real NA/NB trigger captures), the end-to-end harness check, the wideband flasher against an AN3155 bootloader
   # model, the main-MCU image checks, and the circuit simulations. See firmware/VERIFICATION.md.

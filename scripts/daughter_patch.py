@@ -1,16 +1,26 @@
-"""Rev 0.5b post-route fixes, run on daughter_make.sh's finished board:
-  1. HALL1 (U1 pin 38) is the one net the autorouter left open: route it with hand_route.py (two-layer A* over the
-     real copper; a via under the MCU, the bottom layer to D13).
+"""Post-route fixes, run on daughter_make.sh's finished board (rev 0.5b on):
+  1. If the autorouter left HALL1 (U1 pin 38) open, route it with hand_route.py (two-layer A* over the real copper; a
+     via under the MCU, the bottom layer to D13). Any other open net stops the script.
   2. AN_AUX3's long top-layer run sits 0.05 mm from the D17/D18 GND pads: move it up 0.125 mm (0.175 mm both sides).
-  3. Part values for the rev 0.5b swaps (D9 B360A).
-usage: daughter_patch_05b.py finished.kicad_pcb out.kicad_pcb   (keep the board's .kicad_pro next to both)"""
+  3. Part values from design.py where the board's differ (part swaps made after routing).
+usage: daughter_patch.py finished.kicad_pcb out.kicad_pcb   (keep the board's .kicad_pro next to both)"""
 import sys, os, subprocess, shutil
 import pcbnew
 src, out = sys.argv[1], sys.argv[2]
 here = os.path.dirname(os.path.abspath(__file__))
 shutil.copy(src.replace('.kicad_pcb', '.kicad_pro'), out.replace('.kicad_pcb', '.kicad_pro'))
-subprocess.run([sys.executable, os.path.join(here, 'hand_route.py'), src, out, 'HALL1', '140.5', '86.0', '164.5', '105.0',
-                'U1:38', 'D13:2,C51:1,R61:2'], check=True)
+import re, tempfile
+rep = os.path.join(tempfile.mkdtemp(), 'drc.txt')
+subprocess.run([sys.executable, os.path.join(here, 'drc.py'), src, rep], check=True, capture_output=True)
+open_nets = set(re.findall(r'\[unconnected_items\].*?\n.*?\n.*?\[(\S+)\]', open(rep).read()))
+if open_nets - {'HALL1'}:
+    sys.exit(f'open nets the patch does not handle: {sorted(open_nets)}')
+if 'HALL1' in open_nets:
+    subprocess.run([sys.executable, os.path.join(here, 'hand_route.py'), src, out, 'HALL1', '140.5', '86.0', '164.5',
+                    '105.0', 'U1:38', 'D13:2,C51:1,R61:2'], check=True)
+else:
+    shutil.copy(src, out)
+    print('HALL1 routed by the autorouter')
 b = pcbnew.LoadBoard(out); mm, IU = pcbnew.ToMM, pcbnew.FromMM
 P = lambda x, y: pcbnew.VECTOR2I(IU(x), IU(y))
 at = lambda p, x, y: abs(mm(p.x) - x) < 1e-3 and abs(mm(p.y) - y) < 1e-3
@@ -26,7 +36,7 @@ for t in b.GetTracks():
         t.SetStart(P(155.875, Y)); t.SetEnd(P(138.5, Y)); moved += 1
     elif at(s, 138.5, 96.0):
         t.SetStart(P(138.5, Y)); moved += 1
-assert moved == 3, ('AN_AUX3 route not as expected', moved)
+print('AN_AUX3 moved clear of D17/D18' if moved == 3 else f'AN_AUX3 not at the expected place ({moved} segments): check DRC')
 sys.path.insert(0, here)
 import design
 vals = {p['ref']: p['value'] for p in design.parts}

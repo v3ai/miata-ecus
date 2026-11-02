@@ -370,7 +370,7 @@ class Sheet:
 
 
 CNT = [0]
-REV, DATE = '0.5b', '2026-10-31'
+REV, DATE = '0.6', '2026-11-01'
 TITLE_PREFIX = 'Miata ECU daughterboard - '
 COMMENT = 'Generated from scripts/design.py; netlist identical to the routed board'
 
@@ -905,32 +905,36 @@ def sheet_wideband(s):
     s.text('ESR drive: R106 22k / R116 6.8k / R119 47k, through C102 into the Nernst cell', 228.6, 154.94, 1.27)
 
     # ---- H: controller MCU ---------------------------------------------------------
-    s.text('Controller MCU (STM32F042, FOME wideband firmware; first flash over SWD, then over CAN)', 20.32, 162.56)
+    s.text('Controller MCU (STM32F103C8: rusEFI wideband firmware, board port in firmware/wideband)', 20.32, 162.56)
     MX, MY = 101.6, 223.52
     s.place('U102', MX, MY)
-    s.fields['U102'] = ((MX + 7.62, MY - 31.75), (MX + 7.62, MY - 29.21), 'left')
-    s.rail('U102', '+3V3', pins=['1', '17'])
-    s.stub('U102.5'); s.rail('U102', 'GND', pins=['16', '32'])
-    for c, x in (('C105', 22.86), ('C112', 30.48), ('C113', 38.1), ('C114', 45.72), ('C110', 53.34)):
+    s.fields['U102'] = ((MX + 20.32, MY - 45.72), (MX + 20.32, MY - 43.18), 'left')
+    s.rail('U102', '+3V3', pins=['1', '24', '36', '48'])
+    s.rail('U102', 'GND', pins=['23', '8'])
+    s.touched.update({('U102', '35'), ('U102', '47')})      # VSS pins stacked on pin 23
+    for c, x in (('C105', 22.86), ('C112', 30.48), ('C113', 38.1), ('C114', 45.72), ('C110', 53.34), ('C121', 60.96)):
         s.o2(c, x, 182.88, 'v')
         s.wire((x, 176.53), f'{c}.1'); s.wire(f'{c}.2', (x, 189.23))
-    s.wire((17.78, 176.53), (53.34, 176.53)); s.wire((17.78, 189.23), (53.34, 189.23))
+    s.wire((17.78, 176.53), (60.96, 176.53)); s.wire((17.78, 189.23), (60.96, 189.23))
     s.pwr('+3V3', (17.78, 176.53), 'up'); s.pwr('GND', (17.78, 189.23), 'down')
-    # NRST cap, BOOT0 pull-down
-    s.o2('C116', 78.74, 207.01, 'v')
-    s.wire('U102.4', 'C116.1', (66.04, 203.2)); s.pwr('GND', 'C116.2', 'down')
-    s.lab('WB_NRST', (66.04, 203.2), 'left')
-    s.o2('R129', 73.66, 241.3, 'v-')
-    s.wire('U102.31', (73.66, 233.68)); s.wire((73.66, 233.68), 'R129.2'); s.stub('R129.1')
-    s.wire((73.66, 233.68), (68.58, 233.68)); s.lab('WB_BOOT0', (68.58, 233.68), 'left')   # main MCU drives it (prog link)
+    # NRST cap, BOOT0 pull-down (the main MCU drives both for the programming link), BOOT1 pull-down
+    s.o2('C116', 139.7, 200.66, 'v'); s.stub('C116.1'); s.stub('C116.2')
+    s.o2('R129', 66.04, 243.84, 'v-'); s.stub('R129.1'); s.stub('R129.2')
+    s.o2('R135', 53.34, 243.84, 'v'); s.stub('R135.1'); s.stub('R135.2')
+    s.text('BOOT0 / BOOT1 low: run from flash', 50.8, 259.08, 1.27)
     # battery divider into PB0
     s.o2('R120', 50.8, 208.28, 'v'); s.o2('R121', 50.8, 223.52, 'v'); s.o2('C106', 40.64, 223.52, 'v')
     s.stub('R120.1'); s.wire('R120.2', (50.8, 215.9), 'R121.1')
-    s.wire((50.8, 215.9), 'U102.14'); s.wire((50.8, 215.9), (40.64, 215.9), 'C106.1')
+    s.wire((50.8, 215.9), 'U102.18'); s.wire((50.8, 215.9), (40.64, 215.9), 'C106.1')
     s.stub('R121.2'); s.stub('C106.2')
     s.text('Battery sense / 11', 30.48, 200.66, 1.27)
-    for n in ['2', '3', '15', '18', '19', '20', '10', '11', '25']:
-        s.stub(f'U102.{n}')
+    # 8 MHz crystal (keeps the CAN bit timing in spec over temperature)
+    s.text('8 MHz crystal, 33 pF loads', 20.32, 256.54, 1.27)
+    s.place('Y101', 33.02, 264.16)
+    s.o2('C119', 22.86, 271.78, 'v'); s.o2('C120', 43.18, 271.78, 'v')
+    s.wire('Y101.1', (22.86, 264.16), 'C119.1'); s.wire((22.86, 264.16), (15.24, 264.16)); s.lab('WB_OSC_IN', (15.24, 264.16), 'left')
+    s.wire('Y101.2', (43.18, 264.16), 'C120.1'); s.wire((43.18, 264.16), (50.8, 264.16)); s.lab('WB_OSC_OUT', (50.8, 264.16), 'right')
+    s.stub('C119.2'); s.stub('C120.2')
     # status LEDs
     s.text('Status LEDs', 147.32, 233.68, 1.27)
     for k, (d, r) in enumerate([('D102', 'R130'), ('D103', 'R113')]):

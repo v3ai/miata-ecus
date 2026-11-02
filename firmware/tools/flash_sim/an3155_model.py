@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Model of the STM32F042's ROM serial bootloader (ST AN3155, bootloader ID 0x445) on a pseudo-terminal, plus its
+"""Model of the STM32F103C8's ROM serial bootloader (ST AN3155, medium density, product ID 0x410) on a pseudo-terminal, plus its
 BOOT0 / NRST pins, so the wideband flasher can be exercised without hardware.
 
 Validated against stm32flash (an independent, widely used AN3155 client) before being used on our flasher.
@@ -7,7 +7,7 @@ Validated against stm32flash (an independent, widely used AN3155 client) before 
 usage: an3155_model.py <link file to write the pty path into> <flash dump out> [options]
   --ctrl FIFO       read "BOOT0=0/1" and "NRST=0/1" lines (pin levels from the main MCU) from this FIFO;
                     without it the chip sits in its bootloader from the start (like a BOOT0 jumper)
-  --erase 43|44     which erase command the bootloader advertises (default 44)
+  --erase 43|44     which erase command the bootloader advertises (default 43, as the F103's v2.2 bootloader)
   --fault none|silent|rdp|corrupt_read|wrong_pid|nack_write
   --preload FILE    initial flash contents (an already programmed chip)
 """
@@ -19,14 +19,14 @@ import sys
 import tty
 
 ACK, NACK = 0x79, 0x1F
-FLASH_BASE, FLASH_SIZE = 0x08000000, 32 * 1024
-PID = 0x445
+FLASH_BASE, FLASH_SIZE = 0x08000000, 64 * 1024
+PID = 0x410
 
 ap = argparse.ArgumentParser()
 ap.add_argument('link')
 ap.add_argument('dump')
 ap.add_argument('--ctrl')
-ap.add_argument('--erase', default='44')
+ap.add_argument('--erase', default='43')
 ap.add_argument('--fault', default='none')
 ap.add_argument('--preload', help='initial flash contents (an already programmed chip)')
 args = ap.parse_args()
@@ -141,7 +141,7 @@ def serve():
         elif cmd == 0x01:                        # Get version and read protection status
             send(ACK, 0x31, 0x00, 0x00, ACK)
         elif cmd == 0x02:                        # Get ID
-            pid = 0x444 if args.fault == 'wrong_pid' else PID
+            pid = 0x445 if args.fault == 'wrong_pid' else PID   # wrong_pid: an F042 fitted
             send(ACK, 1, pid >> 8, pid & 0xFF, ACK)
         elif cmd == 0x11:                        # Read memory
             if args.fault == 'rdp':

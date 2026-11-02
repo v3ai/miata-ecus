@@ -11,6 +11,7 @@ FW=$RUSEFI/firmware
 TMP=$RUSEFI/.miata-ecu-offline          # fixed path, so make can rebuild incrementally
 rm -rf "$TMP/board"; mkdir -p "$TMP"
 cp -r "$HERE/../board" "$TMP/board"
+rm -rf "$TMP/wideband"; mkdir -p "$TMP/wideband"; cp "$HERE/../wideband/miata_wbo_f103.bin" "$TMP/wideband/"   # WBO_IMAGE
 rm -rf "$TMP/board/connectors"                  # their generated pin-name file comes from the Java step
 sed -i 's/^SHORT_BOARD_NAME=.*/SHORT_BOARD_NAME=f407-discovery/' "$TMP/board/meta-info.env"
 GEN=$FW/controllers/generated

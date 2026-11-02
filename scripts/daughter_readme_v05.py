@@ -14,8 +14,20 @@ def rep(a, b):
     t = t.replace(a, b)
 
 
-rep('# Miata ECU — daughterboard rev 0.4 (routed, unverified)', '# Miata ECU — daughterboard rev 0.5 (routed, unverified)')
-rep('## What changed in rev 0.4', '''## What changed in rev 0.5
+rep('# Miata ECU — daughterboard rev 0.4 (routed, unverified)', '# Miata ECU — daughterboard rev 0.6 (routed, unverified)')
+rep('## What changed in rev 0.4', '''## What changed in rev 0.6
+- **Wideband MCU: STM32F103C8T6** (U102, LQFP-48) instead of the STM32F042K6T6, which has been scarce for years and
+  was down to about 100 at JLCPCB/LCSC; the F103C8T6 has over 200k there. The module's analog front end is unchanged.
+  - Pins: ESR drives and LEDs face left, heater PWM / battery sense / pump PWM / BOOT1 right, CAN and the
+    programming UART up, analog inputs down (`scripts/wideband.py`, U2_PADS).
+  - New parts: an 8 MHz crystal Y101 with 33 pF loads C119/C120 (the same crystal as the main MCU's; keeps CAN
+    timing in spec over temperature), R135 holds BOOT1 low, C121 decouples the third VDD pin.
+  - Programming link unchanged: PD8/PD9 to the F103's USART1 (PA10/PA9), PD10 to BOOT0, PD11 to NRST.
+  - Firmware: rusEFI's wideband controller with this board's port (`firmware/wideband/miata_f1`), carried by the
+    main firmware and written with "Flash on-board wideband". rusEFI's own over-CAN wideband update is for the F042
+    module and does not apply.
+
+## What changed in rev 0.5
 The fixes from the verification review (`VERIFICATION.md` in the repository root). Existing designators are unchanged;
 new parts have new numbers.
 - **Parts JLCPCB stocks (rev 0.5b).** JLCPCB's BOM check found ten lines short of stock. The replacements fit the
@@ -27,7 +39,7 @@ new parts have new numbers.
   - VR inputs (spares, no Miata year uses a VR sensor): U9 is now a **LM2903** dual comparator (TI, onsemi, UMW and
     others make it) instead of the MAX9926, which is out of stock everywhere. Each input gets a BAT54S clamp to GND
     and +5V and 100k to a 1.65 V bias, and each output 1M of hysteresis (D15-D18, R73-R80, C60). The board was
-    re-routed for these parts; `scripts/daughter_patch_05b.py` adds the one track the autorouter left open (HALL1,
+    re-routed for these parts; `scripts/daughter_patch.py` adds the one track the autorouter left open (HALL1,
     through a via under the MCU) and nudges AN_AUX3 clear of the new clamps.
   - `fab/jlcpcb_cpl.csv` now uses the gerbers' own coordinates (no offset), with JLC's rotation corrections for
     SOT-223, TO-252, SOT-23, SOIC, TSSOP, LQFP and the resistor arrays, read off JLC's placement preview.
@@ -79,6 +91,15 @@ rep('| `fab/jlcpcb_bom.csv`, `fab/jlcpcb_cpl.csv` | JLC assembly BOM and placeme
     '| `fab/jlcpcb_bom.csv`, `fab/jlcpcb_cpl.csv` | JLC assembly BOM and placement file: every part except the two bottom-side 1×40 headers |\n| `fab/self_order_bom.csv` | What you order and fit yourself: the J1/J2 1×40 pin headers |')
 rep("4. **Headers on the bottom.** J1/J2 are listed as `Bottom` in the CPL. If you let JLC fit them, that is\n   bottom-side assembly and adds cost. They are cheap to hand-solder, and you can square them up against\n   the motherboard's female headers while the solder sets. If you do that, delete J1/J2 from the BOM.",
     "4. **Headers on the bottom.** J1/J2 are not in the JLC BOM or CPL (they'd need bottom-side assembly). They're in\n   `fab/self_order_bom.csv`: hand-solder them, squared up against a motherboard's female sockets while the solder\n   sets.")
+rep('| Wideband (LSU 4.9) | FOME/rusEFI controller: STM32F042 running the FOME wideband firmware,',
+    '| Wideband (LSU 4.9) | FOME/rusEFI controller circuit with an STM32F103C8 (8 MHz crystal) running rusEFI\'s wideband firmware (board port in `firmware/wideband`),')
+rep('''  - Flashing goes through the main MCU: USART3 on PD8 (TX) / PD9 (RX) to the F042's ROM bootloader, PD10 = its BOOT0,
+    PD11 = its reset (open drain). In normal running, keep PD10 low and PD11 released.
+  - The firmware is the FOME wideband `f0_module` build. Fallback: SWD through the J102 Tag-Connect pads on the bottom side.''',
+    '''  - Flashing goes through the main MCU: USART3 on PD8 (TX) / PD9 (RX) to the F103's ROM bootloader, PD10 = its BOOT0,
+    PD11 = its reset (open drain); its BOOT1 is held low by R135. In normal running, keep PD10 low and PD11 released.
+  - The firmware is rusEFI's wideband controller built for this board (`firmware/wideband`). Fallback: SWD through the
+    J102 Tag-Connect pads on the bottom side.''')
 t = re.sub(r'netlist was checked pad-by-pad against the board\'s netlist \(\d+ pads, 0 differences\)',
            f"netlist was checked pad-by-pad against the board's netlist ({npads} pads, 0 differences)", t)
 m = re.search(r'- \*\*DRC \(KiCad 7\):\*\*.*?(?=\n## )', t, re.S)
