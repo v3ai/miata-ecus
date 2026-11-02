@@ -133,7 +133,7 @@ namespace Antmicro.Renode.Peripherals.Miata
                 nextLog = now + LogEvery;
                 this.Log(LogLevel.Error, string.Format(System.Globalization.CultureInfo.InvariantCulture,
                     "LSU {{\"t\": {0:F4}, \"temp\": {1:F1}, \"esr\": {2:F1}, \"heaterDuty\": {3:F4}, \"heaterW\": {4:F2}, " +
-                    "\"ipCmd\": {5:F4}, \"ip\": {6:F4}, \"nernst\": {7:F4}, \"lambda\": {8:F3}}}",
+                    "\"ipCmd\": {5:F4}, \"ip\": {6:F4}, \"nernst\": {7:F4}, \"lambda\": {8:F3} }}",
                     now, Temperature, Esr, HeaterDuty, HeaterWatts, PumpCommandMa, PumpCurrentMa, NernstVolts, Lambda));
             }
         }

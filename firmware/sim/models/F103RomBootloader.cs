@@ -36,10 +36,19 @@ namespace Antmicro.Renode.Peripherals.Miata
             this.hostApb1 = hostApb1;
             this.hostUsartBase = hostUsartBase;
             host.CharReceived += OnHostByte;
-            // Renode's STM32_UART does not store CR1.M (word length) and reads it back as 0, so the frame check uses
-            // the value the firmware last wrote to CR1
+            // Renode's STM32_UART does not store CR1.M (word length) and reads it back as 0, and ChibiOS's interrupt
+            // handler rewrites CR1 read-modify-write, which loses M in emulation (not on silicon). The frame check
+            // therefore uses the value written when the USART is switched on (UE 0 -> 1), i.e. the driver's setup.
             machine.SystemBus.AddWatchpointHook(hostUsartBase + 0x0C, Antmicro.Renode.Peripherals.Bus.SysbusAccessWidth.DoubleWord,
-                Antmicro.Renode.Peripherals.Bus.Access.Write, (cpu, address, width, value) => { hostCr1 = (uint)value; });
+                Antmicro.Renode.Peripherals.Bus.Access.Write, (cpu, address, width, value) =>
+                {
+                    var v = (uint)value;
+                    if((lastCr1Write & (1u << 13)) == 0 && (v & (1u << 13)) != 0)
+                    {
+                        hostCr1 = v;
+                    }
+                    lastCr1Write = v;
+                });
             txTimer = new LimitTimer(machine.ClockSource, 1000000, this, "bl-tx", limit: 100, direction: Direction.Ascending,
                 enabled: false, workMode: WorkMode.OneShot, eventEnabled: true);
             txTimer.LimitReached += SendNext;
@@ -526,6 +535,7 @@ namespace Antmicro.Renode.Peripherals.Miata
         private bool reportedFrame;
         private double hostBaud;
         private uint? hostCr1;
+        private uint lastCr1Write;
         private Action afterBusy;
         private byte pending;
         private uint address;

@@ -49,7 +49,7 @@ Each of these made the unmodified firmware fail in emulation while it would work
 | Flash-size word at 0x1FFF7A22 reads 0 | rusEFI stops: "expected at least 1024K of flash" | written by the run script |
 | CCM, backup SRAM, GPIO G/H/I, DBGMCU IDCODE, TIM11 input capture (HSE detect), PWR ready bits | boot hangs or faults | `stm32f407_ecu.repl`, `models/pwr_f4.py`, `models/tim11_hse_capture.py` |
 | F103 platform: no RCC, flash controller, ADC, timers, CAN, boot alias | wideband never starts | `stm32f103_wbo.repl`, `models/rcc_f1.py`, `models/STM32F1Flash.cs`, `models/STM32F1ADC.cs` |
-| STM32_UART keeps no CR1.M (word length) bit | the 9-bit (8 data + even parity) frame the ROM bootloader needs is invisible on readback | the bootloader model watches the firmware's CR1 writes |
+| STM32_UART keeps no CR1.M (word length) bit | the 9-bit (8 data + even parity) frame the ROM bootloader needs is invisible on readback | the bootloader model takes the frame format from the CR1 write that enables the USART |
 | No STM32F103 ROM bootloader (ST's code is not available) | nothing to flash | `models/F103RomBootloader.cs`: AN3155 v2.2 protocol, serial frame and baud checks, erase/program times |
 
 ## Limits
