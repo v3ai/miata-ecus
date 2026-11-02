@@ -36,7 +36,7 @@ WBO_BIN = os.path.join(WB, 'miata_wbo_f103.bin')
 
 PHASES = [('keyOn', 2.0), ('flash', 12.0), ('warmup', 20.0), ('rich', 3.0), ('lean', 3.0)]
 LAMBDA = {'keyOn': 1.0, 'flash': 1.0, 'warmup': 1.0, 'rich': 0.85, 'lean': 1.20}
-FLASH_AT = 2.0
+FLASH_AT = 2.0   # start of the 'flash' phase
 
 
 def build(year, out, probes, stim):
@@ -52,33 +52,34 @@ def build(year, out, probes, stim):
             continue
         setup.append(l)
     flash_fn = E.symbol('startWidebandUartFlash()')
-    slow_cb = E.symbol('miataBoardSlowCallback() [clone .lto_priv.0]')
+    main_loop = E.symbol('MainLoop::PeriodicTask(long long)')
+    # "Flash wideband over UART" (a TunerStudio button; no USB model here): at the start of the flash phase, the next
+    # call of rusEFI's main loop task (a thread, no lock held, as for TunerStudio commands) is turned into a call of
+    # startWidebandUartFlash(); the hook is removed again right after, since a hook hit costs host time
+    trigger = [f'cpu AddHook {main_loop:#x} "import sys; from Antmicro.Renode.Peripherals.CPU import RegisterValue; '
+               f'go = not sys.__dict__.get(\'miata_flashed\'); sys.miata_flashed = True; '
+               f'self.PC = RegisterValue.Create({flash_fn:#x} if go else self.PC.RawValue, 32)"',
+               'emulation RunFor "0.01"', f'cpu RemoveHooksAt {main_loop:#x}']
     L = ['using sysbus']
     for m in ('STM32F4ADC', 'STM32F4DMA', 'TriggerWheel', 'PinRecorder', 'F103RomBootloader', 'CanSniffer',
-              'STM32F1ADC', 'STM32F1Flash', 'LsuSensor'):
+              'STM32F1ADC', 'STM32F1Flash', 'LsuSensor', 'NvicRettobase', 'CortexMDwt'):
         L.append(f'include @{SIM}/models/{m}.cs')
     L += ['emulation SetGlobalAdvanceImmediately true', 'emulation CreateCANHub "can"',
           # the wideband machine: blank F103
           'mach create "wbo"',
-          f'machine LoadPlatformDescription @{E.platform("stm32f103_wbo.repl", out)}',
-          f'machine LoadPlatformDescription @{E.platform("wbo_bench.repl", out)}',
+          f'machine LoadPlatformDescription @{E.platform(["stm32f103_wbo.repl", "wbo_bench.repl"], out)}',
           'sysbus WriteDoubleWord 0x1FFFF7E0 0xFFFF0040',   # flash size 64 KB
           'sysbus WriteDoubleWord 0x1FFFF7E8 0x066DFF34', 'sysbus WriteDoubleWord 0x1FFFF7EC 0x34385111',
           'sysbus WriteDoubleWord 0x1FFFF7F0 0x43123329',
           f'sysbus LoadSymbolsFrom @{WBO_ELF}',
           'lsu LogEvery 0.25', 'lsu SetBattery 14.0', 'lsu SetLambda 1.0',
           'connector Connect sysbus.can1 can']
-    L += subprocess.run([sys.executable, os.path.join(SIM, 'tools/chibios_rettobase.py'), WBO_ELF],
-                        capture_output=True, text=True, check=True).stdout.strip().split('\n')
     # the ECU machine
     L += setup
     L += [f'machine LoadPlatformDescription @{E.platform("ecu_wbo_link.repl", out)}',
           'connector Connect sysbus.can2 can', 'connector Connect sniffer can',
           f'sniffer SetOutputFile "{os.path.join(out, "can.txt")}"',
-          # "Flash wideband over UART": once, from the board's slow callback (a thread, as TunerStudio commands run)
-          f'cpu AddHook {slow_cb:#x} "import sys; t = self.GetMachine().LocalTimeSource.ElapsedVirtualTime.TotalSeconds; '
-          f'go = t > {FLASH_AT} and not sys.__dict__.get(\'miata_flashed\'); sys.miata_flashed = sys.__dict__.get(\'miata_flashed\') or go; '
-          f'self.PC = RegisterValue.Create({flash_fn:#x} if go else self.PC.RawValue, 32)"']
+          ]
     car = dict(vbat=14.0, key=True, tps_v=0.6, map_kpa=35, clt_ohm=240.0, iat_ohm=2000.0, maf_v=1.3)
     L += [f'adc SetPinVoltage "{p}" {v:.4f}' for p, v in E.car_pins(**{**car, 'vbat': 12.4, 'map_kpa': 100}).items()]
     t = 0.0
@@ -87,13 +88,14 @@ def build(year, out, probes, stim):
             L += [f'wheel LoadPattern @{stim["pattern"]} 720', 'wheel SetRpm 900', 'wheel Start']
             L += [f'adc SetPinVoltage "{p}" {v:.4f}' for p, v in E.car_pins(**car).items()]
         L += ['mach set "wbo"', f'lsu SetLambda {LAMBDA[name]}', 'mach set "ecu"']
+        if name == 'flash':
+            L += trigger
+            dur -= 0.01
         L.append(f'emulation RunFor "{dur:.4f}"')
         t += dur
     size = os.path.getsize(WBO_BIN)
     L += [f'wboBootloader FlashCrc {size}', 'sniffer BitTiming "ecu" 0x40006800 42000000',
           'sniffer BitTiming "wbo" 0x40006400 24000000', 'rec Flush', 'quit']
-    # RegisterValue for the PC write
-    L = [l.replace('"import sys; t = ', '"import sys; from Antmicro.Renode.Peripherals.CPU import RegisterValue; t = ') for l in L]
     path = os.path.join(out, 'system.resc')
     open(path, 'w').write('\n'.join(L) + '\n')
     return path
@@ -186,7 +188,7 @@ def main():
     for k in ('critMsg', 'cfgMsg'):
         probes[k].update(kind='bytes', size=64)
     probes['wboStatus'].update(kind='ptrstr')
-    E.SENSORS['sLambda'] = 26
+    E.SENSORS.update(E.sensor_ids(E.ELF))
     stim = E.write_stimulus(E.YEARS[args.year]['family'], args.out)
     resc = build(args.year, args.out, probes, stim)
     t0 = time.time()

@@ -195,9 +195,12 @@ namespace Antmicro.Renode.Peripherals.Miata
             }
             var bus = machine.SystemBus;
             ulong v = rs == 1 ? bus.ReadByte(src) : rs == 2 ? bus.ReadWord(src) : bus.ReadDoubleWord(src);
-            if(ws == 1) bus.WriteByte(dst, (byte)v);
-            else if(ws == 2) bus.WriteWord(dst, (ushort)v);
-            else bus.WriteDoubleWord(dst, (uint)v);
+            if(!FastRamWrite(dst, ws, (uint)v))
+            {
+                if(ws == 1) bus.WriteByte(dst, (byte)v);
+                else if(ws == 2) bus.WriteWord(dst, (ushort)v);
+                else bus.WriteDoubleWord(dst, (uint)v);
+            }
             Transfers++;
             s.Index++;
             s.Ndtr--;
@@ -223,6 +226,41 @@ namespace Antmicro.Renode.Peripherals.Miata
                 }
             }
         }
+
+        // Writes into RAM straight into the memory's backing store. Going through the system bus makes Renode check
+        // every write for translated code to invalidate (a dynamic call per write), which at the ADC's few hundred
+        // thousand transfers a second dominated the emulation time. DMA targets data buffers, never code.
+        private bool FastRamWrite(ulong address, int size, uint value)
+        {
+            if(ramMemory == null || address < ramStart || address + (ulong)size > ramEnd)
+            {
+                var reg = machine.SystemBus.WhatIsAt(address);
+                var mem = reg?.Peripheral as Antmicro.Renode.Peripherals.Memory.MappedMemory;
+                if(mem == null)
+                {
+                    return false;
+                }
+                ramMemory = mem;
+                ramStart = reg.RegistrationPoint.Range.StartAddress;
+                ramEnd = reg.RegistrationPoint.Range.EndAddress + 1;
+            }
+            var offset = (long)(address - ramStart);
+            var segment = (int)(offset / ramMemory.SegmentSize);
+            var local = offset % ramMemory.SegmentSize;
+            if(local + size > ramMemory.SegmentSize)
+            {
+                return false;
+            }
+            ramMemory.TouchSegment(segment);
+            var p = new IntPtr(ramMemory.GetSegment(segment).ToInt64() + local);
+            if(size == 1) System.Runtime.InteropServices.Marshal.WriteByte(p, (byte)value);
+            else if(size == 2) System.Runtime.InteropServices.Marshal.WriteInt16(p, unchecked((short)value));
+            else System.Runtime.InteropServices.Marshal.WriteInt32(p, unchecked((int)value));
+            return true;
+        }
+
+        private Antmicro.Renode.Peripherals.Memory.MappedMemory ramMemory;
+        private ulong ramStart, ramEnd;
 
         private void Update()
         {

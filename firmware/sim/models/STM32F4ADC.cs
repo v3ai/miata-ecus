@@ -4,7 +4,8 @@
 //
 // What is modelled:
 //  - regular sequence (SQR1-3, L, SCAN), single and continuous mode, software start (SWSTART),
-//  - conversion time from SMPRx sample time + 12 ADCCLK cycles, ADCCLK = PCLK2 / ADCPRE (CCR bits 16-17),
+//  - conversion time from SMPRx sample time + 12 ADCCLK cycles, ADCCLK = PCLK2 / ADCPRE (CCR bits 16-17); the
+//    results of a sequence are produced together when its last conversion ends (one emulator event per sequence),
 //  - 12-bit right/left aligned result in DR, EOC/STRT flags, EOC interrupt, one DMA request per conversion,
 //  - per-pin input voltages set from the monitor (SetPinVoltage "PA4" 1.23), VREFINT 1.21 V, temperature sensor.
 // Not modelled: injected channels, analog watchdog, overrun (OVR is never set), external triggers, multi-ADC modes,
@@ -301,45 +302,54 @@ namespace Antmicro.Renode.Peripherals.Miata
                 timer.Enabled = false;
             }
 
+            // One timer event per regular sequence, not per conversion: the event fires when the last conversion of
+            // the sequence would end and then produces the sequence's results in order (each with its DMA request).
+            // Firmware sees the same data and the same end-of-sequence timing; the emulator does a fraction of the work.
             private void Schedule()
             {
-                var ch = Channel(position);
+                ulong cycles = 0;
+                for(var p = 0; p < Length; p++)
+                {
+                    cycles += (ulong)(SampleTime(Channel(p)) + 12);
+                }
                 timer.Enabled = false;
-                timer.Frequency = parent.AdcClock;
+                var f = parent.AdcClock;
+                if(timer.Frequency != f)
+                {
+                    timer.Frequency = f;
+                }
                 timer.Value = 0;
-                timer.Limit = (ulong)(SampleTime(ch) + 12);
+                timer.Limit = cycles;
                 timer.Enabled = true;
             }
 
             private void ConversionDone()
             {
-                if(!running || (cr2 & 1) == 0)
+                for(var p = 0; p < Length; p++)
                 {
-                    return;
-                }
-                var ch = Channel(position);
-                var v = parent.PinFor(index, ch, out var _);
-                var code = (int)Math.Round(v / parent.vdda * 4095.0);
-                code = Math.Max(0, Math.Min(4095, code));
-                dr = (cr2 & (1 << 11)) != 0 ? (uint)(code << 4) : (uint)code;
-                SR |= 2; // EOC
-                parent.conversions++;
-                parent.UpdateIrq();
-                if((cr2 & (1 << 8)) != 0)
-                {
-                    var req = index == 0 ? parent.DMA1 : index == 1 ? parent.DMA2 : parent.DMA3;
-                    req.Set(true);
-                    req.Set(false);
-                }
-                position++;
-                if(position >= Length)
-                {
-                    position = 0;
-                    if((cr2 & 2) == 0)
+                    if(!running || (cr2 & 1) == 0)
                     {
-                        running = false;
                         return;
                     }
+                    var ch = Channel(p);
+                    var v = parent.PinFor(index, ch, out var _);
+                    var code = (int)Math.Round(v / parent.vdda * 4095.0);
+                    code = Math.Max(0, Math.Min(4095, code));
+                    dr = (cr2 & (1 << 11)) != 0 ? (uint)(code << 4) : (uint)code;
+                    SR |= 2; // EOC
+                    parent.conversions++;
+                    if((cr2 & (1 << 8)) != 0)
+                    {
+                        var req = index == 0 ? parent.DMA1 : index == 1 ? parent.DMA2 : parent.DMA3;
+                        req.Set(true);
+                        req.Set(false);
+                    }
+                }
+                parent.UpdateIrq();
+                if((cr2 & 2) == 0)
+                {
+                    running = false;
+                    return;
                 }
                 if(running && (cr2 & 1) != 0)
                 {

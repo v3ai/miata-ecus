@@ -183,49 +183,59 @@ namespace Antmicro.Renode.Peripherals.Miata
 
         private void Start()
         {
+            adcClock = AdcClock; // RCC is a Python model: read it once per start, not once per sequence
             running = true;
             position = 0;
             sr |= 1u << 4;
             Schedule();
         }
 
+        // One timer event per regular sequence: it fires when the sequence's last conversion would end and produces
+        // the results in order, each with its DMA request (same data and end-of-sequence timing, far fewer events).
         private void Schedule()
         {
+            ulong half = 0;
+            for(var p = 0; p < Length; p++)
+            {
+                half += (ulong)HalfCycles(Channel(p));
+            }
             timer.Enabled = false;
-            timer.Frequency = 2 * AdcClock;
+            var f = 2 * adcClock;
+            if(timer.Frequency != f)
+            {
+                timer.Frequency = f;
+            }
             timer.Value = 0;
-            timer.Limit = (ulong)HalfCycles(Channel(position));
+            timer.Limit = half;
             timer.Enabled = true;
         }
 
         private void ConversionDone()
         {
-            if(!running || (cr2 & 1) == 0)
+            for(var p = 0; p < Length; p++)
             {
-                return;
-            }
-            var ch = Channel(position);
-            BeforeConversion?.Invoke(ch);
-            var code = (int)Math.Round(volts[ch] / vdda * 4095.0);
-            code = Math.Max(0, Math.Min(4095, code));
-            dr = (cr2 & (1 << 11)) != 0 ? (uint)(code << 4) : (uint)code;
-            sr |= 2;
-            Conversions++;
-            UpdateIrq();
-            if((cr2 & (1 << 8)) != 0)
-            {
-                DMA.Set(true);
-                DMA.Set(false);
-            }
-            position++;
-            if(position >= Length)
-            {
-                position = 0;
-                if((cr2 & 2) == 0)
+                if(!running || (cr2 & 1) == 0)
                 {
-                    running = false;
                     return;
                 }
+                var ch = Channel(p);
+                BeforeConversion?.Invoke(ch);
+                var code = (int)Math.Round(volts[ch] / vdda * 4095.0);
+                code = Math.Max(0, Math.Min(4095, code));
+                dr = (cr2 & (1 << 11)) != 0 ? (uint)(code << 4) : (uint)code;
+                sr |= 2;
+                Conversions++;
+                if((cr2 & (1 << 8)) != 0)
+                {
+                    DMA.Set(true);
+                    DMA.Set(false);
+                }
+            }
+            UpdateIrq();
+            if((cr2 & 2) == 0)
+            {
+                running = false;
+                return;
             }
             Schedule();
         }
@@ -240,5 +250,6 @@ namespace Antmicro.Renode.Peripherals.Miata
         private uint sr, cr1, cr2, smpr1, smpr2, sqr1, sqr2, sqr3, dr;
         private bool running;
         private int position;
+        private long adcClock = 12000000;
     }
 }

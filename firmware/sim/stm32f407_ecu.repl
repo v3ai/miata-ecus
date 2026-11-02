@@ -35,7 +35,12 @@ can2: CAN.STMCAN @ sysbus <0x40006800, +0x400>
     [0-3] -> nvic@[63-66]
     master: can1
 
-nvic: IRQControllers.NVIC @ sysbus 0xE000E000
+// The NVIC is reached by the CPU and the interrupt lines directly; on the bus it sits behind models/NvicRettobase.cs,
+// which supplies ICSR.RETTOBASE (Renode never sets it; ChibiOS needs it to switch threads after an interrupt).
+nvicBus: Miata.NvicRettobase @ sysbus 0xE000E000
+    nvic: nvic
+
+nvic: IRQControllers.NVIC @ none
     priorityMask: 0xF0
     systickFrequency: 168000000
     IRQ -> cpu@0
@@ -255,7 +260,5 @@ tim11: Python.PythonPeripheral @ sysbus 0x40014800
     filename: "@SIM@/models/tim11_hse_capture.py"
 
 // Cortex-M DWT cycle counter (ChibiOS polled delays and time measurement)
-dwt: Python.PythonPeripheral @ sysbus 0xE0001000
-    size: 0x1000
-    initable: true
-    filename: "@SIM@/models/dwt.py"
+dwt: Miata.CortexMDwt @ sysbus 0xE0001000
+    coreClock: 168000000
