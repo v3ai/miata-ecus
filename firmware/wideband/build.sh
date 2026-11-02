@@ -21,3 +21,8 @@ cp "$OUT/build/wideband.elf" "$OUT/miata_wbo_f103.elf"
 cp "$OUT/build/wideband.map" "$OUT/miata_wbo_f103.map" 2>/dev/null || true
 arm-none-eabi-size "$OUT/miata_wbo_f103.elf"
 python3 "$HERE/check_wbo_image.py" "$OUT/miata_wbo_f103.elf" "$OUT/miata_wbo_f103.bin"
+# provenance: compiler and sources, so an identical rebuild can be checked
+{ echo "compiler: $(arm-none-eabi-gcc --version | head -1)"
+  echo "wideband: $(git -C "$WB/.." rev-parse HEAD)"
+  echo "sha256: $(sha256sum "$OUT/miata_wbo_f103.bin" | cut -d' ' -f1)"; } > "$OUT/miata_wbo_f103.txt"
+cat "$OUT/miata_wbo_f103.txt"

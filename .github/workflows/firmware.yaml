@@ -97,10 +97,14 @@ jobs:
         run: |
           arm-none-eabi-gcc --version | head -1
           bash firmware/wideband/build.sh firmware/ext/rusefi /tmp/wbo
+          # the committed image records the compiler it was built with: same compiler -> must be identical
           if cmp -s /tmp/wbo/miata_wbo_f103.bin firmware/wideband/miata_wbo_f103.bin; then
             echo "::notice title=Wideband image::identical to the committed firmware/wideband/miata_wbo_f103.bin"
+          elif [ "$(grep '^compiler' /tmp/wbo/miata_wbo_f103.txt)" == "$(grep '^compiler' firmware/wideband/miata_wbo_f103.txt)" ]; then
+            echo "::error title=Wideband image::differs from the committed image with the same compiler: rebuild and commit it"
+            exit 1
           else
-            echo "::warning title=Wideband image::differs from the committed image (compiler version?); rebuild and commit it if the sources changed"
+            echo "::notice title=Wideband image::built with $(grep '^compiler' /tmp/wbo/miata_wbo_f103.txt | cut -d' ' -f2-); the committed image is from $(grep '^compiler' firmware/wideband/miata_wbo_f103.txt | cut -d' ' -f2-), so the bytes differ"
           fi
 
       - uses: actions/upload-artifact@v4
