@@ -18,18 +18,29 @@ jobs:
         with:
           submodules: true
 
-      - name: Tools and rusEFI submodules
-        run: |
-          sudo apt-get update -q && sudo apt-get install -y -q gcc-arm-none-eabi gdb
-          cd firmware/ext/rusefi && misc/git_scripts/common_submodule_init.sh
+      # the same build as the Firmware workflow (rusEFI's custom-board action: Java code generation, OpenBLT, the
+      # application and its CRC image), so the simulation runs exactly the firmware that would be flashed
+      - name: Build firmware
+        uses: ./firmware/ext/rusefi/.github/workflows/custom-board-build
+        with:
+          rusefi_dir: firmware/ext/rusefi
+          meta_info: firmware/board/meta-info.env
+          meta_output: firmware/generated/
+          sim_output: firmware/generated/
+          push: 'false'
+          uploads: ''
+          artifacts: bin hex elf bootloader bundle
 
-      - name: Build rusEFI and OpenBLT for this board
-        run: |
-          bash firmware/tools/offline_compile_check.sh firmware/ext/rusefi -j4 bootloader
-          bash firmware/tools/offline_compile_check.sh firmware/ext/rusefi -j4
+      - name: Tools
+        run: sudo apt-get update -q && sudo apt-get install -y -q gcc-arm-none-eabi gdb
 
       - name: Build the wideband image (for its ELF)
-        run: bash firmware/wideband/build.sh firmware/ext/rusefi firmware/wideband/out
+        run: |
+          cd firmware/ext/rusefi
+          git submodule update --init --depth 1 firmware/controllers/can/wideband_firmware
+          (cd firmware/controllers/can/wideband_firmware && git submodule update --init --depth 1 firmware/ChibiOS firmware/libfirmware)
+          cd ../../..
+          bash firmware/wideband/build.sh firmware/ext/rusefi firmware/wideband/out
 
       - name: Renode
         run: |
