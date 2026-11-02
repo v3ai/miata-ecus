@@ -55,6 +55,7 @@ Each of these made the unmodified firmware fail in emulation while it would work
 | F103 platform: no RCC, flash controller, ADC, timers, CAN, boot alias | wideband never starts | `stm32f103_wbo.repl`, `models/rcc_f1.py`, `models/STM32F1Flash.cs`, `models/STM32F1ADC.cs` |
 | STM32_UART keeps no CR1.M (word length) bit | the 9-bit (8 data + even parity) frame the ROM bootloader needs is invisible on readback | the bootloader model takes the frame format from the CR1 write that enables the USART |
 | No STM32F103 ROM bootloader (ST's code is not available) | nothing to flash | `models/F103RomBootloader.cs`: AN3155 v2.2 protocol, serial frame and baud checks, erase/program times |
+| STM32_Timer never matches a compare value of 0 (silicon matches when the counter wraps to 0) | the F103's ChibiOS system timer (16-bit TIM4, 2 kHz) set its alarm to 0 at the wrap; every timed thread stopped 32.768 s after boot | `models/TimerCcrZero.cs`: bus front for TIM4 that matches a CCR of 0 at the auto-reload value (one tick early; ChibiOS re-arms) |
 | Two machines, one host thread each (the default): the time synchronisation between them races | the two-chip run froze at a random point (4.6-5.8 s) with neither CPU executing | `emulation SetGlobalSerialExecution true` in `run_system.py`: both machines on one thread, taking turns each quantum (also deterministic) |
 
 ## Limits

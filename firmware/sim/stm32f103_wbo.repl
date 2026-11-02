@@ -116,7 +116,12 @@ timer3: Timers.STM32_Timer @ sysbus 0x40000400
     frequency: 48000000
     initialLimit: 0xFFFF
 
-timer4: Timers.STM32_Timer @ sysbus 0x40000800
+// TIM4 is ChibiOS's system timer (tickless, 16 bit, 2 kHz). On the bus it sits behind models/TimerCcrZero.cs: Renode's
+// timer never matches a compare value of 0, which ChibiOS's alarm hits at the counter wrap
+timer4Bus: Miata.TimerCcrZero @ sysbus 0x40000800
+    timer: timer4
+
+timer4: Timers.STM32_Timer @ none
     -> nvic@30
     frequency: 48000000
     initialLimit: 0xFFFF
