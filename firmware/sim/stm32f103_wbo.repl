@@ -21,7 +21,12 @@ sram: Memory.MappedMemory @ sysbus 0x20000000
 sysmem: Memory.MappedMemory @ sysbus 0x1FFFF000
     size: 0x1000
 
-nvic: IRQControllers.NVIC @ sysbus 0xE000E000
+// The NVIC is reached by the CPU and the interrupt lines directly; on the bus it sits behind models/NvicRettobase.cs,
+// which supplies ICSR.RETTOBASE (Renode never sets it; ChibiOS needs it to switch threads after an interrupt).
+nvicBus: Miata.NvicRettobase @ sysbus 0xE000E000
+    nvic: nvic
+
+nvic: IRQControllers.NVIC @ none
     priorityMask: 0xF0
     systickFrequency: 48000000
     IRQ -> cpu@0
@@ -78,10 +83,8 @@ pwr: Memory.MappedMemory @ sysbus 0x40007000
     size: 0x400
 
 // Cortex-M DWT cycle counter (ChibiOS time measurement), at the 48 MHz core clock
-dwt: Python.PythonPeripheral @ sysbus 0xE0001000
-    size: 0x1000
-    initable: true
-    filename: "@SIM@/models/dwt.py"
+dwt: Miata.CortexMDwt @ sysbus 0xE0001000
+    coreClock: 48000000
 
 usart1: UART.STM32_UART @ sysbus <0x40013800, +0x100>
     -> nvic@37

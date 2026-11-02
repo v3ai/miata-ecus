@@ -85,8 +85,23 @@ for i in range(4):
 for s in ('clt', 'iat'):
     for f in ('tempC_1', 'tempC_2', 'tempC_3', 'resistance_1', 'resistance_2', 'resistance_3', 'bias_resistor'):
         PROBES[f'{s}_{f}'] = f'{CFG}.{s}.config.{f}'
-# SensorType numbers (rusEFI controllers/sensors/sensor_type.h, this build)
-SENSORS = {'sClt': 1, 'sIat': 2, 'sTps': 13, 'sMap': 4, 'sVbatt': 33, 'sRpm': 3, 'sIgnKey': 80, 'sMaf': 5}
+# Sensors read from rusEFI's registry, by SensorType name. Only sensors that store their value (StoredValueSensor and
+# its subclasses) can be read this way: combined ones (Map, Tps1) are proxies, so their underlying sensors are used.
+SENSOR_NAMES = {'sClt': 'Clt', 'sIat': 'Iat', 'sTps': 'Tps1Primary', 'sMap': 'MapSlow', 'sVbatt': 'BatteryVoltage',
+                'sRpm': 'Rpm', 'sIgnKey': 'IgnKeyVoltage', 'sMaf': 'Maf', 'sLambda': 'Lambda1'}
+SENSORS = {}
+
+
+def sensor_ids(elf):
+    """SensorType enum values of this build (gdb)."""
+    args = []
+    for n in SENSOR_NAMES.values():
+        args += ['-ex', f'print (int)SensorType::{n}']
+    out = subprocess.run(['gdb', '-batch', '-nx'] + args + [elf], capture_output=True, text=True).stdout
+    vals = [int(v) for v in re.findall(r'^\$\d+ = (\d+)$', out, re.M)]
+    if len(vals) != len(SENSOR_NAMES):
+        raise SystemExit('could not read SensorType values from ' + elf + '\n' + out)
+    return dict(zip(SENSOR_NAMES, vals))
 
 # --- the board's analog front end (firmware/board/miata_pins.h, scripts/design.py) ---
 VBATT_DIV = (33.0 + 6.8) / 6.8
@@ -265,7 +280,8 @@ def timeline(year, stim):
     pins(vbat=14.2, key=True, tps_v=1.4, map_kpa=60, clt_ohm=warm, iat_ohm=iat, maf_v=2.4)
     run('cruise', 1.2)
     steps.append(('wheel', 'SetRpm 6500'))
-    pins(vbat=14.2, key=True, tps_v=4.2, map_kpa=98, clt_ohm=warm, iat_ohm=iat, maf_v=4.2)
+    # heavy load but inside every preset's sensor ranges (4.2 V on the TPS reads as "TPS high" on some presets)
+    pins(vbat=14.2, key=True, tps_v=3.6, map_kpa=90, clt_ohm=warm, iat_ohm=iat, maf_v=3.4)
     run('high', 1.0)
     steps.append(('wheel', 'Stop'))
     pins(vbat=12.4, key=True, tps_v=0.6, map_kpa=100, clt_ohm=warm, iat_ohm=iat)
@@ -290,10 +306,13 @@ def raw_symbol(prefix):
     raise SystemExit('symbol not found: ' + prefix)
 
 
-def platform(name, out):
-    """Platform files name their Python peripheral models as @SIM@/models/...; write a copy with this checkout's path."""
-    dst = os.path.join(out, name)
-    open(dst, 'w').write(open(os.path.join(SIM, name)).read().replace('@SIM@', SIM))
+def platform(names, out):
+    """Write the platform files `names` (one, or several joined into one file) with @SIM@ replaced by this
+    checkout's path. They are joined because the NVIC has no bus address (see NvicRettobase.cs), and Renode only
+    lets later description files reference peripherals that have one."""
+    names = [names] if isinstance(names, str) else names
+    dst = os.path.join(out, '+'.join(n.replace('.repl', '') for n in names) + '.repl')
+    open(dst, 'w').write('\n'.join(open(os.path.join(SIM, n)).read() for n in names).replace('@SIM@', SIM))
     return dst
 
 
@@ -310,10 +329,9 @@ def build_resc(year, out, probes, stim):
     # for the host clock; the firmware sees the same timing, the run just takes less wall time
     L = ['using sysbus', 'emulation SetGlobalAdvanceImmediately true',
          f'include @{SIM}/models/STM32F4ADC.cs', f'include @{SIM}/models/STM32F4DMA.cs', f'include @{SIM}/models/TriggerWheel.cs',
-         f'include @{SIM}/models/PinRecorder.cs',
+         f'include @{SIM}/models/PinRecorder.cs', f'include @{SIM}/models/NvicRettobase.cs', f'include @{SIM}/models/CortexMDwt.cs',
          'mach create "ecu"',
-         f'machine LoadPlatformDescription @{platform("stm32f407_ecu.repl", out)}',
-         f'machine LoadPlatformDescription @{platform("ecu_bench.repl", out)}',
+         f'machine LoadPlatformDescription @{platform(["stm32f407_ecu.repl", "ecu_bench.repl"], out)}',
          'sysbus Tag <0xE0042000, 0xE0042003> "DBGMCU_IDCODE" 0x10076413',
          # system-memory facts in the (otherwise zero) ROM area: flash size 1024 KB at 0x1FFF7A22, a unique ID at
          # 0x1FFF7A10. rusEFI refuses to run ("expected at least 1024K of flash") without the first.
@@ -323,9 +341,6 @@ def build_resc(year, out, probes, stim):
          f'sysbus LoadELF @{BOOT}', f'sysbus LoadBinary @{APP} 0x08008000', f'sysbus LoadSymbolsFrom @{ELF}',
          'cpu VectorTableOffset 0x08000000',
          f'rec SetOutputFile @{rec}']
-    for e in (BOOT, ELF):
-        L += subprocess.run([sys.executable, os.path.join(SIM, 'tools/chibios_rettobase.py'), e],
-                            capture_output=True, text=True, check=True).stdout.strip().split('\n')
     # year select: the board's first boot builds a fresh tune with resetConfigurationExt(DEFAULT_ENGINE_TYPE); the
     # hook hands it this year's engine type instead (what TunerStudio's Popular Vehicles button does)
     early = f'self.GetMachine().SystemBus.WriteByte({nb2:#x}, {1 if y["nb2_early"] else 0}); '
@@ -471,6 +486,13 @@ def analyse(year, samples, phases, pins, stim, chk):
             width = sorted(1000 * (f - r_) for r_, f in p)
             wmed = width[len(width) // 2] if width else 0
             want_n = 2 if (y['engine_type'] == 34) else 1
+            window = 1000 * cyc / want_n
+            if s['injMs'] > 0.95 * window:
+                # the tune asks for more fuel than fits between injections: rusEFI holds the injector open and
+                # warns; a tune limit, not a board one
+                chk.add(ph, f'{name} pulses per cycle', 'CHECK',
+                        f'fuel demand {s["injMs"]:.2f} ms exceeds the {window:.2f} ms injection window at {rpm} rpm')
+                continue
             chk.add(ph, f'{name} pulses per cycle', abs(per_cycle - want_n) < 0.3,
                     f'{per_cycle:.2f} (want {want_n}), width {wmed:.2f} ms, firmware {s.get("injMs"):.2f} ms')
             if wmed:
@@ -556,6 +578,7 @@ def main():
     probes = json.loads(pr.stdout)
     for k in ('critMsg', 'cfgMsg'):
         probes[k].update(kind='bytes', size=64)
+    SENSORS.update(sensor_ids(ELF))
     total_fail = 0
     for year in args.years.split(','):
         out = os.path.join(args.out, year)

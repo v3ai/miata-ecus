@@ -34,7 +34,6 @@ check passed.
 - `tools/elf_probes.py`: reads addresses and types of firmware variables from the ELF's debug info, so the run
   can sample rusEFI's own state (RPM, sensors, timing, config) from emulated RAM. `tools/sampler.py` does the
   sampling from a hook in rusEFI's 20 Hz slow callback.
-- `tools/chibios_rettobase.py`: works around Renode's NVIC not setting ICSR.RETTOBASE (see below).
 
 ## Renode gaps found and how they are covered
 
@@ -42,9 +41,9 @@ Each of these made the unmodified firmware fail in emulation while it would work
 
 | Gap in Renode 1.15.3 | Effect on the firmware | Covered by |
 |---|---|---|
-| NVIC never sets ICSR.RETTOBASE | ChibiOS never switches to a thread woken by an interrupt (both MCUs) | `tools/chibios_rettobase.py` hooks every RETTOBASE test, including copies inlined into handlers |
+| NVIC never sets ICSR.RETTOBASE | ChibiOS never switches to a thread woken by an interrupt (both MCUs) | `models/NvicRettobase.cs`: a bus front for the NVIC that sets RETTOBASE from the NVIC's own active-exception stack |
 | STM32F4 timers all at 10 MHz | rusEFI's time base (TIM5) ran 8.4× slow; the watchdog reset the ECU after 1 s | real clocks in the platform file (APB1 timers 84 MHz, APB2 168 MHz) |
-| No DWT cycle counter; a counter of executed instructions stops in WFI | wrong time measurement | `models/dwt.py`: virtual time × core clock |
+| No DWT cycle counter; a counter of executed instructions stops in WFI | wrong time measurement | `models/CortexMDwt.cs`: virtual time × core clock |
 | No STM32F4 ADC | no battery, key, sensor or knock readings | `models/STM32F4ADC.cs` |
 | STM32DMA: no circular mode, NDTR fixed, end-of-transfer interrupt late | ADCs free-run after each block | `models/STM32F4DMA.cs` for DMA2 |
 | Flash-size word at 0x1FFF7A22 reads 0 | rusEFI stops: "expected at least 1024K of flash" | written by the run script |
