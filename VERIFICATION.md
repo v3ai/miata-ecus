@@ -1,6 +1,6 @@
 # Verification report
 
-**Date:** 2026-10-30.
+**Date:** 2026-10-30; full-firmware emulation, expanded circuit and board checks 2026-11-02.
 **Boards:** daughterboard rev 0.5; motherboards 1989-93 and 1994-95 rev 0.6, 1996-97 / 1999-2000 / 2001-05 rev 0.4.
 These revisions carry the fixes this review called for (see [Rev 0.5 changes](#rev-05-changes-and-re-verification)).
 The review itself was first run on daughterboard rev 0.4 and the previous motherboards.
@@ -36,6 +36,16 @@ Nothing here has been built yet, so this is a desk and simulation review. It cov
     1989-93 board now uses two drivers per injector wire, with a clamp on each wire.
   - All boards were regenerated, routed and checked again; the simulations below cover every fix. The remaining open
     items are in [Open items](#open-items).
+- **Full firmware, emulated (2026-11-02).** The real OpenBLT + rusEFI images run unmodified on an emulated STM32F407
+  through every model year (boot, cranking on recorded captures, 6500 rpm, stall, key off): 0 failures, after fixing
+  two firmware bugs that stopped rusEFI at boot (CAN on the wrong bus, two lambda inputs at once). The ECU flashes a
+  blank emulated F103 through its ROM bootloader; the wideband then heats a modelled LSU 4.9 and rusEFI reads the
+  lambda steps 1.00 / 0.85 / 1.20 over CAN. See
+  [Full-firmware emulation](#full-firmware-emulation-expanded-circuit-and-board-checks-2026-11-02).
+- **New hardware findings (2026-11-02), not yet changed:** the expanded circuit and fault checks found 13 items
+  (N1-N13), three of them high: the F103's supply order at power-up (VDDA ahead of VDD), unclamped analog inputs,
+  and unprotected LSU signal wires (inherited from FOME). See
+  [New hardware findings](#new-hardware-findings-2026-11-02).
 - **Review.** A second, independent pass checked this report against the sources. Its corrections are folded in below;
   it found the ignition-sense bug.
 
@@ -53,6 +63,9 @@ Nothing here has been built yet, so this is a desk and simulation review. It cov
 | Circuits | `firmware/tools/circuit_sim.py` (ngspice), as built: hall inputs at 7200 rpm and shorted to battery, 12 V switch inputs with and without the pull-up option, CLT/IAT network −20…120 °C through the firmware's conversion, injector / idle / VVT turn-off, 1989-93 paired injectors with the TVS, relay-driver key-off back-feed, kick-back and a load dump on the relay feeds (each TVS at the bad end of its tolerance), logic supply under load dump, ISO pulse 2a, jump start and a sustained overvoltage, knock amplifier | 20 OK, 3 CHECK (switch inputs at 9 V cranking, knock clipping), 6 REF (rev 0.4 or no-fix references), 0 FAIL. Details in [Rev 0.5 changes](#rev-05-changes-and-re-verification) |
 | Board layout | Every board regenerated from the design scripts, autorouted, schematic netlist compared pad by pad with the design, KiCad DRC | See [Rev 0.5 changes](#rev-05-changes-and-re-verification) |
 | Wideband flashing | `firmware/tools/flash_sim/`: our `wideband_uart_flash.cpp`, unmodified, compiled for a PC against a model of the F103 ROM bootloader (AN3155, ID 0x410). The model was first validated with **stm32flash** (identified it as an STM32F10xxx medium-density part, wrote and verified the image with both erase variants) | 9/9 scenarios pass |
+| Full firmware, emulated | `firmware/sim/run_ecu.py`: OpenBLT + rusEFI unmodified on an emulated STM32F407 (Renode), every model year, from boot through cranking on real captures to 6500 rpm, stall and key off. `run_system.py`: the ECU programs a blank emulated STM32F103 through its ROM bootloader, then both run together over CAN with an LSU 4.9 sensor model | 372 OK, 8 CHECK (default tune at 6500 rpm), 0 FAIL; two firmware bugs found and fixed. Two-chip run: see [Full-firmware emulation](#full-firmware-emulation-expanded-circuit-and-board-checks-2026-11-02) |
+| Circuits, expanded | `firmware/tools/circuit_sim_full.py` (ngspice): every input and output stage, power-up order, ISO 16750-2 cranking, brown-out, key-off, shorts, the wideband front end and heater | 53 OK, 29 CHECK, 2 REF, 8 FAIL: new findings N1-N13 |
+| Copper and faults | `firmware/tools/board_copper.py` / `board_checks.py`: netlist rebuilt from each routed board's copper and compared with the design; every harness cavity on every board shorted to ground, 14.4 V and 24 V | Copper = design on all six boards (0 opens, 0 shorts); fault cases feed N2, N3, N6, N10 |
 | Main-MCU image | `firmware/tools/check_image.py` on a fresh build: vector tables, OpenBLT's CRC-32 + size header (same algorithm as rusEFI's `FlashVerifyChecksum`), merged DFU layout, fit below the settings sectors | Pass; 77 KB spare |
 
 ## Pinouts: findings
@@ -135,7 +148,9 @@ complete firmware as it runs on the STM32. That build differs from the real one 
 - it defines the Hellen hardware flag, and doesn't run ChibiOS, the drivers or the boot sequence.
 
 So the simulation shows the tune is right and the engine logic drives the right pins at the right angles. It does not
-replace a bench test of the real board.
+replace a bench test of the real board. The full-firmware emulation added on 2026-11-02 (see
+[Full-firmware emulation](#full-firmware-emulation-expanded-circuit-and-board-checks-2026-11-02)) covers the parts this
+build leaves out: boot, ChibiOS, the drivers, the ADC, CAN and the ignition-sense cut. It found two more firmware bugs.
 
 ## Wideband flashing (simulated)
 - **Blank chip (both erase variants) and re-flash over old firmware:** all 31,744 bytes written and read back. The
@@ -302,13 +317,168 @@ and compares it with the committed image.
 | Schematic netlist against the design | 795 pads, 0 differences |
 | DRC after re-route and `daughter_patch.py` | 0 unconnected, 0 clearance |
 
-**Not verified:** the wideband firmware has not run on an F103 yet. The analog scaling and control loops are
-rusEFI's, unchanged; the clocks, pin setup and timer remap are ours. rusEFI's "Update wideband firmware" over CAN
+**Not verified on silicon:** the wideband firmware has not run on a real F103 yet. It has run unmodified on an
+emulated F103 (see [Full-firmware emulation](#full-firmware-emulation-expanded-circuit-and-board-checks-2026-11-02)):
+flashed by the ECU, started, heated a modelled LSU 4.9 and reported lambda over CAN. The analog scaling and control
+loops are rusEFI's, unchanged; the clocks, pin setup and timer remap are ours. rusEFI's "Update wideband firmware" over CAN
 carries the F042 module's image and does not apply. If pressed, the wideband acknowledges and resets, but with no
 CAN bootloader on the F103 it just restarts its own firmware, and rusEFI's update times out without writing
 anything. Use "Flash on-board wideband".
 
+## Full-firmware emulation, expanded circuit and board checks (2026-11-02)
+Three further checks, run on the rev 0.6 boards and the current firmware:
+1. **Firmware-in-the-loop** (`firmware/sim/`): the real OpenBLT + rusEFI images and the wideband image run unmodified
+   on emulated STM32F407 and STM32F103 chips (Renode 1.15.3), with the car, the board's input stage, the LSU sensor and
+   the link between the two chips modelled.
+2. **Expanded circuit simulation** (`firmware/tools/circuit_sim_full.py`, ngspice): every input and output stage,
+   the power path through cranking and brown-outs, power-up order, faults and the wideband front end.
+3. **Board-level checks** (`firmware/tools/board_checks.py`, `board_copper.py`): the copper of every routed board read
+   back into a netlist, and every harness cavity shorted to ground, battery and 24 V on every board.
+
+This is instruction-level emulation, not cycle-accurate: each instruction takes one clock, with no pipeline, flash
+wait states or bus contention. Timers, ADC conversions, serial bytes and CAN frames run in virtual time at the real
+clock rates, so firmware timing (pulse widths, dwell, spark angle, timeouts) is accurate to a few microseconds.
+
+### Firmware-in-the-loop: ECU, every model year
+`firmware/sim/run_ecu.py`. For each year the ECU runs through:
+- boot through OpenBLT;
+- key on, with sensor voltages through the board's input dividers;
+- cranking on a **real recorded cranking capture** (rusEFI's NA and NB2 logic-analyser captures);
+- idle at 900 rpm, cruise at 3000 rpm and 6500 rpm at full load;
+- a stall and key off.
+
+The output pins are recorded at every edge, and rusEFI's own state is read from emulated RAM 20 times a second.
+
+| Year | Checks | Result |
+|---|---|---|
+| 1989-93 | 60 | 56 OK, 4 CHECK, 0 FAIL |
+| 1994-95 | 61 | 57 OK, 4 CHECK, 0 FAIL |
+| 1996-97 | 64 | 64 OK, 0 FAIL |
+| 1999-2000 | 64 | 64 OK, 0 FAIL |
+| 2001-02 | 64 | 64 OK, 0 FAIL |
+| 2003-05 | 67 | 67 OK, 0 FAIL |
+
+Passing, every year:
+- the year preset is applied, with no critical or configuration error;
+- battery, coolant, air temperature, MAP (barometric at key on) and key-sense readings match what was applied;
+- the fuel pump primes at key on and stops after a stall;
+- the engine syncs on the recorded capture;
+- injectors: pulses per cycle and pulse width (within 0.18 ms of what the firmware commanded); firing order 1-3-4-2
+  on the sequential years (1989-93 runs batch, two pulses per cycle);
+- coils: 4.00 ms dwell, 180° between IGN1 and IGN2 at idle, cruise and 6500 rpm;
+- injection and spark stop when the engine stops;
+- 2003-05: the main relay is held at key on and released 1.03 s after key off.
+
+CHECK, 1989-93 and 1994-95 only: at 6500 rpm and full load, rusEFI's default fuel table asks for more than 95 % of the
+time between injections:
+- 1989-93: 9.8 ms against a 9.2 ms window, because batch mode fires twice per cycle;
+- 1994-95: 17.6 ms against 18.5 ms.
+
+This is the default tune, not the board. Set the fuel table from the car's injector data before running at high load.
+
+**Two firmware bugs found and fixed.** Both stopped rusEFI with a critical error at boot, which disables injection and
+spark. Neither appears in rusEFI's unit-test build, which doesn't start the CAN or sensor drivers:
+- **CAN on the wrong bus.** The board put the CAN transceiver (PB12/PB13, the STM32's CAN2 pins) on rusEFI's second
+  bus. rusEFI's default CAN broadcast goes to the first bus, which had no pins, and raised "CAN1 device not
+  configured". The transceiver is now rusEFI's first bus; rusEFI picks the CAN2 peripheral from the pins.
+- **Two lambda inputs at once.** The board set both the analog AFR input (PC4) and the CAN wideband. rusEFI refuses
+  that ("Please pick either analog AFR or CAN AFR input not both"). The on-board wideband over CAN is now the default.
+  For an external 0-5 V wideband, set the AFR input to PC4 in TunerStudio and turn the CAN wideband off.
+
+The unit tests, pin check and end-to-end harness check were rerun with both fixes: 18/18, pins OK, 119/119.
+
+### Firmware-in-the-loop: ECU + wideband together
+`firmware/sim/run_system.py` runs both chips as a new board starts life, with the F103 blank:
+1. the ECU boots and the key goes on;
+2. the ECU's wideband flasher (the TunerStudio button) takes the F103 into ST's ROM bootloader through BOOT0/NRST,
+   erases it, writes and verifies the wideband image over USART3 and restarts it;
+3. the engine runs, rusEFI allows the wideband to heat the sensor, and the wideband reports lambda over CAN;
+4. the exhaust lambda in the sensor model steps from 1.00 to 0.85 to 1.20.
+
+| Check | Result |
+|---|---|
+| ECU boots and stays free of critical errors with the wideband connected | OK |
+| Flashing a blank F103 (status sequence starting → writing → verifying → done) | Done 3.6 s after the flash was started; the 26,348-byte image written and read back |
+| F103 flash after flashing, against the image the ECU carries | CRC-32 b9c29a35 = b9c29a35 |
+| F103 starts its new firmware and transmits | Standard (0x190) and diagnostic (0x191) frames at 100 Hz |
+| CAN bit timing, read from both controllers | ECU 500 kbit/s, sample point 85.7 %; wideband 500 kbit/s, 87.5 % |
+| Before the engine runs | Wideband reports "heating not allowed", then holds the preheat (about 2 % duty, condensation protection) |
+| Heating once the engine runs | rusEFI allows heating; the wideband ramps the heater and reaches closed loop 12.5 s after engine start |
+| Sensor in closed loop | 774 °C, ESR 330 Ω against the 300 Ω target; the wideband's own ESR reading tracks the sensor model's |
+| Pump loop and lambda (rusEFI's reading: mean over each step's last second, and its range) | λ 1.00: pump −0.04 mA; rusEFI **1.007** (0.991-1.034). λ 0.85: pump −0.615 mA (Bosch table −0.652); rusEFI **0.849** (0.836-0.867). λ 1.20: pump 0.364 mA (Bosch 0.358); rusEFI **1.197** (1.156-1.234) |
+| Overall | **0 FAIL** |
+
+The ripple of a few percent comes from the pump loop working against the sensor model's cavity dynamics. A real
+sensor's dynamics will differ, so treat the ripple as indicative only; rusEFI smooths the reading it uses.
+
+Along the way this run caught gaps in the emulator and in the sensor model, all fixed in the models, not the firmware:
+- Renode froze two machines that ran on separate threads.
+- The wideband's system timer stopped at its first 16-bit wrap (Renode timer gaps, below).
+- The first LSU model had no cavity dynamics: against the firmware's pump loop (kP 50) it oscillated rail to rail,
+  which also corrupted the ESR reading. The LSU 4.9 measuring cavity is now an integrator with a 20 ms response, and
+  the pump-current table is Bosch's.
+
+Wall time is about 28 minutes for 40 s of virtual time.
+
+### Renode gaps
+Renode lacks parts of both chips, and several of its models behave differently from silicon in ways that stopped the
+unmodified firmware. Each was modelled or worked around, and is listed in `firmware/sim/README.md`. The main ones:
+- the NVIC never sets RETTOBASE, so ChibiOS never switched to a thread woken by an interrupt;
+- the STM32F4 timers all ran at 10 MHz;
+- there was no cycle counter, no STM32F4 ADC, and the DMA had no circular mode;
+- the F103 had no clocks, flash controller, ADC, timers or CAN;
+- the UART drops the 9-bit word-length bit that the ROM bootloader's 8E1 frame needs;
+- there is no ST ROM bootloader. Ours models AN3155, including byte times, erase and programming times;
+- a timer compare value of 0 never matches, and the counter wraps one count early. Together they stopped ChibiOS's
+  system timer on the F103 at its first 16-bit wrap, 32.8 s after boot;
+- the CAN model hides its bit-timing register outside init mode;
+- two machines on separate host threads froze at random points. They now share one thread.
+
+### Expanded circuit simulation
+53 OK / 29 CHECK / 2 REF / 8 FAIL. The FAILs and the main CHECKs are hardware findings, listed in
+[New hardware findings](#new-hardware-findings-2026-11-02). Things that pass:
+- every sensor through its divider, filter and the firmware's conversion;
+- crank and cam inputs at 150 and 7200 rpm, including during a crank dip;
+- VSS at 200 km/h;
+- the knock band;
+- the wideband pump-current source over λ 0.65 to air (firmware lambda within 1.6 %);
+- the virtual ground and Nernst sense;
+- the heater driver's peak current and dissipation;
+- the 24 V jump start on the switch inputs.
+
+### Board-level checks
+- **Copper = design, every board.** The netlist rebuilt from each routed board's copper geometry (tracks, vias, zones,
+  pads; 4 layers on the daughterboard, 2 on the motherboards) matches the design scripts' netlist: 0 opens, 0 shorts.
+- **Stacking:** all 80 J1/J2 pads land on JD1/JD2 on every motherboard, same net.
+- **Every cavity, every year:** each harness pin traced to its MCU pin, driver or supply. Each MCU pin's electrical
+  type was checked: FT or not, analog mode, the F103's IO pins.
+- **Faults:** every harness cavity shorted to ground, 14.4 V and 24 V, on every board. 1463 OK / 59 CHECK / 284 FAIL.
+  The FAILs are a short list of failure modes repeated across cavities and years. They are listed with the circuit
+  findings below.
+
+### New hardware findings (2026-11-02)
+From the expanded circuit simulation and the board-level fault checks. **No hardware has been changed for these
+yet**: each needs a design decision.
+
+| # | Severity | Finding | Proposed fix |
+|---|---|---|---|
+| N1 | High | **F103 supply order.** The wideband MCU's VDDA comes from the REF3033 (about 50 mV dropout) and its VDD from the AMS1117 (about 1 V dropout), both off +5V. While +5V rises from about 1.3 V to 4.3 V, at power-up, at every key-off and in a crank dip, VDDA sits up to 0.95 V above VDD for 1.5-4.6 ms. ST allows 300 mV. Repeated, this can latch up or degrade the F103 | Replace U4 (AMS1117-3.3) with a low-dropout regulator in the same SOT-223 footprint: simulated, the lead drops to about 200 mV. This also clears the AMS1117's 0 °C minimum rating (Minor list) |
+| N2 | High | **Analog inputs unclamped.** A sensor wire (TPS, CLT, IAT, O2/AUX1-3, AFR) shorted to battery puts 9.2 V on its F407 pin; 15.4 V in a 24 V jump start. The pins are 5 V tolerant only as digital inputs; in analog mode the limit is about 3.6 V, and 7.3 V absolute. The hall inputs got clamps in rev 0.5; these didn't | A dual diode to +3V3 (BAT54S) or a 1N4148WS at each of the eight AN_ nodes, after the existing series resistor: about 1.9 mA into the clamp at 14.4 V, none into the MCU |
+| N3 | High (inherited from FOME) | **LSU wires unprotected.** A cracked sensor or chafed harness that shorts an LSU signal wire to the heater's 12 V: LSU_VM puts about 2 A into F103 PA1/PA3 and the MCP6004 through R109 (10 Ω); LSU_UN goes straight to an MCP6004 input; LSU_IP and LSU_RT burn R110/R108. The wideband would be destroyed | Series resistance into F103 PA1 (LSU_VM is not sampled by the firmware: 10k, or no connection) and clamps to +3V3 on the sense nodes. The pump and Nernst paths can't take much series resistance without changing the analog design, so this needs care |
+| N4 | Medium | **F407 brown-out window.** rusEFI sets BOR level 1 (about 2.1 V). In an ISO 16750-2 level II crank pulse with a worst-case AMS1117, or in a slow brown-out, the F407 runs for up to 93 ms with VDD between 2.1 and 2.7 V, below what its 5-wait-state flash setting at 168 MHz is specified for | Either set BOR level 3 (2.7 V) from the board code, so the ECU resets cleanly instead of running out of spec (a worst-case deep crank would then reset it), or the U4 change in N1, which keeps +3V3 above 2.7 V in a level II pulse |
+| N5 | Medium | **Wideband heater warm-up vs the motherboard's F1 (2 A hold PTC).** At the start of the firmware's warm-up ramp, a cold heater draws 1.6-2.3 A rms (2.5-4 Ω cold resistance). The PTC's hold current derates to about 1.6 A at 60 °C, so it may trip during warm-up, and the controller then times out | A 3 A hold PTC in F1's footprint, or start the warm-up ramp lower in our wideband port (firmware only). Measure a real sensor's cold heater resistance either way |
+| N6 | Medium | **Input resistors under-rated for shorts to battery.** Crank/cam: R62/R64 (1 kΩ 0603) take 88 mW at 14.4 V (62 mW rating) and 279 mW at 24 V; R61/R63 (4.7k pull-ups) 85 mW at 24 V. Analog inputs at 24 V: R27, R33, R36 66-134 mW | 0805 or 1206 parts in those positions (same values), or larger series values |
+| N7 | Medium | **Knock input:** a knock wire shorted to battery couples a 14 V step through C44 into the LMV321's input diodes (about 1.2 A peak) | 1-10 kΩ in series with C44 |
+| N8 | Medium | **1989-93 injector drivers at sustained high duty:** each NCV8406A at 90 % duty reaches about 142 °C junction at 60 °C ambient and thermal shutdown at 85 °C ambient (about 20 mm² of tab copper) | More copper on the tabs (pour on both layers with vias), or convert to sequential |
+| N9 | Low | **Switch inputs in a 35 V load dump** (battery-fed switch closed): 8.1 V on the FT pin, against 7.3 V abs max | 1N4148WS to +3V3, as on the hall inputs |
+| N10 | Low | **AUX header J5:** UART TX/RX (PC6/PC7) and the AFR input (PC4) have no protection | Series resistors and clamps if the header is used with car wiring; fine for bench use |
+| N11 | Low | **1989-93 2L** (manual-transmission idle switch, ground-switching) has no pull-up, so it can't be read. **1994-95 2L** (electrical-load signal), if it switches to battery, over-drives PC5 | Firmware reads TPS instead; fit a pull-up only if needed. Check the 1994-95 signal level on a car before wiring it |
+| N12 | Low (inherited from FOME) | **ESR reads 27 % low** (C102 droops within each ESR half period), so the sensor runs at about 740 °C instead of 780 °C | A firmware calibration in our wideband port, or leave it as FOME and rusEFI do |
+| N13 | Low | **+5V at 3.9 V in a level II crank pulse:** the TC4427 and the SN74LVC4245A port A are rated from 4.5 V. Both still switch, with less drive | None needed; noted |
+
 ## Open items
+The 2026-11-02 findings N1-N13 are listed in [New hardware findings](#new-hardware-findings-2026-11-02).
+
 | # | Issue | What to do |
 |---|---|---|
 | M5 | **NB alternator field drive unknown.** rusEFI's NB presets enable alternator PWM; **our firmware now ships it off** (pin and PID still set up). If the ECU drives the field coil directly (3-5 A, high inductance), a SOT-223 low-side driver (now the NCV8406A, current-limited with thermal shutdown) is likely undersized for continuous field current and has no freewheel path | Measure the field current and its supply on a car (or check the FSM) before turning on "Alternator control" in TunerStudio. Until then the car may not charge: watch battery voltage. Add a freewheel diode only once the field's supply is known |
@@ -420,8 +590,10 @@ None of these exceed their path's rating.
   - CAN signal integrity;
   - thermal behaviour in the case;
   - EMC.
-- **The main MCU's boot.** It wasn't run in an instruction-level emulator. QEMU's STM32F4 model lacks the clock and
-  peripheral models rusEFI waits on at start-up, so the image was checked structurally instead.
+- **Cycle-accurate timing.** The firmware-in-the-loop runs are instruction-level: each instruction takes one clock,
+  with no pipeline, flash wait states or bus contention (see
+  [Full-firmware emulation](#full-firmware-emulation-expanded-circuit-and-board-checks-2026-11-02)). Peripheral timing
+  runs at the real clock rates.
 - **Load models.** Injector, idle-valve and alternator inductance and current are typical published values, not
   measured on Miata parts.
 - **Two wires the sources can't settle:** the 1989-95 tach cavity (pinout finding 6) and the NB alternator field supply

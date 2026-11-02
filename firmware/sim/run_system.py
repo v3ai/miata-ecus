@@ -174,9 +174,12 @@ def analyse(log, samples, out, chk):
             need = lsu_curve(lam)
             chk.add(ph, f'pump current at lambda {lam}', abs(ip - need) < 0.05 + 0.05 * abs(need),
                     f'{ip:.3f} mA (LSU curve {need:.3f} mA), Nernst {end[-1]["nernst"]:.3f} V')
-        s = [x for x in samples if b - 0.5 <= x['t'] <= b]
-        got = s[-1].get('sLambda') if s else None
-        chk.add(ph, f'rusEFI lambda reading at {lam}', got is not None and abs(got - lam) < 0.02, f'{got}')
+        # mean over the phase's last second (rusEFI samples at 20 Hz; the wideband's reading carries the pump
+        # loop's ripple, a few percent on the lean side), with the spread
+        vals = [x['sLambda'] for x in samples if b - 1.0 <= x['t'] <= b and x.get('sLambda') is not None]
+        got = sum(vals) / len(vals) if vals else None
+        chk.add(ph, f'rusEFI lambda reading at {lam}', got is not None and abs(got - lam) < 0.02,
+                f'{got:.3f} (mean of {len(vals)} readings, {min(vals):.3f} .. {max(vals):.3f})' if vals else 'no reading')
 
 
 def main():
