@@ -28,8 +28,8 @@ namespace Antmicro.Renode.Peripherals.Miata
         {
             this.machine = machine;
             var t = adc.GetType();
-            var set = t.GetMethod("SetChannelVoltage");
-            setVoltage = (ch, v) => set.Invoke(adc, new object[] { ch, v });
+            setVoltage = (Action<int, double>)Delegate.CreateDelegate(typeof(Action<int, double>), adc,
+                t.GetMethod("SetChannelVoltage"));
             t.GetEvent("BeforeConversion").AddEventHandler(adc, new Action<int>(Update));
             Reset();
         }
@@ -87,9 +87,16 @@ namespace Antmicro.Renode.Peripherals.Miata
             return Math.Min(1.0, (double)ccr / (arr + 1));
         }
 
+        // Runs before every conversion (about 5 x 10^5 per second); the plant and the firmware's outputs (PWM duties,
+        // ESR drive pin) are re-read at most every UpdateStep of virtual time, far shorter than the PWM period (100 us)
+        // and the ESR half period (1.2 ms), and the ADC inputs keep their values in between.
         private void Update(int channel)
         {
             var now = machine.LocalTimeSource.ElapsedVirtualTime.TotalSeconds;
+            if(lastTime >= 0 && now - lastTime < UpdateStep)
+            {
+                return;
+            }
             if(lastTime < 0)
             {
                 lastTime = now;
@@ -144,6 +151,7 @@ namespace Antmicro.Renode.Peripherals.Miata
         }
 
         private const double Ambient = 20.0;
+        private const double UpdateStep = 20e-6;
         private readonly IMachine machine;
         private readonly Action<int, double> setVoltage;
         private double lastTime;

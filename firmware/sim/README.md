@@ -18,7 +18,8 @@ timeouts) is meaningful to a few microseconds.
 | `run_ecu.py` | ECU: STM32F407, OpenBLT + rusEFI | Per model year: boot, year preset, key-on sensor readings through the board's front end, fuel-pump prime, cranking on a **real recorded cranking capture**, idle/cruise/high rpm, injector count/width/order, coil count/dwell/180° spacing, stall shut-off, main-relay hold and release (2003-05) |
 | `run_system.py` | ECU + wideband: STM32F407 and STM32F103 | Blank F103 programmed by the ECU over USART3 + BOOT0/NRST through the ROM bootloader protocol (erase, write, verify), F103 restart, CAN bit timing of both controllers, LSU 4.9 heater warm-up, ESR control, pump loop against the LSU curve, rusEFI's lambda reading |
 
-`python3 run_ecu.py [--years 1989-93,2003-05]`, `python3 run_system.py`. Results (Renode log, pin
+`python3 run_ecu.py [--years 1989-93,2003-05]` (about 6-10 minutes per year), `python3 run_system.py` (about
+30 minutes). The Renode log is written as the run goes; a run whose log stops growing for 10 minutes is stopped. Results (Renode log, pin
 transitions, sampled firmware state, CAN frames, check table) go to `out/` (git-ignored); exit code 0 means every
 check passed.
 
@@ -31,6 +32,9 @@ check passed.
 - Platform files refer to their Python models as `@SIM@/models/...`; the run scripts write copies with the
   checkout's path into the output folder and load those.
 - `models/`: peripheral and plant models (C#, compiled by Renode at load; Python for simple register files).
+- `models/HostProbe.cs`: logs each machine's virtual time and PC every few seconds of host time, from a host
+  thread, so a slow or stuck run shows where it is (`PROBE` lines in `renode.log`; map a PC with
+  `arm-none-eabi-addr2line -f`).
 - `tools/elf_probes.py`: reads addresses and types of firmware variables from the ELF's debug info, so the run
   can sample rusEFI's own state (RPM, sensors, timing, config) from emulated RAM. `tools/sampler.py` does the
   sampling from a hook in rusEFI's 20 Hz slow callback.
@@ -51,6 +55,7 @@ Each of these made the unmodified firmware fail in emulation while it would work
 | F103 platform: no RCC, flash controller, ADC, timers, CAN, boot alias | wideband never starts | `stm32f103_wbo.repl`, `models/rcc_f1.py`, `models/STM32F1Flash.cs`, `models/STM32F1ADC.cs` |
 | STM32_UART keeps no CR1.M (word length) bit | the 9-bit (8 data + even parity) frame the ROM bootloader needs is invisible on readback | the bootloader model takes the frame format from the CR1 write that enables the USART |
 | No STM32F103 ROM bootloader (ST's code is not available) | nothing to flash | `models/F103RomBootloader.cs`: AN3155 v2.2 protocol, serial frame and baud checks, erase/program times |
+| Two machines, one host thread each (the default): the time synchronisation between them races | the two-chip run froze at a random point (4.6-5.8 s) with neither CPU executing | `emulation SetGlobalSerialExecution true` in `run_system.py`: both machines on one thread, taking turns each quantum (also deterministic) |
 
 ## Limits
 

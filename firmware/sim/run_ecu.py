@@ -493,7 +493,8 @@ def analyse(year, samples, phases, pins, stim, chk):
                 # the tune asks for more fuel than fits between injections: rusEFI holds the injector open and
                 # warns; a tune limit, not a board one
                 chk.add(ph, f'{name} pulses per cycle', 'CHECK',
-                        f'fuel demand {s["injMs"]:.2f} ms exceeds the {window:.2f} ms injection window at {rpm} rpm')
+                        f'fuel demand {s["injMs"]:.2f} ms is {100 * s["injMs"] / window:.0f} % of the {window:.2f} ms '
+                        f'injection window at {rpm} rpm (over 95 %)')
                 continue
             chk.add(ph, f'{name} pulses per cycle', abs(per_cycle - want_n) < 0.3,
                     f'{per_cycle:.2f} (want {want_n}), width {wmed:.2f} ms, firmware {s.get("injMs"):.2f} ms')
@@ -556,19 +557,39 @@ def analyse(year, samples, phases, pins, stim, chk):
     chk.add('all', 'warning codes seen', 'INFO', ', '.join(map(str, codes)) or 'none')
 
 
-def run_renode(resc, timeout):
-    """Run Renode on a script (ending with `quit`) and return its log. The monitor listens on a free TCP port rather
-    than the console: Renode's console keeps re-queueing end-of-file from a closed stdin until it runs out of memory,
-    and with an open but idle stdin it blocks its own logging. Logs, including the SAMPLE/LSU/... lines the checks
-    read, go to stdout either way."""
+def run_renode(resc, timeout, log_path, stall=600):
+    """Run Renode on a script (ending with `quit`), streaming its log to log_path, and return the log. The monitor
+    listens on a free TCP port rather than the console: Renode's console keeps re-queueing end-of-file from a closed
+    stdin until it runs out of memory, and with an open but idle stdin it blocks its own logging. Logs, including the
+    SAMPLE/LSU/... lines the checks read, go to stdout either way. Renode is stopped if the log stops growing for
+    `stall` seconds (the emulation has hung) or after `timeout` seconds; the port is written to log_path + '.port' so
+    a hung run can be inspected (`telnet 127.0.0.1 <port>`)."""
     import socket
+    import time
     with socket.socket() as sock:
         sock.bind(('127.0.0.1', 0))
         port = sock.getsockname()[1]
-    res = subprocess.run([RENODE, '--disable-xwt', '--plain', '-P', str(port), '-e', f'include @{resc}'],
-                         stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-                         errors='replace', timeout=timeout)
-    return re.sub(r'\x1b\[[0-9;]*m', '', res.stdout)
+    open(log_path + '.port', 'w').write(str(port))
+    start = last = time.time()
+    size = 0
+    with open(log_path, 'w') as f:
+        proc = subprocess.Popen([RENODE, '--disable-xwt', '--plain', '-P', str(port), '-e', f'include @{resc}'],
+                                stdin=subprocess.DEVNULL, stdout=f, stderr=subprocess.STDOUT)
+        while proc.poll() is None:
+            time.sleep(5)
+            now = time.time()
+            grown = os.path.getsize(log_path)
+            if grown != size:
+                size, last = grown, now
+            if now - last > stall or now - start > timeout:
+                print(f'  Renode stopped: {"no log output for %d s" % stall if now - last > stall else "time limit"}',
+                      flush=True)
+                proc.kill()
+                proc.wait()
+    log = open(log_path, errors='replace').read()
+    log = re.sub(r'\x1b\[[0-9;]*m', '', log)
+    open(log_path, 'w').write(log)
+    return log
 
 
 def crc_image():
@@ -603,8 +624,7 @@ def main():
         stim = write_stimulus(YEARS[year]['family'], out)
         resc = build_resc(year, out, probes, stim)
         t0 = time.time()
-        log = run_renode(resc, 3600)
-        open(os.path.join(out, 'renode.log'), 'w').write(log)
+        log = run_renode(resc, 3600, os.path.join(out, 'renode.log'))
         samples = parse_log(log)
         phases = [(st[1], st[2]) for st in timeline(year, stim) if st[0] == 'run']
         json.dump(samples, open(os.path.join(out, 'samples.json'), 'w'))

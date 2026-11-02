@@ -62,9 +62,13 @@ def build(year, out, probes, stim):
                'emulation RunFor "0.01"', f'cpu RemoveHooksAt {main_loop:#x}']
     L = ['using sysbus']
     for m in ('STM32F4ADC', 'STM32F4DMA', 'TriggerWheel', 'PinRecorder', 'F103RomBootloader', 'CanSniffer',
-              'STM32F1ADC', 'STM32F1Flash', 'LsuSensor', 'NvicRettobase', 'CortexMDwt'):
+              'STM32F1ADC', 'STM32F1Flash', 'LsuSensor', 'NvicRettobase', 'CortexMDwt', 'HostProbe'):
         L.append(f'include @{SIM}/models/{m}.cs')
-    L += ['emulation SetGlobalAdvanceImmediately true', 'emulation CreateCANHub "can"',
+    # Serial execution: both machines run on one host thread, taking turns each time quantum. With a thread per
+    # machine (Renode's default) the run froze at a random point (4.6-5.8 s) with neither CPU executing, a race in
+    # Renode's cross-machine time synchronisation; one thread also makes the run deterministic.
+    L += ['emulation SetGlobalSerialExecution true',
+          'emulation SetGlobalAdvanceImmediately true', 'emulation CreateCANHub "can"',
           # the wideband machine: blank F103
           'mach create "wbo"',
           f'machine LoadPlatformDescription @{E.platform(["stm32f103_wbo.repl", "wbo_bench.repl"], out)}',
@@ -192,8 +196,7 @@ def main():
     stim = E.write_stimulus(E.YEARS[args.year]['family'], args.out)
     resc = build(args.year, args.out, probes, stim)
     t0 = time.time()
-    log = E.run_renode(resc, 4 * 3600)
-    open(os.path.join(args.out, 'renode.log'), 'w').write(log)
+    log = E.run_renode(resc, 4 * 3600, os.path.join(args.out, 'renode.log'))
     samples = E.parse_log(log)
     json.dump(samples, open(os.path.join(args.out, 'samples.json'), 'w'))
     chk = E.Checks()

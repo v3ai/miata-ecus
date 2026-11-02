@@ -15,3 +15,7 @@ gpioPortD:
     11 -> wboBootloader@1
 
 sniffer: Miata.CanSniffer @ sysbus 0xD0001000
+
+// progress / stall diagnostic: logs both machines' virtual time and PCs every 10 s of host time (models/HostProbe.cs)
+probe: Miata.HostProbe @ sysbus 0xD0002000
+    periodMs: 10000
