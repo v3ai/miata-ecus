@@ -150,7 +150,7 @@ for i, n in enumerate(design.HS_OUT):
     put(f'Q{1+i}', x, Q_Y, 270)
     r = find(n + '_IN', 'GND')
     # pull-down right of the IN lead, above the tab gap the IN line comes up through
-    vert(r, x + 3.81, -14.7, first_on_bottom=False)
+    vert(r, x + 3.81, -13.9, first_on_bottom=False)   # top pad 0.85 mm from the board edge
 # relay / lamp / tach switches over J1 6-12, staggered (SOT-23 at 2.54 mm pitch), drain down to the pin
 for i, n in enumerate(design.RELAYS):
     put(f'Q{9 + i}', hx(6 + i), -3.0 if i % 2 == 0 else -7.4, 270)
@@ -297,18 +297,18 @@ else:                           # rev 0.2: the FOME module layout, transplanted
 # rev 0.8 protection parts, at free spots found next to the parts they serve (old frame: y - DY)
 put('U13', 42.9, 37.65 - DY, 0)
 put('D35', 41.4, 69.9 - DY, 90)        # hall pull-up diodes, common anode
-put('D38', 41.1, 61.7 - DY, 0)         # AN_VBATT clamp
-put('R139', 70.2, 48.1 - DY, 90)       # UART TX series
+put('D38', 36.15, 62.75 - DY, 0)       # AN_VBATT clamp (clear of the analog fan lanes)
+put('R139', 76.25, 52.1 - DY, 90)       # UART TX series
 put('C67', 79.75, 60.6 - DY, 180)      # U10 VCC
 put('C122', 96.7, 43.0 - DY, 0)        # U106 VCC
 put('F2', 103.75, 70.45 - DY, 0)       # LSU VM wire PTC
 put('D41', 93.6, 66.1 - DY, 0)         # Vm drive clamp
 put('C66', 45.65, 34.8 - DY, 180)      # U13
-put('R140', 71.3, 47.2 - DY, 270)      # UART RX series
+put('R140', 74.8, 45.45 - DY, 0)      # UART RX series
 put('D40', 99.55, 57.65 - DY, 180)     # pump drive clamp
-put('D39', 44.15, 62.15 - DY, 180)     # AN_VIGN clamp
-put('D36', 71.2, 51.15 - DY, 90)       # UART TX clamp
-put('D37', 71.55, 44.4 - DY, 0)        # UART RX clamp
+put('D39', 42.15, 57.9 - DY, 0)        # AN_VIGN clamp (clear of the analog fan lanes)
+put('D36', 74.0, 50.5 - DY, 0)       # UART TX clamp
+put('D37', 74.0, 47.5 - DY, 0)        # UART RX clamp
 
 put('R144', 45.9, 15.7 - DY, 0)   # ignition output pull-down
 put('R145', 50.2, 15.85 - DY, 180)   # ignition output pull-down
