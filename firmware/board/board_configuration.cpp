@@ -55,11 +55,24 @@ static const Gpio lowSideControlPins[] = {
 	MIATA_FP, MIATA_MAINRLY, MIATA_AC, MIATA_FAN, MIATA_CEL, MIATA_TACH, MIATA_LS7,
 };
 
+// Only pins not already parked are touched, so the slow-tick backstop writes nothing in normal running. The mode
+// registers are shared read-modify-write with the port's other pins (the ignition outputs sit on port E with five of
+// these lines), so a change is made with interrupts locked.
 static void parkUnusedLowSideInputs() {
 	for (Gpio pin : lowSideControlPins) {
-		if (getPinFunction(pin) == nullptr) {
-			palSetPadMode(getHwPort("low side", pin), getHwPin("low side", pin), PAL_MODE_INPUT_PULLDOWN);
+		if (getPinFunction(pin) != nullptr) {
+			continue;
 		}
+		ioportid_t port = getHwPort("low side", pin);
+		int bit = getHwPin("low side", pin);
+		uint32_t mode = (port->MODER >> (bit * 2)) & 3U;
+		uint32_t pull = (port->PUPDR >> (bit * 2)) & 3U;
+		if (mode == 0U && pull == 2U) {          // input, pull-down: already parked
+			continue;
+		}
+		chSysLock();
+		palSetPadMode(port, bit, PAL_MODE_INPUT_PULLDOWN);
+		chSysUnlock();
 	}
 }
 
