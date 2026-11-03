@@ -144,12 +144,24 @@ def parts():
             # max) instead of the full short. The buffer input is CMOS (pA), so the 10k costs nothing at DC or at the
             # ESR frequency.
             pads['10'] = 'WB_UN_IN'
+        # rev 0.8, LSU wires shorted to battery: the parts in the pump and virtual-ground paths take a fault current,
+        # so they are 1206 (0.25 W); a resettable fuse (F2) sits in the VM wire, whose path (R109, 10 ohm) would
+        # otherwise pass about 1 A. Clamp diodes (D40/D41) take the current off the op-amp outputs into +3V3, where the
+        # shunt clamp (U15/Q20) holds the rail.
+        if r in ('R8', 'R9', 'R10'):
+            lib = 'Resistor_SMD:R_1206_3216Metric'
+            lc = {'R8': 'C17969', 'R9': 'C17903', 'R10': 'C25341'}[r]
+        if r in ('R9', 'C4', 'R3'):          # sensor side of R109 is now the node behind the fuse
+            pads = {k: ('WB_VMS' if v == 'LSU_VM' else v) for k, v in pads.items()}
         out.append(dict(ref=ref(r), value=val, fp=lib, lcsc=lc, pads=pads, desc=DESC.get(r, 'wideband'),
                         mod_ref=r, side=f['side']))
     # CAN transceiver for the controller, same bus as the main MCU
-    out.append(dict(ref='U106', value='SN65HVD230DR', fp='Package_SO:SOIC-8_3.9x4.9mm_P1.27mm', lcsc='C12084',
-                    pads={'1': 'WB_CAN_TX', '2': 'GND', '3': '+3V3', '4': 'WB_CAN_RX', '5': '', '6': 'CAN_L',
+    # rev 0.8: TCAN1042V-Q1 (5 V supply, 3.3 V VIO, +-58 V bus fault protection), as the main MCU's U10
+    out.append(dict(ref='U106', value='TCAN1042VDRQ1', fp='Package_SO:SOIC-8_3.9x4.9mm_P1.27mm', lcsc='C485806',
+                    pads={'1': 'WB_CAN_TX', '2': 'GND', '3': '+5V', '4': 'WB_CAN_RX', '5': '+3V3', '6': 'CAN_L',
                           '7': 'CAN_H', '8': 'GND'}, desc='wideband CAN transceiver (shared CAN bus)', side='F'))
+    out.append(dict(ref='C122', value='100n', fp='Capacitor_SMD:C_0402_1005Metric', lcsc='C1525',
+                    pads={'1': '+5V', '2': 'GND'}, desc='U106 VCC decoupling', side='F'))
     out.append(dict(ref='C118', value='100n', fp='Capacitor_SMD:C_0402_1005Metric', lcsc='C1525',
                     pads={'1': '+3V3', '2': 'GND'}, desc='U106 decoupling', side='F'))
     # rev 0.6, for the STM32F103: its own 8 MHz crystal (keeps CAN in spec over temperature; same part as the main
@@ -169,9 +181,17 @@ def parts():
     # (about 1 uF, a light load) lingers, up to 0.8 V above VDD. ST allows 0.3 V; the diode holds it to its forward drop.
     out.append(dict(ref='D30', value='BAT54WS', fp='Diode_SMD:D_SOD-323', lcsc='C124205',
                     pads={'1': '+3V3', '2': 'WB_VDDA'}, desc='F103 VDDA-to-VDD clamp (Diodes BAT54WS-7-F)', side='F'))
-    out.append(dict(ref='R137', value='10k', fp='Resistor_SMD:R_0402_1005Metric', lcsc='C25744',
+    # rev 0.8: 22k (was 10k): 0.9 mA into the buffer input in a 24 V jump start with the UN wire shorted (2 mA max)
+    out.append(dict(ref='R137', value='22k', fp='Resistor_SMD:R_0402_1005Metric', lcsc='C25768',
                     pads={'1': 'LSU_UN', '2': 'WB_UN_IN'}, desc='Nernst buffer input series resistor (LSU_UN short protection)',
                     side='F'))
+    out.append(dict(ref='F2', value='nSMD010', fp='Fuse:Fuse_1206_3216Metric', lcsc='C70065',
+                    pads={'1': 'LSU_VM', '2': 'WB_VMS'},
+                    desc='PTC 0.1 A hold / 0.25 A trip, 60 V, 1.6 ohm: LSU VM wire (TECHFUSE nSMD010)', side='F'))
+    out.append(dict(ref='D40', value='B5819W', fp='Diode_SMD:D_SOD-123', lcsc='C8598',
+                    pads={'1': '+3V3', '2': 'WB_PUMP'}, desc='pump drive clamp to +3V3', side='F'))
+    out.append(dict(ref='D41', value='B5819W', fp='Diode_SMD:D_SOD-123', lcsc='C8598',
+                    pads={'1': '+3V3', '2': 'WB_VM'}, desc='virtual-ground drive clamp to +3V3', side='F'))
     return out
 
 

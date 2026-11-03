@@ -31,8 +31,8 @@ Gpio getWarningLedPin() {
 
 #ifndef EFI_BOOTLOADER
 
-// The eight low-side drivers (injectors, idle, VVT, boost, alternator) sit behind a level shifter whose output enable
-// is pulled up on the board: they stay off through reset, boot, the bootloader and DFU. The firmware releases them
+// The fifteen low-side drivers (injectors, idle, VVT, boost, alternator, and since rev 0.8 the relay, lamp and tach
+// outputs) sit behind two level shifters whose shared output enable is pulled up on the board: they stay off through reset, boot, the bootloader and DFU. The firmware releases them
 // only once the engine controller has configured every output (a few slow ticks after start), takes them off again
 // for the whole of any configuration change, and never enables them during a fatal error.
 //
@@ -43,13 +43,15 @@ static OutputPin driverEnable;
 static int slowTicks = 0;
 static volatile bool reconfiguring = false;
 
-// The eight control lines into the shifter have no pull-downs on the MCU side (only on the driver side, which
+// The fifteen control lines into the shifters have no pull-downs on the MCU side (only on the driver side, which
 // matters while the shifter is disabled). rusEFI's default board.h starts every pin as input with pull-down, but a
 // pin rusEFI releases goes to input-with-pull-UP, which would switch that driver on. So every control pin no rusEFI
 // function owns is parked as an input with pull-down: at start-up (before the drivers are enabled), after every
 // configuration change (before they are enabled again), and on every slow tick as a backstop.
 static const Gpio lowSideControlPins[] = {
 	MIATA_INJ1, MIATA_INJ2, MIATA_INJ3, MIATA_INJ4, MIATA_IACV, MIATA_VVT, MIATA_BOOST, MIATA_ALT,
+	// rev 0.8: the relay / lamp / tach outputs moved from a ULN2003 to ZXMS6004 drivers behind U12
+	MIATA_FP, MIATA_MAINRLY, MIATA_AC, MIATA_FAN, MIATA_CEL, MIATA_TACH, MIATA_LS7,
 };
 
 static void parkUnusedLowSideInputs() {

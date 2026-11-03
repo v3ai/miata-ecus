@@ -24,7 +24,7 @@ R.LAYER_COST = [1.0, 1.0]
 _d = list(R.Router.astar.__defaults__); _d[-1] = 8000000; R.Router.astar.__defaults__ = tuple(_d)
 R.WIDTH = {
     'IAC_12V': 0.8, 'OCV_12V': 0.8,
-    'VBAT_IN': 1.2, 'HTR_PWR': 1.0, 'LSU_HTR_N': 1.0, 'VIGN_IN': 0.4, 'V5_SENS': 0.4, '+5V': 0.5,
+    'VBAT_IN': 1.2, 'HTR_PWR': 1.0, 'LSU_HTR_N': 1.0, 'VIGN_IN': 0.4, 'V5_SENS': 0.4, 'V5_EXT': 0.4, '+5V': 0.5,
     'USB_VBUS': 0.4, 'AUX_VBAT': 0.5, 'HARN_2Y': 0.8, 'HARN_2Z': 0.8,
     'OUT_INJ1': 0.8, 'OUT_INJ2': 0.8, 'OUT_INJ3': 0.8, 'OUT_INJ4': 0.8, 'OUT_IACV': 0.8, 'OUT_VVT': 0.8,
     'OUT_BOOST': 0.8, 'OUT_ALT': 0.6, 'OUT_FP': 0.5, 'OUT_MAINRLY': 0.5, 'OUT_AC': 0.5, 'OUT_FAN': 0.5,

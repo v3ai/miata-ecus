@@ -111,7 +111,10 @@ def build(modname, out):
         t = pcbnew.PCB_TEXT(board); t.SetText(label); t.SetLayer(pcbnew.F_SilkS)
         t.SetPosition(P(x + w / 2, y + h / 2)); t.SetTextSize(VECTOR2I(FromMM(1.5), FromMM(1.5)))
         t.SetTextThickness(FromMM(0.2)); board.Add(t)
-    rect(*M.DAUGHTER, 125.0, 60.0, 'DAUGHTERBOARD')
+    # the daughterboard outline: rev 0.8 grew a strip of DY mm above its J1 row (the low-side drivers), over free
+    # motherboard space; its headers and holes keep their places
+    import placement as dpl
+    rect(M.DAUGHTER[0], M.DAUGHTER[1] - dpl.DY, dpl.BOARD_W, dpl.BOARD_H, 'DAUGHTERBOARD')
     # IAT source jumper: position names over its end pins, the function under the middle one
     jp = board.FindFootprintByReference('JP1')
     if jp:

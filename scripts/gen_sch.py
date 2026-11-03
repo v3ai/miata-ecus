@@ -144,6 +144,26 @@ CUSTOM = {
                                   ('1', 'VCCA', 'power_in'), ('11', 'GND', 'power_in'),
                                   ('12', 'GND', 'power_in'), ('13', 'GND', 'power_in')],
                         'desc': 'TI SN74LVC4245A octal transceiver, 5 V A port / 3.3 V B port (DIR low: B -> A)'},
+    # rev 0.8 parts
+    'VND7NV04TR-E': {'left': [('1', 'IN', 'input'), ('3', 'S', 'power_in')], 'right': [('2', 'D', 'passive')],
+                     'desc': 'ST VND7NV04 OMNIFET II protected low-side driver, DPAK, 60 mOhm, 40-55 V clamp'},
+    'ZXMS6004FFTA': {'left': [('1', 'IN', 'input'), ('2', 'S', 'power_in')], 'right': [('3', 'D', 'passive')],
+                     'desc': 'Diodes ZXMS6004FF IntelliFET protected low side, SOT-23F, 60-70 V clamp'},
+    '74HCT04PW': {'left': [('1', '1A', 'input'), ('3', '2A', 'input'), ('5', '3A', 'input'), ('9', '4A', 'input'),
+                           ('11', '5A', 'input'), ('13', '6A', 'input'), ('14', 'VCC', 'power_in'), ('7', 'GND', 'power_in')],
+                  'right': [('2', '1Y', 'output'), ('4', '2Y', 'output'), ('6', '3Y', 'output'), ('8', '4Y', 'output'),
+                            ('10', '5Y', 'output'), ('12', '6Y', 'output')],
+                  'desc': 'Nexperia 74HCT04 hex inverter, TTL inputs, 5 V'},
+    'TL431AIDBZR': {'left': [('2', 'REF', 'input'), ('3', 'A', 'passive')], 'right': [('1', 'K', 'passive')],
+                    'desc': 'TI TL431A shunt regulator, SOT-23 (1 K, 2 REF, 3 A)'},
+    'BCP53-16': {'left': [('1', 'B', 'input')], 'right': [('3', 'E', 'passive'), ('2', 'C', 'passive'), ('4', 'C', 'passive')],
+                 'desc': 'Nexperia BCP53-16 PNP 80 V 1 A, SOT-223'},
+    'TCAN1042VDRQ1': {'left': [('1', 'TXD', 'input'), ('4', 'RXD', 'output'), ('8', 'STB', 'input'), ('3', 'VCC', 'power_in'),
+                               ('5', 'VIO', 'power_in'), ('2', 'GND', 'power_in')],
+                      'right': [('7', 'CANH', 'bidirectional'), ('6', 'CANL', 'bidirectional')],
+                      'desc': 'TI TCAN1042V-Q1 CAN FD transceiver, 5 V VCC, 3.3 V VIO, +-58 V bus fault protection'},
+    'BAT54A': {'left': [('3', 'A', 'passive')], 'right': [('1', 'K1', 'passive'), ('2', 'K2', 'passive')],
+               'desc': 'BAT54A dual Schottky, common anode'},
     'TLS115B0EJ': {'left': [('8', 'I', 'power_in'), ('7', 'EN', 'input'), ('5', 'ADJ', 'input'),
                             ('3', 'GND', 'power_in'), ('9', 'EP', 'power_in')],
                    'right': [('1', 'Q', 'power_out'), ('4', 'PG', 'open_collector'), ('2', 'NC', 'no_connect'),
@@ -369,17 +389,19 @@ for r in ['U1', 'FB1', 'Y1', 'R1', 'SW1', 'SW2', 'J3'] + [f'C{i}' for i in range
         [f'R{i}' for i in range(2, 7)] + [f'D{i}' for i in range(1, 6)] + ['R72']:
     SHEET_OF[r] = 'mcu'
 for r in ['U2', 'U3', 'U4', 'L1', 'L2'] + [f'D{i}' for i in range(6, 11)] + [f'R{i}' for i in range(7, 15)] + \
-        [f'C{i}' for i in range(16, 30)] + ['F1', 'D12', 'C59']:
+        [f'C{i}' for i in range(16, 30)] + ['F1', 'D12', 'C59', 'U14', 'C61', 'C62', 'U15', 'Q20', 'R141', 'R142', 'R143', 'C68',
+                                            'C63', 'D38', 'D39']:
     SHEET_OF[r] = 'power'
-for r in ['U5', 'U6', 'U7', 'RN1', 'C34', 'C35', 'U11', 'C57', 'C58', 'R71', 'D11'] + [f'Q{i}' for i in range(1, 9)] + \
-        [f'R{i}' for i in range(15, 27)]:
+for r in ['U6', 'U7', 'RN1', 'C34', 'C35', 'U11', 'C57', 'C58', 'R71', 'U12', 'U13', 'RN2', 'RN3', 'C64', 'C65',
+          'C66'] + [f'Q{i}' for i in range(1, 20)] + [f'R{i}' for i in range(15, 27)] + [f'D{i}' for i in range(31, 35)] + [f'R{i}' for i in range(144, 148)]:
     SHEET_OF[r] = 'outputs'
-for r in ['J1', 'J2', 'U10', 'C56', 'H1', 'H2', 'H3', 'H4']:
+for r in ['J1', 'J2', 'U10', 'C56', 'C67', 'H1', 'H2', 'H3', 'H4']:
     SHEET_OF[r] = 'connectors'
 import wideband as _wb
-for r in list(_wb.placement()) + ['U106', 'C118', 'Y101', 'C119', 'C120', 'R135', 'C121', 'R137', 'D30']:
+for r in list(_wb.placement()) + ['U106', 'C118', 'Y101', 'C119', 'C120', 'R135', 'C121', 'R137', 'D30', 'F2', 'D40',
+                                  'D41', 'C122']:
     SHEET_OF[r] = 'wideband'
-QUIET = {'GND', '+3V3', '+5V', '+12V', '+12V_F', 'V5_SENS', '+3V3A'}
+QUIET = {'GND', '+3V3', '+5V', '+12V', '+12V_F', 'V5_SENS', 'V5_EXT', '+3V3A'}
 
 
 def clusters(plist):

@@ -15,7 +15,9 @@ HDR_1A = (40.95, 16.6)          # terminal 2A (inner row, first column); outer r
 CASE_NOTE = L.CASE_NOTE_PROVISIONAL
 HEADER_DESC = ('TE **353830-5** (alt. 1123038-2), 72 positions in three rows: OEM plug 2 = 2A-2R without 2L (17), '
                'plug 3 = 3A-3Z without 3G/3R (24), plug 4 = 4A-4AH without 4G/4Q/4Y (31). There is no plug 1. Fitted by hand.')
-CHANGES = ['Rev 0.4: freewheel diode D1 on the idle valve and D2 on the VVT valve to its +12 V feed (the PWM turn-off energy no longer goes into the daughterboard driver); F4 resettable fuse on the AUX +12 V pin J5-15; not-fitted 12 V pull-up options R20-R22 for the VSS / A/C / clutch inputs.',
+CHANGES = ["Rev 0.6, for daughterboard rev 0.8: the harness's sensor 5 V  (4L) and the AUX header pin J5-14 now come from the daughterboard's protected 5 V (V5_EXT, JD1 pin 13, which was a ground pin): a sensor 5 V wire shorted to the battery no longer back-feeds the MAP sensor and the ECU's own 5 V. The MAP sensor keeps its own supply (V5_SENS). The daughterboard outline on the silkscreen is 16 mm taller (125 x 76 mm): its new strip of output drivers overhangs the free area above JD1.",
+           "Rev 0.5: LSU heater fuse F1 is a 3 A hold PTC (LUTE 2920L300/30GR, 30 V, 2920 size) instead of the 2 A 1812 part. A cold LSU 4.9 heater draws 1.6-2.3 A rms at the start of the wideband's warm-up, more than the old fuse holds once warm, so it could trip and the controller time out. No 1812 PTC holds 3 A above 8 V.",
+           'Rev 0.4: freewheel diode D1 on the idle valve and D2 on the VVT valve to its +12 V feed (the PWM turn-off energy no longer goes into the daughterboard driver); F4 resettable fuse on the AUX +12 V pin J5-15; not-fitted 12 V pull-up options R20-R22 for the VSS / A/C / clutch inputs.',
            'Rev 0.3: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
            'Rev 0.2: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.',
            'Rev 0.1: first release (design complete, case geometry provisional).']
@@ -68,7 +70,7 @@ HARNESS = {
     '4H': '',            # neutral switch (not read)
     '4I': 'IN_SW3',      # clutch switch
     '4J': '', '4K': '',
-    '4L': 'V5_SENS',     # +5 V reference
+    '4L': 'V5_EXT',      # +5 V reference
     '4M': 'IN_KNOCK',    # knock sensor
     '4N': 'HARN_IAT',    # intake air temperature (IAT jumper JP1 on STOCK to use it)
     '4O': 'GND',         # analogue sensor ground

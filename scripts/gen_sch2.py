@@ -413,12 +413,15 @@ def sheet_inputs(s):
         s.wire(node, (x0 + 35.56, y0))
         s.lab(AN, (x0 + 35.56, y0), 'right')
         if kind == 'hall' or n in ('CLT', 'IAT'):
-            pu = find('V5_SENS', IN)
-            s.o2(pu, x0 + 2.54, y0 - 6.35, 'v' if PARTS[pu]['pads']['1'] == 'V5_SENS' else 'v-')
+            # rev 0.8: CLT/IAT bias from V5_EXT, hall pull-ups from their own diode cathodes (V5_H1/V5_H2)
+            pu = next(r for r, q in PARTS.items() if r.startswith('R') and len(q['pads']) == 2
+                      and IN in q['pads'].values() and any(v.startswith('V5_') for v in q['pads'].values()))
+            sup = next(v for v in PARTS[pu]['pads'].values() if v.startswith('V5_'))
+            s.o2(pu, x0 + 2.54, y0 - 6.35, 'v' if PARTS[pu]['pads']['1'] == sup else 'v-')
             s.wire(pin_of(pu, IN), (x0 + 2.54, y0))
-            tp = s.P(pin_of(pu, 'V5_SENS'))
+            tp = s.P(pin_of(pu, sup))
             s.wire(tp, (tp[0], tp[1] - 2.54), (tp[0] + 5.08, tp[1] - 2.54))
-            s.lab('V5_SENS', (tp[0] + 5.08, tp[1] - 2.54), 'right')
+            s.lab(sup, (tp[0] + 5.08, tp[1] - 2.54), 'right')
 
     rows = lambda y: [y + i * 25.4 for i in range(5)]
     for (n, y) in zip(['TPS', 'MAP', 'CLT', 'IAT'], rows(40.64)):
@@ -435,6 +438,14 @@ def sheet_inputs(s):
     for k, y in enumerate(rows(40.64)[:4]):
         s.o2(f'D{19 + k}', 86.36, y - 3.81, 'v')
         s.o2(f'D{23 + k}', 162.56, y - 3.81, 'v')
+    # rev 0.8: hall pull-up supply diodes (common anode on V5_EXT, one cathode per pull-up)
+    s.text('Hall pull-up supply: a crank/cam wire shorted to battery reverse-biases D35', 182.88, 160.02, 1.27)
+    s.place('D35', 200.66, 170.18)
+    # rev 0.8: AUX header UART, 4.7k in series and clamped at the MCU side
+    s.text('AUX header UART (J2 24/25): 4.7k series, BAT54S clamps to GND / +3V3', 20.32, 172.72, 1.27)
+    for k, (r, d) in enumerate((('R139', 'D36'), ('R140', 'D37'))):
+        x = 40.64 + k * 45.72
+        s.o2(r, x, 187.96, 'h'); s.place(d, x + 15.24, 203.2)
 
     # ---- knock amplifier
     s.text('Knock: AC-coupled, biased to 1.65 V, gain 5.7', 271.78, 22.86)
@@ -558,7 +569,7 @@ def sheet_inputs(s):
 
 
 def sheet_outputs(s):
-    s.text('Protected low-side drivers (NCV8406A): injectors, IACV, VVT, boost, alternator', 20.32, 22.86)
+    s.text('Protected low-side drivers (VND7NV04, DPAK): injectors, IACV, VVT, boost, alternator', 20.32, 22.86)
 
     def lowside(q, n, x0, y0):
         CTL, OUT = n + '_IN', 'OUT_' + n      # driven at 5 V by U11
@@ -572,28 +583,27 @@ def sheet_outputs(s):
         s.wire(f'{q}.3', (x0 + 12.7, y0 + 2.54), (x0 + 12.7, y0 + 7.62))
         s.pwr('GND', (x0 + 12.7, y0 + 7.62), 'down')
         s.wire(f'{q}.2', (x0 + 35.56, y0), (x0 + 40.64, y0))
-        s.wire(f'{q}.4', (x0 + 35.56, y0 + 2.54), (x0 + 35.56, y0))
         s.lab(OUT, (x0 + 40.64, y0), 'right')
 
     for i, n in enumerate(design.HS_OUT):
         col, row = divmod(i, 4)
         lowside(f'Q{i + 1}', n, 30.48 + col * 101.6, 45.72 + row * 22.86)
 
-    s.text('Coil-on-plug logic outputs (TC4427, 5 V push-pull through 100 R)', 20.32, 147.32)
+    s.text('Ignition logic outputs: TC4427 sources through 100 R + Schottky; ZXMS6004 pulls low (gate = inverted control)', 20.32, 147.32)
     for k, (u, a, b, cvdd) in enumerate([('U6', 'IGN1', 'IGN2', 'C34'), ('U7', 'IGN3', 'IGN4', 'C35')]):
         X, Y = 60.96 + k * 101.6, 170.18
         s.place(u, X, Y)
         for pn, n in (('2', a), ('4', b)):
             s.stub(f'{u}.{pn}')
-        r_a, r_b = find(a + '_DRV', 'OUT_' + a), find(b + '_DRV', 'OUT_' + b)
+        r_a, r_b = find(a + '_DRV', a + '_SRC'), find(b + '_DRV', b + '_SRC')
         s.o2(r_a, X + 25.4, Y - 2.54, 'h' if PARTS[r_a]['pads']['1'] == a + '_DRV' else 'h-')
         s.o2(r_b, X + 25.4, Y + 5.08, 'h' if PARTS[r_b]['pads']['1'] == b + '_DRV' else 'h-')
         s.wire(f'{u}.7', (X + 15.24, Y - 2.54), pin_of(r_a, a + '_DRV'))
         s.wire(f'{u}.5', (X + 15.24, Y), (X + 15.24, Y + 5.08), pin_of(r_b, b + '_DRV'))
         for r, n in ((r_a, a), (r_b, b)):
-            p = s.P(pin_of(r, 'OUT_' + n))
+            p = s.P(pin_of(r, n + '_SRC'))
             s.wire(p, (p[0] + 5.08, p[1]))
-            s.lab('OUT_' + n, (p[0] + 5.08, p[1]), 'right')
+            s.lab(n + '_SRC', (p[0] + 5.08, p[1]), 'right')
         s.o2(cvdd, X - 17.78, Y + 16.51, 'v')
         s.fields[cvdd] = ((X - 20.32, Y + 15.24), (X - 20.32, Y + 17.78), 'right')
         s.wire(f'{u}.6', (X - 17.78, Y + 2.54), f'{cvdd}.1')
@@ -606,10 +616,19 @@ def sheet_outputs(s):
     s.rail('RN1', 'GND')
     s.text('Ignition inputs pulled low (coils stay off while the MCU boots)', 20.32, 200.66, 1.27)
 
-    s.text('Relay, lamp and tach outputs (ULN2003; flyback clamp: SMAJ33A TVS on COM)', 254.0, 147.32)
-    s.place('U5', 299.72, 180.34)
-    s.o2('D11', 337.82, 180.34, 'v')
-    s.text('COM is not tied to +12V: a battery-fed relay coil cannot back-feed the ECU with the key off', 254.0, 213.36, 1.27)
+    # rev 0.8: ignition source diodes, pull-down switches and their inverter
+    for i in range(4):
+        s.o2(f'D{31 + i}', 30.48 + i * 22.86, 238.76, 'h-')
+        s.place(f'Q{16 + i}', 33.02 + i * 22.86, 256.54)
+        s.o2(f'R{144 + i}', 43.18 + i * 22.86, 248.92, 'v')     # spark-edge pull-down
+    s.place('U13', 139.7, 248.92)
+    s.o2('C66', 165.1, 241.3, 'v')
+    s.text('Relay, lamp and tach outputs: ZXMS6004 protected low sides, 5 V gates from U12 (enabled with the drivers)', 254.0, 147.32)
+    for i in range(7):
+        s.place(f'Q{9 + i}', 266.7 + (i % 4) * 27.94, 172.72 + (i // 4) * 20.32)
+    s.place('U12', 299.72, 238.76)
+    s.place('RN2', 340.36, 215.9, 90); s.place('RN3', 340.36, 271.78, 90)
+    s.o2('C64', 342.9, 254.0, 'v'); s.o2('C65', 355.6, 254.0, 'v')
 
     s.text('3.3 V -> 5 V level shifter for the low-side inputs (DIR low: B -> A)', 254.0, 22.86)
     s.place('U11', 299.72, 76.2)
@@ -706,6 +725,14 @@ def sheet_power(s):
     s.wire('U3.1', (UX + 15.24, Y1 - 5.08), (UX + 22.86, Y1 - 5.08)); s.wire((UX + 15.24, Y1 - 5.08), 'C25.1'); s.stub('C25.2')
     s.lab('V5_SENS', (UX + 22.86, Y1 - 5.08), 'right')
 
+    s.text('Harness sensor 5 V (V5_EXT, second TLS115; J1-13 to the harness and AUX header)', 254.0, Y1 - 17.78)
+    s.place('U14', 284.48, Y1)
+    s.o2('C61', 304.8, Y1 + 1.27, 'v'); s.o2('C62', 264.16, Y1 - 1.27, 'v')
+    s.text('+3V3 shunt clamp: TL431 senses 3.56 V (5.1k / 12k) and turns on a PNP to ground', 254.0, Y1 + 35.56)
+    s.place('U15', 274.32, Y1 + 55.88); s.place('Q20', 304.8, Y1 + 50.8)
+    s.o2('R141', 294.64, Y1 + 45.72, 'v'); s.o2('R142', 259.08, Y1 + 45.72, 'v')
+    s.o2('R143', 259.08, Y1 + 60.96, 'v'); s.o2('C63', 284.48, Y1 + 71.12, 'h'); s.o2('C68', 304.8, Y1 + 71.12, 'h')
+    s.o2('D38', 40.64, Y1 + 30.48, 'v'); s.o2('D39', 78.74, Y1 + 30.48, 'v')
     s.text('Battery / ignition sense (divide by 5.85)', 20.32, Y1 - 17.78)
     for k, (rin, rg, cf, node) in enumerate([('R11', 'R12', 'C28', 'AN_VBATT'), ('R13', 'R14', 'C29', 'AN_VIGN')]):
         x = 30.48 + k * 38.1
@@ -783,9 +810,8 @@ def sheet_connectors(s):
     s.place('J2', 157.48, 86.36)
     s.text('CAN transceiver (termination on the motherboard)', 233.68, 22.86)
     s.place('U10', 271.78, 55.88)
-    s.o2('C56', 281.94, 44.45, 'h')
-    s.wire('U10.3', (271.78, 44.45), 'C56.1'); s.pwr('+3V3', (271.78, 44.45), 'up')
-    s.wire('C56.2', (289.56, 44.45), (289.56, 46.99)); s.pwr('GND', (289.56, 46.99), 'down')
+    s.o2('C56', 297.18, 78.74, 'v'); s.o2('C67', 307.34, 78.74, 'v')
+    s.text('rev 0.8: TCAN1042V, 5 V VCC (C67), 3.3 V VIO (C56), STB low', 233.68, 93.98, 1.27)
     s.text('Mounting holes', 233.68, 101.6)
     for i in range(4):
         s.place(f'H{i + 1}', 238.76 + i * 12.7, 111.76)
@@ -816,7 +842,9 @@ def sheet_wideband(s):
     s.wire((66.04, O[1]), 'R109.2'); s.wire((66.04, O[1]), (66.04, 43.18)); s.lab('WB_VM', (66.04, 43.18), 'up')
     s.o2('C104', 83.82, 57.15, 'v')
     s.wire('R109.1', (83.82, O[1]), 'C104.1'); s.stub('C104.2')
-    s.wire((83.82, O[1]), (91.44, O[1])); s.lab('LSU_VM', (91.44, O[1]), 'right')
+    s.o2('F2', 96.52, O[1], 'h-')                  # rev 0.8: resettable fuse in the VM wire
+    s.wire((83.82, O[1]), 'F2.2'); s.wire('F2.1', (104.14, O[1])); s.lab('LSU_VM', (104.14, O[1]), 'right')
+    s.o2('D41', 66.04, 33.02, 'v'); s.o2('D40', 88.9, 91.44, 'v')    # rev 0.8: drive clamps to +3V3
 
     # ---- B: Nernst sense, Un_sense = 2.7 x (Un - Vm) ------------------------------
     s.text('Nernst sense', 116.84, 35.56)
@@ -848,11 +876,9 @@ def sheet_wideband(s):
     # ---- D: CAN transceiver on the shared bus --------------------------------------
     s.text('CAN (same bus as the main MCU; rusEFI reads lambda over CAN)', 289.56, 35.56)
     s.place('U106', 322.58, 55.88)
-    s.o2('C118', 332.74, 43.18, 'h')
-    s.wire('U106.3', (322.58, 43.18), 'C118.1'); s.pwr('+3V3', (322.58, 43.18), 'up')
-    s.wire('C118.2', (340.36, 43.18), (340.36, 45.72)); s.pwr('GND', (340.36, 45.72), 'down')
-    s.stub('U106.1'); s.stub('U106.4'); s.stub('U106.5'); s.stub('U106.8'); s.stub('U106.2')
-    s.stub('U106.6'); s.stub('U106.7')
+    s.o2('C118', 345.44, 71.12, 'v'); s.o2('C122', 355.6, 71.12, 'v')     # VIO 3.3 V, VCC 5 V (rev 0.8)
+    for pn in '12345678':
+        s.stub(f'U106.{pn}')
 
     # ---- E: pump current driver ----------------------------------------------------
     s.text('Pump current driver (Ip DAC -> LSU pump cell)', 20.32, 86.36)
@@ -998,12 +1024,12 @@ def main():
                      f'(property "Sheetname" {Q(s.title)} (at {x} {r2(y - 0.71)} 0) (effects (font (size 1.524 1.524)) (justify left bottom))) '
                      f'(property "Sheetfile" {Q(s.fname)} (at {x} {r2(y + 31.07)} 0) (effects (font (size 1.27 1.27)) (justify left top))) '
                      f'(instances (project {Q(PROJECT)} (path {Q("/" + root_uuid)} (page {Q(str(s.page))})))))')
-    note = ('Miata ECU daughterboard rev 0.5 (on-board wideband controller, flashed through the main MCU; 5 V low-side drive, fused logic supply). Block sheets connect through global labels; GND, +3V3, +5V and +12V '
+    note = ('Miata ECU daughterboard rev 0.8 (on-board wideband controller, flashed through the main MCU; 5 V low-side drive, fused logic supply). Block sheets connect through global labels; GND, +3V3, +5V and +12V '
             'are power symbols. J1 = power in and outputs (top edge), J2 = inputs and comms (bottom edge). '
             '4-layer board: In1 GND plane, In2 +3V3 plane.')
     items.append(f'(text {Q(note)} (at 30.48 165.1 0) (effects (font (size 1.524 1.524)) (justify left bottom)) (uuid {U()}))')
     root = (f'(kicad_sch (version 20230121) (generator eeschema) (uuid {root_uuid}) (paper "A4") '
-            f'(title_block (title "Miata ECU daughterboard") (date "2026-10-30") (rev "0.5")) (lib_symbols) '
+            f'(title_block (title "Miata ECU daughterboard") (date "2026-11-03") (rev "0.8")) (lib_symbols) '
             + '\n'.join(items) + ' (sheet_instances (path "/" (page "1"))))')
     open(os.path.join(OUT, PROJECT + '.kicad_sch'), 'w').write(root)
     with open(os.path.join(OUT, 'fp_paths.txt'), 'w') as f:

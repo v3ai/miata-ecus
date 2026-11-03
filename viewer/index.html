@@ -97,7 +97,7 @@ aside>*{flex-shrink:0}
     <div class="tip" id="tip" hidden></div>
     <div class="loading" id="loading">Loading board model…</div>
     <div class="status" id="status">Drag to orbit · scroll to zoom · right-drag to pan · click a part for details and shop links</div>
-    <div class="scale" id="scale">125.0 × 60.0 mm</div>
+    <div class="scale" id="scale">125.0 × 76.0 mm</div>
   </section>
 
   <aside>
@@ -214,24 +214,24 @@ scene.add(ground);
 // Each board: surface maps (<pre>top_*.webp ...), a merged component model (<pre>board.glb.gz.b64.txt) and a
 // parts table (<pre>parts.json: size, centre in board mm, rows with 3D pick boxes in board-local mm).
 const MODELS = {
-  d: {title:'Miata ECU daughterboard', scale:'125.0 × 60.0 mm',
-      sub:'Rev 0.6, as routed. New in rev 0.5: the 5 V level shifter for the low-side drivers (U11), the fused and clamped logic supply (F1, D12), the relay-driver clamp (D11) and the crank/cam input clamps (D13, D14). Rev 0.5b: an LM2903 comparator for the spare VR inputs (U9, with clamps D15-D18) and parts JLCPCB stocks. Rev 0.6: the wideband controller runs on an STM32F103C8 (U102) with its own 8 MHz crystal (Y101). The on-board wideband controller sits on the right, above the LSU pins of J2. Components are KiCad 3D models at their placed positions (a few are drawn to their datasheet sizes where the library has none). The two 40-pin headers hang underneath to plug into the motherboard.',
-      specs:[['Size','125 × 60 mm, 1.6 mm'],['Stack-up','4 layers: sig / GND / 3V3 / sig'],['Parts','<span id="partcount"></span>'],
+  d: {title:'Miata ECU daughterboard', scale:'125.0 × 76.0 mm',
+      sub:'Rev 0.8, as routed. Rev 0.8 grew the board 16 mm (the strip along the top edge): eight ST VND7NV04 low-side drivers in DPAK on heat-spreading drain copper (injectors, idle, VVT, boost, alternator), seven protected ZXMS6004 relay / lamp / tach drivers behind a second level shifter (U12), and the ignition outputs\' Schottky and pull-down stage. Also new: a protected harness 5 V (U14), a +3V3 shunt clamp (U15, Q20), TCAN1042 CAN transceivers and clamps on the wideband drive and UART lines. The STM32F407 runs the engine, an STM32F103C8 (U102) the wideband controller on the right, above the LSU pins of J2. Components are KiCad 3D models at their placed positions (a few are drawn to their datasheet sizes where the library has none). The two 40-pin headers hang underneath to plug into the motherboard.',
+      specs:[['Size','125 × 76 mm, 1.6 mm'],['Stack-up','4 layers: sig / GND / 3V3 / sig'],['Parts','<span id="partcount"></span>'],
              ['MCU','STM32F407VGT6 + STM32F103C8 (wideband)'],['Headers','Bottom side, pins down: J1 power+outputs · J2 inputs+comms+LSU']],
-      jumps:[['U1','MCU'],['U2','5V buck'],['U11','Level shifter'],['U5','Relay driver'],['U6','Coil driver'],['Q1','Injector 1'],['U9','VR input'],
+      jumps:[['U1','MCU'],['U2','5V buck'],['U11','Level shifter'],['U15','3V3 clamp'],['Q9','Relay driver'],['U6','Coil driver'],['Q1','Injector 1'],['U9','VR input'],
              ['U8','Knock amp'],['U10','CAN'],['U102','Wideband MCU'],['Q101','LSU heater'],['J1','Header J1'],['J2','Header J2']]},
 };
 // one motherboard per model year; all share the daughterboard and its position
 const YEARS = {
-  '8993': {name:'1989–93', chassis:'NA6', rev:'0.6', hdr:'TE 174917-6, 48 pins (plugs 1 and 2)', prov:false,
+  '8993': {name:'1989–93', chassis:'NA6', rev:'0.8', hdr:'TE 174917-6, 48 pins (plugs 1 and 2)', prov:false,
            extra:[['D1','Idle valve diode'],['R23','Injector pair link'],['D3','Injector clamp']]},
-  '9495': {name:'1994–95', chassis:'NA8', rev:'0.6', hdr:'TE 174917-6, 48 pins (plugs 1 and 2)', prov:false,
+  '9495': {name:'1994–95', chassis:'NA8', rev:'0.8', hdr:'TE 174917-6, 48 pins (plugs 1 and 2)', prov:false,
            extra:[['D1','Idle valve diode']]},
-  '9697': {name:'1996–97', chassis:'NA8, OBD-II', rev:'0.4', hdr:'TE 178780-1, 76 positions (plugs 1, 3, 4; plug 2 unused)', prov:true,
+  '9697': {name:'1996–97', chassis:'NA8, OBD-II', rev:'0.6', hdr:'TE 178780-1, 76 positions (plugs 1, 3, 4; plug 2 unused)', prov:true,
            extra:[['D1','Idle valve diode']]},
-  '9900': {name:'1999–2000', chassis:'NB1', rev:'0.4', hdr:'TE 176122-6, 64 positions (plugs 1–3)', prov:true,
+  '9900': {name:'1999–2000', chassis:'NB1', rev:'0.6', hdr:'TE 176122-6, 64 positions (plugs 1–3)', prov:true,
            extra:[['F2','Idle valve fuse'],['D1','Idle valve diode']]},
-  '0105': {name:'2001–05', chassis:'NB2, VVT', rev:'0.4', hdr:'TE 353830-5, 72 positions in 3 rows (plugs 2–4)', prov:true,
+  '0105': {name:'2001–05', chassis:'NB2, VVT', rev:'0.6', hdr:'TE 353830-5, 72 positions in 3 rows (plugs 2–4)', prov:true,
            extra:[['F2','Idle valve fuse'],['F3','VVT valve fuse'],['D2','VVT valve diode']]},
 };
 function assyModel(y){
@@ -241,19 +241,19 @@ function assyModel(y){
       + (Y.prov ? `The outline and mounting holes are the NA case's until a ${Y.name} case is measured. ` : 'It fits the stock NA case. ')
       + 'The harness header and MAP sensor are simplified stand-in models; everything else is the KiCad 3D model.',
     specs:[['Motherboard', '154 × 161.5 mm, 2 layers' + (Y.prov ? ', provisional outline' : ', stock NA case outline')],
-           ['Harness header', Y.hdr], ['Stack','Daughterboard 11 mm above, on 8.5 mm sockets'],
+           ['Harness header', Y.hdr], ['Stack','Daughterboard (125 × 76 mm) 11 mm above, on 8.5 mm sockets'],
            ['Bottom edge','LSU 4.9 · IAT · USB-C · MAP (left to right)'],['Parts','<span id="partcount"></span>']],
     jumps:[['J1','Harness header'],['JD1','Socket JD1'],['J5','AUX header'],['J2','LSU 4.9'],['J3','IAT'],['J4','USB-C'],
            ['U2','MAP sensor'],['F1','Heater fuse'], ...(Y.extra || []),['U102','Wideband MCU'],['U1','Main MCU']]};
 }
 // bump when the board assets change, so browsers don't keep showing cached older boards
-const ASSET_V = '?v=d06-mb06';
+const ASSET_V = '?v=d08-mb08';
 const PCBS = {d:{pre:'', label:'Daughterboard'}};
 for (const y in YEARS) PCBS['mb' + y] = {pre:`mb${y}_`, label:`Motherboard ${YEARS[y].name}`};
 let year = '8993';
 const curMB = () => PCBS['mb' + year];
 const STACK = 12.6;                      // daughterboard underside above the motherboard underside (1.6 + 8.5 socket + 2.5 header)
-const DAUGHTER_AT = [14.5, 42.0];         // daughterboard top-left corner on the motherboard (mm)
+const DAUGHTER_AT = [14.5, 26.0];         // daughterboard top-left corner on the motherboard (mm; rev 0.8 added a 16 mm strip above J1)
 let parts = [], byRef = new Map(), mode = 'd';
 const assy = new THREE.Group(); assy.visible = false; scene.add(assy);
 

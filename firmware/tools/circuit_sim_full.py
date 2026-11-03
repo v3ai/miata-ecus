@@ -140,8 +140,9 @@ def integ(t, y):
 
 # ---- common device models -----------------------------------------------------------------------------------------
 # Diodes as circuit_sim.py: SS34 Schottky, 1N4148WS, BAT54 (Schottky), SMCJ30A (D6), SMAJ33A (D11/D12) at the bad end
-# of its 36.7-40.6 V breakdown, SMCJ40A (1989-93 D3/D4; Littelfuse: VBR 44.4-49.1 V at 1 mA, VC 64.5 V at 23.3 A,
-# so about 0.66 ohm dynamic).
+# of its 36.7-40.6 V breakdown, SMCJ40A (1989-93 D3/D4 to rev 0.7; Littelfuse: VBR 44.4-49.1 V at 1 mA, VC 64.5 V at
+# 23.3 A, so about 0.66 ohm dynamic), SMCJ30A at the top of its 33.3-36.8 V breakdown (1989-93 D3/D4 from rev 0.8;
+# VC 48.4 V at 31 A, so about 0.37 ohm dynamic).
 MODELS = """.model dss34 d(is=5u n=1.1 rs=0.03)
 .model d4148 d(is=2.5n n=1.75 rs=0.6)
 .model dbat54 d(is=2e-7 n=1.05 rs=2.5)
@@ -150,6 +151,7 @@ MODELS = """.model dss34 d(is=5u n=1.1 rs=0.03)
 .model d33min d(bv=36.7 ibv=1m is=1e-12 rs=1.7)
 .model d40max d(bv=49.1 ibv=1m is=1e-12 rs=0.66)
 .model d40min d(bv=44.4 ibv=1m is=1e-12 rs=0.66)
+.model d30max d(bv=36.8 ibv=1m is=1e-12 rs=0.37)
 .model desd d(is=1e-14 n=1)
 .model dbe d(is=1e-14 n=1)
 """
@@ -482,10 +484,14 @@ record('Key-off', 'main relay opens (12.6 V removed, VBAT_IN loaded by the mothe
 # =================================================================================================================
 # O. Outputs per motherboard into car loads
 # =================================================================================================================
-# NCV8406A (onsemi NCV8406A/B datasheet rev 9, Arrow copy): clamp 60/65/70 V; Rds(on) at VGS 5 V: 210/240 mOhm
-# (25 C typ/max), 445/520 mOhm (150 C); current limit at VGS 5 V: 5.0/6.5/8.5 A (25 C), 3.5/4.5/6.0 A (150 C);
-# EAS 110 mJ (50 mH, 2.1 A, 25 C start); thermal shutdown 150/180/200 C; RthJA 100 C/W (minimum pad), 69 C/W (1 in2).
-NCV_RDS25, NCV_RDS150, NCV_ILIM25, NCV_ILIM150, NCV_EAS, NCV_RTH, NCV_TSD = 0.24, 0.52, 5.0, 3.5, 0.110, 100.0, 150.0
+# Rev 0.8: ST VND7NV04 (OMNIFET II, DPAK; datasheet DocID 7381, as extracted): clamp 40/45/55 V; Rds(on) at VIN 5 V
+# 60 mOhm max at 25 C, 120 mOhm max over -40..150 C; current limit 6/9/12 A (VIN 5 V, VDS 13 V); EAS 200 mJ (25 C);
+# thermal shutdown 150/175/200 C; RthJC 2.1 C/W; RthJA 65 C/W on a small single-sided pad, about 30-90 C/W over the
+# datasheet's copper-area curve. (Rev 0.7: NCV8406A, SOT-223, 240/520 mOhm.) The variable names stay NCV_*.
+NCV_RDS25, NCV_RDS150, NCV_ILIM25, NCV_ILIM150, NCV_EAS, NCV_RTH, NCV_TSD = 0.06, 0.12, 6.0, 5.0, 0.200, 65.0, 150.0
+NCV_CLAMP_MIN = 40.0
+DRV_NAME = DB['Q1']['value']
+assert DRV_NAME.startswith('VND7NV04'), DRV_NAME
 for i, n in enumerate(design.HS_OUT):
     on(f'Q{1 + i}', n + '_IN', 'OUT_' + n, 'GND')
 # Harness and motherboard path (assumed): JD1 socket contact + motherboard trace 30 mOhm, harness wire to the load
@@ -494,9 +500,10 @@ R_MB, R_HARN = 0.03, 0.05
 
 
 def ncv_tj(irms, ta=85.0, rth=NCV_RTH, pextra=0.0, typ=False):
-    """Junction temperature with Rds(on) rising linearly from its 25 C to its 150 C value (max, or typical with
-    typ=True: 210 / 445 mOhm); linear in between assumed. Above 150 C the part is in (or near) thermal shutdown."""
-    r25, r150 = (0.21, 0.445) if typ else (NCV_RDS25, NCV_RDS150)
+    """Junction temperature with Rds(on) rising linearly from its 25 C to its 150 C value (max; typ=True: 0.7 x max).
+    Above 150 C the part is in (or near) thermal shutdown."""
+    k = 0.7 if typ else 1.0
+    r25, r150 = k * NCV_RDS25, k * NCV_RDS150
     tj = ta
     for _ in range(50):
         rds = r25 + (r150 - r25) * max(0.0, min(tj, 200) - 25) / 125
@@ -508,12 +515,10 @@ def fmt_tj(t):
     return f'{t:.0f} C' if t < NCV_TSD else '>150 C (shutdown)'
 
 
-# Copper on each driver's drain (tab) net. Rev 0.6 (pcbnew on daughterboard/miata_ecu_daughter.kicad_pcb): OUT_INJ1
-# 13.5 mm2 of pads + 5.8 mm2 of track, about 20 mm2; the source pin goes to the ground pour. The datasheet gives
-# 100 C/W at its minimum pad (about 100 mm2) and 69 C/W at 1 in2 (645 mm2); this layout's 20 mm2 was taken as 130 C/W.
-# Between those points RthJA falls about 17.5 C/W per e-fold of copper area, which fits all three. Rev 0.7 adds
-# OUT_INJ1-4 zones on F.Cu and B.Cu around Q1-Q4 with thermal vias (scripts/tab_copper.py); their filled area is read
-# from the board, with the bottom layer counted at half weight (it is reached through vias).
+# Drain copper per driver, read from the routed board (scripts/tab_copper.py: a column of the output net on F.Cu,
+# In2.Cu and B.Cu with thermal vias). The DPAK curve (RthJA vs copper, single-sided FR4) runs from about 90 C/W at
+# 0.1 cm2 to 30 C/W at 6 cm2, about 14.5 C/W per e-fold of area; the inner and bottom layers count half (they are
+# reached through the vias). Without a board file the datasheet's 65 C/W is used.
 def tab_copper_area():
     brd = os.path.join(os.path.dirname(__file__), '../../daughterboard/miata_ecu_daughter.kicad_pcb')
     try:
@@ -521,24 +526,55 @@ def tab_copper_area():
         b = pcbnew.LoadBoard(brd)
     except Exception:
         return None
+    lay = {pcbnew.F_Cu: 'F', pcbnew.In2_Cu: 'In2', pcbnew.B_Cu: 'B'}
     out = {}
-    for q, n in (('Q1', 'OUT_INJ1'), ('Q2', 'OUT_INJ2'), ('Q3', 'OUT_INJ3'), ('Q4', 'OUT_INJ4')):
-        f = sum(z.GetFilledArea() for z in b.Zones() if z.GetNetname() == n and z.GetLayer() == pcbnew.F_Cu) / 1e12
-        bb = sum(z.GetFilledArea() for z in b.Zones() if z.GetNetname() == n and z.GetLayer() == pcbnew.B_Cu) / 1e12
-        out[q] = (f, bb, max(20.0, f) + 0.5 * bb)
+    for i, n in enumerate(design.HS_OUT):
+        a = {'F': 0.0, 'In2': 0.0, 'B': 0.0}
+        for z in b.Zones():
+            if z.GetNetname() == 'OUT_' + n and z.GetLayer() in lay:
+                a[lay[z.GetLayer()]] += z.GetFilledArea() / 1e12
+        out[f'Q{i + 1}'] = (a['F'], a['In2'], a['B'], a['F'] + 0.5 * (a['In2'] + a['B']))
     return out
 
 
 TAB = tab_copper_area()
-A_INJ = min(v[2] for v in TAB.values()) if TAB else 20.0
+A_INJ = min(v[3] for v in TAB.values()) if TAB and min(v[3] for v in TAB.values()) > 0 else 0.0
 
 
-def rth_board(area):
-    return 130.0 if area <= 20.0 else 130.0 - 17.5 * math.log(area / 20.0)
+def rth_board(area_mm2):
+    if area_mm2 <= 0:
+        return NCV_RTH
+    return max(30.0, min(90.0, 90.0 - 14.5 * math.log(area_mm2 / 10.0)))
 
 
-NCV_RTH_BOARD = rth_board(A_INJ)     # injector drivers Q1-Q4
-NCV_RTH_OTHER = 130.0                # Q5-Q8: tab pad and track only
+NCV_RTH_BOARD = rth_board(A_INJ)     # every driver has its own column
+
+
+def tvs_copper_area():
+    """1989-93 D3/D4 cathode islands (scripts/mb_tvs_copper.py) on the released motherboard: effective mm^2 of the
+    smaller one (F.Cu + half of B.Cu), or 0 if the board has none"""
+    root = os.path.join(os.path.dirname(__file__), '../..')
+    for brd in ('motherboards/1989-93/miata_mb_8993.kicad_pcb', 'mb/release_8993/miata_mb_8993.kicad_pcb'):
+        try:
+            import pcbnew
+            b = pcbnew.LoadBoard(os.path.join(root, brd))
+        except Exception:
+            continue
+        eff = []
+        for nn in ('OUT_INJ1', 'OUT_INJ2'):
+            a = {pcbnew.F_Cu: 0.0, pcbnew.B_Cu: 0.0}
+            for z in b.Zones():
+                if z.GetNetname() == nn and z.GetLayer() in a:
+                    a[z.GetLayer()] += z.GetFilledArea() / 1e12
+            eff.append(a[pcbnew.F_Cu] + 0.5 * a[pcbnew.B_Cu])
+        return min(eff)
+    return 0.0
+
+
+A_TVS = tvs_copper_area()
+# SMC on its bare pads: 75 C/W (Littelfuse SMCJ); with a cathode island, the same spreading estimate as the drivers
+TVS_RTH = 75.0 if A_TVS <= 0 else min(75.0, rth_board(A_TVS))
+NCV_RTH_OTHER = NCV_RTH_BOARD
 
 
 def tj2(irms, pextra=0.0, rth=None):
@@ -549,12 +585,13 @@ def tj2(irms, pextra=0.0, rth=None):
 
 def tj_txt(t, rth=None):
     rth = NCV_RTH_BOARD if rth is None else rth
-    cu = f'{A_INJ:.0f} mm2 effective drain copper' if rth == NCV_RTH_BOARD and A_INJ > 20 else '~20 mm2 tab copper'
+    cu = f'{A_INJ:.0f} mm2 effective drain copper' if A_INJ > 0 else 'datasheet pad'
     return f'Tj {fmt_tj(t[0])} at 60 C / {fmt_tj(t[1])} at 85 C ambient ({rth:.0f} C/W, {cu})'
 
 
-def ncv_block(node, gate, bv=60, rds=NCV_RDS25, ilim=NCV_ILIM25, tag=''):
-    """NCV8406A: current-limited switch, active clamp (as a drain-ground breakdown diode), body diode."""
+def ncv_block(node, gate, bv=NCV_CLAMP_MIN, rds=NCV_RDS25, ilim=NCV_ILIM25, tag=''):
+    """Protected low side: current-limited switch, active clamp (a drain-ground breakdown diode at its minimum
+    voltage, which puts the most energy into it), body diode."""
     return f"""Vdi{tag} {node} d{tag} 0
 Bq{tag} d{tag} 0 I = V({gate}) > 2.5 ? min({ilim}, V(d{tag})/{rds}) : 0
 Dcl{tag} 0 cl{tag} dncv{tag}
@@ -567,7 +604,7 @@ INJ_R, INJ_L = 12.0, 8e-3    # Miata high-impedance injector: 12-14 ohm (12 = wo
 
 
 def injector_single(vb=14.4):
-    net = f"""* injector on one NCV8406A
+    net = f"""* injector on one low-side driver
 Vb vb 0 {vb}
 Rh vb a {R_HARN}
 Rl a b {INJ_R}
@@ -584,8 +621,9 @@ Vg g 0 PULSE(0 5 0.1m 1u 1u 6m 100m)
     return e, ion, float(np.max(d['v(out)']))
 
 
-def injector_pair(vb=14.4, skew_us=2.0):
-    """1989-93: two injectors on 2U, INJ1 + INJ4 (through R23) in parallel, D3 SMCJ40A on the motherboard node."""
+def injector_pair(vb=14.4, skew_us=2.0, tvs='d30max'):
+    """1989-93: two injectors on 2U, INJ1 + INJ4 (through R23) in parallel, D3 on the motherboard node (SMCJ30A from
+    rev 0.8, at the top of its breakdown range: the corner where the drivers' own clamps take the most)."""
     net = f"""* 1989-93 paired injectors
 Vb vb 0 {vb}
 Rh vb a {R_HARN}
@@ -594,7 +632,7 @@ Ll1 b1 w {INJ_L}
 Rl2 a b2 {INJ_R}
 Ll2 b2 w {INJ_L}
 Rw w mb {R_MB}
-Dtv 0 tv d40max
+Dtv 0 tv {tvs}
 Vtv mb tv 0
 Rs0 mb o0 0.01
 Rs1 mb o1 0.02
@@ -612,8 +650,8 @@ Vg1 g1 0 PULSE(0 5 0.1m 1u 1u {6e-3 + skew_us * 1e-6} 100m)
 
 
 def pwm_coil(r, l, f, duty, vb=14.4, diode=True, rfeed=R_HARN, cycles=None, name='pwm'):
-    """PWM coil on an NCV8406A, freewheel diode (motherboard D1/D2, SS34) from OUT to the coil's own feed, after any
-    feed PTC. Returns driver rms current, clamp power, diode power, feed rms current, mean coil current."""
+    """PWM coil on a low-side driver, freewheel diode (motherboard D1/D2, SS34) from OUT to the coil's own feed, after
+    any feed PTC. Returns driver rms current, clamp power, diode power, feed rms current, mean coil current."""
     T = 1 / f
     tau = l / r
     cycles = cycles or max(12, int(math.ceil(6 * tau / T)) + 4)
@@ -648,107 +686,85 @@ Vg g 0 PULSE(0 5 0 1u 1u {duty * T} {T})
     return rms(d['i(Vdi)']), pcl, pd, rms(d['i(Vfi)']), icoil, float(np.max(d['v(out)']))
 
 
-# ULN2003A (TI datasheet, recalled): VCE(sat) 0.9/1.1 V at 100 mA, 1.0/1.3 V at 200 mA, 1.2/1.6 V at 350 mA
-# (typ/max) -> modelled as 0.9 V + 2.0 ohm (max curve); VI(on) for VCE 2 V: 2.4 V at 200 mA, 2.7 V at 250 mA, 3.0 V
-# at 300 mA (max); peak collector current 500 mA per channel; clamp diodes to COM; RthJA SOIC-16 73 C/W (recalled).
-# Input from the F407 (VOH >= VDD - 0.4 V at 8 mA): 3.3 V into 2.7 kohm and two Vbe -> about 0.7 mA. Output current
-# capability with that drive is assumed beta x Iin with a Darlington beta of 1000 (assumed) -> 0.7 A.
-for i, n in enumerate(['FP', 'MAINRLY', 'AC', 'FAN', 'CEL', 'TACH', 'LS7']):
-    assert DB['U5']['pads'][str(16 - i)] == 'OUT_' + n and DB['U5']['pads'][str(1 + i)] == n + '_CTL'
-on('U5', 'ULN_COM'); on('D11', 'ULN_COM', 'GND')
-ULN_V0, ULN_R, ULN_IMAX, ULN_RTH = 0.9, 2.0, 0.7, 73.0
-ULN_TJ = 150.0
+# Relay / lamp / tach outputs, rev 0.8: Diodes ZXMS6004FF IntelliFET per channel (SOT-23F; datasheet as extracted):
+# Rds(on) at VIN 5 V 350/500 mOhm (25 C typ/max; about x1.6 at 150 C, assumed from the family's curve); current limit
+# 1.0/2.2 A min/typ at VIN 5 V; drain clamp 60/65/70 V; EAS 90 mJ (25 C, 0.5 A); thermal shutdown 150-175 C; RthJA
+# 150 C/W on a 15 x 15 mm board (83 C/W on 50 x 50 mm). Gates at 5 V from the second SN74LVC4245A (U12).
+RLY = ['FP', 'MAINRLY', 'AC', 'FAN', 'CEL', 'TACH', 'LS7']
+for i, n in enumerate(RLY):
+    q = DB[f'Q{9 + i}']
+    assert q['value'] == 'ZXMS6004FFTA' and q['pads'] == {'1': n + '_G', '2': 'GND', '3': 'OUT_' + n}, (n, q)
+    assert DB['U12']['pads'][str(10 - i)] == n + '_G' and DB['U12']['pads'][str(14 + i)] == n + '_CTL'
+assert 'U5' not in DB and 'D11' not in DB
+ZX_R25, ZX_R150, ZX_ILIM_MIN, ZX_ILIM_TYP, ZX_CLMAX, ZX_EAS, ZX_RTH, ZX_TSD = 0.5, 0.8, 1.0, 2.2, 70.0, 0.090, 150.0, 150.0
 
 
-def uln_vce(i):
-    return ULN_V0 + ULN_R * i
+def zx_tj(i, ta, duty=1.0):
+    tj = ta
+    for _ in range(50):
+        r = ZX_R25 + (ZX_R150 - ZX_R25) * max(0.0, min(tj, 175) - 25) / 125
+        tj = ta + ZX_RTH * i * i * r * duty
+    return tj
 
 
-def uln_load(kind, vb=14.4):
-    """Returns dict(ion, vce, p, peak_i, peak_p, e_inrush, vpk_off, extra)."""
-    lines = {'relay': f'Rc vb a 80\nLc a out 0.3',
-             'relay70': f'Rc vb a 70\nLc a out 0.3',
-             'vics': f'Rc vb a 35\nLc a out 0.05'}
+def zx_load(kind, vb=14.4):
+    """dict(ion, p, tj60, tj85, peak_i, vpk_off, e_off) for one IntelliFET channel"""
+    rload = {'relay': 70.0, 'vics': 35.0, 'lamp': 14.0 ** 2 / 3.4, 'lamp1': 14.0 ** 2 / 1.4, 'tach': 3300.0}[kind]
+    lind = {'relay': 0.3, 'vics': 0.05}.get(kind, 0.0)
+    ion = vb / (rload + ZX_R150 + R_HARN)
+    peak = ion
     if kind.startswith('lamp'):
-        watts = 1.4 if kind == 'lamp1' else 3.4
-        rhot = 14.0 ** 2 / watts
-        rc = rhot / 12      # tungsten cold/hot about 1/12 (assumed)
-        # filament: R = Rcold (1 + 11 x), x = normalised temperature, C dx/dt = P/Phot - x (40 ms, assumed)
-        rf = f'({rc}*(1+11*max(0, min(1.5, V(th)))))'
-        load = f"""Bl vb out I = (V(vb)-V(out)) / {rf}
-Bth 0 th I = (V(vb)-V(out))*(V(vb)-V(out))/{rf}/{14.0 ** 2 / rhot}
-Rth th 0 1
-Cth th 0 0.04"""
-        tstop, ton = '0.4', 0.3
-    elif kind == 'tach':
-        load = 'Rpu vb out 3.3k\nCcl out 0 4.7n'
-        tstop, ton = '12m', None
-    else:
-        load = lines[kind]
-        tstop, ton = '0.15', 0.1
-    gate = 'Vg g 0 PULSE(0 5 1m 1u 1u 2.08m 4.17m)' if kind == 'tach' else f'Vg g 0 PULSE(0 5 1m 1u 1u {ton} 10)'
-    net = f"""* ULN2003A channel
-Vb vb 0 {vb}
-{load}
-{gate}
-Vdi out o 0
-Bu o 0 I = V(g) > 2.5 ? min({ULN_IMAX}, max(0, (V(o)-{ULN_V0})/{ULN_R})) : 0
-Dk o com dk
-.model dk d(is=1e-12 n=1.8 rs=1)
-Dz 0 com d33max
-Ccom com 0 1n
-Rcom com 0 10meg
-Co o 0 100p
-{MODELS}
-""" + tran_ctl('2u' if kind == 'tach' else '20u', tstop)
-    d = spice('uln_' + kind, net, ['v(o)', 'i(Vdi)'])
-    t, v, i = d['time'], d['v(o)'], d['i(Vdi)']
-    p = v * np.maximum(i, 0)
-    if kind == 'tach':
-        lo = float(np.min(v[t > 2e-3]))
-        # rise 10-90 % after the first turn-off at 1 ms + 2.08 ms
-        t_off = 1e-3 + 2.08e-3
-        mm = t > t_off
-        hi = vb
-        t10 = t[mm][np.argmax(v[mm] > lo + 0.1 * (hi - lo))]
-        t90 = t[mm][np.argmax(v[mm] > lo + 0.9 * (hi - lo))]
-        return dict(lo=lo, rise=t90 - t10, ion=pin_avg(t, i, 1.5e-3, 3e-3))
-    ion = pin_avg(t, i, ton - 5e-3, ton)
-    vce = pin_avg(t, v, ton - 5e-3, ton)
-    mi = t < ton + 1e-3
-    return dict(ion=ion, vce=vce, p=ion * vce, peak_i=float(np.max(i[mi])), peak_p=float(np.max(p[mi])),
-                e_inrush=integ(t[mi], p[mi]) - ion * vce * (ton - 1e-3), vpk_off=float(np.max(v)))
+        peak = min(ZX_ILIM_TYP, vb / (rload / 12))      # cold filament ~1/12 of hot (assumed), held at the limit
+    e_off = 0.5 * lind * ion ** 2 * ZX_CLMAX / (ZX_CLMAX - vb) if lind else 0.0
+    return dict(ion=ion, p=ion ** 2 * ZX_R150, tj60=zx_tj(ion, 60), tj85=zx_tj(ion, 85), peak_i=peak,
+                vpk_off=ZX_CLMAX if lind else vb, e_off=e_off)
 
 
-# SN74LVC4245A (TI/Nexperia, recalled): port A (VCCA, the 5 V side) 4.5-5.5 V.
-# TC4427 (Microchip datasheet, recalled): VDD 4.5-18 V; VIH 2.4 V; output resistance high 7 ohm typ / 10 ohm max at
-# VDD 18 V (assumed 15 ohm at 5 V). R15-R18 100 ohm 0805 in series. Igniter input (Mazda NA igniter / NB coil with
-# built-in igniter): not published; assumed a bipolar input, two Vbe (1.2 V) behind 220 ohm (heavy) to 2.2 kohm
-# (light), harness 1 nF.
+zx = {k: zx_load(k) for k in ('relay', 'vics', 'lamp', 'lamp1', 'tach')}
+
+
+# Ignition outputs, rev 0.8: TC4427 (15 ohm at 5 V, assumed) -> R15-R18 100 ohm (1206) -> B5819W source diode -> OUT,
+# ZXMS6004FF from OUT to ground with its gate the inverted control line (74HCT04), and 2.2k (1206) from OUT to ground.
+# Igniter input (Mazda NA igniter / NB coil with built-in igniter): not published; assumed a bipolar input, two Vbe
+# (1.2 V) behind 220 ohm (heavy) to 2.2 kohm (light), or a CMOS input (10 kohm), harness 1 nF.
 for k, n in enumerate(['IGN1', 'IGN2', 'IGN3', 'IGN4']):
-    on(f'R{15 + k}', n + '_DRV', 'OUT_' + n)
+    on(f'R{15 + k}', n + '_DRV', n + '_SRC')
+    on(f'D{31 + k}', 'OUT_' + n, n + '_SRC')
+    on(f'Q{16 + k}', n + '_SNK', 'GND', 'OUT_' + n)
+    on(f'R{144 + k}', 'OUT_' + n, 'GND')
 R_IGN = val('R15')
+R_IGN_PD = val('R144')
 
 
-def igniter(rin, v5=5.0):
-    net = f"""* TC4427 -> 100 ohm -> igniter input
+def igniter(rin, v5=5.0, cmos=False):
+    """TC4427 -> 100 R -> Schottky -> OUT (2.2k pull-down, IntelliFET pull-down 15 us after the falling edge) ->
+    igniter. Returns (high level, input current, rise time 10-90 %, fall time to 1.2 V after the control edge)."""
+    load = f'Rin hp 0 10k' if cmos else f'Rin hp ib {rin}\nD1 ib x dbe\nD2 x 0 dbe'
+    net = f"""* ignition output stage
 V5 v5 0 {v5}
 Vg g 0 PULSE(0 1 0.1m 10n 10n 3m 10m)
 Bo drv 0 V = V(g) > 0.5 ? V(v5) : 0
 Ro drv o1 15
-R15 o1 hp {R_IGN}
+R15 o1 src {R_IGN}
+Ds src hp dss14
+.model dss14 d(is=1e-6 n=1.05 rs=0.08)
+Rpd hp 0 {R_IGN_PD}
 Ch hp 0 1n
-Rin hp ib {rin}
-D1 ib x dbe
-D2 x 0 dbe
+Vgs gs 0 PULSE(1 0 0.1m 10u 10u 3.015m 10m)
+Sq hp 0 gs 0 sq
+.model sq sw(vt=0.5 ron=0.8 roff=100meg)
+{load}
 {MODELS}
-""" + tran_ctl('0.2u', '3.5m')
+""" + tran_ctl('0.05u', '3.2m')
     d = spice('ign', net, ['v(hp)', 'i(V5)'])
     t, v = d['time'], d['v(hp)']
     vh = pin_avg(t, v, 2e-3, 3e-3)
     t10 = t[np.argmax(v > 0.1 * vh)]
     t90 = t[np.argmax(v > 0.9 * vh)]
-    return vh, (v5 - vh) / (15 + R_IGN), t90 - t10
+    tf = t[(t > 3.1e-3) & (v < 1.2)]
+    fall = (tf[0] - 3.1e-3) if len(tf) else float('inf')
+    iin = (vh - 1.2) / rin if not cmos else vh / 10e3
+    return vh, iin, t90 - t10, fall
 
 
 # ---- per-year load assignment (function of each OUT_ net on that year's harness) ---------------------------------
@@ -779,7 +795,8 @@ for y, _ in YEARS:
 # shared simulations (same circuit on several years), computed once
 e1, i1, vpk1 = injector_single()
 e1_16, i1_16, _ = injector_single(16.0)
-ep_cl, ep_tv, ip0, ip1, vpkp = injector_pair()
+TVS_INJ = {'SMCJ30A': 'd30max', 'SMCJ40A': 'd40max'}[MB[YEARS[0][0]]['D3']['value']]
+ep_cl, ep_tv, ip0, ip1, vpkp = injector_pair(tvs=TVS_INJ)
 RPM = 7200
 p_seq = e1 * RPM / 120        # sequential: one pulse per 720 deg
 p_tv = ep_tv * RPM / 60       # batch: each wire once per revolution
@@ -789,8 +806,8 @@ iac = {feed: pwm_coil(11, 20e-3, 200, 0.6, rfeed=R_HARN + (0.1 if feed != 'VBAT_
 ocv = pwm_coil(7.5, 6e-3, 300, 0.6, rfeed=R_HARN + 0.1, name='ocv')      # NB2 OCV 7.5 ohm / 6 mH (as circuit_sim)
 purge = pwm_coil(30, 30e-3, 20, 0.5, name='purge')                         # purge solenoid 30 ohm / 30 mH, 20 Hz (assumed)
 field = {D: pwm_coil(3.0, 0.2, 300, D, diode=False, cycles=120, name='field') for D in (0.5, 0.9)}   # assumed field
-uln = {k: uln_load(k) for k in ('relay', 'relay70', 'vics', 'lamp1', 'lamp3', 'tach')}
 ign = {rin: igniter(rin) for rin in (220, 2200)}
+ign_cmos = igniter(0, cmos=True)
 ign_crank = igniter(220, v5=3.9)
 
 # PRC solenoid (1994-95 2R on OUT_ALT, no freewheel diode): on/off, single turn-off into the clamp
@@ -827,14 +844,17 @@ for y, _ in YEARS:
     if 'inj_pair' in L.values():
         on('R23', 'OUT_INJ4', 'OUT_INJ1', parts=MB[y]); on('R24', 'OUT_INJ3', 'OUT_INJ2', parts=MB[y])
         on('D3', 'OUT_INJ1', 'GND', parts=MB[y]); on('D4', 'OUT_INJ2', 'GND', parts=MB[y])
-        assert MB[y]['D3']['value'] == 'SMCJ40A'
-        tj = tj2(max(ip0, ip1) * math.sqrt(0.9), pextra=ep_cl * RPM / 60)
-        record(area, f'injectors {cav("OUT_INJ1")}/{cav("OUT_INJ2")}: 2 x 12 ohm per wire, INJ1+INJ4 / INJ2+INJ3, SMCJ40A',
-               f'{ip0:.2f} + {ip1:.2f} A per driver, peak {vpkp:.0f} V, driver clamps {ep_cl * RPM / 60 * 1000:.0f} mW, '
-               f'SMCJ40A {p_tv:.2f} W at {RPM} rpm; 90 % duty: {tj_txt(tj)}',
-               'OK' if vpkp < 60 and ep_cl * RPM / 60 < 0.05 and tj[1] < NCV_TSD and 85 + p_tv * 75 < 150 else 'CHECK',
-               f'D3/D4 continuous {p_tv:.2f} W: Tj = Ta + {p_tv * 75:.0f} C with an assumed 75 C/W SMC on its pads '
-               f'({"fine" if 85 + p_tv * 75 < 150 else "over 150 C"} at 85 C ambient)')
+        tv = MB[y]['D3']['value']
+        p_dcl = ep_cl * RPM / 60              # all of the wire's driver-clamp energy in one driver (they share it unevenly)
+        tj = tj2(max(ip0, ip1) * math.sqrt(0.9), pextra=p_dcl)
+        record(area, f'injectors {cav("OUT_INJ1")}/{cav("OUT_INJ2")}: 2 x 12 ohm per wire, INJ1+INJ4 / INJ2+INJ3, {tv}',
+               f'{ip0:.2f} + {ip1:.2f} A per driver, peak {vpkp:.0f} V, driver clamps up to {p_dcl * 1000:.0f} mW (driver clamp at '
+               f'its {NCV_CLAMP_MIN:.0f} V minimum, {tv} at the top of its range), {tv} {p_tv:.2f} W at {RPM} rpm; 90 % duty: {tj_txt(tj)}',
+               'OK' if vpkp < 60 and tj[1] < NCV_TSD - 15 and 85 + p_tv * TVS_RTH < 150 else 'CHECK',
+               f'D3/D4 continuous {p_tv:.2f} W: Tj = Ta + {p_tv * TVS_RTH:.0f} C at an estimated {TVS_RTH:.0f} C/W ('
+               + (f'{A_TVS:.0f} mm2 effective cathode copper, anode solid to the ground pours' if A_TVS > 0 else
+                  'SMC on its bare pads') + f'): {60 + p_tv * TVS_RTH:.0f} C at 60 C, {85 + p_tv * TVS_RTH:.0f} C at 85 C '
+               f'ambient ({"fine" if 85 + p_tv * TVS_RTH < 150 else "over the 150 C rating at 85 C"}); at 7200 rpm, 8 mH injectors assumed')
     else:
         tj = tj2(i1 * math.sqrt(0.9), pextra=p_seq)
         pins = '/'.join(cav(f'OUT_INJ{k}') for k in range(1, 5))
@@ -843,11 +863,9 @@ for y, _ in YEARS:
                f'{e1 * 1000:.1f} mJ per pulse = {p_seq:.2f} W at {RPM} rpm; 90 % duty, max Rds(on): {tj_txt(tj)}; '
                f'80 % duty, typical Rds(on), 60 C: Tj {fmt_tj(ncv_tj(i1 * math.sqrt(0.8), 60, NCV_RTH_BOARD, p_seq, typ=True))}'
                f' ({fmt_tj(ncv_tj(i1 * math.sqrt(0.8), 60, NCV_RTH_BOARD, p_seq / 2, typ=True))} with 4 mH)',
-               'OK' if tj[1] < NCV_TSD and i1_16 < NCV_ILIM150 else 'CHECK',
-               'sustained WOT at redline, worst-case Rds(on): the clamp energy (8 mH assumed; it scales with L) adds to '
-               'the conduction loss, and the drivers sit on ~20 mm2 of tab copper. Thermal shutdown (150 C min) would '
-               'cut an injector at high load; more drain copper (both layers, vias) or a part with a lower Rds(on) '
-               'removes the margin problem' if tj[1] >= NCV_TSD else '')
+               'OK' if tj[1] < NCV_TSD - 15 and i1_16 < NCV_ILIM150 else 'CHECK',
+               'sustained WOT at redline, worst-case Rds(on) and clamp at its 40 V minimum (8 mH injector assumed)'
+               if tj[1] >= NCV_TSD - 15 else '')
     # idle valve
     feed = MB[y]['D1']['pads']['1']
     on('D1', 'OUT_IACV', parts=MB[y])
@@ -877,8 +895,7 @@ for y, _ in YEARS:
         record(area, f'front O2 heater {cav("OUT_VVT")} (VVT driver), DC on: 3 ohm cold / 12 ohm hot (assumed)',
                f'hot {ihot:.2f} A continuous: {tj_txt(tj, NCV_RTH_OTHER)}; {lim_txt}',
                'OK' if tj[1] < NCV_TSD and not lim else 'CHECK',
-               'heater resistance not published for the Mazda sensor: measure it. Continuous DC in a SOT-223 on ~20 mm2 '
-               'of tab copper is marginal' if tj[1] >= NCV_TSD or lim else '')
+               'heater resistance not published for the Mazda sensor: measure it' if tj[1] >= NCV_TSD or lim else '')
     else:
         irms, pcl, pd, ifeed, icoil, vpk = ocv
         on('D2', 'OUT_VVT', 'OCV_12V', parts=MB[y])
@@ -895,66 +912,65 @@ for y, _ in YEARS:
         f5, f9 = field[0.5], field[0.9]
         record(area, f'alternator field {cav("OUT_ALT")} (ALT driver, no freewheel): 3 ohm / 0.2 H assumed, 300 Hz',
                f'50 % duty: field {f5[4]:.2f} A, clamp {f5[1]:.1f} W; 90 % duty: field {f9[4]:.2f} A, clamp {f9[1]:.1f} W '
-               f'(this SOT-223 layout allows ~{(NCV_TSD - 85) / NCV_RTH_BOARD:.1f} W at 85 C)',
+               f'(this DPAK layout allows ~{(NCV_TSD - 85) / NCV_RTH_BOARD:.1f} W at 85 C)',
                'CHECK' if max(f5[1], f9[1]) > 0.5 else 'OK',
                'if the PCM drives the field coil directly, without a freewheel diode every PWM turn-off dumps the field '
-               'current into the 65 V clamp: the field current collapses below ~80 % duty and the driver overheats. '
+               'current into the 40-55 V clamp: the field current collapses below ~80 % duty and the driver overheats. '
                'Firmware ships alternator control off (VERIFICATION M5); fit a freewheel diode to the field supply and '
                'a larger driver before enabling it')
     # ignition
-    record(area, f'igniter inputs {cav("OUT_IGN1")}/{cav("OUT_IGN2")}: TC4427 + 100 ohm',
-           f'{ign[220][0]:.2f} V / {ign[220][1] * 1000:.1f} mA into 220 ohm + 2 Vbe, {ign[2200][0]:.2f} V into 2.2k; '
-           f'rise {ign[220][2] * 1e6:.1f} us; at +5V = 3.9 V (crank) {ign_crank[0]:.2f} V',
-           'OK' if ign_crank[0] > 2.0 else 'CHECK',
-           'igniter input impedance assumed (not published); a short to battery takes '
-           f'{14.4 ** 2 / R_IGN:.1f} W in the 0805 100 ohm resistor (rated ~0.125 W): it fails open, protecting the TC4427')
-    # ULN2003 channels
+    record(area, f'igniter inputs {cav("OUT_IGN1")}/{cav("OUT_IGN2")}: TC4427 + 100 ohm + B5819W, ZXMS6004 + 2.2k pull-down',
+           f'{ign[220][0]:.2f} V / {ign[220][1] * 1000:.1f} mA into 220 ohm + 2 Vbe, {ign[2200][0]:.2f} V into 2.2k, '
+           f'{ign_cmos[0]:.2f} V into a 10k CMOS input; rise {ign[220][2] * 1e6:.1f} us; fall to 1.2 V '
+           f'{ign[2200][3] * 1e6:.1f} us (2.2k input) / {ign_cmos[3] * 1e6:.1f} us (CMOS); at +5V = 3.9 V (crank) {ign_crank[0]:.2f} V',
+           'OK' if ign_crank[0] > 2.0 and max(ign[2200][3], ign_cmos[3]) < 5e-6 else 'CHECK',
+           'igniter input impedance assumed (not published). The fall time is the spark edge: '
+           f'{max(ign[2200][3], ign_cmos[3]) * 1e6:.1f} us is {max(ign[2200][3], ign_cmos[3]) * 7200 * 6:.2f} deg at 7200 rpm')
+    # relay / lamp / tach channels (one IntelliFET each)
     names = {'OUT_FP': 'fuel pump relay', 'OUT_AC': 'A/C relay', 'OUT_FAN': 'fan relay', 'OUT_LS7': 'fan 2 relay',
              'OUT_MAINRLY': 'main relay' if L.get('OUT_MAINRLY') == 'relay' else 'VICS solenoid',
              'OUT_CEL': 'CEL lamp', 'OUT_TACH': 'tach'}
     chans = [n for n in ('OUT_FP', 'OUT_AC', 'OUT_FAN', 'OUT_LS7', 'OUT_MAINRLY', 'OUT_CEL', 'OUT_TACH') if n in L]
-    ptot = 0.0
-    for n in chans:
-        k = L[n]
-        if k == 'relay':
-            ptot += uln['relay70']['p']
-        elif k == 'vics':
-            ptot += uln['vics']['p']
-        elif k == 'lamp':
-            ptot += uln['lamp3']['p']
-        elif k == 'tach':
-            ptot += 0.5 * uln['tach']['ion'] * 0.95
-    tju = ULN_RTH * ptot
-    ityp = {'relay': uln['relay70']['ion'], 'vics': uln['vics']['ion'], 'lamp': uln['lamp3']['ion'], 'tach': 0.0}
-    ptyp = sum(ityp[L[n]] * (0.8 + 1.14 * ityp[L[n]]) for n in chans)
-    record(area, 'ULN2003 package, every channel on at 14.4 V: ' + ', '.join(f'{names[n]} {cav(n)}' for n in chans),
-           f'{ptot:.2f} W on the VCE max curve ({ptyp:.2f} W typical; 70 ohm coils, hot 3.4 W CEL) -> Tj = Ta + {tju:.0f} C: '
-           f'150 C reached at {ULN_TJ - tju:.0f} C ambient ({ULN_TJ - ULN_RTH * ptyp:.0f} C typical)',
-           'OK' if 85 + tju < ULN_TJ else 'CHECK',
-           'VERIFICATION open item M6; every relay on at once is the worst case (fans + A/C + pump)' if 85 + tju >= ULN_TJ else '')
+    kinds = {n: L[n] for n in chans}
+    hot = max(chans, key=lambda n: zx[kinds[n]]['tj85'])
+    record(area, 'relay / lamp / tach switches (ZXMS6004FF each), every one on at 14.4 V: '
+           + ', '.join(f'{names[n]} {cav(n)}' for n in chans),
+           f'hottest {names[hot]}: {zx[kinds[hot]]["ion"] * 1000:.0f} mA, {zx[kinds[hot]]["p"] * 1000:.0f} mW, Tj '
+           f'{zx[kinds[hot]]["tj60"]:.0f} C at 60 C / {zx[kinds[hot]]["tj85"]:.0f} C at 85 C ambient ({ZX_RTH:.0f} C/W)',
+           'OK' if zx[kinds[hot]]['tj85'] < ZX_TSD - 15 else 'CHECK')
     if L.get('OUT_MAINRLY') == 'vics':
-        u = uln['vics']
-        record(area, f'VICS solenoid {cav("OUT_MAINRLY")} on a ULN2003 channel: 35 ohm (assumed)',
-               f'{u["ion"] * 1000:.0f} mA, VCE {u["vce"]:.2f} V, {u["p"]:.2f} W in one channel',
-               'CHECK' if u['ion'] > 0.3 else 'OK',
-               'above the 300 mA for which TI guarantees VCE <= 2 V at a 3.0 V input; VICS resistance not verified')
+        u = zx['vics']
+        record(area, f'VICS solenoid {cav("OUT_MAINRLY")} on a ZXMS6004FF: 35 ohm (assumed)',
+               f'{u["ion"] * 1000:.0f} mA, {u["p"] * 1000:.0f} mW, Tj {u["tj85"]:.0f} C at 85 C ambient; turn-off '
+               f'{u["e_off"] * 1000:.1f} mJ into the {ZX_CLMAX:.0f} V clamp (EAS {ZX_EAS * 1000:.0f} mJ)',
+               'OK' if u['tj85'] < ZX_TSD - 15 and u['e_off'] < ZX_EAS / 4 else 'CHECK')
 
-# year-independent ULN rows
-u = uln['relay70']
-record('Out ULN2003', 'relay coil 70 ohm / 0.3 H at 14.4 V', f'{u["ion"] * 1000:.0f} mA, VCE {u["vce"]:.2f} V, '
-       f'{u["p"]:.2f} W; turn-off peak {u["vpk_off"]:.1f} V (COM TVS SMAJ33A at max breakdown; ULN 50 V)',
-       'OK' if u['vpk_off'] < 50 and u['ion'] < 0.3 else 'CHECK')
-for k, w in (('lamp1', 1.4), ('lamp3', 3.4)):
-    u = uln[k]
-    record('Out ULN2003', f'CEL bulb {w} W (cold filament 1/12 of hot, assumed)',
-           f'inrush {u["peak_i"] * 1000:.0f} mA (peak rating 500 mA), {u["peak_p"]:.1f} W peak, {u["e_inrush"] * 1000:.0f} mJ '
-           f'extra; then {u["ion"] * 1000:.0f} mA', 'OK' if u['peak_i'] <= 0.5 else 'CHECK',
-           'the cold filament draws as much as the Darlington gives (~0.7 A with 0.7 mA base drive): over the 500 mA '
-           'peak rating for tens of ms at every key-on bulb check' if u['peak_i'] > 0.5 else '')
-u = uln['tach']
-record('Out ULN2003', 'tach to the cluster (3.3k pull-up to 14.4 V + 4.7 nF in the cluster, assumed), 240 Hz',
-       f'low {u["lo"]:.2f} V, rise {u["rise"] * 1e6:.0f} us, {u["ion"] * 1000:.1f} mA', 'OK',
+# year-independent relay-switch rows
+u = zx['relay']
+record('Out relays', 'relay coil 70 ohm / 0.3 H at 14.4 V on a ZXMS6004FF', f'{u["ion"] * 1000:.0f} mA, '
+       f'{u["p"] * 1000:.0f} mW; turn-off {u["e_off"] * 1000:.1f} mJ into the {ZX_CLMAX:.0f} V max clamp (EAS '
+       f'{ZX_EAS * 1000:.0f} mJ, 60 V continuous rating)', 'OK' if u['e_off'] < ZX_EAS / 4 else 'CHECK')
+for k, w in (('lamp1', 1.4), ('lamp', 3.4)):
+    u = zx[k]
+    record('Out relays', f'CEL bulb {w} W (cold filament 1/12 of hot, assumed)',
+           f'inrush held at the current limit ({u["peak_i"]:.2f} A typical, {ZX_ILIM_MIN:.1f} A minimum) for tens of ms, '
+           f'then {u["ion"] * 1000:.0f} mA', 'OK',
+           'the current limit and thermal shutdown take the cold filament; the ULN2003 had neither')
+u = zx['tach']
+record('Out relays', 'tach to the cluster (3.3k pull-up to 14.4 V, assumed)', f'{u["ion"] * 1000:.1f} mA, low '
+       f'{u["ion"] * ZX_R150 * 1000:.0f} mV', 'OK',
        'cluster input not published; on 1989-95 check cavity 2I is not fed by the igniter (VERIFICATION pinout 6)')
+record('Out relays', 'any relay / lamp / tach output shorted to battery while on',
+       f'held at the current limit ({ZX_ILIM_MIN:.1f}-{ZX_ILIM_TYP:.1f} A) until thermal shutdown (150-175 C), then cycles; '
+       f'no back-feed path into the board (no clamp diodes to a common rail)', 'OK')
+record('Out ignition', 'ignition output shorted to battery (driver high or low)',
+       'high: the B5819W blocks (no current into the TC4427 or +5V, none in the 100 R); low: the ZXMS6004FF limits '
+       f'({ZX_ILIM_MIN:.1f}-{ZX_ILIM_TYP:.1f} A) and shuts down; R144-R147 2.2k: {14.4 ** 2 / R_IGN_PD * 1000:.0f} mW at 14.4 V, '
+       f'{24.0 ** 2 / R_IGN_PD * 1000:.0f} mW at 24 V (1206, 250 mW)', 'OK' if 24.0 ** 2 / R_IGN_PD < 0.25 * 1.1 else 'CHECK',
+       '' if 24.0 ** 2 / R_IGN_PD < 0.25 * 1.1 else 'only in a 24 V jump start with the wire shorted')
+record('Out ignition', 'ignition output shorted to ground while high',
+       f'{5.0 / (15 + R_IGN) * 1000:.0f} mA from the TC4427, {(5.0 / (15 + R_IGN)) ** 2 * R_IGN * 1000:.0f} mW in the 1206 100 R '
+       f'(250 mW)', 'OK' if (5.0 / (15 + R_IGN)) ** 2 * R_IGN < 0.25 else 'CHECK')
 
 # =================================================================================================================
 # I. Inputs per motherboard with real sensors
@@ -965,8 +981,9 @@ for n in AN:
     rs, rg = between('IN_' + n, 'AN_' + n), between('AN_' + n, 'GND')
     cf = between('AN_' + n, 'GND', 'C')
     DIV[n] = (sv(rs['value']), sv(rg['value']), sv(cf['value']))
-RPU_T = sv(between('V5_SENS', 'IN_CLT')['value'])
-assert sv(between('V5_SENS', 'IN_IAT')['value']) == RPU_T
+V5_BIAS = 'V5_EXT' if any(set(p['pads'].values()) == {'V5_EXT', 'IN_CLT'} for p in DB.values()) else 'V5_SENS'
+RPU_T = sv(between(V5_BIAS, 'IN_CLT')['value'])
+assert sv(between(V5_BIAS, 'IN_IAT')['value']) == RPU_T
 # F407 pins (DS8626 pin table, recalled): PA4/PA5 (TPS, MAP) TTa, the rest FT; all in analog mode -> VDDA + 0.3 V.
 PIN = {'TPS': 'PA4', 'MAP': 'PA5', 'CLT': 'PA6', 'IAT': 'PA7', 'AFR': 'PC4', 'AUX1': 'PC5', 'AUX2': 'PB0', 'AUX3': 'PB1'}
 
@@ -1076,11 +1093,23 @@ record('In sensors', 'MAF (NB, 0-5 V buffered) / vane AFM (NA, potentiometer) on
 # 1989-93 MT idle switch (2L) and 1994-95 electrical-load signal (2L) on IN_AUX1: an analog input with no pull-up
 copies = [('open', 'Rsw_@N@ in_@N@ 0 1e9', 'AUX1'), ('closed', 'Rsw_@N@ in_@N@ 0 1', 'AUX1'),
           ('b12', 'Vsw_@N@ in_@N@ 0 14.4', 'AUX1')]
+_r27 = MB['1989-93'].get('R27')
+if _r27:
+    on('R27', 'V5_EXT', 'IN_AUX1', parts=MB['1989-93'])
+    pu = f"Vpu_@N@ pu_@N@ 0 5.0\nRpu_@N@ pu_@N@ in_@N@ {sv(_r27['value'])}\n"
+    copies += [('puopen', pu + 'Rsw_@N@ in_@N@ 0 1e9', 'AUX1'), ('puclosed', pu + 'Rsw_@N@ in_@N@ 0 1', 'AUX1')]
 res = spice_op('aux1', adc_net(copies), [f'v(an_{c[0]})' for c in copies])
-record('In 1989-93', 'MT idle switch 2L on IN_AUX1 (ground-switching contact)',
-       f'switch open {res["v(an_open)"]:.2f} V, closed {res["v(an_closed)"]:.2f} V: indistinguishable', 'CHECK',
-       'IN_AUX1 has no pull-up; reading a ground-switching idle switch needs one (e.g. 4.7-10k to V5_SENS on the '
-       'motherboard). Only matters if the tune uses the idle switch (the firmware reads TPS on 2M)')
+if _r27:
+    record('In 1989-93', 'MT idle switch 2L on IN_AUX1 (ground-switching contact)',
+           f'as built (R27 not fitted): open {res["v(an_open)"]:.2f} V, closed {res["v(an_closed)"]:.2f} V, indistinguishable; '
+           f'with R27 ({_r27["value"]} to the harness 5 V) fitted: open {res["v(an_puopen)"]:.2f} V, closed '
+           f'{res["v(an_puclosed)"]:.2f} V at PC5', 'OK',
+           'fit R27 if the tune uses the idle switch; the firmware reads TPS on 2M by default')
+else:
+    record('In 1989-93', 'MT idle switch 2L on IN_AUX1 (ground-switching contact)',
+           f'switch open {res["v(an_open)"]:.2f} V, closed {res["v(an_closed)"]:.2f} V: indistinguishable', 'CHECK',
+           'IN_AUX1 has no pull-up; reading a ground-switching idle switch needs one (e.g. 4.7-10k to V5_SENS on the '
+           'motherboard). Only matters if the tune uses the idle switch (the firmware reads TPS on 2M)')
 _cl1 = next((r for r, p in DB.items() if r.startswith('D') and set(p['pads'].values()) == {'+3V3', 'AN_AUX1'}), None)
 record('In 1994-95', 'electrical-load signal 2L on IN_AUX1, if it is a +B signal (not verified)',
        (f'14.4 V gives {res["v(an_b12)"]:.2f} V at PC5 without a clamp; {_cl1} holds it near 3.55 V (In shorts), so it '
@@ -1195,24 +1224,43 @@ vmax_meas = AN_MAX * (rb1 + rb2) / rb2
 record('In supply', 'battery sense AN_VBATT (after D7/F1) and AN_VIGN, 9-16 V',
        f'{vb_at(9 - 0.35):.2f} .. {vb_at(16 - 0.35):.2f} V at PA1 ({vb_at(16):.2f} V on PA2 at 16 V); full scale '
        f'{3.3 * (rb1 + rb2) / rb2:.1f} V', 'OK')
-record('In supply', 'AN_VBATT / AN_VIGN in a 24 V jump start and a 34 V load dump',
-       f'{vb_at(24 - 0.35):.2f} V / {vb_at(34.2):.2f} V at PA1 (analog-mode max {AN_MAX:.1f} V, reached at '
-       f'{vmax_meas:.1f} V); injection {(vb_at(24) - AN_MAX - 0.0) / (rb1 * rb2 / (rb1 + rb2)) * 1e6:.0f} / '
-       f'{(vb_at(34.2) - AN_MAX) / (rb1 * rb2 / (rb1 + rb2)) * 1e6:.0f} uA', 'CHECK',
-       f'out of the analog-mode rating above {vmax_meas:.0f} V, but only ~0.1-0.5 mA through 5.6 kohm; a 47k top '
-       'resistor (full scale 26 V) or a clamp would keep it inside')
+if clamp_of('AN_VBATT') and clamp_of('AN_VIGN'):
+    # rev 0.8: BAT54WS from each node to +3V3 (D38/D39): solve the clamped node (Schottky model of dbat54)
+    def vb_cl(vb):
+        rth = rb1 * rb2 / (rb1 + rb2); vth = vb * rb2 / (rb1 + rb2)
+        v = min(vth, 3.3)
+        for _ in range(200):
+            i = max(0.0, (vth - v) / rth)
+            vn = 3.3 + 1.05 * 0.02585 * math.log(i / 2e-7 + 1) + 2.5 * i if i > 0 else vth
+            v = 0.5 * v + 0.5 * min(vth, vn)
+        return v, max(0.0, (vth - v) / rth)
+    (v24, i24), (v34, i34) = vb_cl(24 - 0.35), vb_cl(34.2)
+    record('In supply', 'AN_VBATT / AN_VIGN in a 24 V jump start and a 34 V load dump, with the rev 0.8 clamps',
+           f'{v24:.2f} V / {v34:.2f} V at PA1/PA2 (analog-mode max {AN_MAX:.1f} V), {i24 * 1e6:.0f} / {i34 * 1e6:.0f} uA '
+           f'into +3V3 through {clamp_of("AN_VBATT")}/{clamp_of("AN_VIGN")}; reads full scale ({vmax_meas:.1f} V) while it lasts',
+           'OK' if max(v24, v34) <= AN_MAX + 0.02 else 'CHECK')
+else:
+    record('In supply', 'AN_VBATT / AN_VIGN in a 24 V jump start and a 34 V load dump',
+           f'{vb_at(24 - 0.35):.2f} V / {vb_at(34.2):.2f} V at PA1 (analog-mode max {AN_MAX:.1f} V, reached at '
+           f'{vmax_meas:.1f} V); injection {(vb_at(24) - AN_MAX - 0.0) / (rb1 * rb2 / (rb1 + rb2)) * 1e6:.0f} / '
+           f'{(vb_at(34.2) - AN_MAX) / (rb1 * rb2 / (rb1 + rb2)) * 1e6:.0f} uA', 'CHECK',
+           f'out of the analog-mode rating above {vmax_meas:.0f} V, but only ~0.1-0.5 mA through 5.6 kohm; a 47k top '
+           'resistor (full scale 26 V) or a clamp would keep it inside')
 ip1_ = (150 - 0.6) / rb1
 record('In supply', 'AN_VIGN in ISO 7637-2 pulse 1 (-150 V, 10 ohm, on the ignition line)',
        f'{ip1_ * 1000:.1f} mA out of PA2 through R13 (FT negative injection limit -5 mA)', 'OK' if ip1_ < 5e-3 else 'CHECK')
 
 # crank/cam inputs per sensor type. Sensor: open collector, Vce(sat) ~0.3 V at 5 mA (ron 60 ohm, assumed);
 # 1k pull-up (R62) to V5_SENS, 4.7k (R61), 1 nF (C51), 1N4148WS to +3V3 (D13). Harness 2 nF (pessimistic).
-on('R61', 'IN_HALL1', 'HALL1'); on('R62', 'V5_SENS', 'IN_HALL1'); on('C51', 'HALL1', 'GND'); on('D13', '+3V3', 'HALL1')
+# rev 0.8: the pull-up hangs off one cathode of D35 (BAT54A, anode V5_EXT)
+on('R61', 'IN_HALL1', 'HALL1'); on('R62', 'V5_H1', 'IN_HALL1'); on('C51', 'HALL1', 'GND'); on('D13', '+3V3', 'HALL1')
+on('D35', 'V5_H1', 'V5_H2', 'V5_EXT')
 
 
 def hall(width_us, period_us, v5s=5.0, vdd=3.3, charn=2e-9):
     net = f"""* hall/optical input
-V5 vs 0 {v5s}
+V5 vs0 0 {v5s}
+Dpu vs0 vs dbat54
 Rpu vs in {val('R62')}
 Charn in 0 {charn}
 Vg g 0 PULSE(0 5 {3 * period_us}u 1n 1n {width_us}u {period_us}u)
@@ -1378,7 +1426,8 @@ for y, _ in YEARS:
     on('JP1', 'HARN_IAT', 'IN_IAT', 'IAT_EXT', parts=MB[y])
     flags = []
     if y == '1989-93':
-        flags.append('2L idle switch unreadable (no pull-up)')
+        flags.append('2L idle switch readable once R27 (not fitted) is fitted' if 'R27' in MB[y] else
+                     '2L idle switch unreadable (no pull-up)')
     if y == '1994-95':
         flags.append('2L load signal level unverified')
     if y in ('1989-93', '1994-95'):
@@ -1393,14 +1442,16 @@ for y, _ in YEARS:
 # =================================================================================================================
 # W. Wideband: LSU 4.9 on the FOME/rusEFI front end
 # =================================================================================================================
-for ref, nets_ in (('R101', ('WB_VDDA', 'WB_VM_REF')), ('R102', ('WB_VM_REF', 'GND')), ('R109', ('LSU_VM', 'WB_VM')),
+VMS = 'WB_VMS' if 'F2' in DB else 'LSU_VM'      # rev 0.8: board side of the VM wire's PTC
+RF2 = 1.6 if 'F2' in DB else 0.0
+for ref, nets_ in (('R101', ('WB_VDDA', 'WB_VM_REF')), ('R102', ('WB_VM_REF', 'GND')), ('R109', (VMS, 'WB_VM')),
                    ('R108', ('LSU_RT', 'WB_PUMP')), ('R110', ('LSU_RT', 'LSU_IP')), ('R131', ('WB_IP_DAC', 'WB_PUMP_N')),
                    ('R133', ('WB_PUMP', 'WB_PUMP_N')), ('R132', ('WB_PUMP_P', 'WB_VM')), ('R134', ('LSU_RT', 'WB_PUMP_P')),
                    ('R112', ('WB_IS_P', 'LSU_IP')), ('R115', ('WB_IS_P', 'WB_VM')), ('R111', ('WB_IS_N', 'LSU_RT')),
                    ('R117', ('WB_IS_OUT', 'WB_IS_N')), ('R124', ('WB_IS_OUT', 'WB_IP_SENSE')), ('R114', ('+3V3', 'LSU_UN')),
-                   ('R104', ('WB_UN_BUF', 'WB_UN_P')), ('R105', ('WB_UN_P', 'GND')), ('R103', ('LSU_VM', 'WB_UN_N')),
+                   ('R104', ('WB_UN_BUF', 'WB_UN_P')), ('R105', ('WB_UN_P', 'GND')), ('R103', (VMS, 'WB_UN_N')),
                    ('R107', ('WB_UN_N', 'WB_UN_SENSE')), ('R106', ('WB_ESR', 'WB_ESR_49')), ('C102', ('LSU_UN', 'WB_ESR')),
-                   ('C103', ('WB_PUMP', 'WB_PUMP_N')), ('C104', ('LSU_VM', 'GND')), ('C111', ('WB_IP_SENSE', 'GND')),
+                   ('C103', ('WB_PUMP', 'WB_PUMP_N')), ('C104', (VMS, 'GND')), ('C111', ('WB_IP_SENSE', 'GND')),
                    ('Q101', ('WB_HTR_G', 'LSU_HTR_N', 'HTR_GND')), ('R125', ('WB_HTR_G', 'WB_HTR_PWM')),
                    ('R126', ('GND', 'WB_HTR_PWM')), ('R120', ('VBAT_IN', 'WB_VBAT_DIV')), ('R121', ('WB_VBAT_DIV', 'GND'))):
     on(ref, *nets_)
@@ -1487,7 +1538,8 @@ R108 lsurt pump {val('R108')}
 R110 lsurt lsuip {val('R110')}
 * pump cell: IP -> VM, resistance rp (assumed), current monitor Vpc
 Rpc lsuip pcx {rp}
-Vpc pcx lsuvm 0
+Vpc pcx lsuvmw 0
+RF2 lsuvmw lsuvm {max(RF2, 1e-3)}
 R112 lsuip isp {val('R112')}
 R115 isp wbvm {val('R115')}
 R111 lsurt isn {val('R111')}
@@ -1498,7 +1550,7 @@ C111 ipsense 0 {val('C111')}
 * Nernst cell held at 450 mV by the loop; internal resistance ri; R114 reference pump current from +3V3
 R114 v33 lsuun {val('R114')}
 Rn lsuun nx {ri}
-Vnern nx lsuvm 0.45
+Vnern nx lsuvmw 0.45
 XBF lsuun unbuf unbuf mcp
 R104 unbuf unp {val('R104')}
 R105 unp 0 {val('R105')}
@@ -1581,7 +1633,7 @@ for ri in (300.0, 1000.0, 3000.0):
         samples.append(pin_avg(t, v, te - 0.16e-3, te))
     acs = [abs((samples[j - 1] + samples[j + 1]) / 2 - samples[j]) for j in range(1, len(samples) - 1)]
     ac = float(np.mean(acs))
-    esr_fw = val('R106') / (3.3 / ac - 1) - val('R109')
+    esr_fw = val('R106') / (3.3 / ac - 1) - (val('R109') + RF2)      # firmware: VM_RESISTOR_VALUE = R109 + F2
     inern = float(np.max(np.abs(d['i(Vnern)'][t > 10 * HALF])))
     esr_rows.append((ri, ac, esr_fw, inern))
 r300 = esr_rows[0]
@@ -1689,11 +1741,73 @@ record('Wideband', 'LSU signal wire shorted to the 12 V heater feed: sense input
        f'{un_txt}; LSU_IP and LSU_RT: {(14.4 - 3.6) / val("R112") * 1000:.1f} / {(14.4 - 3.6) / val("R111") * 1000:.1f} mA into '
        f'the AD8628 inputs through R112 / R111; {pa1_txt}',
        'OK' if un_r and not pa1 else 'CHECK')
-record('Wideband', 'LSU signal wire shorted to the 12 V heater feed: pump and virtual-ground drive',
-       f'IP or RT: {(14.4 - 3.3) / (val("R110") + val("R108")) * 1000:.0f} mA through R110/R108 into U101A\'s output; VM: '
-       f'{(14.4 - 1.65) / val("R109"):.1f} A through R109 into U101D\'s output',
-       'CHECK', 'inherited from the FOME module: these paths carry the pump current, so a short of IP, RT or VM to battery '
-       'still damages U101 and R108-R110. Protecting them needs a different front end (a CJ125-class interface IC)')
+# Rev 0.8: drive clamps D40/D41 (B5819W) from the op-amp outputs to +3V3, the +3V3 shunt clamp (TL431 + BCP53), F2
+# (nSMD010 PTC: 0.1 A hold, 0.25 A trip, 1.6 ohm, 1 s max to trip) in the VM wire, R108/R109/R110 in 1206 (0.25 W).
+def shunt_clamp(i_inj, t_on=5e-3):
+    """+3V3 rail with the LDO (sources only), 150 mA of load, ~35 uF of decoupling and the TL431/BCP53 shunt, hit by an
+    injected fault current. TL431 modelled as a transconductance (7 A/V at REF, 1.8 kHz pole, 0-150 mA), BCP53 as a
+    PNP (hFE 60). C63 + C68 (rev 0.8: 2 x 100 uF X5R 1206 bulk on the rail, no compensation cap) count at half their
+    value (DC bias at 3.3 V). Returns (rail peak V, rail at the end of the pulse, ringing p-p)."""
+    net = f"""* +3V3 shunt clamp
+Bldo 0 r I = max(0, min(1.2, (3.30 - V(r)) / 0.01))
+Rload r 0 22
+Cbulk r 0 35u
+Resr r cb 0.05
+Ccer cb 0 1u
+Iinj 0 r PULSE(0 {i_inj} 1m 1u 1u {t_on} 100)
+R141 r k {val('R141')}
+Qp 0 k r bcp53
+.model bcp53 pnp(is=1e-13 bf=60 vaf=100 rb=5 re=0.05 rc=0.1 cje=60p cjc=25p tf=2n)
+R142 r ref {val('R142')}
+R143 ref 0 {val('R143')}
+C63 r 0 {0.5 * sum(sv(DB[c]['value']) for c in ('C63', 'C68') if c in DB):.4g}
+Be e 0 V = 562 * (V(ref) - 2.495)
+Re e ef 1k
+Ce ef 0 {1 / (2 * math.pi * 1.8e3 * 1e3):.4g}
+Bk k 0 I = max(0, min(0.15, V(ef) / 562 * 7))
+{MODELS}
+""" + tran_ctl('0.5u', f'{1e-3 + t_on + 2e-3}')
+    d = spice('shunt', net, ['v(r)', 'i(Vq)'] if False else ['v(r)'])
+    t, v = d['time'], d['v(r)']
+    m = (t > 1e-3) & (t < 1e-3 + t_on)
+    late = (t > 1e-3 + t_on * 0.6) & (t < 1e-3 + t_on)
+    return float(np.max(v)), float(v[m][-1]), float(np.max(v[late]) - np.min(v[late]))
+
+
+if 'U15' in DB and DB['U15']['value'].startswith('TL431'):
+    on('U15', 'SH_K', 'SH_REF', 'GND'); on('Q20', 'SH_K', 'GND', '+3V3'); on('C63', '+3V3', 'GND')
+    if 'C68' in DB:
+        on('C68', '+3V3', 'GND')
+    th = 2.495 * (1 + val('R142') / val('R143'))
+    rows = []
+    worst = 0.0
+    for iinj in (0.1, 0.5, 1.0):
+        pk, end, rip = shunt_clamp(iinj)
+        worst = max(worst, pk)
+        rows.append(f'{iinj:.1f} A: peak {pk:.2f} V, holds {end:.2f} V, ripple {rip * 1000:.0f} mV p-p')
+    record('Power', f'+3V3 shunt clamp (TL431 at {th:.2f} V + BCP53), fault current injected into +3V3',
+           '; '.join(rows) + f'; threshold above the LDO maximum 3.37 V', 'OK' if worst < 3.9 and th > 3.40 else 'CHECK',
+           'MCU absolute maximum 4.0 V')
+VB_S = 14.4
+v_cl = 3.6 + 0.35            # rail held by the shunt + B5819W drop at ~0.1-1 A
+i_rt = (VB_S - v_cl) / val('R108')
+i_ip = (VB_S - v_cl) / (val('R110') + val('R108'))
+i_vm = (VB_S - v_cl) / (val('R109') + (1.6 if 'F2' in DB else 0))
+clamped = 'D40' in DB and 'D41' in DB
+if clamped:
+    record('Wideband', 'LSU signal wire shorted to the 12 V heater feed: pump and virtual-ground drive (rev 0.8)',
+           f'RT: {i_rt * 1000:.0f} mA through R108 ({i_rt ** 2 * val("R108"):.1f} W) into D40; IP: {i_ip * 1000:.0f} mA '
+           f'through R110 + R108 ({i_ip ** 2 * val("R110"):.2f} / {i_ip ** 2 * val("R108"):.2f} W); VM: {i_vm:.2f} A through '
+           f'F2 + R109 ({i_vm ** 2 * val("R109"):.1f} W) into D41 until F2 trips (under 1 s); U101 and both MCUs protected: '
+           'the clamps hold the op-amp outputs at the +3V3 rail plus a Schottky drop, and the shunt clamp holds the rail',
+           'CHECK', 'the 1206 resistors are overloaded while the short lasts: R108 opens in an RT short (a fuse, ~1 cent to '
+           'replace) and R110/R108 run hot in an IP short; check or replace them after such a fault. The ICs survive')
+else:
+    record('Wideband', 'LSU signal wire shorted to the 12 V heater feed: pump and virtual-ground drive',
+           f'IP or RT: {(14.4 - 3.3) / (val("R110") + val("R108")) * 1000:.0f} mA through R110/R108 into U101A\'s output; VM: '
+           f'{(14.4 - 1.65) / val("R109"):.1f} A through R109 into U101D\'s output',
+           'CHECK', 'inherited from the FOME module: these paths carry the pump current, so a short of IP, RT or VM to battery '
+           'still damages U101 and R108-R110. Protecting them needs a different front end (a CJ125-class interface IC)')
 
 # ---- report -----------------------------------------------------------------------------------------------------
 w = max(len(r[1]) for r in results)

@@ -22,7 +22,7 @@ used = [(p, n) for p, n in H.items() if n]
 unused = [p for p, n in H.items() if not n]
 
 ROLE = {'VBAT_IN': 'ECU power (main relay)', 'VIGN_IN': 'ignition switch sense', 'GND': 'ground',
-        'V5_SENS': 'sensor 5 V reference (out)', 'HARN_IAT': 'stock air-temp sensor (JP1 on STOCK)'}
+        'V5_SENS': 'sensor 5 V reference (out)', 'V5_EXT': 'sensor 5 V reference (out; protected, short-to-battery proof)', 'HARN_IAT': 'stock air-temp sensor (JP1 on STOCK)'}
 for n in ('INJ1', 'INJ2', 'INJ3', 'INJ4'):
     ROLE['OUT_' + n] = f'injector {n[-1]}'
 ROLE.update({'OUT_IGN1': 'ignition 1 (5 V logic)', 'OUT_IGN2': 'ignition 2 (5 V logic)', 'OUT_IACV': 'idle air valve',
@@ -92,11 +92,17 @@ o.append('**Protection (motherboard rev 0.4 / 0.6):** D1 (and D2 where the VVT d
 o.append('**Switch inputs (R20-R22, not fitted):** the VSS, A/C and clutch inputs read signals that are driven to 12 V. If '
          'your car\'s signal only switches to ground (or is open collector), fit the 4.7 kΩ pull-up for that input. Never fit '
          'it for a switch that drives 12 V: the input would always read on.\n')
+if any(p['ref'] == 'R27' for p in C.parts):
+    o.append('**TPS idle switch (R27, not fitted):** on the manual cars 2L is the throttle sensor\'s idle switch, which '
+             'closes to ground at idle. Fit the 4.7 kΩ pull-up to the protected 5 V if you want the ECU to read it.\n')
+o.append('**Sensor 5 V:** the harness\'s 5 V reference and the AUX header pin J5-14 come from the daughterboard\'s '
+         'protected 5 V regulator (V5_EXT; it survives a short to the battery or to ground). The MAP sensor has its own '
+         'supply (V5_SENS), so a damaged sensor wire doesn\'t take the MAP reading with it.\n')
 if any(p['ref'] == 'R23' for p in C.parts):
     o.append('**Injectors (1989-93):** the stock harness has two injectors on each of 2U and 2V (about 1.8 A per wire). '
              'Two daughterboard drivers share each wire through R23 (INJ1 + INJ4 on 2U) and R24 (INJ2 + INJ3 on 2V); '
-             'rusEFI\'s batch mode fires each pair together. D3/D4 clamp each wire at about 45-50 V, so the drivers\' '
-             'own clamps never take the turn-off energy. For a sequential conversion (new wires to 2Y/2Z), remove R23/R24, '
+             'rusEFI\'s batch mode fires each pair together. D3/D4 (SMCJ30A) clamp each wire at about 37 V, below the drivers\' '
+             'own 40 V minimum clamp, so the drivers never take the turn-off energy. For a sequential conversion (new wires to 2Y/2Z), remove R23/R24, '
              'fit R25/R26 and switch the firmware to sequential. **Never fit R26 on an automatic: 2Z goes to the A/T '
              'control unit.**\n')
 o.append('## Assembly')

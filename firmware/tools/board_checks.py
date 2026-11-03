@@ -33,16 +33,26 @@ datasheet, same structure):
   above VDDA in analog mode is not relied on: CHECK).
 
 MODEL NOTES (DC, steady state; assumptions, not measurements)
-  Rails: +3V3, +3V3A, +5V and WB_VDDA are held (stiff); current they would have to sink is reported against their
-  minimum load (+3V3 50 mA, +5V 60 mA). V5_SENS (TLS115) can only source, so back-feed lifts it (its real loads: MAP
-  sensor 7 mA, 5 k per harness 5 V cavity, the CLT/IAT bias network, hall pull-ups).
+  Rails: +5V and WB_VDDA are held (stiff); current they would have to sink is reported against their minimum load
+  (+5V 60 mA). +3V3: the LDO only sources, into a 50 mA minimum load (66 ohm); current pushed in beyond that lifts the
+  rail to the U15 TL431 / Q20 BCP53 shunt clamp (threshold from R142/R143, 3.56 V; 0.04 ohm), which is reported by
+  its current and Q20 dissipation (1 W assumed for SOT-223; CHECK above that, or above 1 A). The two TLS115 trackers
+  only source (151 mA minimum current limit, output rated -5..45 V, short-to-battery protected), so back-feed lifts
+  them: V5_SENS (U3) feeds only the on-board MAP sensor (7 mA); V5_EXT (U14) is the harness sensor 5 V (5 k per
+  harness 5 V cavity, the CLT/IAT bias network, and the hall pull-ups through the BAT54A D35, whose cathodes V5_H1 /
+  V5_H2 block a crank / cam wire shorted to battery).
   Diodes: piecewise linear, Vf / Ron / breakdown from the part (TVS at minimum breakdown). MCU pins: FT = diode to
-  GND only; TTa / F103 non-FT = diodes to GND and VDD(A). ULN2003 on = 0.9 V + 1 ohm (no current limit, so any
-  current above 0.5 A is reported as channel failure); TC4427 = 7 ohm to +5V / GND plus body diodes; NCV8406A and
-  VND14NV04 = 0.21 / 0.035 ohm on, body diode and 60 / 40 V clamp (current above 2.5 A is reported as their own current
-  limit / thermal shutdown); op-amp outputs = 72 ohm from mid-rail (23 mA short-circuit) plus rail diodes; op-amp
-  inputs = rail diodes (MCP6004 2 mA abs max, AD8628 5 mA assumed, LMV321 10 mA). PTCs that carry more than their
-  trip current are opened and the network solved again.
+  GND only; TTa / F103 non-FT = diodes to GND and VDD(A). TC4427 = 7 ohm to +5V / GND plus body diodes, then 100 ohm
+  and a B5819W series Schottky to OUT_IGNx (a wire shorted to battery reverse-biases it); the ignition pull-downs
+  Q16-Q19 are on whenever the TC4427 output is low (74HCT04 inverter). Low-side switches: on-resistance, body diode
+  and drain clamp (at its minimum): VND7NV04 (Q1-Q8) 0.12 ohm (150 C max), 40 V, current limit 6 A min; ZXMS6004
+  (Q9-Q19) 0.5 ohm, 60 V, 1 A min; VND14NV04 0.035 ohm, 40 V; NCV8406A 0.21 ohm, 60 V, 2.5 A. Current above the limit
+  is reported as the switch's own current limit / thermal shutdown (OK for the DPAK OMNIFETs, CHECK for the SOT-23
+  ZXMS6004, which cycles in thermal shutdown). ULN2003 (rev 0.7 only) = 0.9 V + 1 ohm, no current limit. Op-amp
+  outputs = 72 ohm from mid-rail (23 mA short-circuit) plus rail diodes; op-amp inputs = rail diodes (MCP6004 2 mA
+  abs max, AD8628 5 mA assumed, LMV321 10 mA). TCAN1042 bus pins: +-58 V, not loaded; RXD = 100 ohm to VIO. PTCs that
+  carry more than their trip current (F1 nSMD050, F2 nSMD010 on the LSU VM wire, motherboard F1-F4) are opened and the
+  network solved again.
   Car side (typical, assumed): relay coils 80 ohm, CEL 50 ohm, tach 1 k, VICS 30 ohm to battery; injectors 13 ohm
   (6.5 on 1989-93 paired wires); idle valve 11 ohm to its feed; purge / PRC 30 ohm; O2 heater 6 ohm; OCV 8 ohm; NB
   field 4 ohm; igniter input 2 k to ground; TPS 2.5 V / 1.25 k; MAF 2.5 V / 1 k; O2 0.45 V / 10 k; thermistors
@@ -486,17 +496,24 @@ class System:
 # ------------------------------------------------------------------------------------------------------------------
 # path tracing through the circuit
 # ------------------------------------------------------------------------------------------------------------------
-RAILS = {'GND', '+3V3', '+3V3A', '+5V', '+12V', 'V5_SENS', 'WB_VDDA', '+12V_F', 'DAMP', 'ULN_COM', 'KN_BIAS',
-         'VR_BIAS', 'VCAP1', 'VCAP2', 'BUCK_SW', 'BUCK_BOOT'}
+RAILS = {'GND', '+3V3', '+3V3A', '+5V', '+12V', 'V5_SENS', 'V5_EXT', 'V5_H1', 'V5_H2', 'WB_VDDA', '+12V_F', 'DAMP',
+         'KN_BIAS', 'VR_BIAS', 'VCAP1', 'VCAP2', 'BUCK_SW', 'BUCK_BOOT', 'SH_K', 'SH_REF'}
+V5_RAILS = {'V5_SENS': 'U3 TLS115 output, on-board MAP sensor only', 'V5_EXT': 'U14 TLS115 output, protected harness 5 V'}
 IC_MAP = {}   # value -> [(pad a, pad b, label)]
-IC_MAP['ULN2003AD'] = [(str(1 + i), str(16 - i), 'ULN2003 ch%d' % (1 + i)) for i in range(7)]
+IC_MAP['ULN2003AD'] = [(str(1 + i), str(16 - i), 'ULN2003 ch%d' % (1 + i)) for i in range(7)]   # rev 0.7
 IC_MAP['TC4427'] = [('2', '7', 'TC4427 A'), ('4', '5', 'TC4427 B')]
 IC_MAP['SN74LVC4245APWR'] = [(str(14 + i), str(10 - i), 'LVC4245 B%d->A%d' % (7 - i, 7 - i)) for i in range(8)]
 IC_MAP['NCV8406ASTT3G'] = [('1', '2', 'NCV8406A gate->drain')]
+IC_MAP['VND7NV04TR-E'] = [('1', '2', 'VND7NV04 input->drain')]
+IC_MAP['ZXMS6004FFTA'] = [('1', '3', 'ZXMS6004 input->drain')]
+IC_MAP['74HCT04PW'] = [('1', '2', '74HCT04 1A->1Y'), ('3', '4', '74HCT04 2A->2Y'), ('5', '6', '74HCT04 3A->3Y'),
+                       ('9', '8', '74HCT04 4A->4Y'), ('11', '10', '74HCT04 5A->5Y'), ('13', '12', '74HCT04 6A->6Y')]
 IC_MAP['VND14NV04'] = [('1', '2', 'VND14NV04 gate->drain')]
 IC_MAP['LM2903DR'] = [('3', '1', 'LM2903 A+'), ('2', '1', 'LM2903 A-'), ('5', '7', 'LM2903 B+'), ('6', '7', 'LM2903 B-')]
 IC_MAP['LMV321IDBVR'] = [('1', '4', 'LMV321 +'), ('3', '4', 'LMV321 -')]
 IC_MAP['SN65HVD230DR'] = [('1', '7', 'CAN D->H'), ('1', '6', 'CAN D->L'), ('4', '7', 'CAN R<-H'), ('4', '6', 'CAN R<-L')]
+IC_MAP['TCAN1042VDRQ1'] = [('1', '7', 'CAN TXD->H'), ('1', '6', 'CAN TXD->L'), ('4', '7', 'CAN RXD<-H'),
+                           ('4', '6', 'CAN RXD<-L')]
 IC_MAP['MCP6004'] = [('2', '1', 'MCP6004 A-'), ('3', '1', 'MCP6004 A+'), ('6', '7', 'MCP6004 B-'), ('5', '7', 'MCP6004 B+'),
                      ('9', '8', 'MCP6004 C-'), ('10', '8', 'MCP6004 C+'), ('13', '14', 'MCP6004 D-'), ('12', '14', 'MCP6004 D+')]
 IC_MAP['AD8628'] = [('3', '1', 'AD8628 +'), ('4', '1', 'AD8628 -')]
@@ -593,7 +610,7 @@ HDR_EXPECT = {
     'VBAT_IN': {'AN_VBATT', 'WB_VBAT_DIV'}, 'VIGN_IN': {'AN_VIGN'}, 'IN_KNOCK': {'AN_KNOCK'},
     'VR1_P': {'VR1_OUT'}, 'VR1_N': {'VR1_OUT'}, 'VR2_P': {'VR2_OUT'}, 'VR2_N': {'VR2_OUT'},
     'CAN_H': {'CAN_RX', 'CAN_TX', 'WB_CAN_RX', 'WB_CAN_TX'}, 'CAN_L': {'CAN_RX', 'CAN_TX', 'WB_CAN_RX', 'WB_CAN_TX'},
-    'USB_DM': {'USB_DM'}, 'USB_DP': {'USB_DP'}, 'UART_TX': {'UART_TX'}, 'UART_RX': {'UART_RX'},
+    'USB_DM': {'USB_DM'}, 'USB_DP': {'USB_DP'}, 'UART_TX': {'UART_TX_M'}, 'UART_RX': {'UART_RX_M'},
     'LSU_UN': {'WB_UN_SENSE'}, 'LSU_VM': {'LSU_VM', 'WB_VM'}, 'LSU_IP': {'WB_IP_SENSE'}, 'LSU_RT': {'WB_IP_SENSE'},
     'LSU_HTR_N': {'WB_HTR_PWM'}, 'IN_HALL1': {'HALL1'}, 'IN_HALL2': {'HALL2'},
     'IN_SW1': {'SW1'}, 'IN_SW2': {'SW2'}, 'IN_SW3': {'SW3'},
@@ -619,6 +636,7 @@ SEM = [('OUT_INJ', r'injector'), ('OUT_IGN', r'igniter|ignition|IGT'), ('OUT_FP'
        ('IN_AUX3', r'MAF|air flow'), ('IN_AUX2', r'HO2S|O2'), ('IN_AUX1', r'HO2S|O2'),
        ('IN_HALL1', r'crank|CKP|SGT|NE\b'), ('IN_HALL2', r'cam|CMP|SGC'), ('IN_SW1', r'speed|VSS'),
        ('IN_SW2', r'A/C'), ('IN_SW3', r'clutch'), ('IN_KNOCK', r'knock'), ('V5_SENS', r'\+5|VREF|reference'),
+       ('V5_EXT', r'\+5|VREF|reference'),
        ('GND', r'ground'), ('VBAT_IN', r'main relay|\+12'), ('VIGN_IN', r'ignition|IG1'),
        ('M:IAC_12V', r'IAC|idle'), ('M:OCV_12V', r'OCV')]
 
@@ -707,7 +725,7 @@ def connectivity(sysm, year, module, fw, board_fw, research, notes):
                 issues.append('lands nowhere')
         # semantic / direction check against the independent table (96-05)
         if rinfo:
-            if rinfo.get('do_not_drive') and (net.startswith('OUT_') or net == 'V5_SENS'):
+            if rinfo.get('do_not_drive') and (net.startswith('OUT_') or net in V5_RAILS):
                 status = 'FAIL'
                 issues.append('ECU output on a do-not-drive cavity')
             for pre, pat in SEM:
@@ -735,7 +753,7 @@ def connectivity(sysm, year, module, fw, board_fw, research, notes):
             desc.append(f'{mcu_label(ref, pad)}' + (f' [fw: {",".join(funcs)}]' if funcs else
                                                     (' [fw: not used]' if ref == 'U1' else '')))
         if net in RAILS:
-            src = {'GND': 'ECU ground', 'V5_SENS': 'U3 TLS115 output', '+12V': 'logic supply'}.get(net, '')
+            src = {'GND': 'ECU ground', '+12V': 'logic supply', **V5_RAILS}.get(net, '')
             desc = [f'rail {net} ({src})']
             mcu = []
         else:
@@ -844,9 +862,15 @@ def drivers_check(sysm, year, fw, board_fw, research, notes):
                 drv[net].append((f'{ref}.{pad}', 'od'))
             elif val == 'TC4427' and pad in ('5', '7'):
                 drv[net].append((f'{ref}.{pad}', 'pp'))
-            elif val in ('NCV8406ASTT3G', 'VND14NV04') and pad == '2':
+            elif val in ('NCV8406ASTT3G', 'VND14NV04', 'VND7NV04TR-E') and pad == '2':
+                drv[net].append((f'{ref}.{pad}', 'od'))
+            elif val == 'ZXMS6004FFTA' and pad == '3':
                 drv[net].append((f'{ref}.{pad}', 'od'))
             elif val == 'SN74LVC4245APWR' and pad in [str(i) for i in range(3, 11)]:
+                drv[net].append((f'{ref}.{pad}', 'pp'))
+            elif val == '74HCT04PW' and pad in ('2', '4', '6', '8', '10', '12'):
+                drv[net].append((f'{ref}.{pad}', 'pp'))
+            elif val == 'TCAN1042VDRQ1' and pad == '4':
                 drv[net].append((f'{ref}.{pad}', 'pp'))
             elif val == 'MCP6004' and pad in ('1', '7', '8', '14'):
                 drv[net].append((f'{ref}.{pad}', 'pp'))
@@ -911,6 +935,9 @@ NC_OK = {
     'STM32F103C8T6': 'unused GPIO (F103 resets to floating input; ST AN4899 recommends analog/pull, not required)',
     'TC4427': {'1': 'NC per datasheet', '8': 'NC per datasheet'},
     'SN65HVD230DR': {'5': 'Vref output, may be left open'},
+    'SN74LVC4245APWR': {'3': 'A8 output of an unused channel (its B8 input is tied to GND): may float'},
+    '74HCT04PW': {'10': 'output of an unused inverter (input tied to GND)',
+                  '12': 'output of an unused inverter (input tied to GND)'},
     'TLS115B0EJ': {'2': 'N.C. (leave unconnected)', '4': 'N.C. (leave unconnected)', '6': 'N.C. (leave unconnected)'},
     'MPX5700AP': {'4': 'internal connection: do not connect', '5': 'internal connection: do not connect',
                   '6': 'internal connection: do not connect'},
@@ -926,6 +953,11 @@ MUST_TIE = {  # value -> {pad: (required net, why)}
     'STM32F103C8T6': {'1': ('+3V3', 'VBAT'), '8': ('GND', 'VSSA'), '9': ('WB_VDDA', 'VDDA'), '44': ('WB_BOOT0', 'BOOT0'),
                       '20': ('WB_BOOT1', 'PB2/BOOT1')},
     'SN65HVD230DR': {'8': ('GND', 'Rs: GND = high speed (open would be standby? low-power mode)')},
+    'TCAN1042VDRQ1': {'3': ('+5V', 'VCC 4.5-5.5 V'), '5': ('+3V3', 'VIO = MCU I/O level'),
+                      '8': ('GND', 'STB: low = normal mode (internal pull-up would select standby)'), '2': ('GND', 'GND')},
+    '74HCT04PW': {'14': ('+5V', 'VCC'), '7': ('GND', 'GND'), '11': ('GND', 'unused CMOS input must be tied'),
+                  '13': ('GND', 'unused CMOS input must be tied')},
+    'TL431AIDBZR': {'3': ('GND', 'anode')},
 }
 PULL_REQ = {('STM32F407VGT6', 'BOOT0'): 'GND', ('STM32F407VGT6', 'BOOT1'): 'GND',
             ('STM32F103C8T6', 'WB_BOOT0'): 'GND', ('STM32F103C8T6', 'WB_BOOT1'): 'GND'}
@@ -934,10 +966,15 @@ PULL_REQ = {('STM32F407VGT6', 'BOOT0'): 'GND', ('STM32F407VGT6', 'BOOT1'): 'GND'
 FLOAT_INPUTS = [  # (value, pads, what, needs a pull, why it may float)
     ('TC4427', ['2', '4'], 'TC4427 input', True, 'MCU pin is high-Z in reset / DFU: a floating input could fire a coil'),
     ('NCV8406ASTT3G', ['1'], 'NCV8406A gate', True, 'shifter outputs are disabled until the firmware enables them'),
+    ('VND7NV04TR-E', ['1'], 'VND7NV04 input', True, 'shifter outputs are disabled until the firmware enables them'),
+    ('ZXMS6004FFTA', ['1'], 'ZXMS6004 input', True, 'shifter outputs are disabled until the firmware enables them'),
+    ('74HCT04PW', ['1', '3', '5', '9'], '74HCT04 input', True,
+     'MCU pin is high-Z in reset / DFU: the inverter input must sit low so the ignition pull-down stays on'),
     ('SN74LVC4245APWR', ['22'], 'LVC4245 OE', True, 'must disable the drivers while the MCU is in reset'),
     ('SN74LVC4245APWR', [str(i) for i in range(14, 22)], 'LVC4245 B input', False,
      'floats only while OE is high (outputs off): costs supply current only (VERIFICATION minor item)'),
     ('SN65HVD230DR', ['1'], 'SN65HVD230 D', False, 'datasheet: D open -> bus recessive'),
+    ('TCAN1042VDRQ1', ['1'], 'TCAN1042 TXD', False, 'datasheet: internal pull-up to VIO, TXD open -> bus recessive'),
     ('VND14NV04', ['1'], 'VND14NV04 input', True, 'F103 pin is high-Z in reset / bootloader: heater must stay off'),
     ('LM2903DR', ['2', '3', '5', '6'], 'LM2903 input', True, 'unused VR channel must sit at a defined level'),
     ('LMV321IDBVR', ['1', '3'], 'LMV321 input', True, 'knock amp bias'),
@@ -978,6 +1015,13 @@ def floating_inputs(sysm, year):
                                     o = [n for n in q2['pads'].values() if n != n2][0]
                                     if o in RAILS:
                                         pulls.append(f'{q["ref"]} {q["value"]} + {q2["ref"]} {q2["value"]} to {o}')
+                if not pulls:
+                    # driven by an always-enabled CMOS output (74HCT04 on +5V, no output enable)
+                    for q in sysm.parts:
+                        if q['value'] == '74HCT04PW' and q['fitted']:
+                            for kk, n in q['pads'].items():
+                                if n == net and kk in ('2', '4', '6', '8', '10', '12'):
+                                    pulls.append(f'driven by {q["ref"]}.{kk} (74HCT04 push-pull output, always enabled)')
                 if pulls or not need:
                     row('OK', 'nc-pins', year, f'{p["ref"]}.{k} {what} ({net}): ' +
                         (', '.join(pulls) if pulls else f'no pull; {why}'))
@@ -990,13 +1034,38 @@ def power_paths(sysm, year, fw, board_fw):
     vb = sorted(c for c, n in sysm.cavity.items() if n == 'VBAT_IN')
     vi = sorted(c for c, n in sysm.cavity.items() if n == 'VIGN_IN' and c not in year_unwired(year))
     gn = sorted(c for c, n in sysm.cavity.items() if n == 'GND')
-    v5 = sorted(c for c, n in sysm.cavity.items() if n == 'V5_SENS')
     dc = build_dc(sysm, year, fw, board_fw)
     V = dc.solve()
-    ok = V['+12V'] > 12.5 and abs(V['+5V'] - 5) < 0.05 and abs(V['V5_SENS'] - 5) < 0.1
+    ok = V.get('+12V', 0) > 12.5 and abs(V.get('+5V', 0) - 5) < 0.05 and abs(V.get('+3V3', 0) - 3.3) < 0.05
     row('OK' if ok and vb and gn else 'FAIL', 'power', year,
-        f'key on: VBAT_IN {vb} -> D7 -> F1 -> +12V {V["+12V"]:.2f} V -> buck +5V / LDO +3V3 / TLS115 V5_SENS '
-        f'{V["V5_SENS"]:.2f} V on {v5}; grounds {gn}')
+        f'key on: VBAT_IN {vb} -> D7 -> F1 -> +12V {V.get("+12V", 0):.2f} V -> buck +5V {V.get("+5V", 0):.2f} V / '
+        f'LDO +3V3 {V.get("+3V3", 0):.2f} V; grounds {gn}')
+    # sensor 5 V: two TLS115 trackers. V5_SENS -> on-board MAP only; V5_EXT -> harness 5 V cavities and AUX J5-14
+    j5 = sysm.by_ref.get('M.J5', {}).get('pads', {})
+    mapu = sysm.by_ref.get('M.U2', {}).get('pads', {})
+    want = {'V5_SENS': ('MAP sensor M.U2', False), 'V5_EXT': ('harness cavities + AUX J5', True)}
+    for rail, (what, harness) in want.items():
+        cav = sorted(c for c, n in sysm.cavity.items() if n == rail and c not in year_unwired(year))
+        aux = sorted(f'J5-{k}' for k, n in j5.items() if n == rail)
+        mp = sorted(f'U2.{k}' for k, n in mapu.items() if n == rail)
+        src = [p['ref'] for p in sysm.parts if p['value'] == 'TLS115B0EJ' and p['pads'].get('1') == rail]
+        v = V.get(rail)
+        bad = []
+        if v is None or abs(v - 5) > 0.1:
+            bad.append(f'rail at {v if v is None else round(v, 2)} V')
+        if not src:
+            bad.append('no TLS115 drives it')
+        if harness and not cav:
+            bad.append('reaches no harness cavity')
+        if harness and 'J5-14' not in aux:
+            bad.append('not on AUX J5-14')
+        if not harness and (cav or aux):
+            bad.append(f'also on {cav + aux}: the MAP supply should stay on the board')
+        if not harness and not mp:
+            bad.append('does not reach the MAP sensor')
+        row('FAIL' if bad else 'OK', 'power', year,
+            f'sensor 5 V {rail} ({V5_RAILS[rail]}; {", ".join(src) or "-"}): {v if v is None else f"{v:.2f}"} V -> '
+            f'{", ".join(cav + aux + mp) or "-"} (expected: {what})' + (f'  !! {"; ".join(bad)}' if bad else ''))
     if vi:
         dc = build_dc(sysm, year, fw, board_fw, open_cav=vb[0] if len(vb) == 1 else None)
         V = dc.solve()
@@ -1018,7 +1087,8 @@ def unconnected_pins(sysm, year):
     pad_counts = {'STM32F407VGT6': 100, 'STM32F103C8T6': 48, 'TC4427': 8, 'SN65HVD230DR': 8, 'TLS115B0EJ': 9,
                   'LMR14020': 9, 'SN74LVC4245APWR': 24, 'ULN2003AD': 16, 'LM2903DR': 8, 'LMV321IDBVR': 5,
                   'MCP6004': 14, 'AD8628': 5, 'REF3033': 3, 'AMS1117-3.3': 3, 'LDL1117S33R': 3, 'NCV8406ASTT3G': 4, 'VND14NV04': 3,
-                  'MPX5700AP': 6, 'USBLC6-2SC6': 6}
+                  'MPX5700AP': 6, 'USBLC6-2SC6': 6, 'TCAN1042VDRQ1': 8, '74HCT04PW': 14, 'VND7NV04TR-E': 3,
+                  'ZXMS6004FFTA': 3, 'TL431AIDBZR': 3, 'BCP53-16': 4}
     for p in sysm.parts:
         val = p['value']
         if val not in pad_counts or not p['fitted']:
@@ -1196,8 +1266,17 @@ DIODES = {  # value -> (vf, ron, vbr, steady-state rating text, max continuous A
     'BLUE': (2.8, 10, None, 'LED', 0.02),
 }
 INDUCT = {'L1': 0.3, 'L2': 0.067, 'FB1': 0.15}
-FUSES = {'F1': (0.5, 0.5, 1.0), 'M.F1': (0.04, 3.0, 5.0), 'M.F2': (0.07, 2.0, 3.5), 'M.F3': (0.07, 2.0, 3.5),
+FUSES = {'F1': (0.5, 0.5, 1.0), 'F2': (1.6, 0.1, 0.25),   # F2 nSMD010 (LSU VM wire): 0.1 A hold, 0.25 A trip
+         'M.F1': (0.04, 3.0, 5.0), 'M.F2': (0.07, 2.0, 3.5), 'M.F3': (0.07, 2.0, 3.5),
          'M.F4': (0.5, 0.5, 1.0)}    # ref -> (ohm, hold A, trip A)
+# low-side switches: value -> (pad in, drain, source, Ron, clamp V, current limit A, severity above it, text)
+LOWSIDE = {
+    'NCV8406ASTT3G': ('1', '2', '3', 0.21, 60.0, 2.5, 'OK', 'NCV8406A body diode / 60 V clamp'),
+    'VND14NV04': ('1', '2', '3', 0.035, 40.0, 2.5, 'OK', 'VND14NV04 body diode / 40 V clamp'),
+    'VND7NV04TR-E': ('1', '2', '3', 0.12, 40.0, 6.0, 'OK', 'VND7NV04 body diode / 40 V clamp'),
+    'ZXMS6004FFTA': ('1', '3', '2', 0.5, 60.0, 1.0, 'CHECK', 'ZXMS6004 body diode / 60 V clamp'),
+}
+SHUNT_P_MAX = 1.0      # W, BCP53 in SOT-223 on this board's copper (assumed; datasheet 0.65-1.35 W by pad area)
 OPAMP = {'MCP6004': (['2', '3', '5', '6', '9', '10', '12', '13'], ['1', '7', '8', '14'], 2e-3, 30e-3, '+3V3'),
          'AD8628': (['3', '4'], ['1'], 5e-3, 30e-3, '+3V3'),        # input limit assumed (not in our notes)
          'LMV321IDBVR': (['1', '3'], ['4'], 10e-3, 40e-3, '+3V3')}
@@ -1249,16 +1328,39 @@ def build_dc(sysm, year, fw, board_fw, vcar=VCAR, states=None, fault=None, jp1='
             vf, ron, vbr, txt, imax = DIODES[val]
             dc.d(g('2'), g('1'), vf, ron, vbr, tag=('D', ref, val, imax))
         elif kind == 'D' and val == 'BAT54S':
+            # series pair: pad 1 = anode of the low diode, pad 2 = cathode of the high diode, pad 3 = middle
             dc.d(g('1'), g('3'), 0.35, 2.0, 30, tag=('D', ref + '-lo', val, 0.2))
             dc.d(g('3'), g('2'), 0.35, 2.0, 30, tag=('D', ref + '-hi', val, 0.2))
-        elif val == 'NCV8406ASTT3G':
-            dc.d(g('3'), g('2'), 0.7, 0.05, 60.0, tag=('CLAMP', ref, 'NCV8406A body diode / 60 V clamp'))
+        elif kind == 'D' and val == 'BAT54A':
+            # common anode (pad 3), cathodes pads 1 and 2
+            dc.d(g('3'), g('1'), 0.35, 2.0, 30, tag=('D', ref + '-1', val, 0.2))
+            dc.d(g('3'), g('2'), 0.35, 2.0, 30, tag=('D', ref + '-2', val, 0.2))
+        elif val in LOWSIDE:
+            _i, dr, so, ron, vcl, ilim, sev_lim, txt = LOWSIDE[val]
+            dc.d(g(so), g(dr), 0.7, 0.05, vcl, tag=('CLAMP', ref, txt))
             if states.get(ref) == 'on':
-                dc.r(g('2'), g('3'), 0.21, tag=('NCV_ON', ref))
-        elif val == 'VND14NV04':
-            dc.d(g('3'), g('2'), 0.7, 0.05, 40.0, tag=('CLAMP', ref, 'VND14NV04 body diode / 40 V clamp'))
-            if states.get(ref) == 'on':
-                dc.r(g('2'), g('3'), 0.035, tag=('NCV_ON', ref))
+                dc.r(g(dr), g(so), ron, tag=('NCV_ON', ref, val, ron, ilim, sev_lim))
+        elif val == '74HCT04PW':
+            for i_ in ('1', '3', '5', '9', '11', '13'):
+                dc.d(g(i_), g('14'), 0.7, 10)
+                dc.d('GND', g(i_), 0.7, 10)
+        elif val == 'TL431AIDBZR':
+            pass        # modelled with its pass transistor (BCP53-16 below) as one shunt element
+        elif val == 'BCP53-16':
+            # TL431 + PNP shunt clamp: emitter = clamped rail, base = TL431 cathode; threshold from the divider on REF
+            rail_, base_ = g('3'), g('1')
+            tl = [q for q in sysm.parts if q['value'] == 'TL431AIDBZR' and q['fitted'] and q['pads'].get('1') == base_]
+            vth = None
+            if tl:
+                ref_n = tl[0]['pads'].get('2')
+                top = [ohms(q['value']) for q in sysm.parts if q['ref'][0] == 'R' and q['fitted']
+                       and set(q['pads'].values()) == {ref_n, rail_}]
+                bot = [ohms(q['value']) for q in sysm.parts if q['ref'][0] == 'R' and q['fitted']
+                       and set(q['pads'].values()) == {ref_n, 'GND'}]
+                if top and bot:
+                    vth = 2.495 * (1 + top[0] / bot[0])
+            if vth:
+                dc.d(rail_, 'GND', vth, 0.04, tag=('SHUNT', f'{rail_} shunt ({tl[0]["ref"]} TL431 + {ref} BCP53)', vth))
         elif val == 'ULN2003AD':
             for i in range(7):
                 inp, out = g(str(1 + i)), g(str(16 - i))
@@ -1304,10 +1406,17 @@ def build_dc(sysm, year, fw, board_fw, vcar=VCAR, states=None, fault=None, jp1='
                 dc.d('GND', g(k), 0.6, 2, tag=('OA_OUT', f'{ref}.{k}', val, lim_out))
         elif val == 'SN65HVD230DR':
             dc.r(g('4'), '+3V3', 100)
+        elif val == 'TCAN1042VDRQ1':
+            dc.r(g('4'), g('5'), 100)                # RXD recessive high at VIO; bus pins +-58 V, not loaded
         elif val == 'TLS115B0EJ':
-            dc.src_only(g('1'), 5.0, 0.5, tag=('SRC', 'V5_SENS (U3 TLS115)'))
+            dc.src_only(g('1'), 5.0, 0.5, tag=('SRC', f'{g("1")} ({ref} TLS115)', g('1')))
         elif val in ('AMS1117-3.3', 'LDL1117S33R'):
-            dc.src(g('2'), 3.3, 0.01, tag=('RAIL', f'+3V3 (U4 {val[:7]})', 0.05))   # load >= 50 mA (MCUs, transceivers)
+            if any(q['value'] == 'BCP53-16' and q['fitted'] and q['pads'].get('3') == g('2') for q in sysm.parts):
+                # source-only LDO into its minimum load; the shunt clamp takes what is pushed in beyond that
+                dc.src_only(g('2'), 3.3, 0.01, tag=('LDO', f'{g("2")} (U4 {val[:7]})'))
+                dc.r(g('2'), 'GND', 3.3 / 0.05)      # load >= 50 mA (MCUs, transceivers)
+            else:
+                dc.src(g('2'), 3.3, 0.01, tag=('RAIL', f'+3V3 (U4 {val[:7]})', 0.05))   # load >= 50 mA
         elif val == 'LMR14020':
             dc.src('+5V', 5.0, 0.01, tag=('RAIL', '+5V (U2 buck)', 0.06))          # load >= 60 mA (LDO, drivers)
             dc.r(g('2'), 'GND', 100)                 # about 2 W drawn from +12V_F
@@ -1404,7 +1513,7 @@ def car_models(dc, sysm, year, open_cav, sweep):
             dc.r(net, '_O2', 10e3)
         elif b in ('IN_CLT', 'HARN_IAT'):
             dc.r(net, 'GND', 2500)
-        elif b == 'V5_SENS':
+        elif b in V5_RAILS:
             dc.r(net, 'GND', 5000)
     # on-board sensor connectors: external IAT thermistor on J3 (JP1 on EXT)
     iat_ext = sysm.canon.get('M:IAT_EXT')

@@ -1,23 +1,34 @@
-"""Rev 0.7: heat-spreading copper for the injector drivers Q1-Q4 (NCV8406A, SOT-223).
+"""Heat-spreading copper for the eight low-side drivers Q1-Q8 (rev 0.8: ST VND7NV04, DPAK, on the strip above J1).
 
-On 1989-93 cars each harness injector wire is driven by two of these in parallel, and at high duty a driver with
-only its own tab pad (about 20 mm^2) runs hot: about 142 C junction at 90 % duty and 60 C ambient, and thermal
-shutdown at 85 C (firmware/tools/circuit_sim_full.py). The drain tab is the output net, so the spreading copper
-is that net: a zone of OUT_INJn around the tab on the top and bottom layers, above the ground pour in priority,
-from the header row down to the driver's pins, joined by a field of thermal vias. Other nets' copper inside the
-area keeps its clearance (the zone fills around it), and the vias are only placed where they clear everything.
+Each driver's drain tab is its output net, so the spreading copper is that net: a column of OUT_x copper as wide as
+the driver pitch allows (6.9 mm of the 7.62 mm pitch, leaving the gap the driver's input line climbs through), from
+the strip's top edge down onto the driver's own J1 pad, on F.Cu, B.Cu and In2.Cu (the +3V3 plane layer: the strip
+has no 3.3 V parts, and the drain islands take priority over the plane there). A field of thermal vias joins the
+three layers under and around the tab. Other nets' copper inside a column keeps its clearance (the zone fills
+around it), and vias are only placed where they clear everything.
 
-Used by daughter_finish.py after routing: add(board) returns the copper area added per driver.
+(Rev 0.7 had F.Cu/B.Cu zones for the four injector drivers only, on SOT-223 parts below J1.)
+
+Used by daughter_finish.py after routing: add(board) returns the number of thermal vias per driver, area(board) the
+filled drain copper per driver and layer.
 """
 import math
 import pcbnew
 from pcbnew import FromMM, ToMM, VECTOR2I
 
 OX, OY = 100.0, 50.0
-DRIVERS = {'Q1': 'OUT_INJ1', 'Q2': 'OUT_INJ2', 'Q3': 'OUT_INJ3', 'Q4': 'OUT_INJ4'}
-HALF_W = 3.4            # zone half width (drivers are 7.62 mm apart)
-Y_TOP, Y_BOT = 4.0, 11.2  # below the J1 header pads, above the driver's three pins
+DRIVERS = {'Q1': 'OUT_INJ1', 'Q2': 'OUT_INJ2', 'Q3': 'OUT_INJ3', 'Q4': 'OUT_INJ4',
+           'Q5': 'OUT_IACV', 'Q6': 'OUT_VVT', 'Q7': 'OUT_BOOST', 'Q8': 'OUT_ALT'}
+HALF_W = 3.45               # column half width (drivers are 7.62 mm apart; the IN line climbs the 0.72 mm gap)
+Y_TOP = 0.6                 # board edge clearance
+LAYERS = (pcbnew.F_Cu, pcbnew.In2_Cu, pcbnew.B_Cu)
 VIA_D, VIA_DRILL, VIA_PITCH, CLEAR = 0.6, 0.3, 1.0, 0.2
+
+
+def _j1_pad(board, net):
+    j1 = board.FindFootprintByReference('J1')
+    p = next(p for p in j1.Pads() if p.GetNetname() == net)
+    return ToMM(p.GetPosition().x) - OX, ToMM(p.GetPosition().y) - OY
 
 
 def _zone(board, net, layer, x0, y0, x1, y1):
@@ -28,7 +39,7 @@ def _zone(board, net, layer, x0, y0, x1, y1):
     ol.NewOutline()
     for x, y in ((x0, y0), (x1, y0), (x1, y1), (x0, y1)):
         ol.Append(FromMM(x + OX), FromMM(y + OY))
-    z.SetAssignedPriority(1)                    # above the board-wide GND pours (priority 0)
+    z.SetAssignedPriority(1)                    # above the board-wide GND pours and the +3V3 plane (priority 0)
     z.SetLocalClearance(FromMM(0.25))
     z.SetMinThickness(FromMM(0.2))
     z.SetPadConnection(pcbnew.ZONE_CONNECTION_FULL)
@@ -69,19 +80,33 @@ def _clear(board, x, y, netcode):
     return True
 
 
+def columns(board):
+    """(ref, net, x0, y0, x1, y1) of each driver's copper column, board mm"""
+    out = []
+    for ref, nn in DRIVERS.items():
+        fp = board.FindFootprintByReference(ref)
+        if fp is None:
+            continue
+        cx = ToMM(fp.GetPosition().x) - OX
+        _, jy = _j1_pad(board, nn)
+        out.append((ref, nn, cx - HALF_W, Y_TOP, cx + HALF_W, jy + 0.5))
+    return out
+
+
 def add(board):
     nets = board.GetNetsByName()
     out = {}
-    for ref, nn in DRIVERS.items():
-        fp = board.FindFootprintByReference(ref)
-        cx = ToMM(fp.GetPosition().x) - OX
+    for ref, nn, x0, y0, x1, y1 in columns(board):
         net = nets[nn]
-        x0, x1 = cx - HALF_W, cx + HALF_W
-        for layer in (pcbnew.F_Cu, pcbnew.B_Cu):
-            _zone(board, net, layer, x0, Y_TOP, x1, Y_BOT)
+        for layer in LAYERS:
+            _zone(board, net, layer, x0, y0, x1, y1)
+        # thermal vias over the tab and the copper below it (not in the lead area at the top of the column)
+        fp = board.FindFootprintByReference(ref)
+        tab = next(p for p in fp.Pads() if p.GetNumber() == '2' and p.GetSize().x > FromMM(5))
+        ty0 = ToMM(tab.GetBoundingBox().GetTop()) - OY - 0.6
         n = 0
-        y = Y_TOP + 0.6
-        while y <= Y_BOT - 0.6:
+        y = ty0
+        while y <= y1 - 1.2:
             x = x0 + 0.6
             while x <= x1 - 0.6:
                 if _clear(board, x, y, net.GetNetCode()):
@@ -98,12 +123,13 @@ def add(board):
 
 
 def area(board):
-    """filled copper area of each driver's output net on F.Cu and B.Cu (mm^2), after a zone fill"""
+    """filled drain copper of each driver per layer (mm^2), after a zone fill"""
     res = {}
+    names = {pcbnew.F_Cu: 'F', pcbnew.In2_Cu: 'In2', pcbnew.B_Cu: 'B'}
     for ref, nn in DRIVERS.items():
-        a = 0.0
+        a = {}
         for z in board.Zones():
-            if z.GetNetname() == nn and z.GetLayer() in (pcbnew.F_Cu, pcbnew.B_Cu):
-                a += z.GetFilledArea() / 1e12
-        res[ref] = round(a, 1)
+            if z.GetNetname() == nn and z.GetLayer() in names:
+                a[names[z.GetLayer()]] = round(a.get(names[z.GetLayer()], 0) + z.GetFilledArea() / 1e12, 1)
+        res[ref] = a
     return res

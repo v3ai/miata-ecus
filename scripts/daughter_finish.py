@@ -8,6 +8,7 @@ import sys, math
 import pcbnew
 from pcbnew import FromMM, ToMM, VECTOR2I
 import design, wideband as WB, wb_clean
+from placement import DY
 CLEAN = wb_clean.ENABLED
 
 OX, OY = 100.0, 50.0
@@ -54,6 +55,7 @@ for ref, (lab, dx, dy) in LEDLAB.items():
 # reference labels moved off copper / other labels: block ICs, and the BOOT / RESET switches (their
 # default spot above the switch collided with the LED column's labels)
 REF_POS = dict(wb_clean.REF_POS if CLEAN else {}, SW1=(119.5, 41.45, 0), SW2=(119.5, 49.25, 0))
+REF_POS = {k: (x, y + DY, a) for k, (x, y, a) in REF_POS.items()}      # rev 0.8: old frame -> board
 for ref, (x, y, a) in REF_POS.items():
     fp = b.FindFootprintByReference(ref)
     t = fp.Reference()
@@ -91,10 +93,10 @@ for v in [t for t in b.GetTracks() if t.GetClass() == 'PCB_VIA']:
         removed.append(v.GetNetname()); b.Remove(v)
 print('port vias removed (single layer):', removed)
 
-# 4. zones (rev 0.7: heat-spreading copper for the injector drivers first, see tab_copper.py)
+# 4. zones (rev 0.8: heat-spreading drain copper for the eight DPAK drivers first, see tab_copper.py)
 import tab_copper
-print('injector driver thermal vias:', tab_copper.add(b))
+print('driver thermal vias:', tab_copper.add(b))
 pcbnew.ZONE_FILLER(b).Fill(b.Zones())
-print('injector driver output copper, F.Cu + B.Cu zones (mm^2):', tab_copper.area(b))
+print('driver drain copper per layer (mm^2):', tab_copper.area(b))
 pcbnew.SaveBoard(sys.argv[2], b)
 print('saved', sys.argv[2])

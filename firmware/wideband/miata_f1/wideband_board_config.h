@@ -17,4 +17,4 @@
 
 #define AFR_CHANNELS 1
 
-#define VM_RESISTOR_VALUE (10)      // R109
+#define VM_RESISTOR_VALUE (11.6f)   // R109 (10 ohm) + F2 (rev 0.8, PTC in the VM wire, 1.6 ohm typical)
