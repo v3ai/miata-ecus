@@ -189,6 +189,7 @@ put('R141', 94.4, 13.0, 0)
 put('R142', 91.0, 8.0, 90)
 put('R143', 91.0, 11.2, 90)
 put('C63', 98.0, 14.0, 0)      # 100 uF bulk on +3V3 (1206), beside Q20's emitter
+put('C68', 96.6, 15.9, 0)      # second 100 uF bulk on +3V3 (1206), below C63
 
 # --- bottom band: conditioning columns ----------------------------------------------
 Y_SER, Y_PAIR, Y_PULL = 54.0, 51.6, 55.62
