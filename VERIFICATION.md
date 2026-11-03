@@ -1,8 +1,9 @@
 # Verification report
 
-**Date:** 2026-10-30; full-firmware emulation, expanded circuit and board checks 2026-11-02.
-**Boards:** daughterboard rev 0.5; motherboards 1989-93 and 1994-95 rev 0.6, 1996-97 / 1999-2000 / 2001-05 rev 0.4.
-These revisions carry the fixes this review called for (see [Rev 0.5 changes](#rev-05-changes-and-re-verification)).
+**Date:** 2026-10-30; full-firmware emulation, expanded circuit and board checks 2026-11-02; rev 0.7 fixes 2026-11-03.
+**Boards:** daughterboard rev 0.7; motherboards 1989-93 and 1994-95 rev 0.7, 1996-97 / 1999-2000 / 2001-05 rev 0.5.
+These revisions carry the fixes this review called for (see [Rev 0.5 changes](#rev-05-changes-and-re-verification),
+[Rev 0.6](#rev-06-stm32f103-wideband-controller) and [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings)).
 The review itself was first run on daughterboard rev 0.4 and the previous motherboards.
 **Firmware:** `firmware/` on rusEFI `1374bd07`.
 
@@ -42,10 +43,13 @@ Nothing here has been built yet, so this is a desk and simulation review. It cov
   blank emulated F103 through its ROM bootloader; the wideband then heats a modelled LSU 4.9 and rusEFI reads the
   lambda steps 1.00 / 0.85 / 1.20 over CAN. See
   [Full-firmware emulation](#full-firmware-emulation-expanded-circuit-and-board-checks-2026-11-02).
-- **New hardware findings (2026-11-02), not yet changed:** the expanded circuit and fault checks found 13 items
-  (N1-N13), three of them high: the F103's supply order at power-up (VDDA ahead of VDD), unclamped analog inputs,
-  and unprotected LSU signal wires (inherited from FOME). See
-  [New hardware findings](#new-hardware-findings-2026-11-02).
+- **New hardware findings (2026-11-02), mostly fixed in rev 0.7:** the expanded circuit and fault checks found 13
+  items (N1-N13), three of them high: the F103's supply order at power-up (VDDA ahead of VDD), unclamped analog inputs,
+  and unprotected LSU signal wires (inherited from FOME). Rev 0.7 fixes N1, N2, N4, N5, N7 and N9 and most of N3 and
+  N6. Still open: the LSU pump and virtual-ground wires shorted to battery (N3), a 24 V jump start while a crank, cam
+  or temperature-sensor wire is shorted (N6), and the injector drivers' temperature at sustained high duty, which on
+  the sequential years is worse than first reported (N8). See
+  [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings).
 - **Review.** A second, independent pass checked this report against the sources. Its corrections are folded in below;
   it found the ignition-sense bug.
 
@@ -64,8 +68,8 @@ Nothing here has been built yet, so this is a desk and simulation review. It cov
 | Board layout | Every board regenerated from the design scripts, autorouted, schematic netlist compared pad by pad with the design, KiCad DRC | See [Rev 0.5 changes](#rev-05-changes-and-re-verification) |
 | Wideband flashing | `firmware/tools/flash_sim/`: our `wideband_uart_flash.cpp`, unmodified, compiled for a PC against a model of the F103 ROM bootloader (AN3155, ID 0x410). The model was first validated with **stm32flash** (identified it as an STM32F10xxx medium-density part, wrote and verified the image with both erase variants) | 9/9 scenarios pass |
 | Full firmware, emulated | `firmware/sim/run_ecu.py`: OpenBLT + rusEFI unmodified on an emulated STM32F407 (Renode), every model year, from boot through cranking on real captures to 6500 rpm, stall and key off. `run_system.py`: the ECU programs a blank emulated STM32F103 through its ROM bootloader, then both run together over CAN with an LSU 4.9 sensor model | 372 OK, 8 CHECK (default tune at 6500 rpm), 0 FAIL; two firmware bugs found and fixed. Two-chip run: see [Full-firmware emulation](#full-firmware-emulation-expanded-circuit-and-board-checks-2026-11-02) |
-| Circuits, expanded | `firmware/tools/circuit_sim_full.py` (ngspice): every input and output stage, power-up order, ISO 16750-2 cranking, brown-out, key-off, shorts, the wideband front end and heater | 53 OK, 29 CHECK, 2 REF, 8 FAIL: new findings N1-N13 |
-| Copper and faults | `firmware/tools/board_copper.py` / `board_checks.py`: netlist rebuilt from each routed board's copper and compared with the design; every harness cavity on every board shorted to ground, 14.4 V and 24 V | Copper = design on all six boards (0 opens, 0 shorts); fault cases feed N2, N3, N6, N10 |
+| Circuits, expanded | `firmware/tools/circuit_sim_full.py` (ngspice): every input and output stage, power-up order, ISO 16750-2 cranking, brown-out, key-off, shorts, the wideband front end and heater | Rev 0.6: 53 OK, 29 CHECK, 2 REF, 8 FAIL (findings N1-N13). Rev 0.7: 64 OK, 28 CHECK, 1 REF, 0 FAIL |
+| Copper and faults | `firmware/tools/board_copper.py` / `board_checks.py`: netlist rebuilt from each routed board's copper and compared with the design; every harness cavity on every board shorted to ground, 14.4 V and 24 V | Copper = design on all six boards (0 opens, 0 shorts), rev 0.6 and rev 0.7. Faults: rev 0.6 1463 OK / 59 CHECK / 284 FAIL (feeding N2, N3, N6, N10); rev 0.7 1481 / 109 / 215 |
 | Main-MCU image | `firmware/tools/check_image.py` on a fresh build: vector tables, OpenBLT's CRC-32 + size header (same algorithm as rusEFI's `FlashVerifyChecksum`), merged DFU layout, fit below the settings sectors | Pass; 77 KB spare |
 
 ## Pinouts: findings
@@ -457,8 +461,8 @@ unmodified firmware. Each was modelled or worked around, and is listed in `firmw
   findings below.
 
 ### New hardware findings (2026-11-02)
-From the expanded circuit simulation and the board-level fault checks. **No hardware has been changed for these
-yet**: each needs a design decision.
+From the expanded circuit simulation and the board-level fault checks, as found on the rev 0.6 boards. What rev 0.7
+changed for each, and what remains, is in [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings).
 
 | # | Severity | Finding | Proposed fix |
 |---|---|---|---|
@@ -469,15 +473,56 @@ yet**: each needs a design decision.
 | N5 | Medium | **Wideband heater warm-up vs the motherboard's F1 (2 A hold PTC).** At the start of the firmware's warm-up ramp, a cold heater draws 1.6-2.3 A rms (2.5-4 Ω cold resistance). The PTC's hold current derates to about 1.6 A at 60 °C, so it may trip during warm-up, and the controller then times out | A 3 A hold PTC in F1's footprint, or start the warm-up ramp lower in our wideband port (firmware only). Measure a real sensor's cold heater resistance either way |
 | N6 | Medium | **Input resistors under-rated for shorts to battery.** Crank/cam: R62/R64 (1 kΩ 0603) take 88 mW at 14.4 V (62 mW rating) and 279 mW at 24 V; R61/R63 (4.7k pull-ups) 85 mW at 24 V. Analog inputs at 24 V: R27, R33, R36 66-134 mW | 0805 or 1206 parts in those positions (same values), or larger series values |
 | N7 | Medium | **Knock input:** a knock wire shorted to battery couples a 14 V step through C44 into the LMV321's input diodes (about 1.2 A peak) | 1-10 kΩ in series with C44 |
-| N8 | Medium | **1989-93 injector drivers at sustained high duty:** each NCV8406A at 90 % duty reaches about 142 °C junction at 60 °C ambient and thermal shutdown at 85 °C ambient (about 20 mm² of tab copper) | More copper on the tabs (pour on both layers with vias), or convert to sequential |
+| N8 | Medium | **Injector drivers at sustained high duty:** on 1989-93 each NCV8406A at 90 % duty reaches about 142 °C junction at 60 °C ambient and thermal shutdown at 85 °C ambient (about 20 mm² of tab copper). *Corrected in rev 0.7: the sequential years are worse, because each driver also absorbs its injector's turn-off energy (see Rev 0.7)* | More copper on the tabs (pour on both layers with vias), or convert to sequential |
 | N9 | Low | **Switch inputs in a 35 V load dump** (battery-fed switch closed): 8.1 V on the FT pin, against 7.3 V abs max | 1N4148WS to +3V3, as on the hall inputs |
 | N10 | Low | **AUX header J5:** UART TX/RX (PC6/PC7) and the AFR input (PC4) have no protection | Series resistors and clamps if the header is used with car wiring; fine for bench use |
 | N11 | Low | **1989-93 2L** (manual-transmission idle switch, ground-switching) has no pull-up, so it can't be read. **1994-95 2L** (electrical-load signal), if it switches to battery, over-drives PC5 | Firmware reads TPS instead; fit a pull-up only if needed. Check the 1994-95 signal level on a car before wiring it |
 | N12 | Low (inherited from FOME) | **ESR reads 27 % low** (C102 droops within each ESR half period), so the sensor runs at about 740 °C instead of 780 °C | A firmware calibration in our wideband port, or leave it as FOME and rusEFI do |
 | N13 | Low | **+5V at 3.9 V in a level II crank pulse:** the TC4427 and the SN74LVC4245A port A are rated from 4.5 V. Both still switch, with less drive | None needed; noted |
 
+## Rev 0.7: fixes for the 2026-11-02 findings
+**Boards:** daughterboard rev 0.7; motherboards 1989-93 and 1994-95 rev 0.7, 1996-97 / 1999-2000 / 2001-05 rev 0.5
+(the motherboards change only F1). Existing designators are unchanged; new parts have new numbers. Everything below
+was simulated again on the rev 0.7 design and its routed board: `circuit_sim_full.py` **64 OK / 28 CHECK / 1 REF /
+0 FAIL** (rev 0.6: 53 / 29 / 2 / 8), and the copper and fault checks.
+
+| # | Status | Change | Re-check on rev 0.7 |
+|---|---|---|---|
+| N1 | **Fixed** | **U4: ST LDL1117S33R** (C435835, same SOT-223 pinout, 0.15 V typical / 0.3 V max dropout, rated −40 to 125 °C) instead of the AMS1117-3.3. The LDO alone still left VDDA about 0.8 V ahead of VDD at key-off and in a slow brown-out (the REF3033 holds up while +3V3 falls), so **D30** (BAT54WS, C124205) now runs from the F103's VDDA to +3V3 | VDDA − VDD, worst case: power-up 104 mV (253 mV with a max-dropout LDO), key-off 244 mV, slow brown-out 243 mV. ST's limit is 300 mV; rev 0.6 reached 953 mV |
+| N2 | **Fixed** | **D19-D26** (BAT54WS Schottky) from each of the eight AN_ nodes to +3V3, after the 5.6k series resistor. The series resistors and the CLT/IAT bias resistors are now 0603 | Sensor wire shorted to 14.4 V: pin 3.55 V, 0.1 nA into the MCU, 1.9 mA into +3V3, 21 mW in the series resistor. 24 V jump start: 3.57 V (fault model 3.63 V, a CHECK: 0.33 V over VDDA against ST's 0.3 V), 3.7 mA, 75 mW. **New CHECK, clamp leakage:** a Schottky leaks into the node when the sensor is near 0 V; with BAT54WS figures (2 µA max at 25 V, 25 °C; temperature and voltage scaling assumed) that reads 5 mV high at the sensor at 60 °C typical, up to 46 mV with a max-leakage part, and 26 / 260 mV at 85 °C. Check a TPS and CLT reading against a meter on a hot day |
+| N3 | **Partly fixed** | **R137** (10k) between the LSU_UN wire and the Nernst buffer input (U101 pin 10). F103 PA1 is no longer wired to LSU_VM (the firmware never sampled it). R114 moved down the LSU_UN line beside C102 to make room | UN wire shorted to the 12 V heater feed: 1.1 mA into the MCP6004 input (2 mA allowed); 2.0 mA in a 24 V jump start. IP and RT shorted: 1.1 mA into the AD8628 inputs through R112 / R111. **Still open:** the pump and virtual-ground drive paths (IP, RT, VM) carry the pump current and can't take series resistance, so a short of one of those wires to battery still damages U101 and R108-R110 (and VM reaches F103 PA3 through R109), as on the FOME module. Protecting them needs a different front end (a CJ125-class interface IC) |
+| N4 | **Fixed by N1** | BOR stays at rusEFI's level 1 | ISO 16750-2 level II crank: +3V3 holds 3.30 V (also with a max-dropout LDO); rev 0.6 fell to 2.60 V. Level III still resets the ECU, cleanly |
+| N5 | **Fixed** | Motherboard **F1: 3 A hold PTC** (LUTE 2920L300/30GR, C22446884: 3 A hold, 5 A trip, 30 V) instead of the 2 A part, on every motherboard. No 1812 part holds 3 A above 8 V, so the footprint is now 2920 | Cold heater warm-up: 2.25 A rms worst (2.5 Ω), against about 2.4 A hold at 60 °C. Heater reaches temperature in 13-14 s |
+| N6 | **Fixed for a 14.4 V short; a 24 V jump start with a shorted wire still overloads some** | The hall 1k pull-ups R62/R64 are now 0603 (100 mW), standing beside their series resistors | Crank or cam wire shorted to 14.4 V: R62/R64 88 mW (CHECK, 88 % of rating; was over). **Still over in a 24 V jump start while a wire is shorted** (a double fault): R62/R64 279 mW, R61/R63 (4.7k, 0402) 85 mW, CLT/IAT bias R33/R36 134 mW. Thick-film parts take 2.5 × rated power for 5 s, so they survive a brief event, not a long one. 1206 parts would cover it; they don't fit the 2.54 mm column pitch |
+| N7 | **Fixed** | **R138** (2.2k) ahead of the knock coupling cap C44 | Knock wire shorted to battery: 5.4 mA peak into the LMV321's input diode (was about 1.2 A). The 2.2k adds to the amplifier's input resistance: gain at 6.9 kHz now 4.52; 1 g gives 118 mV at the ADC, clipping above 14 g |
+| N8 | **Improved, still a limit; wider than first reported** | OUT_INJ1-4 copper zones on both outer layers around Q1-Q4's tabs, stitched with 19-21 thermal vias each (`scripts/tab_copper.py`): 86-90 mm² per driver, about 65 mm² effective. The injectors are driven from the daughterboard on every year, so this applies to all five | Estimated RthJA 109 °C/W (was 130). **1989-93** (batch, two injectors per driver, TVS-clamped), 90 % duty: Tj 123 °C at 60 °C ambient (was 142 °C); thermal shutdown at 85 °C ambient. **Sequential years: the first report missed these.** Each driver absorbs its injector's turn-off energy in its own clamp (6 mJ per pulse, 0.36 W at 7200 rpm, with 8 mH injectors assumed). At 90 % duty and 7200 rpm a driver reaches thermal shutdown even at 60 °C ambient; at 80 % duty, typical Rds(on), 60 °C, it is still above 150 °C (128 °C if the injectors are 4 mH). Steady state; a short burst at full load is shorter than the board's thermal time constant. Proposed, not made: a TVS on each injector output on the sequential motherboards (as 1989-93 has), which takes the clamp energy off the drivers. Measure the injectors' inductance before deciding |
+| N9 | **Fixed** | **D27-D29** (1N4148WS) from each switch input to +3V3, as on the hall inputs | Switch input at 35 V (load dump): 3.88 V at the FT pin (was 8.1 V; 7.3 V allowed); 24 V: 3.86 V |
+| N10-N13 | Unchanged | As listed above: the AUX header is for bench use; 2L needs checking on a car; N12 is inherited from FOME; N13 needs nothing | — |
+
+**Board checks on rev 0.7:**
+
+| Check | Result |
+|---|---|
+| Schematic netlist against the design | 822 pads, 0 differences |
+| DRC (`daughter_release.sh`) | 0 unconnected, 0 clearance errors. Courtyard overlaps 42 (rev 0.6: 11), all from the new clamps and the larger 0603 parts packed between existing ones. With every courtyard shrunk by 0.2 mm (about the part body) nothing overlaps |
+| Copper rebuilt from geometry against the design (`board_copper.py`), all six boards | 0 opens, 0 shorts |
+| Pin check (`check_pins.py`) | OK |
+| Every harness cavity shorted to ground, 14.4 V and 24 V (`board_checks.py`) | 1481 OK / 109 CHECK / 215 FAIL (rev 0.6: 1463 / 59 / 284). The analog, switch and knock FAILs are gone. What remains: the sensor 5 V shorted to battery (it back-feeds every sensor), ignition and relay outputs shorted to battery (Minor list: unprotected outputs), the LSU drive wires (N3), the AUX header's UART (N10) and the 24 V double fault in N6 |
+| Firmware-in-the-loop, two chips, in CI (`sim.yaml`) | Pass, after logging the sensor model every 50 ms (the per-step pump-current means were flaky) |
+
+**How the board was re-routed.** Only the nets around the changed parts were routed again
+(`scripts/route_eco.py` keeps the rev 0.6 copper everywhere else, then `route.py`'s finish passes route the rest), so
+the proven layout elsewhere is unchanged. Two connections the router left open, the LED_ERR and LED_WARN lines from
+the MCU to their status LEDs (ripped up by the finish passes), were routed by hand with `hand_route.py`; LED_WARN takes
+several layer changes on its way.
+
+**Not repeated:** the firmware-in-the-loop runs feed the MCU pins through models of the input stages, so the hardware
+change doesn't alter them.
+
 ## Open items
-The 2026-11-02 findings N1-N13 are listed in [New hardware findings](#new-hardware-findings-2026-11-02).
+The 2026-11-02 findings N1-N13 are listed in [New hardware findings](#new-hardware-findings-2026-11-02); what rev 0.7
+fixed and what remains (N3 drive paths, N6 in a 24 V double fault, N8, N10-N13) is in
+[Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings).
 
 | # | Issue | What to do |
 |---|---|---|
@@ -489,8 +534,7 @@ The 2026-11-02 findings N1-N13 are listed in [New hardware findings](#new-hardwa
 | Supply | **Harness headers:** TE lists all four as "not currently available"; 176122-6 (1999-2000) and 178780-1 (1996-97) are obsolete at Mouser. 174915-6 (76-pin, Mouser 263) and 353830-5 (72-pin, Mouser 252) are still stocked | Buy the headers ahead. Next revision: fit the 1996-97 board with 174915-6, and consider moving the 1989-95 and 1999-2000 boards to it as rusEFI's Hellen boards do (fit-check a real plug first) |
 
 ### Minor (not changed)
-- **AMS1117:** rated 0 °C minimum and about 125 °C junction at 85 °C ambient; consider an automotive-temperature
-  LDO.
+- **AMS1117:** rated 0 °C minimum (resolved in rev 0.7: U4 is now an LDL1117S33R, rated −40 °C).
 - **Unprotected outputs:** the TC4427 ignition and ULN2003 relay outputs have no short-to-battery protection (the
   NCV8406A outputs do).
 - **Knock amplifier:** clips above about 284 mV input (gain 5.7). Fine at light load; consider lower gain.

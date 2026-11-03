@@ -67,7 +67,7 @@
 /*
  * Port A setup (the analog front end is the rusEFI/FOME wideband module, rev C).
  * PA0  - Un_sense (Nernst, x2.7)   (analog in, ADC12_IN0).
- * PA1  - LSU_Vm                    (analog in, ADC12_IN1, not sampled).
+ * PA1  - not connected (rev 0.7; the module wired it to LSU_Vm, never sampled).
  * PA2  - Ip_sense                  (analog in, ADC12_IN2).
  * PA3  - Vm_sense (virtual ground) (analog in, ADC12_IN3).
  * PA4, PA5 - unused                (input, pull-up).

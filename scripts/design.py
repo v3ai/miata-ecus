@@ -224,8 +224,11 @@ add('U3', 'TLS115B0EJ', 'DSO8EP', 'C3743696',
     'sensor 5V tracker, short-to-battery protected')
 C('C24', '1u', '+12V', 'GND')
 C('C25', '1u', 'V5_SENS', 'GND')
-# 3.3V
-add('U4', 'AMS1117-3.3', 'SOT223T2', 'C6186', {'1': 'GND', '2': '+3V3', '3': '+5V'})
+# 3.3V. Rev 0.7: ST LDL1117S33R (low dropout, same SOT-223 pinout: 1 GND, 2/tab OUT, 3 IN; -40..125 C) instead of
+# the AMS1117-3.3. With about 1 V of dropout the AMS1117 let the wideband MCU's VDDA (REF3033 from +5V) run up to
+# 0.95 V above its VDD (+3V3) while +5V rose or fell (power-up, key-off, crank dips); ST allows 0.3 V. It also
+# keeps +3V3 above 2.7 V in an ISO 16750-2 level II crank pulse, and drops the AMS1117's 0 C minimum rating.
+add('U4', 'LDL1117S33R', 'SOT223T2', 'C435835', {'1': 'GND', '2': '+3V3', '3': '+5V'}, '3.3 V LDO, 1.2 A, low dropout')
 C('C26', '10u', '+5V', 'GND', '0805')
 C('C27', '10u', '+3V3', 'GND', '0805')
 # supply sensing
@@ -289,15 +292,17 @@ for i, n in enumerate(HS_OUT):
 # Inputs
 # ---------------------------------------------------------------------------
 # analog 0-5V -> 0-3.2V (div 1.56). CLT/IAT get 2.7k bias to sensor 5V.
+# Rev 0.7: series and bias resistors in 0603 (100 mW): with the clamps below, a sensor wire shorted to 14.4 V puts
+# 21 mW into the series resistor (74 mW at 24 V) and 33 mW into a CLT/IAT bias resistor (134 mW at 24 V).
 for n in ['TPS', 'MAP', 'CLT', 'IAT', 'AFR', 'AUX1', 'AUX2', 'AUX3']:
-    R(f'R{rn}', '5.6k', 'IN_' + n, 'AN_' + n, '0402'); rn += 1
+    R(f'R{rn}', '5.6k', 'IN_' + n, 'AN_' + n, '0603'); rn += 1
     R(f'R{rn}', '10k', 'AN_' + n, 'GND', '0402'); rn += 1
     C(f'C{cn}', '10n', 'AN_' + n, 'GND', '0402'); cn += 1
     if n in ('CLT', 'IAT'):
-        R(f'R{rn}', '2.7k', 'V5_SENS', 'IN_' + n, '0402'); rn += 1
+        R(f'R{rn}', '2.7k', 'V5_SENS', 'IN_' + n, '0603'); rn += 1
 
-# knock: AC coupled, biased to 1.65V, gain 5.7
-C(f'C{cn}', '100n', 'IN_KNOCK', 'KN_P'); cn += 1
+# knock: AC coupled, biased to 1.65V, gain 5.7. Rev 0.7: the coupling cap follows R138 (2.2k, see the rev 0.7 block)
+C(f'C{cn}', '100n', 'KN_IN', 'KN_P'); cn += 1
 R(f'R{rn}', '100k', 'KN_P', 'KN_BIAS'); rn += 1
 R(f'R{rn}', '100k', '+3V3', 'KN_BIAS'); rn += 1
 R(f'R{rn}', '100k', 'KN_BIAS', 'GND'); rn += 1
@@ -342,9 +347,10 @@ for ch in ['1', '2']:
 C(f'C{cn}', '100n', '+5V', 'GND'); cn += 1
 
 # Hall (open collector): 1k pull-up to sensor 5V, 4.7k series, 1n filter
+# Rev 0.7: the 1k pull-ups in 0603: a crank/cam wire shorted to 14.4 V puts 88 mW into its pull-up (0402: 62 mW).
 for n in ['HALL1', 'HALL2']:
     R(f'R{rn}', '4.7k', 'IN_' + n, n, '0402'); rn += 1
-    R(f'R{rn}', '1k', 'V5_SENS', 'IN_' + n, '0402'); rn += 1
+    R(f'R{rn}', '1k', 'V5_SENS', 'IN_' + n, '0603'); rn += 1
     C(f'C{cn}', '1n', n, 'GND', '0402'); cn += 1
 # rev 0.5: clamp diodes to +3V3 (PE7/PE8 are 5 V-tolerant pins with no clamp of their own; a crank/cam wire
 # shorted to battery would otherwise put ~14 V on them). 4.7k limits the clamp current to ~2 mA.
@@ -371,6 +377,23 @@ R('R72', '10k', 'BOOT1', 'GND', '0402')       # PB2 / BOOT1 low
 # outputs are high-impedance and R19-R26 hold the drivers off, so a floating MCU pin does nothing. Once enabled,
 # the board firmware parks every control pin rusEFI isn't using as an input with pull-down (rusEFI's own
 # "unused" state is a pull-UP, which would switch the driver on).
+
+# rev 0.7 additions (new refs above the rev 0.6 range)
+# Analog input clamps: a Schottky from each AN_ node to +3V3, after the 5.6k series resistor. A sensor wire shorted
+# to battery put 9.2 V on its F407 pin (15.4 V in a 24 V jump start): those pins are 5 V tolerant only as digital
+# inputs, and in analog mode they take no more than about VDDA + 0.3 V. Clamped: 3.6 V, with (14.4 - 3.6) / 5.6k =
+# 1.9 mA into the +3V3 rail instead of the MCU. Reverse leakage (2 uA max at 25 V) through the ~3.6 kOhm source is
+# under 1 LSB at room temperature.
+for i, n in enumerate(['TPS', 'MAP', 'CLT', 'IAT', 'AFR', 'AUX1', 'AUX2', 'AUX3']):
+    add(f'D{19 + i}', 'BAT54WS', 'SOD323', 'C124205', {'1': '+3V3', '2': 'AN_' + n}, f'AN_{n} clamp to +3V3 (Diodes BAT54WS-7-F)')
+# 12 V switch inputs: 1N4148WS to +3V3, as on the hall inputs (a battery-fed switch closed during a 35 V load dump
+# put 8.1 V on the 5 V-tolerant pin; abs max 7.3 V)
+for i, n in enumerate(['SW1', 'SW2', 'SW3']):
+    add(f'D{27 + i}', '1N4148WS', 'SOD323', 'C2128', {'1': '+3V3', '2': n}, f'{n} clamp to +3V3')
+# knock: 2.2k in series with the coupling cap. A knock wire shorted to battery coupled a 14 V step straight through C44
+# into the LMV321's input diodes (about 1 A peak); now 6.5 mA for 0.2 ms. The piezo's own impedance (about 23 kOhm at
+# 7 kHz) makes the signal loss about 2 %.
+R('R138', '2.2k', 'IN_KNOCK', 'KN_IN', '0402')
 
 # mounting holes
 for i in range(4):

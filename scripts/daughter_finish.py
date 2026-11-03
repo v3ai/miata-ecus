@@ -91,7 +91,10 @@ for v in [t for t in b.GetTracks() if t.GetClass() == 'PCB_VIA']:
         removed.append(v.GetNetname()); b.Remove(v)
 print('port vias removed (single layer):', removed)
 
-# 4. zones
+# 4. zones (rev 0.7: heat-spreading copper for the injector drivers first, see tab_copper.py)
+import tab_copper
+print('injector driver thermal vias:', tab_copper.add(b))
 pcbnew.ZONE_FILLER(b).Fill(b.Zones())
+print('injector driver output copper, F.Cu + B.Cu zones (mm^2):', tab_copper.area(b))
 pcbnew.SaveBoard(sys.argv[2], b)
 print('saved', sys.argv[2])

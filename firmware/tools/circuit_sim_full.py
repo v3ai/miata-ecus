@@ -207,9 +207,19 @@ assert DB['U3']['pads']['7'] == '+12V', 'TLS115 EN (pin 7) is assumed tied to it
 VREF_BUCK = 0.75
 V5_NOM = VREF_BUCK * (1 + val('R9') / val('R10'))
 T_SS = val('C20') * VREF_BUCK / 3e-6
-# AMS1117-3.3 (AMS datasheet, waveshare copy): 3.267-3.333 V at 25 C, 3.235-3.365 V over temperature, for
-# 4.75 V <= VIN <= 12 V; dropout 1.1 V typ / 1.3 V max at 800 mA, "decreasing at lower load currents"; quiescent
-# 5 mA typ. At this board's ~0.15 A the dropout is assumed 1.0 V typical; 1.3 V (datasheet max) is the worst case.
+# U4, the +3V3 regulator (design.py value):
+# AMS1117-3.3 (rev 0.6 and before; AMS datasheet, waveshare copy): 3.267-3.333 V at 25 C, 3.235-3.365 V over
+# temperature; dropout 1.1 V typ / 1.3 V max at 800 mA, "decreasing at lower load currents"; quiescent 5 mA typ. At this
+# board's ~0.15 A the dropout is assumed 1.0 V typical; 1.3 V (datasheet max) is the worst case.
+# LDL1117S33R (rev 0.7; ST datasheet via LCSC): dropout 350 mV typ / 600 mV max at 1.2 A, -40..125 C, quiescent 500 uA.
+# At ~0.15 A the PMOS pass device's dropout scales with current (about 45 mV typ / 75 mV max); 0.15 V typical and
+# 0.3 V worst case are assumed here, to cover the weaker gate drive while +5V is low.
+LDOS = {'AMS1117-3.3': dict(name='AMS1117', vdo=1.0, vdo_max=1.3, iq=5e-3, vmin=3.235, vmax=3.365),
+        'LDL1117S33R': dict(name='LDL1117', vdo=0.15, vdo_max=0.3, iq=0.5e-3, vmin=3.234, vmax=3.366)}
+LDO = LDOS[DB['U4']['value']]
+# rev 0.7: Schottky D30 from WB_VDDA (anode) to +3V3, so VDDA can't stay up while VDD collapses (key-off, brown-out)
+VDDA_CLAMP = any(r.startswith('D') and p['pads'].get('1') == '+3V3' and p['pads'].get('2') == 'WB_VDDA'
+                 for r, p in DB.items())
 # REF3033 (TI REF30xx datasheet SBVS032H): 3.294-3.306 V; dropout 1 mV typ / 50 mV max (no load); VIN min VREF+50 mV;
 # 25 mA load max, 45 mA short-circuit; 50 uA quiescent. Below its minimum input it is assumed to follow VIN - 50 mV
 # (the worst case for the VDDA - VDD check; the datasheet does not specify it).
@@ -222,7 +232,10 @@ T_SS = val('C20') * VREF_BUCK / 3e-6
 C12_EFF, C5_EFF, C33_EFF = 7e-6, 6 * 6e-6 + 2e-6 + 0.5e-6, 7e-6 + 3 * 3e-6 + 1.5e-6
 
 
-def power_net(pwl, tstop, tmax, vdo=1.0, i33=0.15, clamp=False, keyoff=None, rf1=0.5):
+def power_net(pwl, tstop, tmax, vdo=None, i33=0.15, clamp=None, keyoff=None, rf1=0.5, iq=None):
+    vdo = LDO['vdo'] if vdo is None else vdo
+    clamp = VDDA_CLAMP if clamp is None else clamp
+    iq = LDO['iq'] if iq is None else iq
     if keyoff is None:
         src = f'Vsrc src 0 PWL({pwl})\nRsrc src vbat 0.02\nRvb vbat 0 1k'
     else:   # main relay contact opens at t = keyoff; the motherboard loads on VBAT_IN (heater, valves) take it down
@@ -259,9 +272,9 @@ Bbk 0 v5 I = {ib}
 Bbki p12f 0 I = {ib}*V(v5)/(0.85*max(V(p12f),1))
 C5v v5 0 {C5_EFF}
 Bl5 v5 0 I = 0.01*min(1, max(V(v5),0)/3)
-* AMS1117-3.3
+* U4 3.3 V LDO (dropout vdo)
 Bam 0 v33 I = {ia}
-Bami v5 0 I = {ia} + 5m*min(1, max(V(v5),0)/2)
+Bami v5 0 I = {ia} + {iq}*min(1, max(V(v5),0)/2)
 C33 v33 0 {C33_EFF}
 Bl33 v33 0 I = {i33}*min(1, max(V(v33),0)/1.8)
 * REF3033 -> F103 VDDA (C107 + C109; R101/R102 2k and the ADC: about 1.25 kohm)
@@ -352,6 +365,8 @@ iso_crank_pwl_II, iso_crank_stop_II, _ = iso_crank(4.5, 6.5)
 for label, pwl, tstop, tmax in (('main relay closes onto 12.6 V', '0 0 1m 0 1.05m 12.6 40m 12.6', '40m', '5u'),
                                 ('slow ramp 0 -> 13.5 V in 100 ms', '0 0 100m 13.5 140m 13.5', '140m', '20u')):
     d = spice('pwr_up', power_net(pwl, tstop, tmax), PV)
+    dw = spice('pwr_up_w', power_net(pwl, tstop, tmax, vdo=LDO['vdo_max']), PV)
+    pmw = power_metrics(dw)
     t = d['time']
     mono = {n: monotonic(t, d[f'v({k})'], 0, t[-1]) for n, k in (('+5V', 'v5'), ('+3V3', 'v33'),
                                                                    ('VDDA', 'vdda'), ('V5_SENS', 'v5s'))}
@@ -366,11 +381,13 @@ for label, pwl, tstop, tmax in (('main relay closes onto 12.6 V', '0 0 1m 0 1.05
     record('Power-up', f'{label}: TLS115 V5_SENS tracking +5V',
            f'|+5V - V5_SENS| {np.max(np.abs(d["v(v5)"][trk] - d["v(v5s)"][trk])) * 1000:.0f} mV in regulation '
            '(model: 5 mV tracking + output impedance; datasheet +-5 mV)', 'OK')
+    worst = max(pm['dmax'], pmw['dmax'])
     record('Power-up', f'{label}: F103 VDDA - VDD (limit 300 mV)',
-           f'VDDA (REF3033) leads VDD (AMS1117) by up to {pm["dmax"] * 1000:.0f} mV, over 300 mV for '
-           f'{pm["tover"] * 1000:.1f} ms', 'OK' if pm['dmax'] < F1_DIFF else 'FAIL',
-           'REF3033 drops ~50 mV, AMS1117 ~1 V: while +5V rises from ~1.3 V to ~4.3 V the F103 VDDA sits up to ~1 V above '
-           'its VDD (STM32F103x8 datasheet: 300 mV max during power-up and operation)')
+           f'VDDA (REF3033) leads VDD ({LDO["name"]}) by up to {pm["dmax"] * 1000:.0f} mV ({pmw["dmax"] * 1000:.0f} mV '
+           f'with {LDO["vdo_max"]:g} V dropout), over 300 mV for {max(pm["tover"], pmw["tover"]) * 1000:.1f} ms',
+           'OK' if worst < F1_DIFF else 'FAIL',
+           f'REF3033 drops ~50 mV, {LDO["name"]} ~{LDO["vdo"]:g} V: while +5V rises the F103 VDDA leads its VDD by about '
+           'the difference (STM32F103x8 datasheet: 300 mV max during power-up and operation)')
     if label.startswith('slow'):
         record('Power-up', f'{label}: F407 runs below 2.7 V after reset release',
                f'{pm["unsafe4"] * 1000:.1f} ms with NRST released and VDD < 2.7 V',
@@ -383,29 +400,22 @@ for label, pwl, tstop, tmax in (('main relay closes onto 12.6 V', '0 0 1m 0 1.05
                f'(C15 100 nF, 40k pull-up) releases about {40e3 * val("C15") * math.log(1 / 0.3) * 1000:.1f} ms after VDD passes BOR1',
                'OK')
 
-# -- fix candidate (not on the board): BAT54 from WB_VDDA to +3V3
-d = spice('pwr_up_fix', power_net('0 0 100m 13.5 140m 13.5', '140m', '20u', clamp=True), PV)
-pm = power_metrics(d)
-record('Power-up', 'proposed fix: BAT54 anode WB_VDDA -> cathode +3V3, slow ramp',
-       f'VDDA - VDD at most {pm["dmax"] * 1000:.0f} mV ({pm["tover"] * 1000:.1f} ms over 300 mV); steady VDDA '
-       f'{d["v(vdda)"][-1]:.3f} V', 'REF',
-       'a Schottky clamp alone is not enough: the REF3033 pushes up to its 45 mA short-circuit current through it '
-       '(~0.44 V across a BAT54) until VDD catches up; see the LDO alternative below')
-
-d = spice('pwr_up_ldo', power_net('0 0 100m 13.5 140m 13.5', '140m', '20u', vdo=0.25), PV)
-pm = power_metrics(d)
-dc = spice('pwr_crank_ldo', power_net(iso_crank_pwl_II, iso_crank_stop_II, '50u', vdo=0.25), PV)
-pmc = power_metrics(dc, 0.03)
-record('Power-up', 'alternative fix: +3V3 LDO with 0.25 V dropout instead of the AMS1117',
-       f'slow ramp: VDDA - VDD at most {pm["dmax"] * 1000:.0f} mV; ISO level II crank: {pmc["dmax"] * 1000:.0f} mV, '
-       f'+3V3 min {pmc["v33min"]:.2f} V', 'REF',
-       'tracks the REF3033 within its 0.3 V allowance and keeps +3V3 regulated down to +5V = 3.55 V; an automotive '
-       '-40 C part would also clear the AMS1117 0 C rating noted in VERIFICATION')
+# -- reference: the rev 0.6 AMS1117 (about 1 V dropout) in the same slow ramp and ISO level II crank
+if LDO['name'] != 'AMS1117':
+    old = LDOS['AMS1117-3.3']
+    d = spice('pwr_up_ams', power_net('0 0 100m 13.5 140m 13.5', '140m', '20u', vdo=old['vdo'], iq=old['iq'], clamp=False), PV)
+    pm = power_metrics(d)
+    dc = spice('pwr_crank_ams', power_net(iso_crank_pwl_II, iso_crank_stop_II, '50u', vdo=old['vdo_max'], iq=old['iq'],
+                                          clamp=False), PV)
+    pmc = power_metrics(dc, 0.03)
+    record('Power-up', 'reference: rev 0.6 AMS1117-3.3 (1.0 V typ / 1.3 V max dropout)',
+           f'slow ramp: VDDA - VDD up to {pm["dmax"] * 1000:.0f} mV; ISO level II crank: {pmc["dmax"] * 1000:.0f} mV, '
+           f'+3V3 min {pmc["v33min"]:.2f} V', 'REF', 'what the LDL1117 replaced')
 
 # steady state and supervisor/boot-pin facts
 record('Power-up', 'steady state F103 VDDA - VDD (tolerances)',
-       f'VDDA 3.294-3.306 V (REF3033) vs VDD 3.235-3.365 V (AMS1117 over temp): {(3.294 - 3.365) * 1000:.0f} to '
-       f'{(3.306 - 3.235) * 1000:.0f} mV', 'OK')
+       f'VDDA 3.294-3.306 V (REF3033) vs VDD {LDO["vmin"]:.3f}-{LDO["vmax"]:.3f} V ({LDO["name"]} over temp): '
+       f'{(3.294 - LDO["vmax"]) * 1000:.0f} to {(3.306 - LDO["vmin"]) * 1000:.0f} mV', 'OK')
 rfb = 0.1      # BLM18PG221SN1 DC resistance, about 0.1 ohm max (Murata, recalled; assumed)
 record('Power-up', 'F407 VDDA vs VDD (FB1 ferrite, DS8626: VDDA connected to VDD)',
        f'{rfb * 0.015 * 1000:.1f} mV at an assumed 15 mA VDDA current; C11/C12 on VDDA charge with VDD', 'OK')
@@ -420,7 +430,7 @@ record('Power-up', 'BOOT0 / BOOT1 pull-downs (R1, R72; R129, R135)',
 for lvl, us6, us in (('I', 8.0, 9.5), ('II', 4.5, 6.5), ('III', 3.0, 5.0), ('IV', 6.0, 6.5)):
     pwl, tstop, t0 = iso_crank(us6, us)
     rows = []
-    for vdo in (1.0, 1.3):
+    for vdo in (LDO['vdo'], LDO['vdo_max']):
         d = spice('pwr_crank', power_net(pwl, tstop, '50u', vdo=vdo), PV)
         rows.append((vdo, d, power_metrics(d, t0)))
     (_, d, pt), (_, dw, pw) = rows
@@ -441,7 +451,7 @@ for lvl, us6, us in (('I', 8.0, 9.5), ('II', 4.5, 6.5), ('III', 3.0, 5.0), ('IV'
     verdict = 'FAIL' if diffbad > F1_DIFF else ('CHECK' if window > 1e-4 or pt['v5min'] < 4.5 else 'OK')
     record('Cold crank', f'ISO 16750-2 level {lvl}: {us6:g} V for 15 ms, {us:g} V for 0.5 s',
            f'+12V_F min {v12min:.2f} V, +5V {pt["v5min"]:.2f} V, +3V3 {pt["v33min"]:.2f} V '
-           f'({pw["v33min"]:.2f} V with 1.3 V LDO dropout), VDDA {pt["vddamin"]:.2f} V, V5_SENS {pt["v5smin"]:.2f} V; '
+           f'({pw["v33min"]:.2f} V with {LDO["vdo_max"]:g} V LDO dropout), VDDA {pt["vddamin"]:.2f} V, V5_SENS {pt["v5smin"]:.2f} V; '
            f'{"reset" if reset else "no reset"}', verdict, '; '.join(note))
 
 record('Cold crank', 'sensor supply in a level II dip (ADC reference stays at 3.3 V)',
@@ -498,19 +508,49 @@ def fmt_tj(t):
     return f'{t:.0f} C' if t < NCV_TSD else '>150 C (shutdown)'
 
 
-# Copper on each driver's drain (tab) net, measured with pcbnew on daughterboard/miata_ecu_daughter.kicad_pcb
-# (2026-11-02): OUT_INJ1 13.5 mm2 of pads + 5.8 mm2 of track, OUT_VVT / OUT_ALT about the same; the source pin goes to
-# the ground pour. That is below the 100 mm2 behind the datasheet's 100 C/W, so 130 C/W is assumed for this layout.
-NCV_RTH_BOARD = 130.0
+# Copper on each driver's drain (tab) net. Rev 0.6 (pcbnew on daughterboard/miata_ecu_daughter.kicad_pcb): OUT_INJ1
+# 13.5 mm2 of pads + 5.8 mm2 of track, about 20 mm2; the source pin goes to the ground pour. The datasheet gives
+# 100 C/W at its minimum pad (about 100 mm2) and 69 C/W at 1 in2 (645 mm2); this layout's 20 mm2 was taken as 130 C/W.
+# Between those points RthJA falls about 17.5 C/W per e-fold of copper area, which fits all three. Rev 0.7 adds
+# OUT_INJ1-4 zones on F.Cu and B.Cu around Q1-Q4 with thermal vias (scripts/tab_copper.py); their filled area is read
+# from the board, with the bottom layer counted at half weight (it is reached through vias).
+def tab_copper_area():
+    brd = os.path.join(os.path.dirname(__file__), '../../daughterboard/miata_ecu_daughter.kicad_pcb')
+    try:
+        import pcbnew
+        b = pcbnew.LoadBoard(brd)
+    except Exception:
+        return None
+    out = {}
+    for q, n in (('Q1', 'OUT_INJ1'), ('Q2', 'OUT_INJ2'), ('Q3', 'OUT_INJ3'), ('Q4', 'OUT_INJ4')):
+        f = sum(z.GetFilledArea() for z in b.Zones() if z.GetNetname() == n and z.GetLayer() == pcbnew.F_Cu) / 1e12
+        bb = sum(z.GetFilledArea() for z in b.Zones() if z.GetNetname() == n and z.GetLayer() == pcbnew.B_Cu) / 1e12
+        out[q] = (f, bb, max(20.0, f) + 0.5 * bb)
+    return out
 
 
-def tj2(irms, pextra=0.0):
-    """(Tj at 60 C, Tj at 85 C ambient) with the layout's estimated 130 C/W"""
-    return ncv_tj(irms, 60, NCV_RTH_BOARD, pextra), ncv_tj(irms, 85, NCV_RTH_BOARD, pextra)
+TAB = tab_copper_area()
+A_INJ = min(v[2] for v in TAB.values()) if TAB else 20.0
 
 
-def tj_txt(t):
-    return f'Tj {fmt_tj(t[0])} at 60 C / {fmt_tj(t[1])} at 85 C ambient ({NCV_RTH_BOARD:.0f} C/W, ~20 mm2 tab copper)'
+def rth_board(area):
+    return 130.0 if area <= 20.0 else 130.0 - 17.5 * math.log(area / 20.0)
+
+
+NCV_RTH_BOARD = rth_board(A_INJ)     # injector drivers Q1-Q4
+NCV_RTH_OTHER = 130.0                # Q5-Q8: tab pad and track only
+
+
+def tj2(irms, pextra=0.0, rth=None):
+    """(Tj at 60 C, Tj at 85 C ambient) with the layout's estimated RthJA"""
+    rth = NCV_RTH_BOARD if rth is None else rth
+    return ncv_tj(irms, 60, rth, pextra), ncv_tj(irms, 85, rth, pextra)
+
+
+def tj_txt(t, rth=None):
+    rth = NCV_RTH_BOARD if rth is None else rth
+    cu = f'{A_INJ:.0f} mm2 effective drain copper' if rth == NCV_RTH_BOARD and A_INJ > 20 else '~20 mm2 tab copper'
+    return f'Tj {fmt_tj(t[0])} at 60 C / {fmt_tj(t[1])} at 85 C ambient ({rth:.0f} C/W, {cu})'
 
 
 def ncv_block(node, gate, bv=60, rds=NCV_RDS25, ilim=NCV_ILIM25, tag=''):
@@ -812,11 +852,11 @@ for y, _ in YEARS:
     feed = MB[y]['D1']['pads']['1']
     on('D1', 'OUT_IACV', parts=MB[y])
     irms, pcl, pd, ifeed, icoil, vpk = iac[feed]
-    tj = tj2(irms, pextra=pcl)
+    tj = tj2(irms, pextra=pcl, rth=NCV_RTH_OTHER)
     fuse = f', feed {feed} through {next(r for r, p in MB[y].items() if r.startswith("F") and feed in p["pads"].values())} (2 A hold): {ifeed:.2f} A rms' \
         if feed != 'VBAT_IN' else ''
     record(area, f'idle valve {cav("OUT_IACV")}: 11 ohm / 20 mH, 200 Hz 60 %, D1 to {feed}',
-           f'driver {irms:.2f} A rms, clamp {pcl * 1000:.0f} mW, {tj_txt(tj)}; D1 {pd:.2f} W{fuse}',
+           f'driver {irms:.2f} A rms, clamp {pcl * 1000:.0f} mW, {tj_txt(tj, NCV_RTH_OTHER)}; D1 {pd:.2f} W{fuse}',
            'OK' if pcl < 0.05 and tj[1] < NCV_TSD and ifeed < 2.0 else 'CHECK')
     # VVT driver: purge / O2 heater / OCV
     kind = L['OUT_VVT']
@@ -830,21 +870,21 @@ for y, _ in YEARS:
         assert 'D2' not in MB[y], 'O2 heater years have no D2'
         icold, lim = o2_heater(3.0)
         ihot, _ = o2_heater(12.0)
-        tj = tj2(ihot)
+        tj = tj2(ihot, rth=NCV_RTH_OTHER)
         lim_txt = (f'cold inrush {icold:.1f} A exceeds the {lim[0]:.1f} A minimum current limit at Tj {lim[1]} C: '
                    'the driver limits, heats and may cycle through thermal shutdown until the heater warms') if lim else \
             f'cold inrush {icold:.1f} A, under the {NCV_ILIM25:.1f} A minimum limit (25 C)'
         record(area, f'front O2 heater {cav("OUT_VVT")} (VVT driver), DC on: 3 ohm cold / 12 ohm hot (assumed)',
-               f'hot {ihot:.2f} A continuous: {tj_txt(tj)}; {lim_txt}',
+               f'hot {ihot:.2f} A continuous: {tj_txt(tj, NCV_RTH_OTHER)}; {lim_txt}',
                'OK' if tj[1] < NCV_TSD and not lim else 'CHECK',
                'heater resistance not published for the Mazda sensor: measure it. Continuous DC in a SOT-223 on ~20 mm2 '
                'of tab copper is marginal' if tj[1] >= NCV_TSD or lim else '')
     else:
         irms, pcl, pd, ifeed, icoil, vpk = ocv
         on('D2', 'OUT_VVT', 'OCV_12V', parts=MB[y])
-        tj = tj2(irms, pextra=pcl)
+        tj = tj2(irms, pextra=pcl, rth=NCV_RTH_OTHER)
         record(area, f'VVT oil control valve {cav("OUT_VVT")}: 7.5 ohm / 6 mH, 300 Hz 60 %, D2 to OCV_12V (F3)',
-               f'driver {irms:.2f} A rms, {tj_txt(tj)}, clamp {pcl * 1000:.0f} mW; D2 {pd:.2f} W; F3 {ifeed:.2f} A rms (2 A hold)',
+               f'driver {irms:.2f} A rms, {tj_txt(tj, NCV_RTH_OTHER)}, clamp {pcl * 1000:.0f} mW; D2 {pd:.2f} W; F3 {ifeed:.2f} A rms (2 A hold)',
                'OK' if tj[1] < NCV_TSD and pcl < 0.05 and ifeed < 2 else 'CHECK')
     # ALT driver
     if L.get('OUT_ALT') == 'prc':
@@ -1041,23 +1081,44 @@ record('In 1989-93', 'MT idle switch 2L on IN_AUX1 (ground-switching contact)',
        f'switch open {res["v(an_open)"]:.2f} V, closed {res["v(an_closed)"]:.2f} V: indistinguishable', 'CHECK',
        'IN_AUX1 has no pull-up; reading a ground-switching idle switch needs one (e.g. 4.7-10k to V5_SENS on the '
        'motherboard). Only matters if the tune uses the idle switch (the firmware reads TPS on 2M)')
+_cl1 = next((r for r, p in DB.items() if r.startswith('D') and set(p['pads'].values()) == {'+3V3', 'AN_AUX1'}), None)
 record('In 1994-95', 'electrical-load signal 2L on IN_AUX1, if it is a +B signal (not verified)',
-       f'14.4 V gives {res["v(an_b12)"]:.2f} V at PC5 unclamped (analog-mode max {AN_MAX:.1f} V)',
-       'CHECK', 'check the signal level on a car before wiring it: if it switches to battery voltage it over-drives the '
+       (f'14.4 V gives {res["v(an_b12)"]:.2f} V at PC5 without a clamp; {_cl1} holds it near 3.55 V (In shorts), so it '
+        f'reads full scale: usable as on/off, harmless' if _cl1 else
+        f'14.4 V gives {res["v(an_b12)"]:.2f} V at PC5 unclamped (analog-mode max {AN_MAX:.1f} V)'),
+       'OK' if _cl1 else 'CHECK', 'check the signal level on a car before wiring it: if it switches to battery voltage it over-drives the '
        'ADC pin every time the defroster is on (then it needs the switch-input divider or a clamp)')
 
-# sensor wire shorted to battery: every analog harness input
+# sensor wire shorted to battery: every analog harness input. Rev 0.7 puts a Schottky clamp (BAT54WS) from each AN_
+# node to +3V3; the run uses whatever design.py has (clamp or none) and checks the pin, the current into the MCU's own
+# protection diode, and the series resistor's power against its package rating.
+P_RATING = {'0402': 0.0625, '0603': 0.1, '0805': 0.125, '1206': 0.25}
+
+
+def pkg(ref):
+    fp = DB[ref]['fp']
+    return next(k for k in P_RATING if k in fp)
+
+
+def clamp_of(node):
+    return next((r for r, p in DB.items() if r.startswith('D') and set(p['pads'].values()) == {'+3V3', node}), None)
+
+
 short = []
 for n in ('TPS', 'CLT', 'IAT', 'AFR', 'AUX1', 'AUX2', 'AUX3'):
     rs, rg, _ = DIV[n]
+    cl = clamp_of('AN_' + n)
+    rser = between('IN_' + n, 'AN_' + n)['ref']
     for vsh in (14.4, 24.0):
         vth = vsh * rg / (rs + rg)
-        net = f"""* {n} shorted to {vsh} V, ADC pin in analog mode (injects into VDDA above it)
+        clamp = f'Dcl an v33 {"dbat54" if DB[cl]["value"].startswith("BAT54") else "d4148"}\nV33 v33 0 3.3' if cl else ''
+        net = f"""* {n} shorted to {vsh} V, ADC pin in analog mode (the MCU's protection diode to VDDA)
 Vsh in 0 {vsh}
 Rs in an {rs}
 Rg an 0 {rg}
 Vdda vdda 0 3.3
 Dinj an vdda desd
+{clamp}
 {MODELS}
 .op
 .control
@@ -1067,24 +1128,62 @@ run
 .end
 """
         r = spice_op('short', net, ['v(an)', 'i(vdda)'])
-        short.append((n, vsh, vth, r['v(an)'], abs(r['i(vdda)'])))
-w14 = [s for s in short if s[1] == 14.4]
-w24 = [s for s in short if s[1] == 24.0]
-record('In shorts', 'analog sensor wire (TPS, CLT, IAT, O2, MAF, AFR) shorted to 14.4 V',
-       f'pin {max(s[2] for s in w14):.1f} V unclamped, or {max(s[3] for s in w14):.2f} V with '
-       f'{max(s[4] for s in w14) * 1000:.1f} mA injected into VDDA per pin (analog-mode max {AN_MAX:.1f} V; FT pins '
-       'allow no positive injection)', 'FAIL',
-       'no clamp on the eight AN_ inputs (the hall inputs got one in rev 0.5). Fix: BAT54S (or 1N4148WS to +3V3 as '
-       'D13/D14) at each AN_ node: clamp current then (14.4-3.6)/5.6k = 1.9 mA, outside the MCU')
-record('In shorts', 'same, 24 V jump start', f'pin {max(s[2] for s in w24):.1f} V unclamped, '
-       f'{max(s[4] for s in w24) * 1000:.1f} mA injection with a diode', 'FAIL')
+        prs = (vsh - r['v(an)']) ** 2 / rs
+        short.append(dict(n=n, vsh=vsh, vth=vth, van=r['v(an)'], iinj=abs(r['i(vdda)']), clamp=cl, prs=prs,
+                          rser=rser, rating=P_RATING[pkg(rser)]))
+for vsh, label in ((14.4, 'shorted to 14.4 V'), (24.0, 'same, 24 V jump start')):
+    w = [x for x in short if x['vsh'] == vsh]
+    if all(x['clamp'] for x in w):
+        hot = max(w, key=lambda x: x['prs'] / x['rating'])
+        ok_pin = max(x['van'] for x in w) <= AN_MAX + 0.05 and max(x['iinj'] for x in w) < 1e-6
+        ok_r = all(x['prs'] <= x['rating'] for x in w)
+        record('In shorts', f'analog sensor wire (TPS, CLT, IAT, O2, MAF, AFR) {label}, with the rev 0.7 clamps',
+               f'pin {max(x["van"] for x in w):.2f} V (VDDA + {max(x["van"] for x in w) - 3.3:.2f} V), '
+               f'{max(x["iinj"] for x in w) * 1e9:.1f} nA into the MCU, {(vsh - 3.55) / DIV["TPS"][0] * 1000:.1f} mA into '
+               f'+3V3 per input; series resistor up to {hot["prs"] * 1000:.0f} mW ({hot["rser"]}, '
+               f'{pkg(hot["rser"])} rated {hot["rating"] * 1000:.0f} mW)',
+               'OK' if ok_pin and ok_r else ('CHECK' if ok_pin else 'FAIL'),
+               '' if ok_r else 'the series resistor runs over its rating for the length of the short')
+    else:
+        record('In shorts', f'analog sensor wire (TPS, CLT, IAT, O2, MAF, AFR) {label}',
+               f'pin {max(x["vth"] for x in w):.1f} V unclamped, or {max(x["van"] for x in w):.2f} V with '
+               f'{max(x["iinj"] for x in w) * 1000:.1f} mA injected into VDDA per pin (analog-mode max {AN_MAX:.1f} V; FT '
+               'pins allow no positive injection)', 'FAIL',
+               'no clamp on the AN_ inputs. Fix: a Schottky to +3V3 at each AN_ node (rev 0.7)')
 
-# 12 V switch inputs (33k/10k, 10 nF) in a 35 V load dump with the switch closed; FT digital pins: VDD + 4 V
+# Clamp leakage into the analog nodes (rev 0.7). A Schottky clamp leaks from +3V3 into the AN_ node, worst when the
+# node is low (about 3.3 V across it) and the board is hot. BAT54WS: 2 uA max at 25 V, 25 C (datasheet). Assumed:
+# leakage ~ sqrt(VR), doubling every 10 C, typical a tenth of max. The error at the sensor is I x Rseries.
+cl_an = clamp_of('AN_TPS')
+if cl_an and DB[cl_an]['value'].startswith('BAT54'):
+    rs_an, rg_an, _ = DIV['TPS']
+    i_max25 = 2e-6 * math.sqrt(3.3 / 25.0)
+    rows = []
+    for t in (25, 60, 85):
+        imx = i_max25 * 2 ** ((t - 25) / 10)
+        rows.append(f'{t} C: {imx * 0.1 * 1e6:.1f} / {imx * 1e6:.1f} uA, {imx * 0.1 * rs_an * 1e3:.0f} / '
+                    f'{imx * rs_an * 1e3:.0f} mV at the sensor')
+    imx85 = i_max25 * 2 ** 6
+    record('In sensors', f'clamp leakage ({DB[cl_an]["value"]}, typical / max, AN_ node near 0 V)', '; '.join(rows),
+           'CHECK' if imx85 * rs_an > 0.05 else 'OK',
+           'reads high at the low end of a sensor (closed throttle, hot coolant): about 0.5 % of a 5 V span at 85 C '
+           'typical, up to 5 % with a max-leakage part (assumed scaling: the datasheet gives 25 C only). The ECU sits '
+           'in the cabin (60 C: 0.1 % typical, 1 % max). Check a TPS and CLT reading against a meter on a hot day; a '
+           'low-leakage clamp (1N4148WS, nA) would put more of a short\'s current into the MCU instead')
+
+# 12 V switch inputs (33k/10k, 10 nF) in a 35 V load dump with the switch closed; FT digital pins: VDD + 4 V.
+# Rev 0.7: 1N4148WS from each switch node to +3V3, as on the hall inputs.
 rs_sw, rg_sw = sv(between('IN_SW1', 'SW1')['value']), sv(between('SW1', 'GND')['value'])
+cl_sw = clamp_of('SW1')
 for vsw in (24.0, 35.0):
     vp = vsw * rg_sw / (rs_sw + rg_sw)
+    if cl_sw:
+        isw = (vsw - 3.3 - 0.6) / rs_sw
+        vcl = 3.3 + 1.75 * 0.02585 * math.log(isw / 2.5e-9) + isw * 0.6
+        vp = min(vp, vcl)
     record('In shorts', f'12 V switch input (VSS/A-C/clutch) at {vsw:.0f} V ({"jump start" if vsw < 30 else "suppressed load dump"})',
-           f'{vp:.2f} V at the FT pin (abs max {FT_MAX:.1f} V)', 'OK' if vp < FT_MAX else 'CHECK',
+           f'{vp:.2f} V at the FT pin (abs max {FT_MAX:.1f} V){", clamped by " + cl_sw if cl_sw else ""}',
+           'OK' if vp < FT_MAX else 'CHECK',
            'only while a battery-fed switch is closed during a 35 V load dump; a 1N4148WS to +3V3 (as the hall inputs) '
            'would clamp it' if vp >= FT_MAX else '')
 
@@ -1169,7 +1268,10 @@ C1 sw 0 {sv(between('SW1', 'GND', 'C')['value'])}
 # knock (NB1 2F, NB2 4M): piezo sensor, sensitivity ~26 mV/g (Bosch KS-4 class, assumed), source capacitance 1 nF
 # (assumed) + 2 m shielded cable 200 pF; C44 100 nF, R45 100k to KN_BIAS (R46/R47 100k, C45 1 uF), LMV321 gain
 # 1 + R48/R49, R50 330 + C46 10 nF into PA3. BP knock frequency 900/(pi*bore/2) = 6.9 kHz (rusEFI's formula, bore 83 mm).
-for ref, nets_ in (('C44', ('IN_KNOCK', 'KN_P')), ('R45', ('KN_P', 'KN_BIAS')), ('R48', ('KN_OUT', 'KN_N')),
+# rev 0.7: R138 (2.2k) between IN_KNOCK and C44 (net KN_IN); earlier revisions had C44 straight on IN_KNOCK
+KN_A = 'KN_IN' if any('KN_IN' in p['pads'].values() for p in DB.values()) else 'IN_KNOCK'
+R_KIN = val(between('IN_KNOCK', 'KN_IN')['ref']) if KN_A == 'KN_IN' else 1e-3
+for ref, nets_ in (('C44', (KN_A, 'KN_P')), ('R45', ('KN_P', 'KN_BIAS')), ('R48', ('KN_OUT', 'KN_N')),
                    ('R49', ('KN_N', 'KN_BIAS')), ('R50', ('KN_OUT', 'AN_KNOCK')), ('C46', ('AN_KNOCK', 'GND'))):
     on(ref, *nets_)
 f_knock = 900 / (math.pi * 0.083 / 2)
@@ -1178,7 +1280,8 @@ net = f"""* knock input AC
 Vk e 0 AC 1
 Cs e in 1n
 Cc in 0 200p
-C44 in kp {val('C44')}
+Rkin in kin {R_KIN}
+C44 kin kp {val('C44')}
 R45 kp kb {val('R45')}
 Vkb kb 0 1.65
 Eo ko 0 kp kn 1e5
@@ -1199,14 +1302,15 @@ fr, gm = np.loadtxt(os.path.join(OUT, 'knock_ac.dat'))[:, 0], np.loadtxt(os.path
 gk = float(np.interp(f_knock, fr, gm))
 f_lo = float(fr[np.argmax(gm > gk / math.sqrt(2))])
 clip_g = (1.65 - 0.03) / gk / 0.026
-record('In knock (NB)', f'piezo 1 nF + cable into C44/R45, gain {gain_k:.1f}; knock band {f_knock / 1000:.1f} kHz',
+record('In knock (NB)', f'piezo 1 nF + cable into {"R138 " if KN_A == "KN_IN" else ""}C44/R45, gain {gain_k:.1f}; '
+       f'knock band {f_knock / 1000:.1f} kHz',
        f'gain {gk:.2f} at {f_knock / 1000:.1f} kHz, -3 dB below {f_lo:.0f} Hz; 1 g (26 mV) -> {gk * 26:.0f} mV at PA3; '
        f'clips above {clip_g:.0f} g', 'OK' if f_lo < f_knock / 3 else 'CHECK',
        'the sensor capacitance with R45 sets the low corner (not C44)')
 # knock wire shorted to battery: the 14.4 V step reaches the LMV321 input through C44 with no series resistance
 net = f"""* knock wire shorted to battery
 Vs in 0 PWL(0 0 10u 0 11u 14.4)
-Rh in in2 0.1
+Rh in in2 {0.1 + R_KIN}
 C44 in2 kp {val('C44')}
 R45 kp kb {val('R45')}
 Vkb kb 0 1.65
@@ -1218,9 +1322,11 @@ Vdd v33 0 3.3
 d = spice('knock_short', net, ['i(Vdd)'])
 ipk = float(np.max(np.abs(d['i(Vdd)'])))
 record('In knock (NB)', 'knock wire shorted to battery (14.4 V step)',
-       f'{ipk:.1f} A peak into the LMV321 input ESD diode (5 ohm assumed), {val("C44") * 11:.1e} C', 'CHECK',
-       'C44 couples the step straight onto the op-amp input (LMV321 input current abs max about 10 mA, recalled): add '
-       '1-10 kohm in series before or after C44')
+       f'{ipk * 1000:.1f} mA peak into the LMV321 input ESD diode (5 ohm assumed)'
+       + (f' through R138 {R_KIN / 1000:.1f}k' if KN_A == 'KN_IN' else ''),
+       'OK' if ipk < 10e-3 else 'CHECK',
+       '' if ipk < 10e-3 else 'C44 couples the step straight onto the op-amp input (LMV321 input current abs max about '
+       '10 mA, recalled): add 1-10 kohm in series before or after C44')
 
 # filter corners vs signal frequencies
 fc_an = 1 / (2 * math.pi * (DIV['TPS'][0] * DIV['TPS'][1] / (DIV['TPS'][0] + DIV['TPS'][1])) * DIV['TPS'][2])
@@ -1279,7 +1385,9 @@ for y, _ in YEARS:
         flags.append('reed-switch VSS needs R20')
     record('In ' + y, 'harness inputs: ' + ', '.join(f'{IN_FUNC[y][n]} {"/".join(hn[n])}' for n in sorted(IN_FUNC[y])),
            'each on a circuit simulated above with its sensor model'
-           + (f'; {"; ".join(flags)}' if flags else '') + '; a sensor wire shorted to battery overdrives its ADC pin (In shorts)',
+           + (f'; {"; ".join(flags)}' if flags else '')
+           + ('; a sensor wire shorted to battery is clamped (In shorts)' if clamp_of('AN_TPS')
+              else '; a sensor wire shorted to battery overdrives its ADC pin (In shorts)'),
            'CHECK' if flags else 'OK')
 
 # =================================================================================================================
@@ -1299,7 +1407,11 @@ for ref, nets_ in (('R101', ('WB_VDDA', 'WB_VM_REF')), ('R102', ('WB_VM_REF', 'G
 u1 = DB['U101']['pads']
 assert (u1['1'], u1['2'], u1['3']) == ('WB_PUMP', 'WB_PUMP_N', 'WB_PUMP_P')
 assert (u1['7'], u1['6'], u1['5']) == ('WB_UN_SENSE', 'WB_UN_N', 'WB_UN_P')
-assert (u1['8'], u1['9'], u1['10']) == ('WB_UN_BUF', 'WB_UN_BUF', 'LSU_UN')
+# pin 10 (Nernst buffer input) is LSU_UN, or since rev 0.7 WB_UN_IN through R137 (10k into a CMOS input: the same
+# voltage at DC and at the ESR frequency, so the models below use the LSU_UN node for it)
+assert (u1['8'], u1['9']) == ('WB_UN_BUF', 'WB_UN_BUF') and u1['10'] in ('LSU_UN', 'WB_UN_IN')
+if u1['10'] == 'WB_UN_IN':
+    on(between('LSU_UN', 'WB_UN_IN')['ref'], 'LSU_UN', 'WB_UN_IN')
 assert (u1['14'], u1['13'], u1['12']) == ('WB_VM', 'WB_VM', 'WB_VM_REF') and u1['4'] == '+3V3'
 u5 = DB['U105']['pads']
 assert (u5['1'], u5['3'], u5['4'], u5['5']) == ('WB_IS_OUT', 'WB_IS_P', 'WB_IS_N', '+3V3')
@@ -1548,24 +1660,40 @@ def heater_profile(rcold, vb, ta=25.0):
 
 hp = {(rc, vb): heater_profile(rc, vb) for rc in (2.5, 3.2, 4.0) for vb in (12.0, 14.4)}
 worst = max(hp.values(), key=lambda x: x[0])
-record('Wideband heater', 'warm-up (firmware profile) RMS current vs motherboard F1 (2 A hold PTC)',
+# PTC hold current from the motherboard part (value 'N A hold'); PPTC hold current derates about 20 % by 60 C
+F1_HOLD = float(MB['2001-05']['F1']['value'].split('A')[0])
+F1_HOLD60 = 0.8 * F1_HOLD
+record('Wideband heater', f'warm-up (firmware profile) RMS current vs motherboard F1 ({F1_HOLD:g} A hold PTC, '
+       f'~{F1_HOLD60:.1f} A at 60 C)',
        '; '.join(f'cold {rc:g} ohm: {hp[(rc, 14.4)][0]:.2f} A rms (at {hp[(rc, 14.4)][1]:.0f} s), hot in {hp[(rc, 14.4)][2]:.0f} s'
                  for rc in (2.5, 3.2, 4.0)),
-       'OK' if worst[0] < 1.6 else 'CHECK',
-       'at the start of the 7 V ramp a cold heater draws more than the 2 A hold current (hold derates further when '
-       'warm, typically ~1.6 A at 60 C): the PTC may trip during warm-up and the controller then times out. Measure the '
-       'sensor\'s cold heater resistance; a 3 A hold part or starting the ramp lower would avoid it' if worst[0] >= 1.6 else '')
+       'OK' if worst[0] < F1_HOLD60 else 'CHECK',
+       f'{worst[0] / F1_HOLD60 * 100:.0f} % of the derated hold current at worst' if worst[0] < F1_HOLD60 else
+       f'at the start of the 7 V ramp a cold heater draws more than the {F1_HOLD:g} A hold current (hold derates further '
+       'when warm): the PTC may trip during warm-up and the controller then times out. Measure the sensor\'s cold heater '
+       'resistance; a higher-hold part or starting the ramp lower would avoid it')
 record('Wideband heater', 'Q101 dissipation during warm-up and steady PWM',
        f'{worst[3]:.2f} W worst (warm-up, 70 mOhm assumed at the 3.1 V input), about '
        f'{(7.5 / 7.5) ** 2 * RDS_H + 0.5 * 14.4 * 1.9 * 10e-6 * 390:.2f} W steady (1 A rms): Tj rise '
        f'{worst[3] * 65:.0f} C at 65 C/W', 'OK' if worst[3] * 65 + 85 < 150 else 'CHECK',
        'VND14NV04 Rds(on) and current limit are specified at VIN = 5 V only; the F103 drives ~3.1 V (as on the FOME module)')
-# LSU signal wire shorted to the heater supply: LSU_UN goes straight to U101C's input (no series resistor)
-record('Wideband', 'LSU signal wire (UN/IP) shorted to the 12 V heater feed',
-       f'LSU_UN: 14.4 V directly on the MCP6004 input (abs max VDD + 1 V, recalled); LSU_IP: {(14.4 - 3.6) / val("R112") * 1000:.1f} mA '
-       f'into the AD8628 input through R112, and {(14.4 - 3.3) / (val("R110") + val("R108")) * 1000:.0f} mA back into U101A\'s output',
-       'CHECK', 'inherited from the FOME module: a cracked sensor or chafed harness can kill U101; series resistors / '
-       'clamps would protect it at the cost of a layout change')
+# LSU signal wire shorted to the heater supply. Rev 0.7: the Nernst buffer input (U101 pin 10) through R137 10k, and
+# F103 PA1 no longer on LSU_VM. The pump and virtual-ground drive paths (R108/R110 to U101A, R109 to U101D) carry
+# the pump current and can't take series resistance without changing the analog design.
+un_r = between('LSU_UN', 'WB_UN_IN')['ref'] if DB['U101']['pads']['10'] == 'WB_UN_IN' else None
+pa1 = DB['U102']['pads'].get('11', '')
+un_txt = (f'LSU_UN: {(14.4 - 3.6) / val(un_r) * 1000:.1f} mA into the MCP6004 input through {un_r} (2 mA max)' if un_r
+          else 'LSU_UN: 14.4 V directly on the MCP6004 input (abs max VDD + 1 V, recalled)')
+pa1_txt = 'F103 PA1 not connected' if not pa1 else f'F103 PA1 on {pa1} (through nothing)'
+record('Wideband', 'LSU signal wire shorted to the 12 V heater feed: sense inputs',
+       f'{un_txt}; LSU_IP and LSU_RT: {(14.4 - 3.6) / val("R112") * 1000:.1f} / {(14.4 - 3.6) / val("R111") * 1000:.1f} mA into '
+       f'the AD8628 inputs through R112 / R111; {pa1_txt}',
+       'OK' if un_r and not pa1 else 'CHECK')
+record('Wideband', 'LSU signal wire shorted to the 12 V heater feed: pump and virtual-ground drive',
+       f'IP or RT: {(14.4 - 3.3) / (val("R110") + val("R108")) * 1000:.0f} mA through R110/R108 into U101A\'s output; VM: '
+       f'{(14.4 - 1.65) / val("R109"):.1f} A through R109 into U101D\'s output',
+       'CHECK', 'inherited from the FOME module: these paths carry the pump current, so a short of IP, RT or VM to battery '
+       'still damages U101 and R108-R110. Protecting them needs a different front end (a CJ125-class interface IC)')
 
 # ---- report -----------------------------------------------------------------------------------------------------
 w = max(len(r[1]) for r in results)

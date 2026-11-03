@@ -55,7 +55,13 @@ PLACE = {
     'C107': (90.4, 38.5, 180, 'F'),     # rev 0.6: above U103, clear of Y101
     'U101': (96.0, 46.6, 180, 'F'),
     # U101 left side (pins 8-14: UN_BUF, LSU_UN, GND, VM_REF, VM)
-    'R114': (90.6, 44.6, 180, 'F'),
+    # rev 0.7: the Nernst buffer input's series resistor R137 takes R114's place next to U101 (LSU_UN left, the
+    # buffer input right); R114 (bias current) moves down the LSU_UN line to the sensor side, beside C102
+    # (LSU_UN end down, +3V3 up to a plane via)
+    'R137': (90.6, 44.6, 0, 'F'),
+    'R114': (92.7, 53.0, 270, 'F'),
+    # rev 0.7: VDDA-to-VDD clamp beside the F103's VDDA decoupling (anode, VDDA, down)
+    'D30': (102.8, 39.3, 270, 'F'),
     'R101': (90.6, 45.8, 180, 'F'), 'R102': (90.6, 47.0, 0, 'F'), 'C101': (90.6, 48.2, 0, 'F'),
     # U101 right side (pins 7..1 top to bottom: UN_SENSE, UN_N, UN_P, +3V3, PUMP_P, PUMP_N, PUMP).
     # Feedback parts stand vertically across the two pins they join (R107: pins 7-6, R133 + C103: pins 2-1);

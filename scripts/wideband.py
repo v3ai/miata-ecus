@@ -75,7 +75,8 @@ U2_PADS = {
     '5': 'WB_OSC_IN', '6': 'WB_OSC_OUT',  # PD0 / PD1: 8 MHz crystal Y101
     '7': 'WB_NRST', '8': 'GND', '9': 'WB_VDDA',
     '10': 'WB_UN_SENSE',                  # PA0 ADC_IN0
-    '11': 'LSU_VM',                       # PA1 ADC_IN1 (not sampled, as on the module)
+    # PA1 (pin 11): rev 0.7 no connection. The module wires it to LSU_VM but never samples it; a VM wire shorted to
+    # battery then put about 2 A into it through nothing at all
     '12': 'WB_IP_SENSE',                  # PA2 ADC_IN2
     '13': 'WB_VM',                        # PA3 ADC_IN3
     '16': 'WB_IP_DAC',                    # PA6 TIM3_CH1
@@ -137,6 +138,12 @@ def parts():
                 pads[num] = net(pl[0][2])
         if r == 'U2':
             pads = {str(n): U2_PADS.get(str(n), '') for n in range(1, 49)}
+        if r == 'U1':
+            # rev 0.7: the Nernst buffer's input (pin 10) through R137 (10k) instead of straight from the LSU_UN wire,
+            # so a UN wire shorted to battery puts (14.4 - 3.6) / 10k = 1.1 mA into the MCP6004's input diodes (2 mA
+            # max) instead of the full short. The buffer input is CMOS (pA), so the 10k costs nothing at DC or at the
+            # ESR frequency.
+            pads['10'] = 'WB_UN_IN'
         out.append(dict(ref=ref(r), value=val, fp=lib, lcsc=lc, pads=pads, desc=DESC.get(r, 'wideband'),
                         mod_ref=r, side=f['side']))
     # CAN transceiver for the controller, same bus as the main MCU
@@ -157,6 +164,14 @@ def parts():
                     pads={'1': 'WB_BOOT1', '2': 'GND'}, desc='wideband MCU BOOT1 pull-down', side='F'))
     out.append(dict(ref='C121', value='100n', fp='Capacitor_SMD:C_0402_1005Metric', lcsc='C1525',
                     pads={'1': '+3V3', '2': 'GND'}, desc='U102 VDD decoupling', side='F'))
+    # rev 0.7: Schottky from VDDA (REF3033) to VDD (+3V3). With the low-dropout U4, VDD no longer lags VDDA at power-up;
+    # this covers the other direction: at key-off and in a brown-out the +3V3 rail (0.15 A load) collapses while VDDA
+    # (about 1 uF, a light load) lingers, up to 0.8 V above VDD. ST allows 0.3 V; the diode holds it to its forward drop.
+    out.append(dict(ref='D30', value='BAT54WS', fp='Diode_SMD:D_SOD-323', lcsc='C124205',
+                    pads={'1': '+3V3', '2': 'WB_VDDA'}, desc='F103 VDDA-to-VDD clamp (Diodes BAT54WS-7-F)', side='F'))
+    out.append(dict(ref='R137', value='10k', fp='Resistor_SMD:R_0402_1005Metric', lcsc='C25744',
+                    pads={'1': 'LSU_UN', '2': 'WB_UN_IN'}, desc='Nernst buffer input series resistor (LSU_UN short protection)',
+                    side='F'))
     return out
 
 

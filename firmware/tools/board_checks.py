@@ -995,7 +995,7 @@ def power_paths(sysm, year, fw, board_fw):
     V = dc.solve()
     ok = V['+12V'] > 12.5 and abs(V['+5V'] - 5) < 0.05 and abs(V['V5_SENS'] - 5) < 0.1
     row('OK' if ok and vb and gn else 'FAIL', 'power', year,
-        f'key on: VBAT_IN {vb} -> D7 -> F1 -> +12V {V["+12V"]:.2f} V -> buck +5V / AMS1117 +3V3 / TLS115 V5_SENS '
+        f'key on: VBAT_IN {vb} -> D7 -> F1 -> +12V {V["+12V"]:.2f} V -> buck +5V / LDO +3V3 / TLS115 V5_SENS '
         f'{V["V5_SENS"]:.2f} V on {v5}; grounds {gn}')
     if vi:
         dc = build_dc(sysm, year, fw, board_fw, open_cav=vb[0] if len(vb) == 1 else None)
@@ -1017,7 +1017,7 @@ def unconnected_pins(sysm, year):
     # the rules don't depend on the year; run them once
     pad_counts = {'STM32F407VGT6': 100, 'STM32F103C8T6': 48, 'TC4427': 8, 'SN65HVD230DR': 8, 'TLS115B0EJ': 9,
                   'LMR14020': 9, 'SN74LVC4245APWR': 24, 'ULN2003AD': 16, 'LM2903DR': 8, 'LMV321IDBVR': 5,
-                  'MCP6004': 14, 'AD8628': 5, 'REF3033': 3, 'AMS1117-3.3': 3, 'NCV8406ASTT3G': 4, 'VND14NV04': 3,
+                  'MCP6004': 14, 'AD8628': 5, 'REF3033': 3, 'AMS1117-3.3': 3, 'LDL1117S33R': 3, 'NCV8406ASTT3G': 4, 'VND14NV04': 3,
                   'MPX5700AP': 6, 'USBLC6-2SC6': 6}
     for p in sysm.parts:
         val = p['value']
@@ -1191,11 +1191,12 @@ DIODES = {  # value -> (vf, ron, vbr, steady-state rating text, max continuous A
     'SMCJ40A': (0.8, 0.05, 44.4, 'SMC TVS 1500 W peak', 3.0), 'SS34': (0.45, 0.05, 40, 'SS34 3 A', 3.0),
     'B5819W': (0.45, 0.1, 40, 'B5819W 1 A', 1.0), 'B360A': (0.5, 0.05, 60, 'B360A 3 A', 3.0),
     '1N4148WS': (0.7, 1.0, 75, '1N4148WS 150 mA', 0.15),
+    'BAT54WS': (0.3, 10.0, 30, 'BAT54WS 200 mA', 0.2),        # rev 0.7 analog-input / VDDA clamps
     'RED': (1.9, 10, None, 'LED', 0.02), 'YELLOW': (1.9, 10, None, 'LED', 0.02), 'GREEN': (2.6, 10, None, 'LED', 0.02),
     'BLUE': (2.8, 10, None, 'LED', 0.02),
 }
 INDUCT = {'L1': 0.3, 'L2': 0.067, 'FB1': 0.15}
-FUSES = {'F1': (0.5, 0.5, 1.0), 'M.F1': (0.07, 2.0, 3.5), 'M.F2': (0.07, 2.0, 3.5), 'M.F3': (0.07, 2.0, 3.5),
+FUSES = {'F1': (0.5, 0.5, 1.0), 'M.F1': (0.04, 3.0, 5.0), 'M.F2': (0.07, 2.0, 3.5), 'M.F3': (0.07, 2.0, 3.5),
          'M.F4': (0.5, 0.5, 1.0)}    # ref -> (ohm, hold A, trip A)
 OPAMP = {'MCP6004': (['2', '3', '5', '6', '9', '10', '12', '13'], ['1', '7', '8', '14'], 2e-3, 30e-3, '+3V3'),
          'AD8628': (['3', '4'], ['1'], 5e-3, 30e-3, '+3V3'),        # input limit assumed (not in our notes)
@@ -1305,8 +1306,8 @@ def build_dc(sysm, year, fw, board_fw, vcar=VCAR, states=None, fault=None, jp1='
             dc.r(g('4'), '+3V3', 100)
         elif val == 'TLS115B0EJ':
             dc.src_only(g('1'), 5.0, 0.5, tag=('SRC', 'V5_SENS (U3 TLS115)'))
-        elif val == 'AMS1117-3.3':
-            dc.src(g('2'), 3.3, 0.01, tag=('RAIL', '+3V3 (U4 AMS1117)', 0.05))   # load >= 50 mA (MCUs, transceivers)
+        elif val in ('AMS1117-3.3', 'LDL1117S33R'):
+            dc.src(g('2'), 3.3, 0.01, tag=('RAIL', f'+3V3 (U4 {val[:7]})', 0.05))   # load >= 50 mA (MCUs, transceivers)
         elif val == 'LMR14020':
             dc.src('+5V', 5.0, 0.01, tag=('RAIL', '+5V (U2 buck)', 0.06))          # load >= 60 mA (LDO, drivers)
             dc.r(g('2'), 'GND', 100)                 # about 2 W drawn from +12V_F

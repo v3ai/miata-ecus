@@ -32,8 +32,12 @@ def common_parts():
         'CAN termination link: fitted = 120R terminator active; remove if the bus is terminated elsewhere')
     # LSU 4.9 sensor connector: signals and heater low side go to the daughterboard's
     # on-board wideband controller; the heater is fed from the main relay through F1
-    add('F1', '2A hold', 'Fuse:Fuse_1812_4532Metric', 'C46641168', {1: 'VBAT_IN', 2: 'HTR_PWR'},
-        'Resettable fuse for the LSU heater supply (R+O SMD1812-200-30: 2 A hold, 30 V)')
+    # 2026-11-02 (rev 0.7 / 0.5): 3 A hold. A cold LSU 4.9 heater draws 1.6-2.3 A rms at the start of the wideband's
+    # warm-up ramp, above the old 2 A hold (about 1.6 A once the board is at 60 C), so the PTC could trip and the
+    # controller time out. No 1812 part holds 3 A at more than 8 V, so this is the 2920 size (LUTE 2920L300/30GR,
+    # 3 A hold / 5 A trip, 30 V).
+    add('F1', '3A hold', 'Fuse:Fuse_2920_7451Metric', 'C22446884', {1: 'VBAT_IN', 2: 'HTR_PWR'},
+        'Resettable fuse for the LSU heater supply (LUTE 2920L300/30GR: 3 A hold, 5 A trip, 30 V)')
     add('J2', 'LSU 4.9', 'Connector_Molex:Molex_Micro-Fit_3.0_43045-0600_2x03_P3.00mm_Horizontal', 'C127367',
         {1: 'LSU_IP', 2: 'LSU_VM', 3: 'LSU_HTR_N', 4: 'HTR_PWR', 5: 'LSU_RT', 6: 'LSU_UN'},
         'Bosch LSU 4.9 wideband sensor. Pin n = LSU pin n: 1 IP, 2 VM, 3 H-, 4 H+, 5 RT, 6 UN')
