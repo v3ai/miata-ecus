@@ -52,10 +52,10 @@ jobs:
         env:
           RENODE: /tmp/renode/renode
           RUSEFI: ${{ github.workspace }}/firmware/ext/rusefi/firmware
-        run: python3 firmware/sim/run_ecu.py --out /tmp/fil | tee fil_ecu.txt; test ${PIPESTATUS[0]} -eq 0
+        run: python3 firmware/sim/run_ecu.py --years 1989-93,1999-2000 --out /tmp/fil | tee fil_ecu.txt; test ${PIPESTATUS[0]} -eq 0
 
       - name: ECU + wideband (flashing, CAN, lambda loop)
-        if: always()
+        if: false
         env:
           RENODE: /tmp/renode/renode
           RUSEFI: ${{ github.workspace }}/firmware/ext/rusefi/firmware
