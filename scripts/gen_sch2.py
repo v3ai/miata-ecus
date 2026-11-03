@@ -441,8 +441,8 @@ def sheet_inputs(s):
     # rev 0.8: hall pull-up supply diodes (common anode on V5_EXT, one cathode per pull-up)
     s.text('Hall pull-up supply: a crank/cam wire shorted to battery reverse-biases D35', 182.88, 160.02, 1.27)
     s.place('D35', 200.66, 170.18)
-    # rev 0.8: AUX header UART, 4.7k in series and clamped at the MCU side
-    s.text('AUX header UART (J2 24/25): 4.7k series, BAT54S clamps to GND / +3V3', 20.32, 172.72, 1.27)
+    # rev 0.8: AUX header UART, 10k in series and clamped at the MCU side
+    s.text('AUX header UART (J2 24/25): 10k series, BAT54S clamps to GND / +3V3', 20.32, 172.72, 1.27)
     for k, (r, d) in enumerate((('R139', 'D36'), ('R140', 'D37'))):
         x = 40.64 + k * 45.72
         s.o2(r, x, 187.96, 'h'); s.place(d, x + 15.24, 203.2)
