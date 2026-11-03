@@ -618,11 +618,16 @@ def sheet_outputs(s):
 
     # rev 0.8: ignition source diodes, pull-down switches and their inverter
     for i in range(4):
-        s.o2(f'D{31 + i}', 30.48 + i * 22.86, 238.76, 'h-')
-        s.place(f'Q{16 + i}', 33.02 + i * 22.86, 256.54)
-        s.o2(f'R{144 + i}', 43.18 + i * 22.86, 248.92, 'v')     # spark-edge pull-down
-    s.place('U13', 139.7, 248.92)
-    s.o2('C66', 165.1, 241.3, 'v')
+        X = 25.4 + i * 40.64
+        d, q, r = f'D{31 + i}', f'Q{16 + i}', f'R{144 + i}'
+        s.o2(d, X, 238.76, 'h-')                       # cathode (OUT_IGNx) on the right
+        s.place(q, X + 7.62, 256.54)
+        s.o2(r, X + 22.86, 248.92, 'v')                # spark-edge pull-down, OUT_IGNx to GND
+        s.wire(f'{d}.1', (X + 22.86, 238.76), f'{r}.1')
+        s.wire(f'{q}.3', (X + 17.78, s.P(f'{q}.3')[1]), (X + 17.78, 238.76))
+        s.lab(f'OUT_IGN{i + 1}', (X + 22.86, 238.76), 'up')
+    s.place('U13', 205.74, 248.92)
+    s.o2('C66', 231.14, 241.3, 'v')
     s.text('Relay, lamp and tach outputs: ZXMS6004 protected low sides, 5 V gates from U12 (enabled with the drivers)', 254.0, 147.32)
     for i in range(7):
         s.place(f'Q{9 + i}', 266.7 + (i % 4) * 27.94, 172.72 + (i // 4) * 20.32)
