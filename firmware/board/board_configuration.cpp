@@ -23,11 +23,11 @@ Gpio getRunningLedPin() {
 
 // Rev 0.8: comms and warning moved from PD13/PD14 to PC8/PC9 (routing).
 Gpio getCommsLedPin() {
-	return Gpio::C8;
+	return Gpio::D13;
 }
 
 Gpio getWarningLedPin() {
-	return Gpio::C9;
+	return Gpio::D14;
 }
 
 #ifndef EFI_BOOTLOADER
