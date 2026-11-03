@@ -563,6 +563,7 @@ from FOME), the shunt clamp's 3.93 V peak, the LSU drive resistors above, and th
 | Copper rebuilt from geometry against the design (`board_copper.py`), all six boards | 0 opens, 0 shorts |
 | Stacking | All 80 J1/J2 pads land on JD1/JD2 on every motherboard (the daughterboard's new strip overhangs free motherboard space) |
 | Pin check (`check_pins.py`) | OK (LEDs now PD12 / PC8 / PC9 / PD15) |
+| Firmware-in-the-loop, two chips, in CI (`sim.yaml`) | Pass: all six model years 0 FAIL, and the ECU + wideband run (flash, CAN, lambda) 0 FAIL. The first run failed on the NA years: Renode wires every port's pin n to EXTI line n, so the LEDs' new PC8/PC9 toggled the cam (PE8) and VSS (PE9) lines. Silicon selects port E for those lines; the platform now leaves PC8/PC9 off the EXTI (`firmware/sim/README.md`, Renode gaps) |
 
 **How the board was re-routed.** The rev 0.7 copper was moved down 16 mm and kept (`route_eco.py`), and only the nets
 around the changed parts were routed again. Three connections (two LED lines and the wideband MCU's green LED and SWD
