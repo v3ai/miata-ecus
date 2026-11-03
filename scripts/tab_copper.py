@@ -4,7 +4,8 @@ Each driver's drain tab is its output net, so the spreading copper is that net: 
 the driver pitch allows (6.9 mm of the 7.62 mm pitch, leaving the gap the driver's input line climbs through), from
 the strip's top edge down onto the driver's own J1 pad, on F.Cu, B.Cu and In2.Cu (the +3V3 plane layer: the strip
 has no 3.3 V parts, and the drain islands take priority over the plane there). A field of thermal vias joins the
-three layers under and around the tab. Other nets' copper inside a column keeps its clearance (the zone fills
+three layers under and around the tab, including vias in the tab pad itself (order the board with the vias plugged /
+filled, or accept a little solder wicking into the 0.3 mm holes). Other nets' copper inside a column keeps its clearance (the zone fills
 around it), and vias are only placed where they clear everything.
 
 (Rev 0.7 had F.Cu/B.Cu zones for the four injector drivers only, on SOT-223 parts below J1.)
@@ -55,7 +56,7 @@ def _seg_dist(px, py, ax, ay, bx, by):
     return math.hypot(px - ax - t * dx, py - ay - t * dy)
 
 
-def _clear(board, x, y, netcode):
+def _clear(board, x, y, netcode, own=None, own_ref=None):
     """True if a via at board-mm (x, y) clears every other net's copper on F/B and every hole"""
     r = VIA_D / 2 + CLEAR
     X, Y = x + OX, y + OY
@@ -72,6 +73,8 @@ def _clear(board, x, y, netcode):
                 return False
     for fp in board.GetFootprints():
         for p in fp.Pads():
+            if own is not None and p.GetNetCode() == netcode and fp.GetReference() == own_ref:
+                continue                    # vias in the driver's own tab pad are wanted (thermal via-in-pad)
             bb = p.GetBoundingBox()
             dx = max(ToMM(bb.GetLeft()) - X, 0, X - ToMM(bb.GetRight()))
             dy = max(ToMM(bb.GetTop()) - Y, 0, Y - ToMM(bb.GetBottom()))
@@ -94,10 +97,9 @@ def columns(board):
 
 
 def add(board):
-    nets = board.GetNetsByName()
     out = {}
     for ref, nn, x0, y0, x1, y1 in columns(board):
-        net = nets[nn]
+        net = board.FindNet(nn)        # (GetNetsByName() can come back as a bare SWIG object after items are removed)
         for layer in LAYERS:
             _zone(board, net, layer, x0, y0, x1, y1)
         # thermal vias over the tab and the copper below it (not in the lead area at the top of the column)
@@ -109,7 +111,12 @@ def add(board):
         while y <= y1 - 1.2:
             x = x0 + 0.6
             while x <= x1 - 0.6:
-                if _clear(board, x, y, net.GetNetCode()):
+                tb = tab.GetBoundingBox()
+                in_tab = (ToMM(tb.GetLeft()) - OX + 0.6 <= x <= ToMM(tb.GetRight()) - OX - 0.6 and
+                          ToMM(tb.GetTop()) - OY + 0.6 <= y <= ToMM(tb.GetBottom()) - OY - 0.6)
+                near_tab = (ToMM(tb.GetLeft()) - OX - 0.2 <= x <= ToMM(tb.GetRight()) - OX + 0.2 and
+                            ToMM(tb.GetTop()) - OY - 0.2 <= y <= ToMM(tb.GetBottom()) - OY + 0.2)
+                if (in_tab or not near_tab) and _clear(board, x, y, net.GetNetCode(), tab if in_tab else None, ref):
                     v = pcbnew.PCB_VIA(board)
                     v.SetPosition(VECTOR2I(FromMM(x + OX), FromMM(y + OY)))
                     v.SetWidth(FromMM(VIA_D)); v.SetDrill(FromMM(VIA_DRILL))

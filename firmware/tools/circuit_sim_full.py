@@ -533,7 +533,9 @@ def tab_copper_area():
         for z in b.Zones():
             if z.GetNetname() == 'OUT_' + n and z.GetLayer() in lay:
                 a[lay[z.GetLayer()]] += z.GetFilledArea() / 1e12
-        out[f'Q{i + 1}'] = (a['F'], a['In2'], a['B'], a['F'] + 0.5 * (a['In2'] + a['B']))
+        # the inner and bottom copper only count as far as vias couple them to the tab: full credit from 20 vias
+        nv = sum(1 for t in b.GetTracks() if t.GetClass() == 'PCB_VIA' and t.GetNetname() == 'OUT_' + n)
+        out[f'Q{i + 1}'] = (a['F'], a['In2'], a['B'], a['F'] + 0.5 * (a['In2'] + a['B']) * min(1.0, nv / 20.0))
     return out
 
 
