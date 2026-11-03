@@ -1,9 +1,57 @@
-# Miata ECU — daughterboard rev 0.7 (routed, unverified)
+# Miata ECU — daughterboard rev 0.8 (routed, unverified)
 
-125 × 60 mm, **4 layers**. All SMD parts are on top; the two 1×40 2.54 mm male headers are mounted on the
+125 × 76 mm, **4 layers**. All SMD parts are on top; the two 1×40 2.54 mm male headers are mounted on the
 **bottom side** (plastic under the board, pins pointing down) so the board plugs straight into female
 headers on the year-specific motherboard. J1 on the top edge carries power and outputs, J2 on the
 bottom edge carries inputs, comms and the LSU 4.9 wideband sensor.
+
+## What changed in rev 0.8
+Fixes for what the rev 0.7 checks still flagged (`VERIFICATION.md`, [Rev 0.8](../VERIFICATION.md#rev-08-driver-temperature-and-protected-outputs)):
+driver temperature, unprotected relay and ignition outputs, the sensor 5 V, the LSU drive wires, the CAN transceivers
+and the AUX UART. Existing designators are unchanged where the part stays; new parts have new numbers.
+- **Board 16 mm taller (125 × 76 mm).** The new strip along the top edge, above J1, sits over free motherboard space
+  on every year (nothing on any motherboard is under it). J1, J2 and the four holes keep their places relative to each
+  other, so the motherboards' sockets and standoffs don't move.
+- **Low-side drivers Q1-Q8: ST VND7NV04** (DPAK, C155605) instead of the NCV8406A (SOT-223): 60 mΩ instead of 90-210,
+  a 200 mJ clamp rating and 2.1 °C/W junction to case. They stand in the new strip, each with its tab down onto its
+  own J1 pin, on a column of drain copper on F.Cu, In2.Cu and B.Cu (about 300 mm² per driver over the three layers)
+  joined by 28-34 thermal vias, most of them inside the tab pad (`scripts/tab_copper.py`). Estimated junction to
+  ambient 48 °C/W (rev 0.7: 109). Sequential injectors at 90 % duty, 7200 rpm, worst-case Rds(on): 84 °C at 60 °C
+  ambient, 110 °C at 85 °C (rev 0.7: thermal shutdown). This is the "heat sink": copper and vias, no bolt-on part,
+  since the board sits flat in the stock case. **Order the board with the vias epoxy-filled and capped** (JLC's
+  via-in-pad process) so solder doesn't wick away from the tabs.
+- **Relay, lamp and tach outputs: seven ZXMS6004FF protected low sides** (Q9-Q15, Diodes IntelliFET: current limit,
+  thermal shutdown, 60 V clamp) instead of the ULN2003, driven at 5 V by a second SN74LVC4245A (U12) on the same
+  enable as the other drivers, with 10k pull-downs (RN2, RN3). A relay or lamp wire shorted to battery now limits
+  instead of burning a ULN channel.
+- **Ignition outputs protected:** each TC4427 channel sources through its 100 Ω (now 1206) and a B5819W Schottky
+  (D31-D34), and a ZXMS6004FF (Q16-Q19, gates from a 74HCT04, U13) pulls the output low. A coil wire shorted to battery
+  just reverse-biases the Schottky. R144-R147 (3.3k, 1206) give the spark edge a defined fall with the pull-down off;
+  3.3k keeps them inside their rating with a coil wire held at 24 V.
+- **Protected harness 5 V:** a second TLS115 (U14) tracking +5V, out on J1 pin 13 (was a ground pin) to the harness's
+  sensor 5 V cavities and the AUX header. The first TLS115 now feeds only the MAP sensor on the motherboard, so a
+  sensor 5 V wire shorted to battery no longer takes the MAP reading or back-feeds the board. CLT/IAT bias from it;
+  the hall pull-ups from it through a common-anode Schottky pair (D35), so a crank or cam wire shorted to battery
+  puts nothing into its pull-up.
+- **+3V3 shunt clamp:** a TL431 (U15) at 3.56 V drives a BCP53 PNP (Q20) that sinks fault current pushed into +3V3
+  through the input clamps, with 2 × 100 µF bulk (C63, C68). Simulated with 1 A pushed in: 3.93 V peak for the first
+  microseconds, then 3.56 V (the MCUs' absolute maximum is 4.0 V).
+- **LSU drive wires:** F2 (0.1 A PTC) in the VM wire, Schottky clamps from the pump (D40) and virtual-ground (D41)
+  drive nodes to +3V3, R108-R110 in 1206 and R137 22k. A short of IP, RT or VM to battery no longer reaches U101's
+  outputs or the F103; the 1206 resistors take the short while it lasts (check or replace them after one).
+  Firmware: VM_RESISTOR_VALUE 11.6 Ω (R109 + F2).
+- **CAN: TI TCAN1042V-Q1** (U10, U106) instead of the SN65HVD230: ±58 V bus fault protection and −40 to 125 °C.
+  Supplied from +5V (C67, C122), with 3.3 V I/O.
+- **AUX UART:** 10k series resistors (R139, R140) and BAT54S clamps (D36, D37) on PC6/PC7.
+- **Battery and ignition sense:** BAT54WS clamps D38/D39 on the dividers' ADC nodes.
+- **Switch inputs: 22k/10k dividers** (was 33k): a 12 V signal at 9 V cranking now gives 2.81 V at the MCU, above ST's
+  tested 2.31 V threshold. The hall series resistors R61/R63 are 0603.
+- **Status LEDs:** comms and warning moved from PD13/PD14 to PC8/PC9 (PD12 run and PD15 error unchanged); the four
+  adjacent PD pins left no way out for the fourth LED line. The board firmware is updated to match.
+- **Re-routed incrementally** from the rev 0.7 copper (the old layout moved down 16 mm, `scripts/route_eco.py`), then
+  `route.py`'s finish passes. The last connections around the wideband MCU and the LED lines were routed by hand
+  (`scripts/hand_route.py`, chained by `hand_route_all.py`; a few short nets ripped up and rerouted in a better order),
+  and `scripts/clean_dangling.py` removed the stubs that left. DRC: 0 unconnected, 0 clearance errors.
 
 ## What changed in rev 0.7
 Fixes for the findings of the 2026-11-02 expanded circuit simulation and fault checks (`VERIFICATION.md`, findings
@@ -170,10 +218,10 @@ new parts have new numbers.
 | `fab/jlcpcb_bom.csv`, `fab/jlcpcb_cpl.csv` | JLC assembly BOM and placement file: every part except the two bottom-side 1×40 headers |
 | `fab/self_order_bom.csv` | What you order and fit yourself: the J1/J2 1×40 pin headers |
 | `miata_ecu_daughterboard_parts.xlsx` | Parts list by function, J1/J2 pinout, MCU pin map |
-| `../scripts/` (repo top level) | The design source: `design.py` (parts + netlist), `placement.py`, `build_pcb.py`, `route.py`, `wideband.py` (the wideband circuit, mapped from the FOME module in `wideband_ref/` under its MIT licence), `wb_clean.py` (its rev 0.3 placement and heater copper; `wb_preview.py` draws a placement preview), `wb_build.py` (the rev 0.2 transplant, kept for reference), `daughter_finish.py` |
+| `../scripts/` (repo top level) | The design source: `design.py` (parts + netlist), `placement.py`, `build_pcb.py`, `route.py`, `wideband.py` (the wideband circuit, mapped from the FOME module in `wideband_ref/` under its MIT licence), `wb_clean.py` (its rev 0.3 placement and heater copper; `wb_preview.py` draws a placement preview), `wb_build.py` (the rev 0.2 transplant, kept for reference), `daughter_finish.py`, `tab_copper.py` (the drivers' drain copper), `hand_route.py` / `hand_route_all.py` / `clean_dangling.py` (the rev 0.8 hand routes and cleanup) |
 
 The schematic and the board are both generated from `scripts/design.py`. The schematic's exported
-netlist was checked pad-by-pad against the board's netlist (795 pads, 0 differences), and every
+netlist was checked pad-by-pad against the board's netlist (958 pads, 0 differences), and every
 footprint on the board is linked to its schematic symbol, so Update PCB from Schematic and
 cross-probing work.
 
@@ -188,6 +236,10 @@ labels stay within one sheet. Board nets carry the same names (sheet-local nets 
 Rebuild: `scripts/daughter_make.sh <workdir>` (build, route, header flip, finishing, DRC), then
 `scripts/daughter_release.sh <workdir>/finished.kicad_pcb <outdir>` (wired schematic, schematic-vs-design netlist
 check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, renders).
+Rev 0.8 was not routed from scratch: `route_eco.py` (with `DY=16`) carried the rev 0.7 copper over, `route.py` finished
+it, then `flip_headers.py`, `daughter_finish.py`, the hand routes (`hand_route_all.py` with the open connections DRC
+lists), `clean_dangling.py` and `daughter_patch.py`. A from-scratch `daughter_make.sh` run gives a different layout
+that needs the same hand finishing.
 
 ## Stack-up and rules
 - **Layers:** F.Cu signal / In1.Cu solid GND / In2.Cu solid +3V3 / B.Cu signal. GND pours are on both outer layers.
@@ -197,24 +249,25 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
   - The MCU supply pins go inward to vias under the package.
   - About 330 GND stitching vias sit on a 3 mm grid.
 - **DRC (KiCad 7):** 0 clearance errors, 0 unconnected items. Warnings remaining:
-  - Silkscreen overlaps (22) and silkscreen clipped by a pad opening (8): cosmetic.
-  - Courtyard overlaps (11) on tightly packed passives. The copper clearances still pass.
+  - Silkscreen overlaps (72) and silkscreen clipped by a pad opening (55): cosmetic.
+  - Courtyard overlaps (97) on tightly packed passives. The copper clearances still pass, and with every courtyard
+    shrunk by 0.2 mm (about the part body) nothing overlaps.
   - "Library not in configuration" notes from running headless.
 
 ## Circuit summary (topologies follow rusEFI hellen-one modules)
 | Block | Parts |
 |---|---|
-| MCU | STM32F407VGT6 (1 MB flash, rusEFI F4 target), 8 MHz crystal, 4 status LEDs, BOOT/RESET buttons, Tag-Connect TC2030 SWD pads |
-| Power | SMCJ30A load-dump TVS → SS34 reverse diode (and B5819W ignition wake) → 0.5 A PTC → SMAJ33A TVS → LMR14020 5 V buck. TLS115 protected 5 V sensor supply. LDL1117 3.3 V (low dropout). USB VBUS can power it on the bench. |
-| Injectors / IACV / VVT / boost / alternator | 8× NCV8406A protected low-sides driven at 5 V by an SN74LVC4245A. Its output enable (PA8) is pulled off until the firmware runs; pull-downs on both sides |
-| Relays, CEL, tach, spare | ULN2003 (7 ch), flyback clamp to an SMAJ33A TVS (not +12V) |
-| Ignition (COP / smart coils) | 2× TC4427, 5 V push-pull through 100 Ω, pulled down at the inputs |
+| MCU | STM32F407VGT6 (1 MB flash, rusEFI F4 target), 8 MHz crystal, 4 status LEDs (PD12, PC8, PC9, PD15), BOOT/RESET buttons, Tag-Connect TC2030 SWD pads |
+| Power | SMCJ30A load-dump TVS → SS34 reverse diode (and B5819W ignition wake) → 0.5 A PTC → SMAJ33A TVS → LMR14020 5 V buck. Two TLS115 protected 5 V supplies (MAP sensor; harness sensors on V5_EXT). LDL1117 3.3 V (low dropout), TL431 + BCP53 shunt clamp on +3V3. USB VBUS can power it on the bench. |
+| Injectors / IACV / VVT / boost / alternator | 8× VND7NV04 protected low sides (DPAK, 60 mΩ) on drain copper columns with thermal vias, driven at 5 V by an SN74LVC4245A. Its output enable (PA8) is pulled off until the firmware runs; pull-downs on both sides |
+| Relays, CEL, tach, spare | 7× ZXMS6004FF protected low sides (current limit, thermal shutdown, 60 V clamp) driven at 5 V by a second SN74LVC4245A on the same enable |
+| Ignition (COP / smart coils) | 2× TC4427 sourcing through 100 Ω and a B5819W Schottky per channel; a ZXMS6004FF per channel (gates from a 74HCT04) pulls low, 3.3k to ground. Pulled down at the inputs |
 | Crank / cam | LM2903 dual comparator for VR sensors (two 5.1k resistors per leg, 1 nF differential, BAT54S clamps, 1.65 V bias, 1M hysteresis). Spare: Miatas use hall/optical sensors on the hall inputs |
 | Sensors | 8× 0–5 V inputs with a 5.6k/10k divider, 10 nF and a Schottky clamp to 3.3 V. CLT and IAT have 2.7k pull-ups to sensor 5 V. |
 | Knock | 2.2k series, then an LMV321 AC-coupled gain stage (≈5.7×), biased at 1.65 V |
-| Digital inputs | 2 hall (1k pull-up, 4.7k series, clamped to 3.3 V), 3 switch inputs (12 V → 33k/10k, clamped to 3.3 V) |
-| Comms | SN65HVD230 CAN, USB FS, USART6 |
-| Wideband (LSU 4.9) | FOME/rusEFI controller circuit with an STM32F103C8 (8 MHz crystal) running rusEFI's wideband firmware (board port in `firmware/wideband`), MCP6004 (virtual ground, pump driver, Nernst sense and buffer), AD8628 pump-current sense, REF3033 reference, VND14NV04 protected heater low side, SN65HVD230 on the shared CAN bus |
+| Digital inputs | 2 hall (1k pull-up from V5_EXT through a Schottky, 4.7k series, clamped to 3.3 V), 3 switch inputs (12 V → 22k/10k, clamped to 3.3 V) |
+| Comms | TCAN1042V-Q1 CAN, USB FS, USART6 (10k series, clamped) |
+| Wideband (LSU 4.9) | FOME/rusEFI controller circuit with an STM32F103C8 (8 MHz crystal) running rusEFI's wideband firmware (board port in `firmware/wideband`), MCP6004 (virtual ground, pump driver, Nernst sense and buffer), AD8628 pump-current sense, REF3033 reference, VND14NV04 protected heater low side, TCAN1042V-Q1 on the shared CAN bus. Rev 0.8: PTC in the VM wire, Schottky clamps on the pump and virtual-ground drive |
 
 ## rusEFI board-config notes
 - **Analog inputs:** divider ratio 1.56 on the eight sensor inputs. The battery and ignition dividers are (33k + 6.8k)/6.8k = 5.85.
@@ -240,7 +293,9 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
    sets.
 5. **Schematic and layout review.** No person has reviewed the schematic yet. The wideband *circuit* is the proven FOME design, but since rev 0.3 its *layout* is new to this board, so it no longer inherits the module's proven layout. Bring up the wideband on the first boards before relying on it (heater control, pump current, and lambda reading against a known sensor).
 6. **Wideband first flash.** It goes through the main MCU (rev 0.4), so no extra cable is needed: the board's rusEFI firmware has the programming feature (`wbo_uart_flash`). A Tag-Connect TC2030-NL cable on J102 is the fallback.
-7. **Rev 0.7 parts packed tight.** The new clamps and the 0603 resistors sit closer to their neighbours than KiCad's
-   courtyards allow (42 courtyard overlaps in the DRC report, against 11 in rev 0.6); the part bodies themselves clear.
-   Look at D19-D30 and the input columns in JLC's 3D preview before ordering.
-8. **Injector drivers at full load.** Sustained high injector duty at high rpm may take Q1-Q4 into thermal shutdown (VERIFICATION.md, N8). Measure a driver's temperature at full load before track use.
+7. **Parts packed tight.** The rev 0.7 and 0.8 clamps and the larger resistors sit closer to their neighbours than KiCad's
+   courtyards allow (97 courtyard overlaps in the DRC report; 42 in rev 0.7); the part bodies themselves clear.
+   Look at D19-D41 and the input columns in JLC's 3D preview before ordering.
+8. **Injector drivers at full load.** Rev 0.8's DPAK drivers estimate 110 °C at 90 % duty, 7200 rpm and 85 °C ambient (VERIFICATION.md, Rev 0.8). The estimate rests on a copper-area model; measure a driver's temperature at full load before track use.
+9. **Filled vias in the DPAK tabs.** Order the board with via-in-pad (epoxy-filled and capped vias); open vias in the tab pads would wick solder away from Q1-Q8.
+10. **After an LSU wire short to battery,** check R108-R110 (1206): they take the fault so U101 doesn't, and R108 can open.
