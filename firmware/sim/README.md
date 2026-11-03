@@ -45,6 +45,7 @@ Each of these made the unmodified firmware fail in emulation while it would work
 
 | Gap in Renode 1.15.3 | Effect on the firmware | Covered by |
 |---|---|---|
+| EXTI has no SYSCFG_EXTICR multiplexer: each GPIO port's pin n drives EXTI line n | Since rev 0.8 the comms and warning LEDs (PC8/PC9) share lines 8/9 with HALL2 (PE8) and SW1 (PE9); every LED toggle was a spurious cam/VSS edge (trigger errors, extra pulses, no stall detection) | `stm32f407_ecu.repl`: PC8/PC9 are not wired to the EXTI |
 | NVIC never sets ICSR.RETTOBASE | ChibiOS never switches to a thread woken by an interrupt (both MCUs) | `models/NvicRettobase.cs`: a bus front for the NVIC that sets RETTOBASE from the NVIC's own active-exception stack |
 | STM32F4 timers all at 10 MHz | rusEFI's time base (TIM5) ran 8.4× slow; the watchdog reset the ECU after 1 s | real clocks in the platform file (APB1 timers 84 MHz, APB2 168 MHz) |
 | No DWT cycle counter; a counter of executed instructions stops in WFI | wrong time measurement | `models/CortexMDwt.cs`: virtual time × core clock |

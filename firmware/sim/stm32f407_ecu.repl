@@ -88,7 +88,10 @@ gpioPortB: GPIOPort.STM32_GPIOPort @ sysbus <0x40020400, +0x400>
 
 gpioPortC: GPIOPort.STM32_GPIOPort @ sysbus <0x40020800, +0x400>
     numberOfAFs: 16
-    [0-15] -> exti@[0-15]
+    // Renode's EXTI has no SYSCFG_EXTICR multiplexer: every port drives every line. On silicon line 8 and 9 come from
+    // port E here (HALL2 on PE8, SW1 on PE9); PC8/PC9 are LED outputs (rev 0.8) and must not reach those lines.
+    [0-7] -> exti@[0-7]
+    [10-15] -> exti@[10-15]
 
 gpioPortD: GPIOPort.STM32_GPIOPort @ sysbus <0x40020C00, +0x400>
     numberOfAFs: 16
