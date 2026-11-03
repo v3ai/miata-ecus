@@ -12,7 +12,7 @@ ifeq ($(MIATA_DEFAULT_ENGINE),)
 endif
 DDEFS += -DDEFAULT_ENGINE_TYPE=engine_type_e::$(MIATA_DEFAULT_ENGINE)
 
-# Red LED (PD15). Run, comms and warning LEDs are PD12-PD14, set in board_configuration.cpp.
+# Red LED (PD15). Run (PD12), comms (PC8) and warning (PC9) LEDs are set in board_configuration.cpp.
 DDEFS += -DLED_CRITICAL_ERROR_BRAIN_PIN=Gpio::D15
 
 # Knock sensor input on PA3 (ADC3_IN3), see knock_config.h.

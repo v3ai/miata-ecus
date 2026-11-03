@@ -46,8 +46,9 @@ for fp in b.GetFootprints():
             if key in DSTS or key == SRC:
                 targets.append((key, layers, poly))
             continue
+        npth = pd.GetAttribute() == pcbnew.PAD_ATTRIB_NPTH
         for l in layers:
-            obs[l].append(poly)
+            obs[l].append(poly.buffer(0.05) if npth else poly)   # NPTH: 0.2 mm hole clearance, not 0.15
         if pd.GetDrillSize().x > 0:
             holes.append(Point(mm(pd.GetPosition().x), mm(pd.GetPosition().y)).buffer(mm(pd.GetDrillSize().x) / 2))
 ob = {l: prepared.prep(unary_union(obs[l]).buffer(CL + TW / 2)) for l in obs}
