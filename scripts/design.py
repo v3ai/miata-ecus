@@ -261,7 +261,7 @@ for i, n in enumerate(RELAYS):
     add(f'Q{9 + i}', 'ZXMS6004FFTA', 'SOT23', 'C95063', {'1': n + '_G', '2': 'GND', '3': 'OUT_' + n},
         f'protected low side, {n} (Diodes IntelliFET)')
 lvc2 = {'1': '+5V', '2': 'GND', '11': 'GND', '12': 'GND', '13': 'GND', '22': 'DRV_EN_N', '23': '+3V3', '24': '+3V3',
-        '3': '', '21': 'GND'}           # channel 8 unused: its B input tied low
+        '3': '', '21': 'GND'}           # channel 1 unused (A1 pin 3 open): its B input (pin 21) tied low
 for i, n in enumerate(RELAYS):
     lvc2[str(10 - i)] = n + '_G'
     lvc2[str(14 + i)] = n + '_CTL'
@@ -317,7 +317,7 @@ for i, n in enumerate(HS_OUT):
         {'1': n + '_IN', '2': 'OUT_' + n, '3': 'GND'},
         'protected low side (ST OMNIFET II), 40-55 V clamp')
 lvc = {'1': '+5V', '2': 'GND', '11': 'GND', '12': 'GND', '13': 'GND', '22': 'DRV_EN_N', '23': '+3V3', '24': '+3V3'}
-for i, n in enumerate(HS_OUT):           # DIR low: B (3.3 V, MCU) -> A (5 V, drivers); A7/B7 = INJ1 ... A0/B0 = ALT
+for i, n in enumerate(HS_OUT):           # DIR low: B (3.3 V, MCU) -> A (5 V, drivers); A8/B8 = INJ1 ... A1/B1 = ALT (TI numbers the channels 1-8)
     lvc[str(10 - i)] = n + '_IN'
     lvc[str(14 + i)] = n + '_CTL'
 add('U11', 'SN74LVC4245APWR', 'TSSOP24', 'C7859', lvc, '8-bit 3.3 V -> 5 V level shifter for the low-side inputs')
