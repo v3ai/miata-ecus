@@ -18,7 +18,7 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 </tr>
 <tr>
 <td align="center"><sub>Daughterboard lifted off its sockets and standoffs</sub></td>
-<td align="center"><sub>The universal daughterboard (rev 0.4)</sub></td>
+<td align="center"><sub>The universal daughterboard (rev 0.8)</sub></td>
 </tr>
 </table>
 
