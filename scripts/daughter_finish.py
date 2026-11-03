@@ -93,6 +93,28 @@ for v in [t for t in b.GetTracks() if t.GetClass() == 'PCB_VIA']:
         removed.append(v.GetNetname()); b.Remove(v)
 print('port vias removed (single layer):', removed)
 
+# 3b. values from design.py too (rev 0.8 changed some values after placement, e.g. R144-R147, R139/R140)
+val = {p['ref']: p['value'] for p in design.parts}
+for fp in b.GetFootprints():
+    v = val.get(fp.GetReference())
+    if v and fp.GetValue() != v:
+        fp.SetValue(v)
+
+# 3c. GND stitching vias (no track on them) whose hole crowds a header pin's hole: rev 0.8 moved the headers 16 mm on
+# the router's fixed stitching grid, which put a few of them 0.1-0.2 mm from J1/J2 holes (0.25 mm hole to hole needed)
+holes = [(ToMM(p.GetPosition().x), ToMM(p.GetPosition().y), ToMM(p.GetDrillSize().x) / 2)
+         for fp in b.GetFootprints() for p in fp.Pads() if p.GetDrillSize().x > 0]
+ends = {(round(ToMM(q.x), 3), round(ToMM(q.y), 3)) for t in b.GetTracks() if t.GetClass() == 'PCB_TRACK'
+        for q in (t.GetStart(), t.GetEnd())}
+crowd = []
+for v in [t for t in b.GetTracks() if t.GetClass() == 'PCB_VIA' and t.GetNetname() == 'GND']:
+    x, y, r = ToMM(v.GetPosition().x), ToMM(v.GetPosition().y), ToMM(v.GetDrillValue()) / 2
+    if (round(x, 3), round(y, 3)) in ends:
+        continue
+    if any(math.hypot(x - hx, y - hy) - r - hr < 0.35 for hx, hy, hr in holes):
+        crowd.append((round(x - OX, 2), round(y - OY, 2))); b.Remove(v)
+print('stitching vias removed beside header holes:', crowd)
+
 # 4. zones (rev 0.8: heat-spreading drain copper for the eight DPAK drivers first, see tab_copper.py)
 import tab_copper
 print('driver thermal vias:', tab_copper.add(b))
