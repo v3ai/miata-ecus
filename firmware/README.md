@@ -151,7 +151,7 @@ board; use **Flash on-board wideband** instead.
 | KNOCK | PA3 (ADC3) | J2-3 | software knock (on for NB) |
 | VBATT / VIGN | PA1 / PA2 | on board (VIGN from J1-3) | battery / ignition key sense (1989-95, 2003-05) |
 | CAN2 RX / TX | PB12 / PB13 | J2-27, 28 (bus) | CAN2 |
-| LEDs run / comms / warning / error | PD12 / PD13 / PD14 / PD15 | on board | fixed |
+| LEDs run / comms / warning / error | PD12 / PC8 / PC9 / PD15 (rev 0.8; PD12-PD15 before) | on board | fixed |
 | Wideband link TX / RX / BOOT0 / NRST | PD8 / PD9 / PD10 / PD11 | on board | fixed |
 
 Which harness pin each signal reaches is in each motherboard's README.
