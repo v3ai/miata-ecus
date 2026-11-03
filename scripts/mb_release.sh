@@ -17,6 +17,7 @@ cp $OUT/$P.kicad_pro $OUT/${P}_in.kicad_pro
 mv $OUT/$P.kicad_pcb.tmp $OUT/${P}_in.kicad_pcb
 /usr/bin/python3 $S/link_board.py $OUT/${P}_in.kicad_pcb $SCH/fp_paths.txt $TMP/$P.net.names.json $OUT/$P.kicad_pcb
 rm -f $OUT/${P}_in.kicad_pcb $OUT/${P}_in.kicad_pro $OUT/$P.kicad_pcb.kicad_pro $OUT/*.kicad_prl
+/usr/bin/python3 $S/mb_tvs_copper.py $OUT/$P.kicad_pcb      # 1989-93 injector clamps: heat-spreading copper
 /usr/bin/python3 $S/mb_cleanup.py $OUT/$P.kicad_pcb
 /usr/bin/python3 $S/drc.py $OUT/$P.kicad_pcb $OUT/fab/drc_report.txt | tail -1
 /usr/bin/python3 $S/mb_export.py $MOD $OUT/$P.kicad_pcb $OUT/fab

@@ -56,7 +56,9 @@ CASE_NOTE = ('Stock NA case (same for 1990-95). Outline and holes come from the 
              'NA6 KiCad board (rev a/b), which uses the same Mazda case outline. H1 is a recessed boss: stack 3 M4 washers under the board.')
 HEADER_DESC = ('TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); rusEFI\'s 1990 page calls the '
                'second plug 3A-3Z. TE lists it as not currently available: desolder one from a stock ECU or use a clone. Fitted by hand.')
-CHANGES = ['Rev 0.6: freewheel diode D1 on the idle valve and D2 on the purge solenoid (2X) to its +12 V feed (the PWM turn-off energy no longer goes into the daughterboard driver); F4 resettable fuse on the AUX +12 V pin J5-15; not-fitted 12 V pull-up options R20-R22 for the VSS / A/C / clutch inputs. INJ1+INJ4 drive 2U and INJ2+INJ3 drive 2V in parallel (R23/R24), with an SMCJ40A clamp per wire (D3/D4), so no driver carries two injectors; 2Y/2Z are only reached through the not-fitted sequential-conversion links R25/R26.',
+CHANGES = ["Rev 0.8, for daughterboard rev 0.8: the harness's sensor 5 V  (1N, 2K) and the AUX header pin J5-14 now come from the daughterboard's protected 5 V (V5_EXT, JD1 pin 13, which was a ground pin): a sensor 5 V wire shorted to the battery no longer back-feeds the MAP sensor and the ECU's own 5 V. The MAP sensor keeps its own supply (V5_SENS). The daughterboard outline on the silkscreen is 16 mm taller (125 x 76 mm): its new strip of output drivers overhangs the free area above JD1. D3/D4 (the batch injector clamps) are now SMCJ30A (33.3-36.8 V breakdown) instead of SMCJ40A: the new daughterboard drivers clamp at 40 V minimum, so a 40 V TVS could leave the turn-off energy in a driver; at 30 V the TVS always clamps first. Not-fitted option R27: 4.7k pull-up from the protected 5 V for the manual cars' TPS idle switch on 2L.",
+           "Rev 0.7: LSU heater fuse F1 is a 3 A hold PTC (LUTE 2920L300/30GR, 30 V, 2920 size) instead of the 2 A 1812 part. A cold LSU 4.9 heater draws 1.6-2.3 A rms at the start of the wideband's warm-up, more than the old fuse holds once warm, so it could trip and the controller time out. No 1812 PTC holds 3 A above 8 V.",
+           'Rev 0.6: freewheel diode D1 on the idle valve and D2 on the purge solenoid (2X) to its +12 V feed (the PWM turn-off energy no longer goes into the daughterboard driver); F4 resettable fuse on the AUX +12 V pin J5-15; not-fitted 12 V pull-up options R20-R22 for the VSS / A/C / clutch inputs. INJ1+INJ4 drive 2U and INJ2+INJ3 drive 2V in parallel (R23/R24), with an SMCJ40A clamp per wire (D3/D4), so no driver carries two injectors; 2Y/2Z are only reached through the not-fitted sequential-conversion links R25/R26.',
            'Rev 0.5: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
            'Rev 0.4: MAP sensor is now the MPX5700AP (absolute, case 867B, one barb; LCSC C90152) instead of the MPX5700DP: new footprint with the real lozenge body and offset barb, holes on the NXP 23.11 mm spacing with 3.3 mm M3 clearance drills.',
            'Rev 0.3: sensor 5 V now on both 1N (NA6, per the Hellen NA6 map) and 2K; spare low side on 1R (the early cars\' '
@@ -85,7 +87,7 @@ HARNESS = {
     '1K': '',
     '1L': 'OUT_FAN',     # radiator fan relay
     '1M': 'IN_SW1',      # vehicle speed sensor
-    '1N': 'V5_SENS',     # sensor 5 V ref on NA6 (Hellen NA6 map); 2K carries it too
+    '1N': 'V5_EXT',      # sensor 5 V ref on NA6 (Hellen NA6 map; the daughter's protected harness 5 V); 2K carries it too
     '1O': '',            # brake light switch
     '1P': '',            # power steering switch
     '1Q': 'IN_SW2',      # A/C switch
@@ -103,7 +105,7 @@ HARNESS = {
     '2H': '',
     '2I': 'OUT_TACH',
     '2J': '',
-    '2K': 'V5_SENS',     # 5 V sensor reference
+    '2K': 'V5_EXT',      # 5 V sensor reference (protected harness 5 V)
     '2L': 'IN_AUX1',     # MT idle switch (TPS) / spare analog
     '2M': 'IN_TPS',      # TPS signal (AT / VTPS conversion)
     '2N': 'IN_AUX2',     # stock narrowband O2
@@ -122,7 +124,7 @@ HARNESS = {
 }
 
 
-def build_parts(harness=None, paired_injectors=True):
+def build_parts(harness=None, paired_injectors=True, idle_pullup=True):
     C.parts.clear()
     C.add('J1', 'TE 174917-6', 'ecu_mb:TE_174917-6_48P', '', harness or HARNESS,
           'Stock harness header, 48 pins (22 + 26). Hand-solder; salvage from a stock ECU or use a clone')
@@ -133,6 +135,11 @@ def build_parts(harness=None, paired_injectors=True):
     C.protection_parts('VBAT_IN', 'VBAT_IN')
     if paired_injectors:
         injector_pairs()
+    if idle_pullup:
+        # 1989-93 2L: the manual cars' TPS idle switch closes to ground at idle and has no pull-up of its own
+        C.add('R27', '4.7k', 'Resistor_SMD:R_0603_1608Metric', '', {1: 'V5_EXT', 2: 'IN_AUX1'},
+              'NOT FITTED: 5 V pull-up for the TPS idle switch on 2L (manual cars). Fit (4.7k 0603, LCSC C23162; '
+              '1.1 mA with the switch closed) if the idle switch is used; from the protected harness 5 V')
     return C.parts
 
 
@@ -152,8 +159,10 @@ def injector_pairs():
     C.add('R26', '0R', r0805, '', {1: 'OUT_INJ4', 2: 'HARN_2Z'},
           'NOT FITTED: sequential conversion only, INJ4 to 2Z (fit instead of R23). NEVER on an automatic: 2Z is the A/T unit')
     for ref, net, pin in (('D3', 'OUT_INJ1', '2U'), ('D4', 'OUT_INJ2', '2V')):
-        C.add(ref, 'SMCJ40A', 'Diode_SMD:D_SMC', 'C224052', {1: net, 2: 'GND'},
-              f'Injector clamp for the two injectors on {pin} (40 V standoff, about 45-50 V clamp, below the drivers\' 63 V)')
+        C.add(ref, 'SMCJ30A', 'Diode_SMD:D_SMC', 'C224048', {1: net, 2: 'GND'},
+              f'Injector clamp for the two injectors on {pin} (30 V standoff, 33.3-36.8 V breakdown, about 37.5 V at '
+              f'the 1.8 A turn-off current: always below the VND7NV04 drivers\' 40 V minimum clamp, so the TVS takes '
+              f'all of the turn-off energy). Same part as the daughterboard\'s load-dump TVS D6')
 
 
 def placement():
@@ -193,4 +202,6 @@ def placement():
     P['R26'] = (96.0, 57.5, 0)
     P['D3'] = (72.0, 64.0, 0)
     P['D4'] = (86.0, 64.0, 0)
+    # 2L idle-switch pull-up option, above its JD2 pin (IN_AUX1 = J2 pin 9) like R20-R22
+    P['R27'] = (DAUGHTER[0] + 13.0 + 8 * 2.54, DAUGHTER[1] + 52.0, 90)
     return P

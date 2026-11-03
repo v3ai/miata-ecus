@@ -73,7 +73,7 @@ def common_parts():
     # AUX: everything the stock harness has no pin for
     aux = {1: 'OUT_IGN3', 2: 'OUT_IGN4', 3: 'OUT_BOOST', 4: 'OUT_ALT', 5: 'OUT_MAINRLY', 6: 'IN_KNOCK',
            7: 'VR1_P', 8: 'VR1_N', 9: 'VR2_P', 10: 'VR2_N', 11: 'IN_AFR', 12: 'UART_TX', 13: 'UART_RX',
-           14: 'V5_SENS', 15: 'AUX_VBAT', 16: 'GND'}
+           14: 'V5_EXT', 15: 'AUX_VBAT', 16: 'GND'}
     add('J5', 'AUX 2x8', 'Connector_IDC:IDC-Header_2x08_P2.54mm_Vertical', 'C3406', aux,
         'Add-on I/O: COP 3/4, boost, alternator, main relay, knock, VR crank/cam, external AFR, UART, 5 V, +12 V (fused, F4)')
     # rev 0.6/0.4: the AUX +12 V pin leaves the board, so it gets its own resettable fuse

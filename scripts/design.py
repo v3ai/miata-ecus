@@ -24,6 +24,9 @@ FP = {
     'SMC':   'Diode_SMD:D_SMC',
     'SOT223': 'Package_TO_SOT_SMD:SOT-223',
     'SOT223T2': 'Package_TO_SOT_SMD:SOT-223-3_TabPin2',
+    'DPAK':  'Package_TO_SOT_SMD:TO-252-2',
+    'TSSOP14': 'Package_SO:TSSOP-14_4.4x5mm_P0.65mm',
+    'R1206': 'Resistor_SMD:R_1206_3216Metric',
     'SOT235': 'Package_TO_SOT_SMD:SOT-23-5',
     'SOIC8': 'Package_SO:SOIC-8_3.9x4.9mm_P1.27mm',
     'SOT23': 'Package_TO_SOT_SMD:SOT-23',
@@ -49,14 +52,16 @@ LCSC_R0603 = {'0': 'C21189', '1': 'C22936', '47': 'C23182', '100': 'C22775', '33
               '5.1k': 'C23186', '5.6k': 'C23189', '6.8k': 'C23212', '10k': 'C25804',
               '12k': 'C22790', '33k': 'C4216', '47k': 'C25819', '68k': 'C23231',
               '100k': 'C25803'}
-LCSC_R0402 = {'6.8k': 'C25917', '1k': 'C11702', '2.2k': 'C25879', '2.7k': 'C25885', '4.7k': 'C25900',
+LCSC_R0402 = {'6.8k': 'C25917', '1k': 'C11702', '2.2k': 'C25879', '2.7k': 'C25885', '4.7k': 'C25900', '22k': 'C25768',
               '5.6k': 'C25908', '10k': 'C25744', '33k': 'C25779', '100k': 'C25741', '1M': 'C26083'}
 LCSC_C0402 = {'1u': 'C52923', '1n': 'C1523', '10n': 'C15195', '100n': 'C1525'}
 LCSC_R0805 = {'5.1k': 'C27834', '100': 'C17408'}
+# rev 0.8: 1206 (0.25 W) for resistors that carry a fault current (UNI-ROYAL 1206W4F..., 1 %)
+LCSC_R1206 = {'100': 'C17901', '47': 'C17969', '10': 'C17903', '62': 'C25341', '2.2k': 'C17948'}
 LCSC_C0603 = {'22p': 'C1653', '33p': 'C1663', '220p': 'C1603', '1n': 'C1588', '10n': 'C57112',
               '100n': 'C14663', '1u': 'C15849', '2.2u': 'C23630', '4.7u': 'C19666'}
 LCSC_C0805 = {'10u': 'C15850', '1n': 'C46653'}
-LCSC_C1206 = {'10u/50V': 'C13585'}
+LCSC_C1206 = {'10u/50V': 'C13585', '100u': 'C15008'}
 
 parts = []   # list of dicts
 
@@ -67,7 +72,7 @@ def add(ref, value, fp, lcsc, pads, desc='', dnp=False):
 
 
 def R(ref, value, a, b, size='0603'):
-    tbl = {'0603': LCSC_R0603, '0805': LCSC_R0805, '0402': LCSC_R0402}[size]
+    tbl = {'0603': LCSC_R0603, '0805': LCSC_R0805, '0402': LCSC_R0402, '1206': LCSC_R1206}[size]
     add(ref, value, 'R' + size, tbl[value], {'1': a, '2': b})
 
 
@@ -81,7 +86,10 @@ def C(ref, value, a, b, size='0603'):
 # ---------------------------------------------------------------------------
 J1 = {1: 'VBAT_IN', 2: 'VBAT_IN', 3: 'VIGN_IN', 4: 'GND', 5: 'GND',
       6: 'OUT_FP', 7: 'OUT_MAINRLY', 8: 'OUT_AC', 9: 'OUT_FAN', 10: 'OUT_CEL',
-      11: 'OUT_TACH', 12: 'OUT_LS7', 13: 'GND',
+      11: 'OUT_TACH', 12: 'OUT_LS7',
+      # rev 0.8: pin 13 (was GND) carries the harness sensor 5 V (V5_EXT, its own protected tracker U14), so a
+      # harness 5 V wire shorted to battery no longer back-feeds the on-board MAP sensor (V5_SENS, J2-1)
+      13: 'V5_EXT',
       14: 'OUT_IGN1', 15: 'OUT_IGN2', 16: 'OUT_IGN3', 17: 'OUT_IGN4', 18: 'GND'}
 HS_OUT = ['INJ1', 'INJ2', 'INJ3', 'INJ4', 'IACV', 'VVT', 'BOOST', 'ALT']
 for i, name in enumerate(HS_OUT):
@@ -142,7 +150,7 @@ mcu = {
     '43': 'VR2_OUT', '44': 'VR1_OUT',
     # comms (right edge)
     '51': 'CAN_RX', '52': 'CAN_TX',            # CAN2 PB12/PB13
-    '63': 'UART_TX', '64': 'UART_RX',          # USART6 PC6/PC7
+    '63': 'UART_TX_M', '64': 'UART_RX_M',      # USART6 PC6/PC7 (rev 0.8: through 4.7k + clamps to J2)
     '59': 'LED_RUN', '60': 'LED_COMM', '61': 'LED_WARN', '62': 'LED_ERR',  # PD12-15
     # wideband MCU programming link (rev 0.4): USART3 on PD8/PD9 to the wideband MCU's ROM-bootloader USART1 (F103 since rev 0.6)
     # (PA10/PA9), PD10 drives its BOOT0 (10k pull-down stays), PD11 (open drain) its NRST
@@ -242,19 +250,31 @@ C('C29', '100n', 'AN_VIGN', 'GND', '0402')
 # ---------------------------------------------------------------------------
 # Outputs
 # ---------------------------------------------------------------------------
-# 7x relay/lamp/tach low side: ULN2003. Rev 0.5: COM goes to a TVS (SMAJ33A, 36.7-40.6 V breakdown) instead of
-# +12V. Relay kick-back still clamps (about 41 V worst case, under the ULN's 50 V), a battery-fed relay coil (2003-05
-# main relay) can no longer back-feed the ECU through the clamp diodes with the key off, and a 35 V load dump on the
-# relay and lamp feeds doesn't reach the breakdown (a small zener here would conduct and could fail short, which
-# would switch every relay on).
-uln = {'8': 'GND', '9': 'ULN_COM'}
-for i, n in enumerate(['FP', 'MAINRLY', 'AC', 'FAN', 'CEL', 'TACH', 'LS7']):
-    uln[str(1 + i)] = n + '_CTL'
-    uln[str(16 - i)] = 'OUT_' + n
-add('U5', 'ULN2003AD', 'SOIC16', 'C7512', uln, '7ch 500mA low side for relays/CEL/tach')
-add('D11', 'SMAJ33A', 'SMA', 'C223988', {'1': 'ULN_COM', '2': 'GND'}, 'TVS: ULN2003 flyback clamp (Littelfuse)')
+# 7x relay/lamp/tach low side. Rev 0.8: seven Diodes ZXMS6004FF IntelliFETs (SOT-23F: 1 IN, 2 S, 3 D; 60-70 V
+# active clamp, current limit 1-2.2 A, thermal shutdown) instead of the ULN2003, which had no current limit (a relay,
+# lamp or tach wire shorted to battery destroyed its channel) and ran out of package power with every relay on. They
+# are driven at 5 V by a second SN74LVC4245A (U12) behind the same enable as the low-side drivers (DRV_EN_N), with
+# 10k pull-downs, so the outputs stay off through reset and boot. No COM diode any more, so no key-off back-feed path.
+RELAYS = ['FP', 'MAINRLY', 'AC', 'FAN', 'CEL', 'TACH', 'LS7']
+for i, n in enumerate(RELAYS):
+    add(f'Q{9 + i}', 'ZXMS6004FFTA', 'SOT23', 'C95063', {'1': n + '_G', '2': 'GND', '3': 'OUT_' + n},
+        f'protected low side, {n} (Diodes IntelliFET)')
+lvc2 = {'1': '+5V', '2': 'GND', '11': 'GND', '12': 'GND', '13': 'GND', '22': 'DRV_EN_N', '23': '+3V3', '24': '+3V3',
+        '3': '', '21': 'GND'}           # channel 8 unused: its B input tied low
+for i, n in enumerate(RELAYS):
+    lvc2[str(10 - i)] = n + '_G'
+    lvc2[str(14 + i)] = n + '_CTL'
+add('U12', 'SN74LVC4245APWR', 'TSSOP24', 'C7859', lvc2, '3.3 V -> 5 V level shifter for the relay drivers')
+add('RN2', '4x10k', 'RN4', 'C29718', {'1': 'FP_G', '2': 'MAINRLY_G', '3': 'AC_G', '4': 'FAN_G',
+                                      '5': 'GND', '6': 'GND', '7': 'GND', '8': 'GND'}, 'relay driver pull-downs')
+add('RN3', '4x10k', 'RN4', 'C29718', {'1': 'CEL_G', '2': 'TACH_G', '3': 'LS7_G', '4': 'GND',
+                                      '5': 'GND', '6': 'GND', '7': 'GND', '8': 'GND'}, 'relay driver pull-downs')
 
-# 4x ignition logic outputs (smart coils / COP): TC4427 at 5V
+# 4x ignition logic outputs (smart coils / COP / igniters): TC4427 at 5 V sources through 100 R and a Schottky;
+# rev 0.8: a ZXMS6004FF per output pulls it low (gate = the inverted control line, 74HCT04 U13). A coil wire shorted
+# to battery now meets a reverse-biased diode on the source side (no back-feed into +5V, no current in the 100 R) and
+# a current-limited, thermally protected switch on the sink side. Reset / boot: the control line is pulled low (RN1),
+# so the sink switch is on and the output held low, as before.
 for u, (a, b) in zip(['U6', 'U7'], [('IGN1', 'IGN2'), ('IGN3', 'IGN4')]):
     add(u, 'TC4427', 'SOIC8', 'C20551',
         {'1': '', '2': a + '_CTL', '3': 'GND', '4': b + '_CTL', '5': b + '_DRV', '6': '+5V',
@@ -265,20 +285,36 @@ ign_pd = {}
 for i, n in enumerate(['IGN1', 'IGN2', 'IGN3', 'IGN4']):
     ign_pd[str(1 + i)] = n + '_CTL'
     ign_pd[str(8 - i)] = 'GND'
-    R(f'R{rn}', '100', n + '_DRV', 'OUT_' + n, '0805'); rn += 1
+    R(f'R{rn}', '100', n + '_DRV', n + '_SRC', '1206'); rn += 1     # 1206: 0.25 W into a short to ground
 add('RN1', '4x10k', 'RN4', 'C29718', ign_pd, 'ignition inputs pull-down')
 C(f'C{cn}', '1u', '+5V', 'GND', '0402'); cn += 1     # C34 TC4427 #1 VDD
 C(f'C{cn}', '1u', '+5V', 'GND', '0402'); cn += 1     # C35 TC4427 #2 VDD
+IGN = ['IGN1', 'IGN2', 'IGN3', 'IGN4']
+for i, n in enumerate(IGN):
+    add(f'D{31 + i}', 'B5819W', 'SOD123', 'C8598', {'1': 'OUT_' + n, '2': n + '_SRC'},
+        f'{n} source diode (blocks a short to battery)')
+    add(f'Q{16 + i}', 'ZXMS6004FFTA', 'SOT23', 'C95063', {'1': n + '_SNK', '2': 'GND', '3': 'OUT_' + n},
+        f'{n} protected pull-down')
+# 2.2k pull-down on each output: at the end of dwell (the spark) the source diode blocks and the IntelliFET takes 5-15 us
+# to turn on, so the resistor (with the igniter's own input) brings the line down within ~3 us; 1206 for a short to
+# battery (94 mW at 14.4 V)
+for i, n in enumerate(IGN):
+    R(f'R{144 + i}', '2.2k', 'OUT_' + n, 'GND', '1206')
+add('U13', '74HCT04PW', 'TSSOP14', 'C131317',
+    {'1': 'IGN1_CTL', '2': 'IGN1_SNK', '3': 'IGN2_CTL', '4': 'IGN2_SNK', '5': 'IGN3_CTL', '6': 'IGN3_SNK',
+     '7': 'GND', '8': 'IGN4_SNK', '9': 'IGN4_CTL', '10': '', '11': 'GND', '12': '', '13': 'GND', '14': '+5V'},
+    'hex inverter (TTL inputs, 5 V): ignition pull-down gates')
 
-# 8x smart low side (injectors, IACV, VVT, boost, alternator). Rev 0.5b: onsemi NCV8406A (SOT-223, same pinout:
-# 1 gate, 2/tab drain, 3 source; 60-70 V active clamp, 210 mOhm at 5 V, current limit and thermal shutdown,
-# AEC-Q101). It replaces the AUIPS2041L (63-75 V clamp), which ran out at JLC and LCSC.
-# Rev 0.5: driven at 5 V through an SN74LVC4245A (full enhancement and current limit at 5 V). Its OE is pulled up to +5V, so all eight are off (and pulled low) through reset, boot, the
-# bootloader and DFU until the firmware drives DRV_EN_N low.
+# 8x smart low side (injectors, IACV, VVT, boost, alternator). Rev 0.8: ST VND7NV04 (OMNIFET II, DPAK: 1 input,
+# 2/tab drain, 3 source; 60 mOhm max, 40-55 V active clamp, linear current limit, thermal shutdown) instead of the
+# NCV8406A (SOT-223, 210-520 mOhm). With a quarter of the on-resistance and the DPAK on copper on three layers, a
+# driver at 90 % injector duty and 7200 rpm stays far below thermal shutdown. They sit on a new strip above J1.
+# Driven at 5 V through the SN74LVC4245A (U11); its OE is pulled up to +5V, so all eight are off (and pulled low)
+# through reset, boot, the bootloader and DFU until the firmware drives DRV_EN_N low.
 for i, n in enumerate(HS_OUT):
-    add(f'Q{1+i}', 'NCV8406ASTT3G', 'SOT223', 'C459816',
-        {'1': n + '_IN', '2': 'OUT_' + n, '3': 'GND', '4': 'OUT_' + n},
-        'protected low side, 60-70 V clamp')
+    add(f'Q{1+i}', 'VND7NV04TR-E', 'DPAK', 'C155605',
+        {'1': n + '_IN', '2': 'OUT_' + n, '3': 'GND'},
+        'protected low side (ST OMNIFET II), 40-55 V clamp')
 lvc = {'1': '+5V', '2': 'GND', '11': 'GND', '12': 'GND', '13': 'GND', '22': 'DRV_EN_N', '23': '+3V3', '24': '+3V3'}
 for i, n in enumerate(HS_OUT):           # DIR low: B (3.3 V, MCU) -> A (5 V, drivers); A7/B7 = INJ1 ... A0/B0 = ALT
     lvc[str(10 - i)] = n + '_IN'
@@ -298,8 +334,8 @@ for n in ['TPS', 'MAP', 'CLT', 'IAT', 'AFR', 'AUX1', 'AUX2', 'AUX3']:
     R(f'R{rn}', '5.6k', 'IN_' + n, 'AN_' + n, '0603'); rn += 1
     R(f'R{rn}', '10k', 'AN_' + n, 'GND', '0402'); rn += 1
     C(f'C{cn}', '10n', 'AN_' + n, 'GND', '0402'); cn += 1
-    if n in ('CLT', 'IAT'):
-        R(f'R{rn}', '2.7k', 'V5_SENS', 'IN_' + n, '0603'); rn += 1
+    if n in ('CLT', 'IAT'):     # rev 0.8: bias from the harness sensor supply V5_EXT (the sensors are harness parts)
+        R(f'R{rn}', '2.7k', 'V5_EXT', 'IN_' + n, '0603'); rn += 1
 
 # knock: AC coupled, biased to 1.65V, gain 5.7. Rev 0.7: the coupling cap follows R138 (2.2k, see the rev 0.7 block)
 C(f'C{cn}', '100n', 'KN_IN', 'KN_P'); cn += 1
@@ -348,24 +384,29 @@ C(f'C{cn}', '100n', '+5V', 'GND'); cn += 1
 
 # Hall (open collector): 1k pull-up to sensor 5V, 4.7k series, 1n filter
 # Rev 0.7: the 1k pull-ups in 0603: a crank/cam wire shorted to 14.4 V puts 88 mW into its pull-up (0402: 62 mW).
-for n in ['HALL1', 'HALL2']:
-    R(f'R{rn}', '4.7k', 'IN_' + n, n, '0402'); rn += 1
-    R(f'R{rn}', '1k', 'V5_SENS', 'IN_' + n, '0603'); rn += 1
+# Rev 0.8: each pull-up hangs off its own cathode of a common-anode Schottky pair (D35, anode V5_EXT), so a
+# crank/cam wire shorted to battery reverse-biases the diode: no current in the pull-up (it took 279 mW in a 24 V
+# jump start) and no back-feed into the sensor supply. The series 4.7k is 0603 (86 mW at 24 V).
+for k, n in enumerate(['HALL1', 'HALL2']):
+    R(f'R{rn}', '4.7k', 'IN_' + n, n, '0603'); rn += 1
+    R(f'R{rn}', '1k', f'V5_H{k + 1}', 'IN_' + n, '0603'); rn += 1
     C(f'C{cn}', '1n', n, 'GND', '0402'); cn += 1
 # rev 0.5: clamp diodes to +3V3 (PE7/PE8 are 5 V-tolerant pins with no clamp of their own; a crank/cam wire
 # shorted to battery would otherwise put ~14 V on them). 4.7k limits the clamp current to ~2 mA.
 add('D13', '1N4148WS', 'SOD323', 'C2128', {'1': '+3V3', '2': 'HALL1'}, 'HALL1 clamp to +3V3')
 add('D14', '1N4148WS', 'SOD323', 'C2128', {'1': '+3V3', '2': 'HALL2'}, 'HALL2 clamp to +3V3')
 
-# 12V switch inputs: 33k/10k divider, 10n filter
+# 12V switch inputs: 22k/10k divider (rev 0.8; was 33k: a 12 V signal at 9 V cranking gave 2.09 V, under ST's tested
+# 2.31 V input threshold; now 2.81 V), 10n filter. The +3V3 clamps (D27-D29) hold the pin at 16 V and in a load dump.
 for n in ['SW1', 'SW2', 'SW3']:
-    R(f'R{rn}', '33k', 'IN_' + n, n, '0402'); rn += 1
+    R(f'R{rn}', '22k', 'IN_' + n, n, '0402'); rn += 1
     R(f'R{rn}', '10k', n, 'GND', '0402'); rn += 1
     C(f'C{cn}', '10n', n, 'GND', '0402'); cn += 1
 
-# CAN (3.3V transceiver; termination lives on the motherboard)
-add('U10', 'SN65HVD230DR', 'SOIC8', 'C12084',
-    {'1': 'CAN_TX', '2': 'GND', '3': '+3V3', '4': 'CAN_RX', '5': '', '6': 'CAN_L', '7': 'CAN_H', '8': 'GND'})
+# CAN (termination lives on the motherboard). Rev 0.8: TI TCAN1042V-Q1 (5 V supply, 3.3 V I/O on VIO, +-58 V bus fault
+# protection, -40..125 C) instead of the SN65HVD230 (bus pins -4..16 V absolute, 85 C). Pin 8 STB low = normal mode.
+add('U10', 'TCAN1042VDRQ1', 'SOIC8', 'C485806',
+    {'1': 'CAN_TX', '2': 'GND', '3': '+5V', '4': 'CAN_RX', '5': '+3V3', '6': 'CAN_L', '7': 'CAN_H', '8': 'GND'})
 C(f'C{cn}', '100n', '+3V3', 'GND'); cn += 1
 
 # rev 0.5 additions (refs above the rev 0.4 range, so no existing designator changes)
@@ -394,6 +435,45 @@ for i, n in enumerate(['SW1', 'SW2', 'SW3']):
 # into the LMV321's input diodes (about 1 A peak); now 6.5 mA for 0.2 ms. The piezo's own impedance (about 23 kOhm at
 # 7 kHz) makes the signal loss about 2 %.
 R('R138', '2.2k', 'IN_KNOCK', 'KN_IN', '0402')
+
+# rev 0.8 additions (new refs above the rev 0.7 range)
+# Harness sensor 5 V: a second TLS115 tracking +5V, out on J1-13. The motherboards feed the harness 5 V cavities and
+# the AUX header from it; V5_SENS (U3, J2-1) now only feeds the on-board MAP sensor.
+add('U14', 'TLS115B0EJ', 'DSO8EP', 'C3743696',
+    {'1': 'V5_EXT', '2': '', '3': 'GND', '4': '', '5': '+5V', '6': '', '7': '+12V', '8': '+12V', '9': 'GND'},
+    'harness sensor 5V tracker, short-to-battery protected')
+C('C61', '1u', 'V5_EXT', 'GND')
+C('C62', '1u', '+12V', 'GND')
+add('D35', 'BAT54A', 'SOT23', 'C916423', {'1': 'V5_H1', '2': 'V5_H2', '3': 'V5_EXT'},
+    'hall pull-up supply diodes, common anode (block a crank/cam wire shorted to battery)')
+# AUX header UART (J2 24/25 -> motherboard J5): 4.7k in series and a BAT54S clamp at the MCU side, so the header pins
+# survive car wiring shorted to battery (88 mW in the resistor at 24 V); 4.7k + ~20 pF is fine at 115200 baud
+R('R139', '4.7k', 'UART_TX_M', 'UART_TX')
+R('R140', '4.7k', 'UART_RX_M', 'UART_RX')
+add('D36', 'BAT54S', 'SOT23', 'C19726', {'1': 'GND', '2': '+3V3', '3': 'UART_TX_M'}, 'UART TX clamp')
+add('D37', 'BAT54S', 'SOT23', 'C19726', {'1': 'GND', '2': '+3V3', '3': 'UART_RX_M'}, 'UART RX clamp')
+# battery / ignition sense clamps: in a 24 V jump start the divider put 4.0 V on PA1 (analog mode, VDDA + 0.3 V max)
+add('D38', 'BAT54WS', 'SOD323', 'C124205', {'1': '+3V3', '2': 'AN_VBATT'}, 'AN_VBATT clamp to +3V3')
+add('D39', 'BAT54WS', 'SOD323', 'C124205', {'1': '+3V3', '2': 'AN_VIGN'}, 'AN_VIGN clamp to +3V3')
+# +3V3 shunt clamp: every clamp on the board (analog, hall, switch, UART, the wideband's pump/Vm drive) dumps a fault
+# current into +3V3, and the LDO can't sink it, so a big enough fault would lift the rail. A TL431 senses +3V3 through
+# 5.1k / 12k (2.495 V x 1.425 = 3.56 V, above the LDO's 3.37 V maximum, below the MCUs' 4.0 V absolute maximum) and
+# turns on a PNP (BCP53, 1 A) from +3V3 to ground. Below the threshold it draws only the divider's 0.2 mA.
+add('U15', 'TL431AIDBZR', 'SOT23', 'C23892', {'1': 'SH_K', '2': 'SH_REF', '3': 'GND'}, '+3V3 shunt clamp reference')
+add('Q20', 'BCP53-16', 'SOT223', 'C85085', {'1': 'SH_K', '2': 'GND', '3': '+3V3', '4': 'GND'},
+    '+3V3 shunt clamp pass transistor (PNP, 1 A)')
+R('R141', '1k', '+3V3', 'SH_K')
+R('R142', '5.1k', '+3V3', 'SH_REF')
+R('R143', '12k', 'SH_REF', 'GND')
+# 100 uF more on +3V3 slows the rail's rise under a fault step until the TL431 has turned the PNP on (simulated: a
+# 1 A step peaks at 3.93 V with a deliberately slow TL431 model, against 4.4 V without it)
+C('C63', '100u', '+3V3', 'GND', '1206')
+C('C68', '100u', '+3V3', 'GND', '1206')       # second bulk cap: slows a fault-current step until the shunt clamp takes it
+# decoupling for the new ICs
+C('C64', '100n', '+5V', 'GND', '0402')       # U12 VCCA
+C('C65', '100n', '+3V3', 'GND', '0402')      # U12 VCCB
+C('C66', '100n', '+5V', 'GND', '0402')       # U13
+C('C67', '100n', '+5V', 'GND', '0402')       # U10 VCC (VIO from C56)
 
 # mounting holes
 for i in range(4):

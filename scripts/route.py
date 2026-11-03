@@ -23,6 +23,10 @@ import pcbnew
 from pcbnew import FromMM, ToMM, VECTOR2I
 
 OX, OY = 100.0, 50.0
+try:                       # rev 0.8: the daughterboard's old frame sits DY below the strip above J1
+    from placement import DY as _DY
+except Exception:
+    _DY = 0.0
 G = 0.25                       # grid pitch (mm)
 CLR = 0.15                     # copper clearance
 SIG_W = 0.2                    # default track width
@@ -38,14 +42,14 @@ DIRPREF = None     # e.g. 1.8: F.Cu prefers horizontal, B.Cu vertical (cost fact
 
 WIDTH = {
     'VBAT_IN': 1.0, '+12V_IN': 0.8, '+12V': 0.8, '+12V_F': 0.8, 'BUCK_SW': 0.8, '+5V': 0.5, 'DAMP': 0.4,
-    'ULN_COM': 0.4,
-    'V5_SENS': 0.4, 'VIGN_IN': 0.4, 'USB_VBUS': 0.4,
+    'V5_SENS': 0.4, 'V5_EXT': 0.4, 'VIGN_IN': 0.4, 'USB_VBUS': 0.4,
     'OUT_INJ1': 0.8, 'OUT_INJ2': 0.8, 'OUT_INJ3': 0.8, 'OUT_INJ4': 0.8,
     'OUT_IACV': 0.8, 'OUT_VVT': 0.8, 'OUT_BOOST': 0.8, 'OUT_ALT': 0.6,
     'OUT_FP': 0.5, 'OUT_MAINRLY': 0.5, 'OUT_AC': 0.5, 'OUT_FAN': 0.5, 'OUT_CEL': 0.4,
     'OUT_TACH': 0.4, 'OUT_LS7': 0.4,
     'OUT_IGN1': 0.4, 'OUT_IGN2': 0.4, 'OUT_IGN3': 0.4, 'OUT_IGN4': 0.4,
     'IGN1_DRV': 0.4, 'IGN2_DRV': 0.4, 'IGN3_DRV': 0.4, 'IGN4_DRV': 0.4,
+    'IGN1_SRC': 0.4, 'IGN2_SRC': 0.4, 'IGN3_SRC': 0.4, 'IGN4_SRC': 0.4,
 }
 SKIP = {'GND', '+3V3'}           # plane nets: every pad gets a via instead
 ST4 = ndimage.generate_binary_structure(2, 1)
@@ -142,7 +146,9 @@ class Grid:
 class Router:
     def __init__(self, path):
         self.board = pcbnew.LoadBoard(path)
-        self.grid = Grid()
+        _bb = self.board.GetBoardEdgesBoundingBox()      # rev 0.8: grid from the outline (the board grew to 76 mm)
+        self.W, self.H = round(mm(_bb.GetRight()) - OX, 3), round(mm(_bb.GetBottom()) - OY, 3)
+        self.grid = Grid(self.W, self.H)
         self.pads = []
         self.tracks = []          # dict(net, L, p0, p1, w)
         self.vias = []            # dict(net, x, y)
@@ -240,7 +246,7 @@ class Router:
         """rev 0.3 wideband block (wb_clean.py): placed parts are routed like the rest of the board;
         only the heater path is fixed, hand-planned copper. Thin taps on wide nets are marked."""
         for net, side, w, pts in wbc.HEATER:
-            self.add_locked(net, pts, w, L=0 if side == 'F' else 1)
+            self.add_locked(net, [(x, y + _DY) for x, y in pts], w, L=0 if side == 'F' else 1)
         for p in self.pads:
             if (p['fp'], p['num']) in wbc.TAPS:
                 p['w'] = wbc.TAPS[(p['fp'], p['num'])]
@@ -251,7 +257,7 @@ class Router:
         track can sneak along the pad row and fence a pin in"""
         skip = {'GND', '+3V3', '+3V3A', 'VCAP1', 'VCAP2', '',
                 'AN_TPS', 'AN_MAP', 'AN_CLT', 'AN_IAT', 'AN_AFR', 'AN_AUX1', 'AN_AUX2', 'AN_AUX3'}
-        mx, my = 61.0, 32.0
+        mx, my = 61.0, 32.0 + _DY
         for p in self.pads:
             if p['fp'] != ref or p['net'] in skip:
                 continue
@@ -295,8 +301,8 @@ class Router:
             assert mpin[pin]['net'] == net, (pin, net)
             xp = mpin[pin]['c'][0]
             xc = round((13.0 + (jpin - 1) * 2.54) * 4) / 4
-            lane = 42.5 + 0.5 * k
-            y0 = 41.75
+            lane = 42.5 + 0.5 * k + _DY
+            y0 = 41.75 + _DY
             series = [p for p in self.pads if p['net'] == net and p['fp'] != 'U1'
                       and abs(p['c'][0] - xc) < 0.05]
             ytop = min(p['c'][1] for p in series)          # series R top pad (node)
@@ -326,7 +332,7 @@ class Router:
             assert net == u[up]['net'], (mp, up, net, u[up]['net'])
             xp = round(m[mp]['c'][0] / G) * G
             ys = round((m[mp]['poly'].bounds[1] - 1.0) / G) * G      # end of the fixed escape stub
-            lane = 18.45 + 0.36 * k
+            lane = 18.45 + 0.36 * k + _DY
             px, py = u[up]['c']
             d = py - lane
             self.add_locked(net, [(xp, ys), (xp, lane), (xend - d, lane), (xend, py), (px, py)])
@@ -824,6 +830,8 @@ def main(inp, out):
         # from an earlier revision's state) the saved fixed/locked copper may no longer meet its pads
         r.tracks = fresh + [t for t in r.tracks if not (t.get('fixed') or t.get('locked'))]
         r.rebuild_dynamic()
+        # an ECO state can name nets the new design no longer has (rev 0.8 dropped ULN_COM)
+        r.failed = [f for f in r.failed if 'stitch' in f[0] or any(p['net'] == f[0] for p in r.pads)]
         # nets a check found unconnected after an earlier run (comma-separated), queued for the finish passes
         for n in filter(None, os.environ.get('ADD_FAILED', '').split(',')):
             if not any(f[0] == n for f in r.failed):
@@ -868,7 +876,9 @@ def main(inp, out):
                     break
                 # rip the failing nets plus their neighbours around the failing pads
                 padpos = [p['c'] for p in r.pads if p['net'] in bad]
-                radius = 2.0 + 0.5 * it
+                # ECO0=1: the first pass routes the ECO's unrouted nets into the kept copper without ripping any
+                # neighbours (with ~100 nets to route, ripping everything near their pads re-routes half the board)
+                radius = 0.0 if (it == 0 and os.environ.get('ECO0')) else 2.0 + 0.5 * it
                 neigh = set()
                 for t in r.tracks:
                     if t.get('fixed') or t.get('locked') or t['net'] in SKIP:
@@ -919,7 +929,7 @@ def main(inp, out):
     r.thermal_and_stitch()
     r.commit()
     r.board.Save(out.replace('.kicad_pcb', '_nz.kicad_pcb'))
-    add_gnd_zones(r.board)
+    add_gnd_zones(r.board, r.W, r.H)
     r.board.Save(out)
     print(f'done in {time.time()-t0:.0f}s, tracks {len(r.tracks)}, vias {len(r.vias)}')
     print('FAILED:', len(r.failed))

@@ -193,6 +193,9 @@ def sheet_io(s):
     s.text('Switch-input 12 V pull-ups, NOT fitted: fit only for a signal that switches to ground', 279.4, 187.96, 1.27)
     for k, r in enumerate(('R20', 'R21', 'R22')):
         s.o2(r, 294.64 + k * 20.32, 203.2, 'v')
+    if 'R27' in S.PARTS:
+        s.text('2L idle switch pull-up (NOT fitted)', 355.6, 187.96, 1.27)
+        s.o2('R27', 360.68, 203.2, 'v')
     if 'R23' in S.PARTS:
         s.text('1989-93 batch harness: two drivers per injector wire, TVS clamp per wire', 279.4, 226.06)
         s.text('Sequential conversion: remove R23/R24, fit R25/R26 (never R26 on an automatic)', 279.4, 231.14, 1.27)

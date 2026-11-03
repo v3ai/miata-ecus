@@ -9,33 +9,36 @@ routes only them, ripping neighbours as it needs to. Routing the whole board aga
 from the change (route.py is order-dependent); this keeps the proven layout everywhere else.
 
 usage: route_eco.py old_placed.kicad_pcb old_state.pkl new_placed.kicad_pcb out_state.pkl
+Environment DY (mm): the old board's frame sits DY higher than the new one (rev 0.8 grew a strip above J1 and
+shifted everything else down by DY); old pads and copper are moved by DY before the comparison.
 """
-import sys, pickle, math
+import sys, pickle, math, os
 import pcbnew
 from shapely.geometry import LineString, Point, box
 
 old_brd, old_state, new_brd, out_state = sys.argv[1:5]
 OX, OY = 100.0, 50.0
+DY = float(os.environ.get('DY', '0'))
 PLANES = {'GND', '+3V3'}
 CLEAR = 0.17
 VIA_R = 0.3
 
 
-def pads(path):
+def pads(path, dy=0.0):
     b = pcbnew.LoadBoard(path)
     out = {}
     for fp in b.GetFootprints():
         for p in fp.Pads():
             bb = p.GetBoundingBox()
-            g = box(pcbnew.ToMM(bb.GetLeft()) - OX, pcbnew.ToMM(bb.GetTop()) - OY,
-                    pcbnew.ToMM(bb.GetRight()) - OX, pcbnew.ToMM(bb.GetBottom()) - OY)
+            g = box(pcbnew.ToMM(bb.GetLeft()) - OX, pcbnew.ToMM(bb.GetTop()) - OY + dy,
+                    pcbnew.ToMM(bb.GetRight()) - OX, pcbnew.ToMM(bb.GetBottom()) - OY + dy)
             out[(fp.GetReference(), p.GetNumber())] = dict(net=p.GetNetname(), g=g, smd=p.GetAttribute() == pcbnew.PAD_ATTRIB_SMD,
                                                            layers=('F' if p.IsOnLayer(pcbnew.F_Cu) else '') +
                                                                   ('B' if p.IsOnLayer(pcbnew.B_Cu) else ''))
     return out
 
 
-old, new = pads(old_brd), pads(new_brd)
+old, new = pads(old_brd, DY), pads(new_brd)
 changed = []          # keys of new pads that are new or differ
 dirty = set()
 for k, p in new.items():
@@ -50,6 +53,9 @@ for k, o in old.items():
         dirty.add(o['net'])
 dirty.discard('')
 tracks, vias, failed = pickle.load(open(old_state, 'rb'))
+if DY:
+    tracks = [dict(t, p0=(t['p0'][0], t['p0'][1] + DY), p1=(t['p1'][0], t['p1'][1] + DY)) for t in tracks]
+    vias = [dict(v, y=v['y'] + DY) for v in vias]
 print(f'{len(changed)} new or changed pads; nets touched: {sorted(dirty - PLANES)}')
 
 

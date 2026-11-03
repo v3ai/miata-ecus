@@ -1,8 +1,14 @@
-"""Placement for the 125 x 60 mm daughterboard (mm, board origin top-left, y down).
+"""Placement for the 125 x 76 mm daughterboard (mm, board origin top-left, y down).
+
+Rev 0.8: the board grew a 16 mm strip above J1 (over empty motherboard space under the harness header on every year).
+Everything below J1 keeps its rev 0.7 coordinates in this file ("the old frame": J1 at y 2.75); the strip is at
+negative y in that frame, and every position is shifted down by DY at the end, so the board origin stays top-left.
 
 Floor plan
+  top strip   8x VND7NV04 (DPAK) over their J1 pins; relay switches (ZXMS6004) over J1 6-12; ignition source
+              diodes and pull-down switches over J1 14-17
   top edge    J1: power in, 7 relay outs, 4 ign outs, 8 smart low-side outs
-  top band    ULN2003 | 2x TC4427 | 8x NCV8406A (each directly under its header pin)
+  top band    relay level shifter | 2x TC4427 + inverter | low-side level shifter, sensor 5 V tracker, +3V3 clamp
   left        power supply (TVS, reverse diode, 5V buck, 5V sensor tracker, 3.3V LDO)
   centre      STM32F407 + decoupling + crystal
   right       SWD, BOOT/RESET buttons, status LEDs, USB/CAN
@@ -11,7 +17,8 @@ Floor plan
 """
 import design
 
-BOARD_W, BOARD_H = 125.0, 60.0
+DY = 16.0                      # rev 0.8: height of the strip above J1
+BOARD_W, BOARD_H = 125.0, 60.0 + DY
 PLACE = {}
 
 
@@ -134,31 +141,54 @@ for k, (r_in, r_gnd, c_f) in enumerate([('R11', 'R12', 'C28'), ('R13', 'R14', 'C
     put(r_gnd, x, 49.1, 270)      # node on top, GND below
     put(c_f, x, 51.0, 270)
 
-# --- top band: drivers ------------------------------------------------------------
-put('U5', 32.17, 11.0, 90)      # ULN2003, outputs facing J1
-put('U6', 46.655, 14.6, 90)     # TC4427 #1 -> IGN1/2 (OUT_A/OUT_B line up with pins 14/15)
-put('U7', 51.735, 14.6, 90)     # TC4427 #2 -> IGN3/4
-for k, n in enumerate(['IGN1', 'IGN2', 'IGN3', 'IGN4']):
-    r = find(n + '_DRV', 'OUT_' + n)
-    vert(r, hx(14 + k), 6.6, first_on_bottom=True)
-put('D11', 39.2, 19.3, 0)       # rev 0.5: ULN2003 COM clamp TVS (SMA)
-put('C34', 47.29, 9.6, 90)
-put('C35', 52.37, 9.6, 90)
-put('RN1', 48.2, 20.6, 90)
+# --- top strip (rev 0.8, old-frame y < 0) and top band: drivers ---------------------------------------------
+# Low-side drivers: DPAK, leads up (IN right, source left), tab straight down onto its J1 pin. tab_copper.py pours
+# each drain on F.Cu, In2.Cu and B.Cu over a 6.9 mm wide column with thermal vias.
+Q_Y = -6.0
 for i, n in enumerate(design.HS_OUT):
     x = hx(19 + 3 * i)
-    put(f'Q{1+i}', x, 10.0, 90)                 # tab (drain) up to the header pin
+    put(f'Q{1+i}', x, Q_Y, 270)
     r = find(n + '_IN', 'GND')
-    # pull-down beside the IN-pin lane; INJ4's and IACV's step aside for the level shifter
-    rx, ry = {'INJ4': (73.6, 16.4)}.get(n, (x - 3.4, 16.6))
-    vert(r, rx, ry, first_on_bottom=False)
-# rev 0.5: 3.3 V -> 5 V level shifter for the low-side inputs, under Q4. Standing on end (rot 180): the MCU-side
-# column (B, INJ1 at the top ... ALT, then the enable) faces left, into the bundle from the MCU's top edge, in the
-# order the lines leave it; the driver-side column (A) faces right, toward Q5-Q8 (Q1-Q4 go back over the top)
-put('U11', 80.0, 21.6, 180)     # B column starts below the Q2-Q4 pull-downs
+    # pull-down right of the IN lead, above the tab gap the IN line comes up through
+    vert(r, x + 3.81, -14.7, first_on_bottom=False)
+# relay / lamp / tach switches over J1 6-12, staggered (SOT-23 at 2.54 mm pitch), drain down to the pin
+for i, n in enumerate(design.RELAYS):
+    put(f'Q{9 + i}', hx(6 + i), -3.0 if i % 2 == 0 else -7.4, 270)
+put('RN2', 29.5, -12.4, 0)
+put('RN3', 37.1, -12.4, 0)
+# ignition: source diode straight over each J1 pin (cathode down), pull-down switch above, staggered
+for i, n in enumerate(design.IGN):
+    put(f'D{31 + i}', hx(14 + i), -3.4, 90)
+    put(f'Q{16 + i}', hx(14 + i), -8.6 if i % 2 == 0 else -12.6, 270)
+# relay level shifter where the ULN2003 was: A port (gates) along the top facing the strip, B port (MCU) below
+put('U12', 36.5, 13.2, 270)
+put('C64', 41.4, 11.0, 90)
+put('C65', 41.4, 18.2, 90)
+put('U6', 46.655, 14.6, 90)     # TC4427 #1 -> IGN1/2 (OUT_A/OUT_B line up with pins 14/15)
+put('U7', 51.735, 14.6, 90)     # TC4427 #2 -> IGN3/4
+for k, n in enumerate(design.IGN):
+    r = find(n + '_DRV', n + '_SRC')
+    vert(r, hx(14 + k), 6.9, first_on_bottom=True)
+put('C34', 47.29, 10.0, 90)
+put('C35', 52.37, 10.0, 90)
+put('RN1', 48.2, 20.6, 90)
+# rev 0.5: 3.3 V -> 5 V level shifter for the low-side inputs. Standing on end (rot 180): the MCU-side column (B, INJ1 at
+# the top ... ALT, then the enable) faces left, into the bundle from the MCU's top edge, in the order the lines leave
+# it; the driver-side column (A) faces right, toward the strip
+put('U11', 80.0, 21.6, 180)
 put('C57', 85.0, 25.6, 0)       # VCCA (pin 1, bottom right)
 put('C58', 75.9, 27.2, 0)       # VCCB (pins 23/24, bottom left)
 put('R71', 78.4, 27.2, 0)       # enable pull-up (pin 22)
+# rev 0.8: harness sensor 5 V tracker and the +3V3 shunt clamp in the band the SOT-223 drivers used to fill
+put('U14', 62.0, 9.0, 0)
+put('C61', 62.0, 13.4, 0)
+put('C62', 66.4, 9.0, 90)
+put('Q20', 100.6, 9.6, 0)
+put('U15', 94.4, 9.4, 90)
+put('R141', 94.4, 13.0, 0)
+put('R142', 91.0, 8.0, 90)
+put('R143', 91.0, 11.2, 90)
+put('C63', 98.0, 14.0, 0)      # 100 uF bulk on +3V3 (1206), beside Q20's emitter
 
 # --- bottom band: conditioning columns ----------------------------------------------
 Y_SER, Y_PAIR, Y_PULL = 54.0, 51.6, 55.62
@@ -182,7 +212,7 @@ def column(pin, series, pair=(), pull=None, y_ser=Y_SER, y_pull=Y_PULL, pull_dx=
 CLAMP_Y = 48.9
 for k, (pin, n) in enumerate([(4, 'TPS'), (5, 'MAP'), (6, 'CLT'), (7, 'IAT'), (8, 'AFR'), (9, 'AUX1'),
                               (10, 'AUX2'), (11, 'AUX3')]):
-    pull = find('V5_SENS', 'IN_' + n) if n in ('CLT', 'IAT') else None
+    pull = find('V5_EXT', 'IN_' + n) if n in ('CLT', 'IAT') else None
     if pull:
         pull = (pull[0], not pull[1])        # 'a' = IN net
     x = column(pin, find('IN_' + n, 'AN_' + n),
@@ -193,8 +223,8 @@ for k, (pin, n) in enumerate([(4, 'TPS'), (5, 'MAP'), (6, 'CLT'), (7, 'IAT'), (8
     put(f'D{19 + k}', x + {'AUX2': 0.6, 'AUX3': -0.6}.get(n, 0.75), CLAMP_Y, 270)   # pad 1 (cathode, +3V3) up
 # rev 0.7: the hall pull-ups are 0603, standing between the columns (two lying 0603s don't fit side by side on the
 # 2.54 mm pitch), harness end down
-for pin, n in [(13, 'HALL1'), (14, 'HALL2')]:
-    pull = find('V5_SENS', 'IN_' + n)
+for k, (pin, n) in enumerate([(13, 'HALL1'), (14, 'HALL2')]):
+    pull = find(f'V5_H{k + 1}', 'IN_' + n)
     x = column(pin, find('IN_' + n, n), (find(n, 'GND'),))
     vert((pull[0], not pull[1]), x + 1.27, 55.2, first_on_bottom=True)
 # rev 0.7: switch input clamps (1N4148WS). SW1's and SW2's stand between the series resistors, anode (the switch
@@ -262,6 +292,30 @@ else:                           # rev 0.2: the FOME module layout, transplanted
         PLACE[_r] = (_x, _y, _rot, _side)
     put('U106', 95.5, 22.3, 180)    # D/R pins face the block's CAN ports, CANH/CANL face left
     put('C118', 100.3, 22.3, 90)
+
+# rev 0.8 protection parts, at free spots found next to the parts they serve (old frame: y - DY)
+put('U13', 42.9, 37.65 - DY, 0)
+put('D35', 41.4, 69.9 - DY, 90)        # hall pull-up diodes, common anode
+put('D38', 41.1, 61.7 - DY, 0)         # AN_VBATT clamp
+put('R139', 70.2, 48.1 - DY, 90)       # UART TX series
+put('C67', 79.75, 60.6 - DY, 180)      # U10 VCC
+put('C122', 96.7, 43.0 - DY, 0)        # U106 VCC
+put('F2', 103.75, 70.45 - DY, 0)       # LSU VM wire PTC
+put('D41', 93.6, 66.1 - DY, 0)         # Vm drive clamp
+put('C66', 45.65, 34.8 - DY, 180)      # U13
+put('R140', 71.3, 47.2 - DY, 270)      # UART RX series
+put('D40', 99.55, 57.65 - DY, 180)     # pump drive clamp
+put('D39', 44.15, 62.15 - DY, 180)     # AN_VIGN clamp
+put('D36', 71.2, 51.15 - DY, 90)       # UART TX clamp
+put('D37', 71.55, 44.4 - DY, 0)        # UART RX clamp
+
+put('R144', 45.9, 15.7 - DY, 0)   # ignition output pull-down
+put('R145', 50.2, 15.85 - DY, 180)   # ignition output pull-down
+put('R146', 54.5, 15.85 - DY, 0)   # ignition output pull-down
+put('R147', 53.55, 8.2 - DY, 90)   # ignition output pull-down
+# rev 0.8: shift the whole old frame down by the strip's height
+for _r, _v in list(PLACE.items()):
+    PLACE[_r] = (_v[0], round(_v[1] + DY, 4)) + tuple(_v[2:])
 
 for p in design.parts:
     if p['ref'] not in PLACE:
