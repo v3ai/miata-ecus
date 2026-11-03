@@ -1,4 +1,4 @@
-# Miata ECU motherboard 1994-1995 (NA8), rev 0.7
+# Miata ECU motherboard 1994-1995 (NA8), rev 0.8
 
 The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**. It carries:
 
@@ -7,6 +7,7 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 - the sockets for the universal daughterboard, which does all the engine control (including the wideband controller).
 
 ## Changes in this revision
+- Rev 0.8, for daughterboard rev 0.8: the harness's sensor 5 V (2K) and the AUX header pin J5-14 now come from the daughterboard's protected 5 V (V5_EXT, JD1 pin 13, which was a ground pin): a sensor 5 V wire shorted to the battery no longer back-feeds the MAP sensor and the ECU's own 5 V. The MAP sensor keeps its own supply (V5_SENS). The daughterboard outline on the silkscreen is 16 mm taller (125 x 76 mm): its new strip of output drivers overhangs the free area above JD1.
 - Rev 0.7: LSU heater fuse F1 is a 3 A hold PTC (LUTE 2920L300/30GR, 30 V, 2920 size) instead of the 2 A 1812 part. A cold LSU 4.9 heater draws 1.6-2.3 A rms at the start of the wideband's warm-up, more than the old fuse holds once warm, so it could trip and the controller time out. No 1812 PTC holds 3 A above 8 V.
 - Rev 0.6: freewheel diode D1 on the idle valve and D2 on the purge solenoid (2X) to its +12 V feed (the PWM turn-off energy no longer goes into the daughterboard driver); F4 resettable fuse on the AUX +12 V pin J5-15; not-fitted 12 V pull-up options R20-R22 for the VSS / A/C / clutch inputs.
 - Rev 0.5: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.
@@ -24,7 +25,7 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 | `fab/drc_report.txt` | KiCad DRC |
 | `ecu_mb.pretty/`, `fp-lib-table` | Project footprints (harness header, MAP sensor lying flat, USB-C, M4 case hole) |
 | `renders/` | Top and bottom copper |
-| `../../scripts/` (repo top level) | The design source; `mb_make.sh` rebuilds the whole board |
+| `scripts/` | The design source; `mb_make.sh` rebuilds the whole board |
 
 ## Case fit
 Stock NA case (same for 1990-95). Outline and holes come from the rusEFI microRusEFI NA plug-and-play board, which fits this case, measured against its known 48-pin header footprint, and from the early Hellen NA6 KiCad board (rev a/b), which uses the same Mazda case outline. H1 is a recessed boss: stack 3 M4 washers under the board.
@@ -65,7 +66,7 @@ TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); ru
 | 2F | `GND` | ground | AFM ground |
 | 2G | `IN_HALL2` | hall input 2 (cam) | CAS cam (SGC) |
 | 2I | `OUT_TACH` | tach out |  |
-| 2K | `V5_SENS` | sensor 5 V reference (out) | 5 V sensor reference |
+| 2K | `V5_EXT` | sensor 5 V reference (out; protected, short-to-battery proof) | 5 V sensor reference (protected harness 5 V) |
 | 2L | `IN_AUX1` | spare analog 1 | electrical load (rear defroster) -> idle up |
 | 2M | `IN_TPS` | TPS | TPS signal (AT / VTPS conversion) |
 | 2N | `IN_AUX2` | spare analog 2 | heated O2 sensor (narrowband) |
@@ -101,6 +102,8 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1N, 1O, 1P, 1R, 1S, 1T, 1U, 2H, 2J.
 
 **Switch inputs (R20-R22, not fitted):** the VSS, A/C and clutch inputs read signals that are driven to 12 V. If your car's signal only switches to ground (or is open collector), fit the 4.7 kΩ pull-up for that input. Never fit it for a switch that drives 12 V: the input would always read on.
 
+**Sensor 5 V:** the harness's 5 V reference and the AUX header pin J5-14 come from the daughterboard's protected 5 V regulator (V5_EXT; it survives a short to the battery or to ground). The MAP sensor has its own supply (V5_SENS), so a damaged sensor wire doesn't take the MAP reading with it.
+
 ## Assembly
 - The daughterboard plugs into JD1/JD2 (8.5 mm sockets) on four M3 × 11 mm standoffs.
 - Fitted by hand (all in `fab/self_order_bom.csv`): the harness header (salvage from a stock ECU or use a clone), the daughterboard sockets JD1/JD2, the LSU and IAT connectors, the AUX header, the JP1 header and its shunt (EXT or STOCK), the MAP sensor, the standoffs, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC's quote whether that needs Standard PCBA.
@@ -109,4 +112,4 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1N, 1O, 1P, 1R, 1S, 1T, 1U, 2H, 2J.
 ## Still to verify
 - The case geometry, as for 89-93: one stock case with calipers.
 - 1C (VIO): ignition-switch sense on the 1990 diagram, unlabelled on the 1994 page; it is only an input here (diode-isolated on the daughterboard).
-- LCSC stock for the extended parts (C124412, C127367, C587650, C3020560, C410772, C22446884, C3406).
+- LCSC stock for the extended parts (C124412, C127367, C587650, C3020560, C410772, C46641168, C3406).

@@ -37,5 +37,6 @@ R23,0R,Resistor_SMD:R_0805_2012Metric,C17477,JLC,Batch: INJ4 driver in parallel 
 R24,0R,Resistor_SMD:R_0805_2012Metric,C17477,JLC,Batch: INJ3 driver in parallel with INJ2 on 2V (remove for a sequential conversion)
 R25,0R,Resistor_SMD:R_0805_2012Metric,,hand-fit / not fitted,"NOT FITTED: sequential conversion only, INJ3 to 2Y (fit instead of R24)"
 R26,0R,Resistor_SMD:R_0805_2012Metric,,hand-fit / not fitted,"NOT FITTED: sequential conversion only, INJ4 to 2Z (fit instead of R23). NEVER on an automatic: 2Z is the A/T unit"
-D3,SMCJ40A,Diode_SMD:D_SMC,C224052,JLC,"Injector clamp for the two injectors on 2U (40 V standoff, about 45-50 V clamp, below the drivers' 63 V)"
-D4,SMCJ40A,Diode_SMD:D_SMC,C224052,JLC,"Injector clamp for the two injectors on 2V (40 V standoff, about 45-50 V clamp, below the drivers' 63 V)"
+D3,SMCJ30A,Diode_SMD:D_SMC,C224048,JLC,"Injector clamp for the two injectors on 2U (30 V standoff, 33.3-36.8 V breakdown, about 37.5 V at the 1.8 A turn-off current: always below the VND7NV04 drivers' 40 V minimum clamp, so the TVS takes all of the turn-off energy). Same part as the daughterboard's load-dump TVS D6"
+D4,SMCJ30A,Diode_SMD:D_SMC,C224048,JLC,"Injector clamp for the two injectors on 2V (30 V standoff, 33.3-36.8 V breakdown, about 37.5 V at the 1.8 A turn-off current: always below the VND7NV04 drivers' 40 V minimum clamp, so the TVS takes all of the turn-off energy). Same part as the daughterboard's load-dump TVS D6"
+R27,4.7k,Resistor_SMD:R_0603_1608Metric,,hand-fit / not fitted,"NOT FITTED: 5 V pull-up for the TPS idle switch on 2L (manual cars). Fit (4.7k 0603, LCSC C23162; 1.1 mA with the switch closed) if the idle switch is used; from the protected harness 5 V"

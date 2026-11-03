@@ -1,4 +1,4 @@
-# Miata ECU motherboard 1989-1993 (NA6), rev 0.7
+# Miata ECU motherboard 1989-1993 (NA6), rev 0.8
 
 The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**. It carries:
 
@@ -7,6 +7,7 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 - the sockets for the universal daughterboard, which does all the engine control (including the wideband controller).
 
 ## Changes in this revision
+- Rev 0.8, for daughterboard rev 0.8: the harness's sensor 5 V (1N, 2K) and the AUX header pin J5-14 now come from the daughterboard's protected 5 V (V5_EXT, JD1 pin 13, which was a ground pin): a sensor 5 V wire shorted to the battery no longer back-feeds the MAP sensor and the ECU's own 5 V. The MAP sensor keeps its own supply (V5_SENS). The daughterboard outline on the silkscreen is 16 mm taller (125 x 76 mm): its new strip of output drivers overhangs the free area above JD1. D3/D4 (the batch injector clamps) are now SMCJ30A (33.3-36.8 V breakdown) instead of SMCJ40A: the new daughterboard drivers clamp at 40 V minimum, so a 40 V TVS could leave the turn-off energy in a driver; at 30 V the TVS always clamps first. Not-fitted option R27: 4.7k pull-up from the protected 5 V for the manual cars' TPS idle switch on 2L.
 - Rev 0.7: LSU heater fuse F1 is a 3 A hold PTC (LUTE 2920L300/30GR, 30 V, 2920 size) instead of the 2 A 1812 part. A cold LSU 4.9 heater draws 1.6-2.3 A rms at the start of the wideband's warm-up, more than the old fuse holds once warm, so it could trip and the controller time out. No 1812 PTC holds 3 A above 8 V.
 - Rev 0.6: freewheel diode D1 on the idle valve and D2 on the purge solenoid (2X) to its +12 V feed (the PWM turn-off energy no longer goes into the daughterboard driver); F4 resettable fuse on the AUX +12 V pin J5-15; not-fitted 12 V pull-up options R20-R22 for the VSS / A/C / clutch inputs. INJ1+INJ4 drive 2U and INJ2+INJ3 drive 2V in parallel (R23/R24), with an SMCJ40A clamp per wire (D3/D4), so no driver carries two injectors; 2Y/2Z are only reached through the not-fitted sequential-conversion links R25/R26.
 - Rev 0.5: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.
@@ -25,7 +26,7 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 | `fab/drc_report.txt` | KiCad DRC |
 | `ecu_mb.pretty/`, `fp-lib-table` | Project footprints (harness header, MAP sensor lying flat, USB-C, M4 case hole) |
 | `renders/` | Top and bottom copper |
-| `../../scripts/` (repo top level) | The design source; `mb_make.sh` rebuilds the whole board |
+| `scripts/` | The design source; `mb_make.sh` rebuilds the whole board |
 
 ## Case fit
 Stock NA case (same for 1990-95). Outline and holes come from the rusEFI microRusEFI NA plug-and-play board, which fits this case, measured against its known 48-pin header footprint, and from the early Hellen NA6 KiCad board (rev a/b), which uses the same Mazda case outline. H1 is a recessed boss: stack 3 M4 washers under the board.
@@ -56,7 +57,7 @@ TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); ru
 | 1J | `OUT_AC` | A/C relay | A/C relay |
 | 1L | `OUT_FAN` | fan relay | radiator fan relay |
 | 1M | `IN_SW1` | 12 V switch input 1 | vehicle speed sensor |
-| 1N | `V5_SENS` | sensor 5 V reference (out) | sensor 5 V ref on NA6 (Hellen NA6 map); 2K carries it too |
+| 1N | `V5_EXT` | sensor 5 V reference (out; protected, short-to-battery proof) | sensor 5 V ref on NA6 (Hellen NA6 map; the daughter's protected harness 5 V); 2K carries it too |
 | 1Q | `IN_SW2` | 12 V switch input 2 | A/C switch |
 | 1R | `OUT_LS7` | spare low side | A/C extra cooling fan relay (BLK/GRN) on 1990-91; moved to 1L on later cars |
 | 1V | `IN_SW3` | 12 V switch input 3 | clutch switch |
@@ -68,7 +69,7 @@ TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); ru
 | 2F | `GND` | ground | AFM ground |
 | 2G | `IN_HALL2` | hall input 2 (cam) | CAS cam (SGC) |
 | 2I | `OUT_TACH` | tach out |  |
-| 2K | `V5_SENS` | sensor 5 V reference (out) | 5 V sensor reference |
+| 2K | `V5_EXT` | sensor 5 V reference (out; protected, short-to-battery proof) | 5 V sensor reference (protected harness 5 V) |
 | 2L | `IN_AUX1` | spare analog 1 | MT idle switch (TPS) / spare analog |
 | 2M | `IN_TPS` | TPS | TPS signal (AT / VTPS conversion) |
 | 2N | `IN_AUX2` | spare analog 2 | stock narrowband O2 |
@@ -102,7 +103,11 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J, 2R, 2S.
 
 **Switch inputs (R20-R22, not fitted):** the VSS, A/C and clutch inputs read signals that are driven to 12 V. If your car's signal only switches to ground (or is open collector), fit the 4.7 kΩ pull-up for that input. Never fit it for a switch that drives 12 V: the input would always read on.
 
-**Injectors (1989-93):** the stock harness has two injectors on each of 2U and 2V (about 1.8 A per wire). Two daughterboard drivers share each wire through R23 (INJ1 + INJ4 on 2U) and R24 (INJ2 + INJ3 on 2V); rusEFI's batch mode fires each pair together. D3/D4 clamp each wire at about 45-50 V, so the drivers' own clamps never take the turn-off energy. For a sequential conversion (new wires to 2Y/2Z), remove R23/R24, fit R25/R26 and switch the firmware to sequential. **Never fit R26 on an automatic: 2Z goes to the A/T control unit.**
+**TPS idle switch (R27, not fitted):** on the manual cars 2L is the throttle sensor's idle switch, which closes to ground at idle. Fit the 4.7 kΩ pull-up to the protected 5 V if you want the ECU to read it.
+
+**Sensor 5 V:** the harness's 5 V reference and the AUX header pin J5-14 come from the daughterboard's protected 5 V regulator (V5_EXT; it survives a short to the battery or to ground). The MAP sensor has its own supply (V5_SENS), so a damaged sensor wire doesn't take the MAP reading with it.
+
+**Injectors (1989-93):** the stock harness has two injectors on each of 2U and 2V (about 1.8 A per wire). Two daughterboard drivers share each wire through R23 (INJ1 + INJ4 on 2U) and R24 (INJ2 + INJ3 on 2V); rusEFI's batch mode fires each pair together. D3/D4 (SMCJ30A) clamp each wire at about 37 V, below the drivers' own 40 V minimum clamp, so the drivers never take the turn-off energy. For a sequential conversion (new wires to 2Y/2Z), remove R23/R24, fit R25/R26 and switch the firmware to sequential. **Never fit R26 on an automatic: 2Z goes to the A/T control unit.**
 
 ## Assembly
 - The daughterboard plugs into JD1/JD2 (8.5 mm sockets) on four M3 × 11 mm standoffs.
@@ -112,4 +117,4 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J, 2R, 2S.
 ## Still to verify
 - The case geometry: hole centres and header 1A position, with calipers on a stock case.
 - Your car's fan wiring: early cars switch the fan relay on 1R, later ones on 1L; both are driven (fan and spare outputs).
-- LCSC stock for the extended parts (C124412, C127367, C587650, C3020560, C410772, C22446884, C3406).
+- LCSC stock for the extended parts (C124412, C127367, C587650, C3020560, C410772, C46641168, C3406).

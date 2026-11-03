@@ -1,4 +1,4 @@
-# Miata ECU motherboard 1996-1997 (NA8 OBD2), rev 0.5
+# Miata ECU motherboard 1996-1997 (NA8 OBD2), rev 0.6
 
 The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**. It carries:
 
@@ -7,6 +7,7 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 - the sockets for the universal daughterboard, which does all the engine control (including the wideband controller).
 
 ## Changes in this revision
+- Rev 0.6, for daughterboard rev 0.8: the harness's sensor 5 V (3I) and the AUX header pin J5-14 now come from the daughterboard's protected 5 V (V5_EXT, JD1 pin 13, which was a ground pin): a sensor 5 V wire shorted to the battery no longer back-feeds the MAP sensor and the ECU's own 5 V. The MAP sensor keeps its own supply (V5_SENS). The daughterboard outline on the silkscreen is 16 mm taller (125 x 76 mm): its new strip of output drivers overhangs the free area above JD1.
 - Rev 0.5: LSU heater fuse F1 is a 3 A hold PTC (LUTE 2920L300/30GR, 30 V, 2920 size) instead of the 2 A 1812 part. A cold LSU 4.9 heater draws 1.6-2.3 A rms at the start of the wideband's warm-up, more than the old fuse holds once warm, so it could trip and the controller time out. No 1812 PTC holds 3 A above 8 V.
 - Rev 0.4: freewheel diode D1 on the idle valve to its +12 V feed (the PWM turn-off energy no longer goes into the daughterboard driver); F4 resettable fuse on the AUX +12 V pin J5-15; not-fitted 12 V pull-up options R20-R22 for the VSS / A/C / clutch inputs.
 - Rev 0.3: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.
@@ -24,7 +25,7 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 | `fab/drc_report.txt` | KiCad DRC |
 | `ecu_mb.pretty/`, `fp-lib-table` | Project footprints (harness header, MAP sensor lying flat, USB-C, M4 case hole) |
 | `renders/` | Top and bottom copper |
-| `../../scripts/` (repo top level) | The design source; `mb_make.sh` rebuilds the whole board |
+| `scripts/` | The design source; `mb_make.sh` rebuilds the whole board |
 
 ## Case fit
 **PROVISIONAL.** No source gives this case's board outline and mounting holes yet (the open-source boards for these years either use their own enclosure or a different Mazda case). Until a stock board or case is measured, this board uses the NA case outline and holes as a stand-in, with the header centred on the top edge. Moving to the real outline is a change of OUTLINE / CASE_HOLES / HDR_1A in the year module plus an automatic reroute. **Do not order this board before the case is measured.**
@@ -59,7 +60,7 @@ TE **178780-1**, 76 positions (alternates 174915-6, 3-178780-6): OEM plug 1 = 1A
 | 3D | `IN_AUX1` | spare analog 1 | rear HO2S |
 | 3F | `IN_TPS` | TPS | throttle position sensor |
 | 3G | `IN_CLT` | coolant temp | coolant temperature sensor |
-| 3I | `V5_SENS` | sensor 5 V reference (out) | +5 V sensor reference (TPS, MAF) |
+| 3I | `V5_EXT` | sensor 5 V reference (out; protected, short-to-battery proof) | +5 V sensor reference (TPS, MAF) |
 | 3K | `HARN_IAT` | stock air-temp sensor (JP1 on STOCK) | intake air temperature sensor (IAT jumper JP1 on STOCK to use it) |
 | 3M | `OUT_VVT` | PWM low side (VVT driver) | front HO2S heater (PWM low side; no VVT on this engine) |
 | 3O | `GND` | ground | sensor ground (BLK/BLU) |
@@ -96,6 +97,8 @@ Not connected: 1C, 1D, 1F, 1H, 1I, 1J, 1N, 1P, 1Q, 1R, 1S, 1T, 1V, 2A, 2B, 2C, 2
 **Protection (motherboard rev 0.4 / 0.6):** D1 (and D2 where the VVT driver runs a coil) freewheel the PWM valve coils into their own +12 V feed, so the drivers don't absorb the turn-off energy. F4 fuses the AUX +12 V pin (0.5 A hold).
 
 **Switch inputs (R20-R22, not fitted):** the VSS, A/C and clutch inputs read signals that are driven to 12 V. If your car's signal only switches to ground (or is open collector), fit the 4.7 kΩ pull-up for that input. Never fit it for a switch that drives 12 V: the input would always read on.
+
+**Sensor 5 V:** the harness's 5 V reference and the AUX header pin J5-14 come from the daughterboard's protected 5 V regulator (V5_EXT; it survives a short to the battery or to ground). The MAP sensor has its own supply (V5_SENS), so a damaged sensor wire doesn't take the MAP reading with it.
 
 ## Assembly
 - The daughterboard plugs into JD1/JD2 (8.5 mm sockets) on four M3 × 11 mm standoffs.
