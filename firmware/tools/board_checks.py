@@ -8,7 +8,9 @@ electrical compatibility at each MCU pin, and DC fault analysis of every harness
      -> STM32F407 / STM32F103 pin (or rail, or nothing), and every MCU pin the firmware uses (the board code's own
      configuration, evaluated from miata_board.cpp) -> harness cavity. Flags: car-driven cavities that land nowhere,
      functions that don't reach the expected cavity (sim_report.py's reference table), two drivers on one net,
-     ECU outputs on do-not-drive cavities, unconnected IC pins that a datasheet says must be tied.
+     ECU outputs on do-not-drive cavities, unconnected IC pins that a datasheet says must be tied. A board whose copper
+     does not match its design (routing not yet updated) is reported in the copper section, and the sections after it
+     then use that board's design netlist instead of the copper (a CHECK row says so).
   2. Electrical compatibility: the DC voltage each MCU pin sees over the normal range of its harness signal, against
      the pin's structure (FT / TTa / F103 non-FT), plus output -> input levels and pull-up rails.
   3. Faults: each harness cavity, every year, shorted to ground, to 14.4 V, to 24 V (jump start, whole car at 24 V)
@@ -48,9 +50,10 @@ MODEL NOTES (DC, steady state; assumptions, not measurements)
   and drain clamp (at its minimum): VND7NV04 (Q1-Q8) 0.12 ohm (150 C max), 40 V, current limit 6 A min; ZXMS6004
   (Q9-Q19) 0.5 ohm, 60 V, 1 A min; VND14NV04 0.035 ohm, 40 V; NCV8406A 0.21 ohm, 60 V, 2.5 A. Current above the limit
   is reported as the switch's own current limit / thermal shutdown (OK for the DPAK OMNIFETs, CHECK for the SOT-23
-  ZXMS6004, which cycles in thermal shutdown). ULN2003 (rev 0.7 only) = 0.9 V + 1 ohm, no current limit. Op-amp
-  outputs = 72 ohm from mid-rail (23 mA short-circuit) plus rail diodes; op-amp inputs = rail diodes (MCP6004 2 mA
-  abs max, AD8628 5 mA assumed, LMV321 10 mA). TCAN1042 bus pins: +-58 V, not loaded; RXD = 100 ohm to VIO. PTCs that
+  ZXMS6004, which cycles in thermal shutdown); a switch above its limit is re-solved passing just the limit, so its
+  drain rises. ULN2003 (rev 0.7 only) = 0.9 V + 1 ohm, no current limit. Op-amp outputs = 72 ohm from mid-rail
+  (23 mA short-circuit, self-limited and rated continuous, not counted) plus rail diodes (counted against the limit);
+  op-amp inputs = rail diodes (MCP6004 2 mA abs max, AD8628 5 mA assumed, LMV321 10 mA). TCAN1042 bus pins: +-58 V, not loaded; RXD = 100 ohm to VIO. PTCs that
   carry more than their trip current (F1 nSMD050, F2 nSMD010 on the LSU VM wire, motherboard F1-F4) are opened and the
   network solved again.
   Car side (typical, assumed): relay coils 80 ohm, CEL 50 ohm, tach 1 k, VICS 30 ohm to battery; injectors 13 ohm
@@ -1293,11 +1296,12 @@ def base_net(net):
 
 
 def build_dc(sysm, year, fw, board_fw, vcar=VCAR, states=None, fault=None, jp1='EXT', open_cav=None, sweep=None,
-             tripped=()):
+             tripped=(), limited=None):
     """the whole ECU (daughterboard + this year's motherboard) and the car around it, as a DC network.
     states: {'U5.16': 'on', 'U6.7': 'high', 'Q1': 'on', ...}; fault: (net, 'GND'|'BAT'); open_cav: cavity unplugged;
     sweep: {cavity: ('src', volts, ohm) | ('res', ohm) | ('open',)} replaces that cavity's car model."""
     states = states or {}
+    limited = limited or {}
     dc = DC()
     dc.fix('CAR', vcar)
     dc.fix('_HALF', 1.65)
@@ -1344,7 +1348,8 @@ def build_dc(sysm, year, fw, board_fw, vcar=VCAR, states=None, fault=None, jp1='
             _i, dr, so, ron, vcl, ilim, sev_lim, txt = LOWSIDE[val]
             dc.d(g(so), g(dr), 0.7, 0.05, vcl, tag=('CLAMP', ref, txt))
             if states.get(ref) == 'on':
-                dc.r(g(dr), g(so), ron, tag=('NCV_ON', ref, val, ron, ilim, sev_lim))
+                # in current limit (see solve_with_trips): the channel is the resistance that passes ilim
+                dc.r(g(dr), g(so), limited.get(ref, ron), tag=('NCV_ON', ref, val, ron, ilim, sev_lim, ref in limited))
         elif val == '74HCT04PW':
             for i_ in ('1', '3', '5', '9', '11', '13'):
                 dc.d(g(i_), g('14'), 0.7, 10)
@@ -1864,12 +1869,13 @@ def _evaluate(dc, base, sysm, focus, fault_net):
             elif abs(i) > 0.1:
                 F.append(('CHECK', f'TC4427 {t[1]} output {abs(i) * 1e3:.0f} mA continuous', p))
         elif t[0] == 'NCV_ON':
-            _k, ref_, val_, ron_, ilim_, sev_ = t
-            if abs(i) > ilim_:
-                F.append((sev_, f'{ref_} {val_} would carry {abs(i):.0f} A at {ron_:g} ohm: self-protected, its own '
-                          f'current limit (>= {ilim_:g} A) / thermal shutdown' +
-                          (' (SOT-23: cycles in thermal shutdown while the short lasts)' if sev_ == 'CHECK' else ''),
-                          abs(i) if sev_ != 'OK' else 0))
+            _k, ref_, val_, ron_, ilim_, sev_, in_lim = t
+            if in_lim or abs(i) > ilim_ * 1.001:
+                vds = abs(V[e[0]] - V[e[1]])
+                F.append((sev_, f'{ref_} {val_} in its own current limit (>= {ilim_:g} A at {vds:.1f} V, >= '
+                          f'{ilim_ * vds:.0f} W): self-protected, thermal shutdown' +
+                          (' cycles while the short lasts (SOT-23)' if sev_ == 'CHECK' else ''),
+                          ilim_ * vds if sev_ != 'OK' else 0))
         elif t[0] == 'FAULT' or t[0] == 'CARSRC':
             if abs(i) > 20:
                 F.append(('OK', f'{abs(i):.0f} A from the car: the car\'s fuse blows', 0))
@@ -1911,8 +1917,8 @@ def _evaluate(dc, base, sysm, focus, fault_net):
             else:
                 F.append(('OK', f'{t[1]} sinks {cur * 1e3:.0f} mA, holding the rail at {v_:.2f} V '
                           f'(Q20 {p_:.2f} W)', 0))
-    for k_, cur in oa_r.items():
-        oa[k_] += cur
+    # the 72 ohm output-stage current (oa_r) is the op-amp's own short-circuit current, self-limited and rated
+    # continuous (MCP6004 / AD8628 datasheets); only the current through its ESD / rail diodes counts against the limit
     for (kind, pin, val, lim), cur in oa.items():
         if cur > lim:
             F.append(('FAIL', f'{val} {"input" if kind == "OA_IN" else "output"} {pin}: {cur * 1e3:.0f} mA through '
@@ -1956,15 +1962,24 @@ def _evaluate(dc, base, sysm, focus, fault_net):
 
 
 def solve_with_trips(make):
-    """solve; any PTC carrying more than its trip current is opened and the network solved again (steady state)"""
-    tripped = []
-    for _ in range(4):
-        dc = make(tuple(tripped))
+    """solve; any PTC carrying more than its trip current is opened, and any self-protected switch carrying more than
+    its current limit is set to pass just that limit (current-limit mode: the drain rises), and the network is solved
+    again (steady state, before thermal shutdown)"""
+    tripped, limited = [], {}
+    for _ in range(8):
+        dc = make(tuple(tripped), dict(limited))
         dc.solve()
         new = [e[3][1] for e in dc.R if e[3] and e[3][0] == 'F' and abs(dc.i_r(e)) > e[3][3]]
-        if not new:
+        lim_new = {}
+        for e in dc.R:
+            t = e[3]
+            if t and t[0] == 'NCV_ON' and abs(dc.i_r(e)) > t[4] * 1.001:
+                vds = abs(dc.V[e[0]] - dc.V[e[1]])
+                lim_new[t[1]] = max(vds / t[4], e[2], t[3])
+        if not new and not lim_new:
             break
         tripped += new
+        limited.update(lim_new)
     return dc, tripped
 
 
@@ -2009,16 +2024,17 @@ def faults(sysm, year, fw, board_fw, cav_list=None, section='fault', connector='
                     vcar = 24.0 if case == 'BAT24' else VCAR
                     key = (vcar, tuple(sorted(states.items())), jp1, tuple(sorted(sweep)))
                     if key not in bases:
-                        bdc, _t = solve_with_trips(lambda tr: build_dc(sysm, year, fw, board_fw, vcar=vcar, states=states,
-                                                                       jp1=jp1, tripped=tr, sweep=sweep))
+                        bdc, _t = solve_with_trips(lambda tr, lm: build_dc(sysm, year, fw, board_fw, vcar=vcar,
+                                                                           states=states, jp1=jp1, tripped=tr,
+                                                                           sweep=sweep, limited=lm))
                         bases[key] = (bdc, _evaluate(bdc, bdc, sysm, [], None))
                     base, base_f = bases[key]
                     if case == 'OPEN':
-                        mk = lambda tr: build_dc(sysm, year, fw, board_fw, vcar=vcar, states=states, jp1=jp1, tripped=tr,
-                                                 open_cav=cav if connector == 'M.J1' else None)
+                        mk = lambda tr, lm: build_dc(sysm, year, fw, board_fw, vcar=vcar, states=states, jp1=jp1,
+                                                     tripped=tr, limited=lm, open_cav=cav if connector == 'M.J1' else None)
                     else:
-                        mk = lambda tr: build_dc(sysm, year, fw, board_fw, vcar=vcar, states=states, jp1=jp1, tripped=tr,
-                                                 fault=(net, 'GND' if case == 'GND' else 'BAT'), sweep=sweep)
+                        mk = lambda tr, lm: build_dc(sysm, year, fw, board_fw, vcar=vcar, states=states, jp1=jp1,
+                                                     tripped=tr, limited=lm, fault=(net, 'GND' if case == 'GND' else 'BAT'), sweep=sweep)
                     dc, tripped = solve_with_trips(mk)
                     sev, F, reading = evaluate(dc, base, sysm, focus, net, base_f)
                     for t in tripped:

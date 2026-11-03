@@ -567,7 +567,8 @@ def tvs_copper_area():
                 if z.GetNetname() == nn and z.GetLayer() in a:
                     a[z.GetLayer()] += z.GetFilledArea() / 1e12
             eff.append(a[pcbnew.F_Cu] + 0.5 * a[pcbnew.B_Cu])
-        return min(eff)
+        if min(eff) > 0:
+            return min(eff)
     return 0.0
 
 
@@ -724,7 +725,7 @@ zx = {k: zx_load(k) for k in ('relay', 'vics', 'lamp', 'lamp1', 'tach')}
 
 
 # Ignition outputs, rev 0.8: TC4427 (15 ohm at 5 V, assumed) -> R15-R18 100 ohm (1206) -> B5819W source diode -> OUT,
-# ZXMS6004FF from OUT to ground with its gate the inverted control line (74HCT04), and 2.2k (1206) from OUT to ground.
+# ZXMS6004FF from OUT to ground with its gate the inverted control line (74HCT04), and R144-R147 (1206) from OUT to ground.
 # Igniter input (Mazda NA igniter / NB coil with built-in igniter): not published; assumed a bipolar input, two Vbe
 # (1.2 V) behind 220 ohm (heavy) to 2.2 kohm (light), or a CMOS input (10 kohm), harness 1 nF.
 for k, n in enumerate(['IGN1', 'IGN2', 'IGN3', 'IGN4']):
@@ -737,7 +738,7 @@ R_IGN_PD = val('R144')
 
 
 def igniter(rin, v5=5.0, cmos=False):
-    """TC4427 -> 100 R -> Schottky -> OUT (2.2k pull-down, IntelliFET pull-down 15 us after the falling edge) ->
+    """TC4427 -> 100 R -> Schottky -> OUT (R144 pull-down, IntelliFET pull-down 15 us after the falling edge) ->
     igniter. Returns (high level, input current, rise time 10-90 %, fall time to 1.2 V after the control edge)."""
     load = f'Rin hp 0 10k' if cmos else f'Rin hp ib {rin}\nD1 ib x dbe\nD2 x 0 dbe'
     net = f"""* ignition output stage
@@ -919,7 +920,7 @@ for y, _ in YEARS:
                'Firmware ships alternator control off (VERIFICATION M5); fit a freewheel diode to the field supply and '
                'a larger driver before enabling it')
     # ignition
-    record(area, f'igniter inputs {cav("OUT_IGN1")}/{cav("OUT_IGN2")}: TC4427 + 100 ohm + B5819W, ZXMS6004 + 2.2k pull-down',
+    record(area, f'igniter inputs {cav("OUT_IGN1")}/{cav("OUT_IGN2")}: TC4427 + 100 ohm + B5819W, ZXMS6004 + {DB["R144"]["value"]} pull-down',
            f'{ign[220][0]:.2f} V / {ign[220][1] * 1000:.1f} mA into 220 ohm + 2 Vbe, {ign[2200][0]:.2f} V into 2.2k, '
            f'{ign_cmos[0]:.2f} V into a 10k CMOS input; rise {ign[220][2] * 1e6:.1f} us; fall to 1.2 V '
            f'{ign[2200][3] * 1e6:.1f} us (2.2k input) / {ign_cmos[3] * 1e6:.1f} us (CMOS); at +5V = 3.9 V (crank) {ign_crank[0]:.2f} V',
@@ -965,7 +966,7 @@ record('Out relays', 'any relay / lamp / tach output shorted to battery while on
        f'no back-feed path into the board (no clamp diodes to a common rail)', 'OK')
 record('Out ignition', 'ignition output shorted to battery (driver high or low)',
        'high: the B5819W blocks (no current into the TC4427 or +5V, none in the 100 R); low: the ZXMS6004FF limits '
-       f'({ZX_ILIM_MIN:.1f}-{ZX_ILIM_TYP:.1f} A) and shuts down; R144-R147 2.2k: {14.4 ** 2 / R_IGN_PD * 1000:.0f} mW at 14.4 V, '
+       f'({ZX_ILIM_MIN:.1f}-{ZX_ILIM_TYP:.1f} A) and shuts down; R144-R147 {DB["R144"]["value"]}: {14.4 ** 2 / R_IGN_PD * 1000:.0f} mW at 14.4 V, '
        f'{24.0 ** 2 / R_IGN_PD * 1000:.0f} mW at 24 V (1206, 250 mW)', 'OK' if 24.0 ** 2 / R_IGN_PD < 0.25 * 1.1 else 'CHECK',
        '' if 24.0 ** 2 / R_IGN_PD < 0.25 * 1.1 else 'only in a 24 V jump start with the wire shorted')
 record('Out ignition', 'ignition output shorted to ground while high',

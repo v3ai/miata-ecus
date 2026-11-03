@@ -57,7 +57,7 @@ LCSC_R0402 = {'6.8k': 'C25917', '1k': 'C11702', '2.2k': 'C25879', '2.7k': 'C2588
 LCSC_C0402 = {'1u': 'C52923', '1n': 'C1523', '10n': 'C15195', '100n': 'C1525'}
 LCSC_R0805 = {'5.1k': 'C27834', '100': 'C17408'}
 # rev 0.8: 1206 (0.25 W) for resistors that carry a fault current (UNI-ROYAL 1206W4F..., 1 %)
-LCSC_R1206 = {'100': 'C17901', '47': 'C17969', '10': 'C17903', '62': 'C25341', '2.2k': 'C17948'}
+LCSC_R1206 = {'100': 'C17901', '47': 'C17969', '10': 'C17903', '62': 'C25341', '2.2k': 'C17948', '3.3k': 'C26032'}
 LCSC_C0603 = {'22p': 'C1653', '33p': 'C1663', '220p': 'C1603', '1n': 'C1588', '10n': 'C57112',
               '100n': 'C14663', '1u': 'C15849', '2.2u': 'C23630', '4.7u': 'C19666'}
 LCSC_C0805 = {'10u': 'C15850', '1n': 'C46653'}
@@ -295,11 +295,11 @@ for i, n in enumerate(IGN):
         f'{n} source diode (blocks a short to battery)')
     add(f'Q{16 + i}', 'ZXMS6004FFTA', 'SOT23', 'C95063', {'1': n + '_SNK', '2': 'GND', '3': 'OUT_' + n},
         f'{n} protected pull-down')
-# 2.2k pull-down on each output: at the end of dwell (the spark) the source diode blocks and the IntelliFET takes 5-15 us
-# to turn on, so the resistor (with the igniter's own input) brings the line down within ~3 us; 1206 for a short to
-# battery (94 mW at 14.4 V)
+# 3.3k pull-down on each output: at the end of dwell (the spark) the source diode blocks and the IntelliFET takes 5-15 us
+# to turn on, so the resistor (with the igniter's own input) brings the line down within a few us; 1206 for a short to
+# battery (63 mW at 14.4 V, 175 mW in a 24 V jump start; 2.2k took 262 mW there, over the 250 mW rating)
 for i, n in enumerate(IGN):
-    R(f'R{144 + i}', '2.2k', 'OUT_' + n, 'GND', '1206')
+    R(f'R{144 + i}', '3.3k', 'OUT_' + n, 'GND', '1206')
 add('U13', '74HCT04PW', 'TSSOP14', 'C131317',
     {'1': 'IGN1_CTL', '2': 'IGN1_SNK', '3': 'IGN2_CTL', '4': 'IGN2_SNK', '5': 'IGN3_CTL', '6': 'IGN3_SNK',
      '7': 'GND', '8': 'IGN4_SNK', '9': 'IGN4_CTL', '10': '', '11': 'GND', '12': '', '13': 'GND', '14': '+5V'},
@@ -446,10 +446,11 @@ C('C61', '1u', 'V5_EXT', 'GND')
 C('C62', '1u', '+12V', 'GND')
 add('D35', 'BAT54A', 'SOT23', 'C916423', {'1': 'V5_H1', '2': 'V5_H2', '3': 'V5_EXT'},
     'hall pull-up supply diodes, common anode (block a crank/cam wire shorted to battery)')
-# AUX header UART (J2 24/25 -> motherboard J5): 4.7k in series and a BAT54S clamp at the MCU side, so the header pins
-# survive car wiring shorted to battery (88 mW in the resistor at 24 V); 4.7k + ~20 pF is fine at 115200 baud
-R('R139', '4.7k', 'UART_TX_M', 'UART_TX')
-R('R140', '4.7k', 'UART_RX_M', 'UART_RX')
+# AUX header UART (J2 24/25 -> motherboard J5): 10k in series and a BAT54S clamp at the MCU side, so the header pins
+# survive car wiring shorted to battery (about 55 mW in the resistor at 24 V; 4.7k took 120 mW, over the 0603's 100 mW);
+# 10k + ~50 pF of header and cable is 0.5 us, fine at 115200 baud (8.7 us per bit)
+R('R139', '10k', 'UART_TX_M', 'UART_TX')
+R('R140', '10k', 'UART_RX_M', 'UART_RX')
 add('D36', 'BAT54S', 'SOT23', 'C19726', {'1': 'GND', '2': '+3V3', '3': 'UART_TX_M'}, 'UART TX clamp')
 add('D37', 'BAT54S', 'SOT23', 'C19726', {'1': 'GND', '2': '+3V3', '3': 'UART_RX_M'}, 'UART RX clamp')
 # battery / ignition sense clamps: in a 24 V jump start the divider put 4.0 V on PA1 (analog mode, VDDA + 0.3 V max)
