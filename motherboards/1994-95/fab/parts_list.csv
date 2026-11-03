@@ -14,7 +14,7 @@ HD3,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard st
 HD4,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
 R1,120,Resistor_SMD:R_0603_1608Metric,C22787,JLC,CAN termination
 R6,0R,Resistor_SMD:R_0603_1608Metric,C21189,JLC,CAN termination link: fitted = 120R terminator active; remove if the bus is terminated elsewhere
-F1,2A hold,Fuse:Fuse_1812_4532Metric,C46641168,JLC,"Resettable fuse for the LSU heater supply (R+O SMD1812-200-30: 2 A hold, 30 V)"
+F1,3A hold,Fuse:Fuse_2920_7451Metric,C22446884,JLC,"Resettable fuse for the LSU heater supply (LUTE 2920L300/30GR: 3 A hold, 5 A trip, 30 V)"
 J2,LSU 4.9,Connector_Molex:Molex_Micro-Fit_3.0_43045-0600_2x03_P3.00mm_Horizontal,C127367,hand-fit,"Bosch LSU 4.9 wideband sensor. Pin n = LSU pin n: 1 IP, 2 VM, 3 H-, 4 H+, 5 RT, 6 UN"
 J3,IAT,Connector_Molex:Molex_Micro-Fit_3.0_43650-0200_1x02_P3.00mm_Horizontal,C587650,hand-fit,"Intake air temperature sensor (M12x1.5 thermistor, 2 wires)"
 JP1,IAT SEL,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,C49257,hand-fit,"IAT source jumper: shunt on 1-2 (STOCK) = stock harness air-temp sensor, on 2-3 (EXT) = IAT connector J3 (default). Shunt: 2.54 mm jumper cap, LCSC C5305, fitted by hand"

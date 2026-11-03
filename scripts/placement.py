@@ -164,32 +164,51 @@ put('R71', 78.4, 27.2, 0)       # enable pull-up (pin 22)
 Y_SER, Y_PAIR, Y_PULL = 54.0, 51.6, 55.62
 
 
-def column(pin, series, pair=(), pull=None):
+def column(pin, series, pair=(), pull=None, y_ser=Y_SER, y_pull=Y_PULL, pull_dx=0.0):
     x = round(hx(pin) * 4) / 4          # snap to the 0.25 mm routing grid so the
                                         # node line fits between the R/C pair
-    vert(series, x, Y_SER, first_on_bottom=True)
+    vert(series, x, y_ser, first_on_bottom=True)
     offs = [0.0] if len(pair) == 1 else [-0.6, 0.6]
     for o, pr in zip(offs, pair):
         vert(pr, x + o, Y_PAIR, first_on_bottom=True)
     if pull:
-        horiz(pull, round((x + 1.27) * 4) / 4, Y_PULL, a_left=False)
+        horiz(pull, round((x + 1.27 + pull_dx) * 4) / 4, y_pull, a_left=False)
+    return x
 
 
-for pin, n in [(4, 'TPS'), (5, 'MAP'), (6, 'CLT'), (7, 'IAT'), (8, 'AFR'), (9, 'AUX1'),
-               (10, 'AUX2'), (11, 'AUX3')]:
+# rev 0.7: the analog series resistors and the CLT/IAT bias resistors are 0603. The series row moves up 0.2 mm and the
+# bias resistors down to 55.75 so the two clear each other; IAT's bias resistor steps 0.35 mm right of CLT's.
+# Each analog column's clamp (BAT54WS, SOD-323, cathode up) stands 0.75 mm right of the node line, above the pair.
+CLAMP_Y = 48.9
+for k, (pin, n) in enumerate([(4, 'TPS'), (5, 'MAP'), (6, 'CLT'), (7, 'IAT'), (8, 'AFR'), (9, 'AUX1'),
+                              (10, 'AUX2'), (11, 'AUX3')]):
     pull = find('V5_SENS', 'IN_' + n) if n in ('CLT', 'IAT') else None
     if pull:
         pull = (pull[0], not pull[1])        # 'a' = IN net
-    column(pin, find('IN_' + n, 'AN_' + n),
-           (find('AN_' + n, 'GND', '10k'), find('AN_' + n, 'GND', '10n')), pull)
+    x = column(pin, find('IN_' + n, 'AN_' + n),
+               (find('AN_' + n, 'GND', '10k'), find('AN_' + n, 'GND', '10n')), pull,
+               y_ser=53.8, y_pull=55.75, pull_dx=0.35 if n == 'IAT' else 0.0)
+    # AUX3's stands left of its lane: the +12V feed to the battery-sense divider runs up its right side
+    # (AUX2's and AUX3's face each other: 0.6 mm off their lines so the two bodies clear)
+    put(f'D{19 + k}', x + {'AUX2': 0.6, 'AUX3': -0.6}.get(n, 0.75), CLAMP_Y, 270)   # pad 1 (cathode, +3V3) up
+# rev 0.7: the hall pull-ups are 0603, standing between the columns (two lying 0603s don't fit side by side on the
+# 2.54 mm pitch), harness end down
 for pin, n in [(13, 'HALL1'), (14, 'HALL2')]:
     pull = find('V5_SENS', 'IN_' + n)
-    column(pin, find('IN_' + n, n), (find(n, 'GND'),), (pull[0], not pull[1]))
-for pin, n in [(15, 'SW1'), (16, 'SW2'), (17, 'SW3')]:
-    column(pin, find('IN_' + n, n), (find(n, 'GND', '10k'), find(n, 'GND', '10n')))
+    x = column(pin, find('IN_' + n, n), (find(n, 'GND'),))
+    vert((pull[0], not pull[1]), x + 1.27, 55.2, first_on_bottom=True)
+# rev 0.7: switch input clamps (1N4148WS). SW1's and SW2's stand between the series resistors, anode (the switch
+# node) up next to the R/C pair, cathode down to a plane via; SW3's gap is taken by the VR2 conditioner (R75/R78),
+# so its clamp lies below the VR parts, above J2's GND pin, anode left towards the series resistor's top
+for k, (pin, n) in enumerate([(15, 'SW1'), (16, 'SW2'), (17, 'SW3')]):
+    x = column(pin, find('IN_' + n, n), (find(n, 'GND', '10k'), find(n, 'GND', '10n')))
+put('D27', 49.7, 53.9, 90)
+put('D28', 52.2, 53.9, 90)
+put('D29', 56.0, 55.2, 180)
 
-# knock: series cap in its column, amp in the bottom-left corner
-vert(find('IN_KNOCK', 'KN_P'), hx(3), 53.6, first_on_bottom=True)
+# knock: series resistor (rev 0.7) and coupling cap in its column, amp in the bottom-left corner
+vert(find('IN_KNOCK', 'KN_IN'), hx(3), 55.4, first_on_bottom=True)
+vert(find('KN_IN', 'KN_P'), hx(3), 52.9, first_on_bottom=True)
 put('U8', 12.0, 45.0, 0)
 put(find('KN_P', 'KN_BIAS')[0], 15.6, 47.6, 0)
 put(find('+3V3', 'KN_BIAS')[0], 8.0, 41.8, 0)

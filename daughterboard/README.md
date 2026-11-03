@@ -1,9 +1,43 @@
-# Miata ECU — daughterboard rev 0.6 (routed, unverified)
+# Miata ECU — daughterboard rev 0.7 (routed, unverified)
 
 125 × 60 mm, **4 layers**. All SMD parts are on top; the two 1×40 2.54 mm male headers are mounted on the
 **bottom side** (plastic under the board, pins pointing down) so the board plugs straight into female
 headers on the year-specific motherboard. J1 on the top edge carries power and outputs, J2 on the
 bottom edge carries inputs, comms and the LSU 4.9 wideband sensor.
+
+## What changed in rev 0.7
+Fixes for the findings of the 2026-11-02 expanded circuit simulation and fault checks (`VERIFICATION.md`, findings
+N1-N9). Existing designators are unchanged; new parts have new numbers.
+- **U4 is an ST LDL1117S33R** (low dropout, same SOT-223 pinout) instead of the AMS1117-3.3. With about 1 V of dropout,
+  the AMS1117 let the wideband MCU's VDDA (REF3033) run up to 0.95 V above its VDD while +5V rose or fell (power-up,
+  key-off, crank dips; ST allows 0.3 V). The new part also keeps +3V3 up through an ISO 16750-2 level II crank, and
+  is rated from -40 C.
+- **D30 (BAT54WS) from the wideband MCU's VDDA to +3V3.** The low-dropout regulator alone still let VDDA lead VDD by
+  about 0.8 V at key-off and in a slow brown-out, when the REF3033 holds up longer than +3V3; the Schottky caps the
+  difference at about 0.25 V in every case simulated.
+- **Clamps on the eight analog inputs:** D19-D26 (BAT54WS Schottky) from each AN_ node to +3V3, after the 5.6k. A
+  sensor wire shorted to battery put 9.2 V on its MCU pin; now about 3.55 V, with 1.9 mA into +3V3 instead of the
+  MCU. The 5.6k series and the CLT/IAT 2.7k bias resistors are now 0603. A Schottky leaks a little into the input
+  when the sensor reads near 0 V, more when hot: estimated 5 mV at the sensor at 60 °C (up to about 46 mV with a
+  worst-case part). Compare TPS and CLT readings with a meter on a hot day.
+- **Clamps on the three 12 V switch inputs:** D27-D29 (1N4148WS) to +3V3, as on the hall inputs (a battery-fed switch
+  closed during a load dump overdrove the pin). D27/D28 stand between the series resistors; D29 lies below the VR2
+  parts.
+- **Hall input resistors in 0603:** a crank/cam wire shorted to 14.4 V puts 88 mW into its 1k pull-up. The pull-ups
+  now stand vertically beside their 4.7k series resistors to fit the larger size.
+- **Knock input:** R138 (2.2k) ahead of the coupling cap C44, so a knock wire shorted to battery no longer couples a
+  14 V step straight into the op-amp's input diodes.
+- **Wideband sense inputs:** R137 (10k) feeds the Nernst buffer (U101 pin 10) from the LSU_UN wire, and F103 PA1 is no
+  longer wired to LSU_VM (the firmware never sampled it). A UN or VM wire shorted to battery no longer reaches those
+  inputs directly. The pump and virtual-ground drive paths can't take series resistance, so a short of IP, RT or VM
+  to battery still damages U101 (inherited from the FOME module).
+- **Injector driver copper:** OUT_INJ1-4 copper zones on both outer layers around Q1-Q4's tabs (86-90 mm² each), with
+  17-21 thermal vias each. Estimated junction-to-ambient 109 °C/W instead of 130. This helps but doesn't remove the
+  limit: at sustained 90 % injector duty a driver still reaches thermal shutdown at 85 °C ambient (1989-93), and on
+  the sequential years, where each driver also absorbs its injector's turn-off energy, already at 60 °C near 7200 rpm.
+  See VERIFICATION.md, N8.
+- **Re-routed incrementally:** only the nets around the changed parts were routed again; the rest of the rev 0.6
+  copper is unchanged. DRC: 0 unconnected, 0 clearance.
 
 ## What changed in rev 0.6
 - **Wideband MCU: STM32F103C8T6** (U102, LQFP-48) instead of the STM32F042K6T6, which has been scarce for years and
@@ -171,14 +205,14 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
 | Block | Parts |
 |---|---|
 | MCU | STM32F407VGT6 (1 MB flash, rusEFI F4 target), 8 MHz crystal, 4 status LEDs, BOOT/RESET buttons, Tag-Connect TC2030 SWD pads |
-| Power | SMCJ30A load-dump TVS → SS34 reverse diode (and B5819W ignition wake) → 0.5 A PTC → SMAJ33A TVS → LMR14020 5 V buck. TLS115 protected 5 V sensor supply. AMS1117 3.3 V. USB VBUS can power it on the bench. |
+| Power | SMCJ30A load-dump TVS → SS34 reverse diode (and B5819W ignition wake) → 0.5 A PTC → SMAJ33A TVS → LMR14020 5 V buck. TLS115 protected 5 V sensor supply. LDL1117 3.3 V (low dropout). USB VBUS can power it on the bench. |
 | Injectors / IACV / VVT / boost / alternator | 8× NCV8406A protected low-sides driven at 5 V by an SN74LVC4245A. Its output enable (PA8) is pulled off until the firmware runs; pull-downs on both sides |
 | Relays, CEL, tach, spare | ULN2003 (7 ch), flyback clamp to an SMAJ33A TVS (not +12V) |
 | Ignition (COP / smart coils) | 2× TC4427, 5 V push-pull through 100 Ω, pulled down at the inputs |
 | Crank / cam | LM2903 dual comparator for VR sensors (two 5.1k resistors per leg, 1 nF differential, BAT54S clamps, 1.65 V bias, 1M hysteresis). Spare: Miatas use hall/optical sensors on the hall inputs |
-| Sensors | 8× 0–5 V inputs with a 5.6k/10k divider and 10 nF. CLT and IAT have 2.7k pull-ups to sensor 5 V. |
-| Knock | LMV321 AC-coupled gain stage (≈5.7×), biased at 1.65 V |
-| Digital inputs | 2 hall (1k pull-up, 4.7k series, clamped to 3.3 V), 3 switch inputs (12 V → 33k/10k) |
+| Sensors | 8× 0–5 V inputs with a 5.6k/10k divider, 10 nF and a Schottky clamp to 3.3 V. CLT and IAT have 2.7k pull-ups to sensor 5 V. |
+| Knock | 2.2k series, then an LMV321 AC-coupled gain stage (≈5.7×), biased at 1.65 V |
+| Digital inputs | 2 hall (1k pull-up, 4.7k series, clamped to 3.3 V), 3 switch inputs (12 V → 33k/10k, clamped to 3.3 V) |
 | Comms | SN65HVD230 CAN, USB FS, USART6 |
 | Wideband (LSU 4.9) | FOME/rusEFI controller circuit with an STM32F103C8 (8 MHz crystal) running rusEFI's wideband firmware (board port in `firmware/wideband`), MCP6004 (virtual ground, pump driver, Nernst sense and buffer), AD8628 pump-current sense, REF3033 reference, VND14NV04 protected heater low side, SN65HVD230 on the shared CAN bus |
 
@@ -206,3 +240,7 @@ check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, ren
    sets.
 5. **Schematic and layout review.** No person has reviewed the schematic yet. The wideband *circuit* is the proven FOME design, but since rev 0.3 its *layout* is new to this board, so it no longer inherits the module's proven layout. Bring up the wideband on the first boards before relying on it (heater control, pump current, and lambda reading against a known sensor).
 6. **Wideband first flash.** It goes through the main MCU (rev 0.4), so no extra cable is needed: the board's rusEFI firmware has the programming feature (`wbo_uart_flash`). A Tag-Connect TC2030-NL cable on J102 is the fallback.
+7. **Rev 0.7 parts packed tight.** The new clamps and the 0603 resistors sit closer to their neighbours than KiCad's
+   courtyards allow (42 courtyard overlaps in the DRC report, against 11 in rev 0.6); the part bodies themselves clear.
+   Look at D19-D30 and the input columns in JLC's 3D preview before ordering.
+8. **Injector drivers at full load.** Sustained high injector duty at high rpm may take Q1-Q4 into thermal shutdown (VERIFICATION.md, N8). Measure a driver's temperature at full load before track use.

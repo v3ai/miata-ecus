@@ -301,11 +301,14 @@ class Router:
                       and abs(p['c'][0] - xc) < 0.05]
             ytop = min(p['c'][1] for p in series)          # series R top pad (node)
             pair = [p for p in self.pads if p['net'] == net and abs(p['c'][0] - xc) > 0.3
-                    and abs(p['c'][0] - xc) < 0.9]
+                    and abs(p['c'][0] - xc) < 0.9 and not p['fp'].startswith('D')]
             pts = [(xp, mpin[pin]['c'][1]), (xp, y0), (xp - (lane - y0), lane), (xc, lane), (xc, ytop)]
             self.add_locked(net, pts)
             yp = pair[0]['c'][1]
             self.add_locked(net, [(xc - 0.6, yp), (xc + 0.6, yp)])
+            # rev 0.7: the input clamp (BAT54WS beside the node line) joins it with a straight stub
+            for d in (p for p in self.pads if p['net'] == net and p['fp'].startswith('D')):
+                self.add_locked(net, [d['c'], (xc, d['c'][1])])
 
     def preroute_shifter_bus(self):
         """rev 0.5: the eight low-side control lines from the MCU top edge (pins 93..86, INJ1..ALT) into the level
@@ -815,7 +818,11 @@ def main(inp, out):
     import os, pickle
     state = out + '.state.pkl'
     if os.environ.get('RESUME') and os.path.exists(state):
+        fresh = [t for t in r.tracks if t.get('fixed') or t.get('locked')]
         r.tracks, r.vias, r.failed = pickle.load(open(state, 'rb'))
+        # pre-planned copper comes from this run's placement, not the saved state: after a placement change (an ECO
+        # from an earlier revision's state) the saved fixed/locked copper may no longer meet its pads
+        r.tracks = fresh + [t for t in r.tracks if not (t.get('fixed') or t.get('locked'))]
         r.rebuild_dynamic()
         # nets a check found unconnected after an earlier run (comma-separated), queued for the finish passes
         for n in filter(None, os.environ.get('ADD_FAILED', '').split(',')):
@@ -854,7 +861,7 @@ def main(inp, out):
                     repaired = keep            # signals it displaced are fixed by the loop below
             best_state = (list(r.tracks), list(r.vias), list(r.failed))
             best_n = len([f for f in r.failed if 'stitch' not in f[0]])
-            for it in range(10):
+            for it in range(int(os.environ.get('FPASSES', '10'))):
                 bad = list(dict.fromkeys(f[0] for f in r.failed if 'stitch' not in f[0]))
                 stitch_bad = [f for f in r.failed if 'stitch' in f[0]]
                 if not bad:
@@ -881,6 +888,7 @@ def main(inp, out):
                 if n < best_n:
                     best_n = n
                     best_state = (list(r.tracks), list(r.vias), list(r.failed))
+                    pickle.dump(best_state, open(state + '.best', 'wb'))      # checkpoint (long runs)
                 print('  ->', n, 'failed', flush=True)
             r.tracks, r.vias, r.failed = best_state
             r.rebuild_dynamic()

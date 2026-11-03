@@ -232,6 +232,8 @@ def choose(p):
             'REF3033': ('Reference_Voltage', 'REF3033'),
             'VND14NV04': ('Device', 'Q_NMOS_GDS'),
             'AMS1117-3.3': ('Regulator_Linear', 'AMS1117-3.3'),
+            # rev 0.7: same SOT-223 pinout as the AMS1117 (1 GND, 2 OUT, 3 IN); the value field names the part
+            'LDL1117S33R': ('Regulator_Linear', 'AMS1117-3.3'),
             'ULN2003AD': ('Transistor_Array', 'ULN2003A'),
             'LMV321IDBVR': ('Amplifier_Operational', 'LMV321'),
             'SN65HVD230DR': ('Interface_CAN_LIN', 'SN65HVD230')}[v]
@@ -375,7 +377,7 @@ for r in ['U5', 'U6', 'U7', 'RN1', 'C34', 'C35', 'U11', 'C57', 'C58', 'R71', 'D1
 for r in ['J1', 'J2', 'U10', 'C56', 'H1', 'H2', 'H3', 'H4']:
     SHEET_OF[r] = 'connectors'
 import wideband as _wb
-for r in list(_wb.placement()) + ['U106', 'C118', 'Y101', 'C119', 'C120', 'R135', 'C121']:
+for r in list(_wb.placement()) + ['U106', 'C118', 'Y101', 'C119', 'C120', 'R135', 'C121', 'R137', 'D30']:
     SHEET_OF[r] = 'wideband'
 QUIET = {'GND', '+3V3', '+5V', '+12V', '+12V_F', 'V5_SENS', '+3V3A'}
 

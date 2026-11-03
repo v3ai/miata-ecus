@@ -75,7 +75,7 @@ for p, n in sorted(used, key=lambda t: (t[0][0], t[0][1])):
 o.append(f'\nNot connected: {", ".join(sorted(unused))}.\n')
 o.append('## Bottom edge, left to right')
 o.append('| Ref | What | Notes |\n|---|---|---|')
-o.append('| J2 | LSU 4.9 (Molex Micro-Fit 2×3, right angle) | Pin n = LSU pin n: 1 IP, 2 VM, 3 H−, 4 H+, 5 RT, 6 UN. Heater fed from the main relay through F1 (2 A hold, 30 V). The controller is on the daughterboard |')
+o.append('| J2 | LSU 4.9 (Molex Micro-Fit 2×3, right angle) | Pin n = LSU pin n: 1 IP, 2 VM, 3 H−, 4 H+, 5 RT, 6 UN. Heater fed from the main relay through F1 (3 A hold, 30 V, 2920). The controller is on the daughterboard |')
 o.append('| J3 | IAT (Micro-Fit 1×2) | M12×1.5 open-element thermistor, used when the IAT jumper JP1 is on EXT |')
 o.append('| JP1 | IAT source jumper (1×3, 2.54 mm) | Shunt on **2-3 (EXT, default)**: the IAT connector J3. Shunt on **1-2 (STOCK)**: the stock air-temp sensor through the harness (inside the AFM on 1989-97, the MAF on 1999-2005). Set the matching sensor curve in TunerStudio; the pull-up is 2.7 kΩ |')
 o.append('| J4 | USB-C | USB 2.0 device: tuning, logging, DFU |')

@@ -428,18 +428,25 @@ def sheet_inputs(s):
     s.text('Hall (open collector, 1k pull-up) and 12 V switch inputs', 182.88, 22.86)
     for (n, y, k) in zip(['HALL1', 'HALL2', 'SW1', 'SW2', 'SW3'], rows(40.64), ['hall', 'hall', 'switch', 'switch', 'switch']):
         channel(187.96, y, n, k)
-    # rev 0.5: clamps to +3V3 (PE7/PE8 are 5 V tolerant, with no clamp of their own)
-    for d, y in (('D13', 40.64), ('D14', 66.04)):
+    # rev 0.5: clamps to +3V3 (PE7/PE8 are 5 V tolerant, with no clamp of their own); rev 0.7: the switch inputs too
+    for d, y in (('D13', 40.64), ('D14', 66.04), ('D27', 91.44), ('D28', 116.84), ('D29', 142.24)):
         s.o2(d, 243.84, y - 3.81, 'v')
+    # rev 0.7: analog input clamps (Schottky to +3V3)
+    for k, y in enumerate(rows(40.64)[:4]):
+        s.o2(f'D{19 + k}', 86.36, y - 3.81, 'v')
+        s.o2(f'D{23 + k}', 162.56, y - 3.81, 'v')
 
     # ---- knock amplifier
     s.text('Knock: AC-coupled, biased to 1.65 V, gain 5.7', 271.78, 22.86)
     UX, UY = 320.04, 50.8
     s.place('U8', UX, UY)
-    c_in = find('IN_KNOCK', 'KN_P')
-    s.o2(c_in, UX - 30.48, UY - 2.54, 'h' if PARTS[c_in]['pads']['1'] == 'IN_KNOCK' else 'h-')
-    s.lab('IN_KNOCK', (UX - 40.64, UY - 2.54), 'left')
-    s.wire((UX - 40.64, UY - 2.54), pin_of(c_in, 'IN_KNOCK'))
+    c_in = find('KN_IN', 'KN_P')
+    s.o2(c_in, UX - 30.48, UY - 2.54, 'h' if PARTS[c_in]['pads']['1'] == 'KN_IN' else 'h-')
+    r_in = find('IN_KNOCK', 'KN_IN')                # rev 0.7: series resistor ahead of the coupling cap
+    s.o2(r_in, UX - 43.18, UY - 2.54, 'h' if PARTS[r_in]['pads']['1'] == 'IN_KNOCK' else 'h-')
+    s.wire(pin_of(r_in, 'KN_IN'), pin_of(c_in, 'KN_IN'))
+    s.lab('IN_KNOCK', (UX - 53.34, UY - 2.54), 'left')
+    s.wire((UX - 53.34, UY - 2.54), pin_of(r_in, 'IN_KNOCK'))
     s.wire(pin_of(c_in, 'KN_P'), (UX - 20.32, UY - 2.54), 'U8.1')
     r45 = find('KN_P', 'KN_BIAS')
     s.o2(r45, UX - 20.32, UY + 6.35, 'v' if PARTS[r45]['pads']['1'] == 'KN_P' else 'v-')
@@ -835,6 +842,8 @@ def sheet_wideband(s):
     s.wire('U103.2', (236.22, 53.34), (246.38, 53.34), (254.0, 53.34))
     s.wire((236.22, 53.34), 'C107.1'); s.wire((246.38, 53.34), 'C109.1'); s.stub('C107.2'); s.stub('C109.2')
     s.lab('WB_VDDA', (254.0, 53.34), 'right')
+    s.o2('D30', 266.7, 59.69, 'v')                   # rev 0.7: VDDA-to-VDD clamp (cathode to +3V3)
+    s.text('D30: holds VDDA within a diode drop of VDD at key-off', 256.54, 68.58, 1.27)
 
     # ---- D: CAN transceiver on the shared bus --------------------------------------
     s.text('CAN (same bus as the main MCU; rusEFI reads lambda over CAN)', 289.56, 35.56)
@@ -890,7 +899,8 @@ def sheet_wideband(s):
     P, N, O = oa('U101', 3, 276.86, 111.76)         # + 10 (269.24,109.22) - 9 (269.24,114.3) out 8 (284.48,111.76)
     s.wire('U101.9', (266.7, 114.3), (266.7, 121.92), (289.56, 121.92), (289.56, O[1]))
     s.wire('U101.8', (289.56, O[1]), (297.18, O[1])); s.lab('WB_UN_BUF', (297.18, O[1]), 'right')
-    s.wire('U101.10', (254.0, P[1]))
+    s.o2('R137', 261.62, P[1], 'h')                 # rev 0.7: series resistor into the buffer input
+    s.wire('U101.10', 'R137.2'); s.wire('R137.1', (254.0, P[1]))
     s.o2('R114', 254.0, 99.06, 'v')
     s.wire('R114.2', (254.0, P[1])); s.pwr('+3V3', 'R114.1', 'up')
     s.o2('C102', 243.84, 116.84, 'v')
