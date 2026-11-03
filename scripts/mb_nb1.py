@@ -25,7 +25,7 @@ CHANGES = ["Rev 0.6, for daughterboard rev 0.8: the harness's sensor 5 V (2I) an
 VERIFY = ['**The case outline, mounting holes and header position (provisional here).**',
           '2K: tach output per three sources, "unused" per one; check on the harness.',
           '3O feeds +12 V to the idle valve through F2 (2 A resettable).',
-          '3Q (VICS solenoid) is driven by the spare ULN2003 channel (OUT_MAINRLY net, 0.5 A): the main relay itself is key-switched on NB1.',
+          '3Q (VICS solenoid) is driven by the spare relay-driver channel (OUT_MAINRLY net, a ZXMS6004FF since daughterboard rev 0.8): the main relay itself is key-switched on NB1.',
           '1U (front O2 heater) uses the PWM low side normally used for VVT (NB1 has no VVT).',
           'Left open: 1A (battery backup), 1D/1L (diagnostic link), 1K/1N (A/T), 1T (alternator sense), 1H, 3K, 3P (EU fuel pump), '
           'the EGR stepper (2M-2P), purge (3L), CDCV (3U), rear O2 heater (3V), brake / power-steering / neutral switches.']
@@ -74,7 +74,7 @@ HARNESS = {
     '3N': 'OUT_FP',      # fuel pump relay
     '3O': 'IAC_12V',     # idle valve +12 V supply (fused, F2)
     '3P': '',            # fuel pump relay, EU cars with immobilizer - left open
-    '3Q': 'OUT_MAINRLY', # VICS solenoid (spare ULN2003 channel)
+    '3Q': 'OUT_MAINRLY', # VICS solenoid (spare relay-driver channel)
     '3R': '', '3S': '', '3T': '', '3U': '', '3V': '',
     '3W': 'OUT_INJ1', '3X': 'OUT_INJ2', '3Y': 'OUT_INJ3', '3Z': 'OUT_INJ4',
 }

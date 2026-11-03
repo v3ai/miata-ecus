@@ -1,9 +1,10 @@
 # Verification report
 
-**Date:** 2026-10-30; full-firmware emulation, expanded circuit and board checks 2026-11-02; rev 0.7 fixes 2026-11-03.
-**Boards:** daughterboard rev 0.7; motherboards 1989-93 and 1994-95 rev 0.7, 1996-97 / 1999-2000 / 2001-05 rev 0.5.
+**Date:** 2026-10-30; full-firmware emulation, expanded circuit and board checks 2026-11-02; rev 0.7 and 0.8 fixes 2026-11-03.
+**Boards:** daughterboard rev 0.8; motherboards 1989-93 and 1994-95 rev 0.8, 1996-97 / 1999-2000 / 2001-05 rev 0.6.
 These revisions carry the fixes this review called for (see [Rev 0.5 changes](#rev-05-changes-and-re-verification),
-[Rev 0.6](#rev-06-stm32f103-wideband-controller) and [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings)).
+[Rev 0.6](#rev-06-stm32f103-wideband-controller), [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings) and
+[Rev 0.8](#rev-08-driver-temperature-and-protected-outputs)).
 The review itself was first run on daughterboard rev 0.4 and the previous motherboards.
 **Firmware:** `firmware/` on rusEFI `1374bd07`.
 
@@ -50,6 +51,11 @@ Nothing here has been built yet, so this is a desk and simulation review. It cov
   or temperature-sensor wire is shorted (N6), and the injector drivers' temperature at sustained high duty, which on
   the sequential years is worse than first reported (N8). See
   [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings).
+- **Rev 0.8 (2026-11-03): the rest of the hardware findings.** Larger daughterboard (125 × 76 mm) with DPAK injector
+  drivers on drain copper and thermal vias (estimated 110 °C at 90 % duty and 85 °C ambient, was thermal shutdown),
+  protected relay, lamp, tach and ignition outputs, a separate protected sensor 5 V for the harness, LSU drive clamps,
+  a +3V3 shunt clamp and fault-tolerant CAN. Board fault checks: 4 FAILs left (from 215), all the LSU drive resistors
+  taking a battery short so the ICs don't. See [Rev 0.8](#rev-08-driver-temperature-and-protected-outputs).
 - **Review.** A second, independent pass checked this report against the sources. Its corrections are folded in below;
   it found the ignition-sense bug.
 
@@ -519,34 +525,80 @@ several layer changes on its way.
 **Not repeated:** the firmware-in-the-loop runs feed the MCU pins through models of the input stages, so the hardware
 change doesn't alter them.
 
+## Rev 0.8: driver temperature and protected outputs
+**Boards:** daughterboard rev 0.8 (125 × 76 mm, was 125 × 60); motherboards 1989-93 and 1994-95 rev 0.8, 1996-97 /
+1999-2000 / 2001-05 rev 0.6 (they carry the new protected sensor 5 V, V5_EXT, to the harness; 1989-93 also gets new
+injector clamps). The parts and the reasons are in `daughterboard/README.md` (What changed in rev 0.8). Everything below
+was run again on the released, routed boards: `circuit_sim_full.py` **84 OK / 12 CHECK / 1 REF / 0 FAIL** (rev 0.7:
+64 / 28 / 1 / 0), and `board_checks.py` **1587 OK / 270 CHECK / 4 FAIL** (rev 0.7: 1481 / 109 / 215). The CHECK count
+went up because faults that used to FAIL now end in a CHECK (a protected part working as designed, with a wrong reading
+while the fault lasts).
+
+| Finding | Status | Change | Re-check on rev 0.8 |
+|---|---|---|---|
+| N8, driver temperature | **Fixed** (estimate) | Q1-Q8: **VND7NV04** (DPAK, 60 mΩ, 200 mJ clamp) in a new 16 mm strip above J1, each tab on a drain copper column on F.Cu, In2.Cu and B.Cu (65-102 + 113-118 + 95-108 mm²) with 28-34 thermal vias, most in the tab pad | RthJA estimated **48 °C/W** (rev 0.7: 109), from 178 mm² effective copper. Sequential injectors, 90 % duty, 7200 rpm, worst-case Rds(on), 8 mH assumed: **Tj 84 °C at 60 °C ambient, 110 °C at 85 °C** (rev 0.7: thermal shutdown). 1989-93 paired drivers: 65 / 91 °C. Idle valve 62 / 87 °C. The model is a copper-area fit, not a thermal simulation: measure on the bench |
+| 1989-93 injector clamps | **Changed; CHECK** | D3/D4 **SMCJ30A** (C224048) instead of SMCJ40A, on copper islands on both layers (about 115 mm² each side) | The new drivers clamp at 40 V minimum, so a 40 V TVS could have left the energy in a driver; the 30 V part always clamps first (0 mW in the drivers, peak 38 V). D3/D4 take 1.55 W each at 7200 rpm: **137 °C at 60 °C ambient, 162 °C at 85 °C**, over the 150 °C rating in that corner (sustained 7200 rpm, 8 mH injectors assumed). Measure the injectors' inductance; at 4 mH the energy halves |
+| Unprotected relay, lamp and tach outputs | **Fixed** | Seven **ZXMS6004FF** protected low sides (Q9-Q15) instead of the ULN2003, behind a second SN74LVC4245A (U12) on the shared enable | Every output shorted to 14.4 and 24 V: current-limited, no FAIL. Hottest load (VICS solenoid, 402 mA): Tj 102 °C at 85 °C ambient |
+| Unprotected ignition outputs | **Fixed** | B5819W Schottky (D31-D34) after each 100 Ω (now 1206); ZXMS6004FF pull-downs (Q16-Q19) from a 74HCT04 (U13); R144-R147 **3.3k** 1206 | Coil wire shorted to 14.4 / 24 V: the Schottky blocks it; R144-R147 within rating at 24 V (2.2k was over: found by `board_checks.py`). Output shorted to ground with the driver on: R18 180 mW, 72 % of rating (CHECK) |
+| Sensor 5 V shorted to battery | **Fixed; CHECK** | Second TLS115 (U14): **V5_EXT** on J1 pin 13 to the harness sensors and J5-14. The first now feeds only the MAP sensor. Hall pull-ups from V5_EXT through D35 (BAT54A) | V5_EXT back-fed to 14.4 or 24 V: TLS115 protected (45 V rated), MAP sensor and the board's 5 V unaffected; the harness sensors read wrong while it lasts (CHECK) |
+| N6, 24 V with a shorted wire | **Fixed** | V5_EXT and D35 (no back-feed into the pull-ups); 22k/10k switch dividers; R61/R63 0603 | No FAIL left in the crank/cam, CLT/IAT or switch cases |
+| N3, LSU drive wires | **ICs protected; resistors sacrificial** | F2 (0.1 A PTC) in VM; Schottky clamps D40/D41 from the pump and virtual-ground drive nodes to +3V3; R108-R110 1206; R137 22k; +3V3 shunt clamp (below) | VM shorted: F2 trips in under 1 s, U101 and both MCUs protected. **Still 4 FAILs, all here:** RT or IP shorted to 14.4 / 24 V overloads R108 (2.3 W at 14.4 V; opens like a fuse) and R110 (0.57 W). U101, the F103 and the F407 survive; replace the resistors after such a fault. A PTC in those paths would change the pump loop: not done |
+| Fault current into +3V3 | **New; CHECK** | U15 TL431 at 3.56 V + Q20 BCP53 shunt, C63 + C68 (2 × 100 µF) | 1 A pushed into +3V3: peak 3.93 V for microseconds, then 3.56 V (MCU absolute maximum 4.0 V: a 70 mV margin at the peak). In the worst board case (RT shorted to 24 V) Q20 sinks 341 mA, 1.22 W, above its 1 W rating until the fault clears |
+| CAN at 24 V | **Fixed** (datasheet) | TCAN1042V-Q1 (U10, U106), ±58 V bus pins, −40 to 125 °C | A 24 V jump start is inside the bus pins' ±58 V rating (the SN65HVD230 allowed −4 to 16 V). The CAN wires go to the AUX header and the OBD/CAN wiring, not a harness cavity, so `board_checks.py` doesn't short them |
+| N10, AUX UART | **Fixed** | R139/R140 **10k** and BAT54S clamps D36/D37 on PC6/PC7 | 4.7k was over its rating at 24 V (`board_checks.py`); 10k is inside it |
+| Battery / ignition sense | **Fixed** | BAT54WS clamps D38/D39 | Ignition-sense cavity at 24 V: PA2 reads 3.60 V (clamped), OK on every year |
+| Switch inputs at cranking | **Fixed** | 22k/10k dividers | 12 V signal at 9 V cranking: 2.81 V at the MCU, above ST's tested 2.31 V |
+
+**Still CHECK in `circuit_sim_full.py`:** ISO 16750-2 level II/III cranks (level II: +5V 3.91 V, below the TC4427 and
+shifter rating; level III resets the ECU cleanly), the NB alternator field (M5), the GM-type CLT/IAT option, the
+analog clamps' leakage when hot (N2), the 1989-93 and 1994-95 harness inputs that need a car (2L), N12 (ESR, inherited
+from FOME), the shunt clamp's 3.93 V peak, the LSU drive resistors above, and the 1989-93 TVS temperature above.
+
+**Board checks on rev 0.8:**
+
+| Check | Result |
+|---|---|
+| Schematic netlist against the design | 958 pads, 0 differences |
+| DRC (`daughter_release.sh`) | 0 unconnected, 0 clearance errors. Courtyard overlaps 97 (rev 0.7: 42), from the new parts packed between existing ones; with every courtyard shrunk by 0.2 mm (about the part body) nothing overlaps |
+| Copper rebuilt from geometry against the design (`board_copper.py`), all six boards | 0 opens, 0 shorts |
+| Stacking | All 80 J1/J2 pads land on JD1/JD2 on every motherboard (the daughterboard's new strip overhangs free motherboard space) |
+| Pin check (`check_pins.py`) | OK (LEDs now PD12 / PC8 / PC9 / PD15) |
+
+**How the board was re-routed.** The rev 0.7 copper was moved down 16 mm and kept (`route_eco.py`), and only the nets
+around the changed parts were routed again. Three connections (two LED lines and the wideband MCU's green LED and SWD
+data) were left with no path. They were closed by hand: a few short wideband nets ripped up and rerouted in a better
+order (`hand_route_all.py`), and the comms and warning LEDs moved from PD13/PD14 to the free PC8/PC9, which the
+firmware follows. `hand_route.py` now keeps 0.2 mm from non-plated holes (the Tag-Connect's), and `clean_dangling.py`
+removes the stubs and stacked vias the rip-ups leave.
+
 ## Open items
 The 2026-11-02 findings N1-N13 are listed in [New hardware findings](#new-hardware-findings-2026-11-02); what rev 0.7
-fixed and what remains (N3 drive paths, N6 in a 24 V double fault, N8, N10-N13) is in
-[Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings).
+fixed is in [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings) and what rev 0.8 fixed in
+[Rev 0.8](#rev-08-driver-temperature-and-protected-outputs). Still open from that list: the LSU drive resistors in an
+IP or RT short (N3, the ICs are protected), N11 (2L on a car), N12 (ESR, inherited) and N13 (noted).
 
 | # | Issue | What to do |
 |---|---|---|
-| M5 | **NB alternator field drive unknown.** rusEFI's NB presets enable alternator PWM; **our firmware now ships it off** (pin and PID still set up). If the ECU drives the field coil directly (3-5 A, high inductance), a SOT-223 low-side driver (now the NCV8406A, current-limited with thermal shutdown) is likely undersized for continuous field current and has no freewheel path | Measure the field current and its supply on a car (or check the FSM) before turning on "Alternator control" in TunerStudio. Until then the car may not charge: watch battery voltage. Add a freewheel diode only once the field's supply is known |
-| M6 | **ULN2003 at full load:** 4 relays + NB1 VICS is about 0.7-1.6 W, against 0.73 W at 85 °C ambient. Fine at cabin temperature (the ECU sits in the passenger footwell) | Move VICS or the fans to a protected driver in a later revision if needed |
+| M5 | **NB alternator field drive unknown.** rusEFI's NB presets enable alternator PWM; **our firmware now ships it off** (pin and PID still set up). If the ECU drives the field coil directly (3-5 A, high inductance), a low-side driver (since rev 0.8 a VND7NV04 DPAK, current-limited with thermal shutdown; about 1.3 W allowed at 85 °C) is likely undersized for continuous field current and has no freewheel path | Measure the field current and its supply on a car (or check the FSM) before turning on "Alternator control" in TunerStudio. Until then the car may not charge: watch battery voltage. Add a freewheel diode only once the field's supply is known |
+| M6 | ~~ULN2003 at full load~~ **Resolved in rev 0.8:** the relay, lamp and tach outputs are seven ZXMS6004FF protected low sides (hottest, the NB1 VICS solenoid: Tj 102 °C at 85 °C ambient) | — |
 | Tach | 1989-95 tach cavity 2I: our board drives it as an output (as Hellen does); the wiki tables call it an input | Kept as an output. Check the wiring diagram; if the igniter feeds 2I, set the tach output to none |
-| Switch inputs at cranking | A 12 V switch signal at 9 V gives 2.09 V at the MCU: above ST's by-design threshold (1.79 V), below its tested one (2.31 V) | Only matters while cranking; no change |
+| Switch inputs at cranking | ~~2.09 V at the MCU at 9 V~~ **Resolved in rev 0.8:** 22k/10k dividers give 2.81 V, above ST's tested 2.31 V | — |
 | Supply | **MPX5700AP (MAP sensor, every motherboard) is NRND at ST**, which took over NXP's sensor line in 2026 (LCSC 191, Mouser 74 on 2026-10-31) | Kept for this revision: buy the sensors you need now. Next motherboard revision: add a connector for an external MAP sensor, fed from the protected 5 V sensor supply |
 | Supply | **Harness headers:** TE lists all four as "not currently available"; 176122-6 (1999-2000) and 178780-1 (1996-97) are obsolete at Mouser. 174915-6 (76-pin, Mouser 263) and 353830-5 (72-pin, Mouser 252) are still stocked | Buy the headers ahead. Next revision: fit the 1996-97 board with 174915-6, and consider moving the 1989-95 and 1999-2000 boards to it as rusEFI's Hellen boards do (fit-check a real plug first) |
 
 ### Minor (not changed)
 - **AMS1117:** rated 0 °C minimum (resolved in rev 0.7: U4 is now an LDL1117S33R, rated −40 °C).
-- **Unprotected outputs:** the TC4427 ignition and ULN2003 relay outputs have no short-to-battery protection (the
-  NCV8406A outputs do).
+- **Unprotected outputs** (resolved in rev 0.8): the ignition outputs have a Schottky and a protected pull-down per
+  channel, the relay, lamp and tach outputs are protected low sides.
 - **Knock amplifier:** clips above about 284 mV input (gain 5.7). Fine at light load; consider lower gain.
 - **MPX5700AP:** the 15.6 kΩ divider loads it beyond its 0.1 mA typical source current above about 210 kPa. Only
   relevant with boost.
 - **NB charge-warning lamp** (NB1 1Q, NB2 3U) is not driven.
-- **CAN transceivers** are rated to 85 °C. Their bus pins are rated −4 to 16 V absolute maximum, which a 24 V jump
-  start exceeds.
+- **CAN transceivers** (resolved in rev 0.8): TCAN1042V-Q1, −40 to 125 °C, bus pins ±58 V.
 - **PTC voltage ratings:** F1-F4 on the motherboards are 24-30 V parts; the daughterboard's F1 is now a 33 V part
   (rev 0.5b). A PTC only sees the full voltage once tripped; the TVSs keep transients near 33-35 V.
 - **O2 heater on OUT_VVT (1996-97, NB1)** is continuous DC. Its cold inrush (unverified) is likely within the
-  NCV8406A's current limit; if not, the driver limits it and the heater warms more slowly.
+  driver's current limit (simulated: 4.6 A against the VND7NV04's 6 A minimum); if not, the driver limits it and the heater warms more slowly.
 - **Floating MCU-side inputs:** while the MCU is in reset or a bootloader, the shifter's MCU-side inputs float. Its outputs are disabled then, so this only costs a little supply current. When a configuration change releases a control pin, rusEFI briefly sets it to pull-up before the board's hook parks it low again (well under a millisecond, far shorter than an injector's opening time).
 
 ## Safety review: current, faults and fuses
@@ -577,10 +629,10 @@ None of these exceed their path's rating.
 | Fault | What happens | Verdict |
 |---|---|---|
 | Sensor 5 V shorted to ground | TLS115 is current-limited | OK |
-| Sensor 5 V or a crank/cam wire shorted to battery | TLS115 survives; D13/D14 hold the MCU pins at 3.9 V (2-4 mA). The MPX5700AP would still be damaged by 14 V on its supply | OK (MAP sensor at risk) |
-| Injector, idle, VVT, boost or alternator output shorted to battery | NCV8406A current limit and thermal shutdown (cycles until the short is removed), driven at 5 V | OK |
-| Relay, CEL or tach output shorted to battery | ULN2003 has no limit: the channel fails | Minor (rare fault) |
-| Ignition output shorted to battery | R15-R18 (100 Ω) take about 2 W and fail, which protects the TC4427 | Minor (rare fault) |
+| Sensor 5 V or a crank/cam wire shorted to battery | Since rev 0.8 the harness sensors have their own TLS115 (V5_EXT): it survives, the MAP sensor's supply is separate and unaffected. D13/D14 hold the MCU pins at 3.9 V (2-4 mA) | OK |
+| Injector, idle, VVT, boost or alternator output shorted to battery | VND7NV04 (rev 0.8; NCV8406A before) current limit and thermal shutdown (cycles until the short is removed), driven at 5 V | OK |
+| Relay, CEL or tach output shorted to battery | Rev 0.8: ZXMS6004FF current limit and thermal shutdown (the ULN2003 before had no limit) | OK |
+| Ignition output shorted to battery | Rev 0.8: the B5819W in each channel blocks it; the ZXMS6004FF pull-down limits (before: R15-R18 burnt) | OK |
 | Reverse battery | See below | Low risk; no change |
 | Load dump, ISO pulse 2a, jump start | D6 on the input, then F1 and D12 after the series diodes: +12V peaks at 36.4 V (simulated, buck limit 44 V) | OK |
 | Sustained overvoltage (failed regulator) | Up to about 37 V nothing on +12V conducts. Above that D12 conducts and F1 trips. While tripped F1 sees most of the overvoltage, within its 33 V rating up to the 36.7 V D12 clamp; it is the same part Hellen uses on its 12 V input, and a sustained 39 V on a car with a battery connected is unlikely | OK |

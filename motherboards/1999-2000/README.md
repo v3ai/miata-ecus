@@ -76,7 +76,7 @@ TE **176122-6** (4-174518-7), 64 positions: plug 1 = 1A-1V (22), plug 2 = 2A-2P 
 | 3M | `OUT_IACV` | idle air valve | idle air control valve (low side) |
 | 3N | `OUT_FP` | fuel pump relay | fuel pump relay |
 | 3O | `IAC_12V` |  | idle valve +12 V supply (fused, F2) |
-| 3Q | `OUT_MAINRLY` | main relay control | VICS solenoid (spare ULN2003 channel) |
+| 3Q | `OUT_MAINRLY` | main relay control | VICS solenoid (spare relay-driver channel) |
 | 3W | `OUT_INJ1` | injector 1 |  |
 | 3X | `OUT_INJ2` | injector 2 |  |
 | 3Y | `OUT_INJ3` | injector 3 |  |
@@ -112,6 +112,6 @@ Not connected: 1A, 1C, 1D, 1F, 1G, 1H, 1J, 1K, 1L, 1M, 1N, 1Q, 1T, 1V, 2A, 2G, 2
 - **The case outline, mounting holes and header position (provisional here).**
 - 2K: tach output per three sources, "unused" per one; check on the harness.
 - 3O feeds +12 V to the idle valve through F2 (2 A resettable).
-- 3Q (VICS solenoid) is driven by the spare ULN2003 channel (OUT_MAINRLY net, 0.5 A): the main relay itself is key-switched on NB1.
+- 3Q (VICS solenoid) is driven by the spare relay-driver channel (OUT_MAINRLY net, a ZXMS6004FF since daughterboard rev 0.8): the main relay itself is key-switched on NB1.
 - 1U (front O2 heater) uses the PWM low side normally used for VVT (NB1 has no VVT).
 - Left open: 1A (battery backup), 1D/1L (diagnostic link), 1K/1N (A/T), 1T (alternator sense), 1H, 3K, 3P (EU fuel pump), the EGR stepper (2M-2P), purge (3L), CDCV (3U), rear O2 heater (3V), brake / power-steering / neutral switches.
