@@ -384,7 +384,12 @@ def check_copper(label, path, parts, section='copper'):
         row('OK', section, label, f'{path}: copper netlist from geometry ({st["pads"]} pads, {st["tracks"]} tracks, '
             f'{st["vias"]} vias, {st["zone_islands"]} zone islands, layers {"/".join(cu["layers"])}) = design: '
             f'0 opens, 0 shorts, 0 label differences')
-    return cu, copper_names(cu, dp)
+    return cu, copper_names(cu, dp), bad
+
+
+def design_names(parts):
+    """(ref, pad) -> net straight from the design scripts (used when the copper is stale)"""
+    return {(p['ref'], k): v for p in parts for k, v in p['pads'].items() if v}
 
 
 def check_mating(daughter_cu_path, mb_path, year, pcbs):
@@ -1637,12 +1642,17 @@ def electrical(systems, fws, board_fw):
         'TC4427': (['2', '4'], 'TC4427 input (VIH 2.4 V)', 2.4),
         'SN74LVC4245APWR': ([str(i) for i in range(14, 22)], 'LVC4245 B input at VCCB 3.3 V (VIH 2.0 V)', 2.0),
         'SN65HVD230DR': (['1'], 'SN65HVD230 D (VIH 2.0 V)', 2.0),
+        'TCAN1042VDRQ1': (['1'], 'TCAN1042 TXD at VIO 3.3 V (VIH 0.7 x VIO = 2.31 V)', 0.7 * VDD),
+        '74HCT04PW': (['1', '3', '5', '9'], '74HCT04 input at VCC 5 V (HCT: VIH 2.0 V)', 2.0),
     }
     for p in sysm.parts:
         if p['value'] in recv:
             pads, what, vih = recv[p['value']]
             for k in pads:
                 net = p['pads'].get(k, '')
+                if net in RAILS:
+                    row('OK', 'electrical', 'all', f'{p["ref"]}.{k} {what}: unused channel, input tied to {net}')
+                    continue
                 drv = [mcu_label(r, kk) for r, kk in sysm.mcu_pins(net)]
                 ok = bool(drv) and VDD - 0.4 >= vih
                 row('OK' if ok else 'FAIL', 'electrical', 'all', f'{p["ref"]}.{k} {net} <- {", ".join(drv) or "no driver"}: '
@@ -1658,10 +1668,17 @@ def electrical(systems, fws, board_fw):
             if r in ('U1', 'U102'):
                 pn = mcu_pin_info(r, k)[0]
                 peers.append((f'{r} {pn}', AF_DIR.get((r, pn), ('?', '?'))[1]))
-            elif sysm.by_ref[r]['value'] == 'SN65HVD230DR':
+            elif sysm.by_ref[r]['value'] in ('SN65HVD230DR', 'TCAN1042VDRQ1'):
                 peers.append((f'{r}.{k}', {'1': 'in', '4': 'out'}.get(k, '?')))
             elif r in ('J2',):
                 peers.append((f'J2.{k} (AUX)', 'ext'))
+            elif r[0] == 'R' and sysm.by_ref[r]['board'] == 'D' and len(sysm.by_ref[r]['pads']) == 2:
+                # series resistor to the AUX header (UART_TX_M -> R139 -> UART_TX -> J2)
+                q = sysm.by_ref[r]
+                other = [n for n in q['pads'].values() if n != net]
+                for r2, k2 in sysm.net_pads.get(other[0] if other else '', []):
+                    if r2 == 'J2':
+                        peers.append((f'J2.{k2} (AUX, via {r} {q["value"]})', 'ext'))
         bad = [p for p in peers if p[1] == d]
         row('FAIL' if bad else 'OK', 'electrical', 'all', f'{ref} {pname} {af} ({d}) on {net} -> '
             + ', '.join(f'{a} ({b})' for a, b in peers))
@@ -1678,15 +1695,33 @@ def electrical(systems, fws, board_fw):
                 other = b if a == net else a if b == net else None
                 lower = [x for x in sysm.parts if x['ref'][0] == 'R' and x['board'] == 'D'
                          and set(x['pads'].values()) == {net, 'GND'}]
-                if other in ('+5V', '+12V', 'VBAT_IN', 'V5_SENS') and not lower:
+                if other in ('+5V', '+12V', 'VBAT_IN', 'V5_SENS', 'V5_EXT', 'V5_H1', 'V5_H2') and not lower:
                     sev = 'OK' if typ == 'FT' else 'FAIL'
                     row(sev, 'electrical', 'all', f'{mcu_label(ref, pad)} {net}: pulled up to {other} through {q["ref"]} '
                         f'{q["value"]}' + (' (FT pin, open-drain driver)' if sev == 'OK' else ' on a non-FT pin'))
-    # backup-domain pins PC13/PC14 (ULN inputs): 3 mA total through the power switch
-    i_tot = sum((VDD - 1.3) / 2700 for pn in ('PC13', 'PC14', 'PC15')
-                if sysm.by_ref['U1']['pads'].get(str(F407_PIN[pn]), '').endswith('_CTL'))
-    row('OK' if i_tot < 3e-3 else 'FAIL', 'electrical', 'all', f'PC13-PC15 source {i_tot * 1e3:.2f} mA into ULN2003 '
-        'inputs (ST: 3 mA total for the backup-domain switch, 2 MHz max)')
+    # backup-domain pins PC13-PC15: 3 mA total through the power switch. Load per pin from what is on its net.
+    i_tot, loads = 0.0, []
+    for pn in ('PC13', 'PC14', 'PC15'):
+        net = sysm.by_ref['U1']['pads'].get(str(F407_PIN[pn]), '')
+        if not net:
+            continue
+        for r, k in sysm.net_pads.get(net, []):
+            if r == 'U1':
+                continue
+            q = sysm.by_ref[r]
+            if q['value'] == 'ULN2003AD':
+                i_tot += (VDD - 1.3) / 2700
+                loads.append(f'{pn} {net} -> {r}.{k} ULN2003 input (0.74 mA)')
+            elif q['value'] in ('SN74LVC4245APWR', '74HCT04PW', 'TC4427', 'TCAN1042VDRQ1'):
+                i_tot += 5e-6
+                loads.append(f'{pn} {net} -> {r}.{k} {q["value"]} CMOS input (no load, +-5 uA)')
+            elif r[0] == 'R' and q['fitted'] and len(q['pads']) == 2:
+                o = [n for n in q['pads'].values() if n != net]
+                if o and o[0] == 'GND':
+                    i_tot += VDD / ohms(q['value'])
+                    loads.append(f'{pn} {net} -> {r} {q["value"]} pull-down')
+    row('OK' if i_tot < 3e-3 else 'FAIL', 'electrical', 'all', f'PC13-PC15 source {i_tot * 1e3:.2f} mA in total: '
+        + ('; '.join(loads) or 'nothing connected') + ' (ST: 3 mA total for the backup-domain switch, 2 MHz max)')
 
 
 # ------------------------------------------------------------------------------------------------------------------
@@ -1712,17 +1747,26 @@ def linked_nets(sysm, net):
 
 def driver_states(sysm, net):
     nets = linked_nets(sysm, net)
-    # a driver behind a small series resistor (TC4427 -> 100 ohm -> OUT_IGNx) still drives the cavity
-    for p in sysm.parts:
-        if p['ref'][0] == 'R' and p['board'] == 'D' and len(p['pads']) == 2 and p['fitted']:
+    # a driver behind a small series resistor and / or a series diode (TC4427 -> 100 ohm -> B5819W -> OUT_IGNx) still
+    # drives the cavity
+    changed = True
+    while changed:
+        changed = False
+        for p in sysm.parts:
+            if p['board'] != 'D' or len(p['pads']) != 2 or not p['fitted'] or p['ref'][0] not in 'RD':
+                continue
             a, b = p['pads'].get('1'), p['pads'].get('2')
-            try:
-                small = ohms(p['value']) <= 470
-            except ValueError:
-                small = False
+            if p['ref'][0] == 'R':
+                try:
+                    small = ohms(p['value']) <= 470
+                except ValueError:
+                    small = False
+            else:
+                small = p['value'] in DIODES and DIODES[p['value']][2] is not None and DIODES[p['value']][0] < 0.6
             if small and (a in nets) != (b in nets) and not ({a, b} & RAILS):
                 nets |= {a, b}
-    on = {}
+                changed = True
+    on, off = {}, {}
     for p in sysm.parts:
         for pad, n in p['pads'].items():
             if n not in nets:
@@ -1731,9 +1775,12 @@ def driver_states(sysm, net):
                 on[f'{p["ref"]}.{pad}'] = 'on'
             elif p['value'] == 'TC4427' and pad in ('5', '7'):
                 on[f'{p["ref"]}.{pad}'] = 'high'
-            elif p['value'] in ('NCV8406ASTT3G', 'VND14NV04') and pad == '2':
-                on[p['ref']] = 'on'
-    return [('off', {}), ('on', on)] if on else [('', {})]
+            elif p['value'] in LOWSIDE and pad == LOWSIDE[p['value']][1]:
+                gate = p['pads'].get(LOWSIDE[p['value']][0], '')
+                inverted = any(q['value'] == '74HCT04PW' and gate in q['pads'].values() for q in sysm.parts)
+                # an ignition pull-down (gate from the 74HCT04) is on exactly when the TC4427 output is low
+                (off if inverted else on)[p['ref']] = 'on'
+    return [('off', off), ('on', on)] if on else [('', off)]
 
 
 def mcu_gpio(sysm):
@@ -1817,8 +1864,12 @@ def _evaluate(dc, base, sysm, focus, fault_net):
             elif abs(i) > 0.1:
                 F.append(('CHECK', f'TC4427 {t[1]} output {abs(i) * 1e3:.0f} mA continuous', p))
         elif t[0] == 'NCV_ON':
-            if abs(i) > 2.5:
-                F.append(('OK', f'{t[1]} would carry {abs(i):.0f} A: current limit + thermal shutdown (self-protected)', 0))
+            _k, ref_, val_, ron_, ilim_, sev_ = t
+            if abs(i) > ilim_:
+                F.append((sev_, f'{ref_} {val_} would carry {abs(i):.0f} A at {ron_:g} ohm: self-protected, its own '
+                          f'current limit (>= {ilim_:g} A) / thermal shutdown' +
+                          (' (SOT-23: cycles in thermal shutdown while the short lasts)' if sev_ == 'CHECK' else ''),
+                          abs(i) if sev_ != 'OK' else 0))
         elif t[0] == 'FAULT' or t[0] == 'CARSRC':
             if abs(i) > 20:
                 F.append(('OK', f'{abs(i):.0f} A from the car: the car\'s fuse blows', 0))
@@ -1850,15 +1901,31 @@ def _evaluate(dc, base, sysm, focus, fault_net):
             F.append(('FAIL', f'{t[2]} conducting {abs(cur):.2f} A continuously', abs(cur)))
         elif t[0] in ('OA_IN', 'OA_OUT'):
             oa[(t[0], t[1], t[2], t[3])] += abs(cur)
+        elif t[0] == 'SHUNT' and cur > 1e-3:
+            v_ = V[e[0]]
+            p_ = cur * v_
+            if cur > 1.0 or p_ > SHUNT_P_MAX:
+                F.append(('CHECK', f'{t[1]} sinks {cur * 1e3:.0f} mA at {v_:.2f} V: Q20 dissipates {p_:.2f} W, above '
+                          f'its {SHUNT_P_MAX:g} W continuous rating' + (' and the 1 A design current' if cur > 1.0 else '')
+                          + ' (holds only until the fault clears or Q20 overheats)', p_))
+            else:
+                F.append(('OK', f'{t[1]} sinks {cur * 1e3:.0f} mA, holding the rail at {v_:.2f} V '
+                          f'(Q20 {p_:.2f} W)', 0))
     for k_, cur in oa_r.items():
         oa[k_] += cur
     for (kind, pin, val, lim), cur in oa.items():
         if cur > lim:
             F.append(('FAIL', f'{val} {"input" if kind == "OA_IN" else "output"} {pin}: {cur * 1e3:.0f} mA through '
                       f'its ESD/rail diodes (> {lim * 1e3:.0f} mA)', cur))
-    for rail, lim_c, lim_f, why in (('+3V3', 3.45, 3.6, 'MCU VDD max 3.6 V'), ('+3V3A', 3.45, 3.6, 'VDDA'),
+    shunted = any(e[5] and e[5][0] == 'SHUNT' for e in dc.D)
+    lim3 = (3.6, 4.0, 'shunt-clamped; MCU VDD operating max 3.6 V, abs max 4.0 V') if shunted else \
+        (3.45, 3.6, 'MCU VDD max 3.6 V')
+    for rail, lim_c, lim_f, why in (('+3V3',) + lim3, ('+3V3A',) + lim3[:2] + ('VDDA',),
                                     ('WB_VDDA', 3.45, 3.6, 'F103 VDDA'), ('+5V', 5.3, 6.0, 'TC4427 / LVC4245 VCCA'),
-                                    ('V5_SENS', 5.25, 6.5, 'sensor supply: MPX5700AP 4.75-5.25 V; above 6.5 V assumed damaging')):
+                                    ('V5_SENS', 5.25, 6.5, 'MAP sensor supply: MPX5700AP 4.75-5.25 V; above 6.5 V assumed '
+                                     'damaging'),
+                                    ('V5_EXT', 5.25, 45.0, 'harness sensor 5 V: sensor readings wrong; TLS115 output '
+                                     'rated to 45 V, short-to-battery protected')):
         v = V.get(rail)
         if v is None:
             continue
@@ -1866,12 +1933,13 @@ def _evaluate(dc, base, sysm, focus, fault_net):
             F.append(('FAIL', f'{rail} back-fed to {v:.2f} V ({why})', v))
         elif v > lim_c:
             F.append(('CHECK', f'{rail} back-fed to {v:.2f} V ({why})', v))
-    # TLS115 current limit
+    # TLS115 current limit (each tracker has its own)
     for i, e in enumerate(dc.D):
         t = e[5]
-        if t and t[0] == 'SRC' and t[1].startswith('V5_SENS') and dc.i_d(i) > 0.151:
-            F.append(('CHECK', 'TLS115 in current limit (151-500 mA, thermal cycling): sensor 5 V collapses (TPS, MAP, '
-                      'crank/cam pull-ups)', 0))
+        if t and t[0] == 'SRC' and 'TLS115' in t[1] and dc.i_d(i) > 0.151:
+            what = {'V5_SENS': 'MAP sensor 5 V collapses', 'V5_EXT': 'harness sensor 5 V collapses (TPS, MAF / AUX '
+                    'sensors, CLT / IAT bias, crank / cam pull-ups)'}.get(t[2], 'its output collapses')
+            F.append(('CHECK', f'{t[1]} in current limit (151-500 mA, thermal cycling): {what}', 0))
     # other MCU inputs disturbed
     moved = []
     for ref, pad, net in mcu_gpio(sysm):
@@ -1930,7 +1998,7 @@ def faults(sysm, year, fw, board_fw, cav_list=None, section='fault', connector='
                     'the ECU; the STOCK position is analysed below')
                 continue
             variants = [(sl, st, {}) for sl, st in driver_states(sysm, net)]
-            if b == 'V5_SENS':
+            if b in V5_RAILS:
                 cold = {c: ('open',) for c, n in sysm.cavity.items() if base_net(n) in ('IN_CLT', 'HARN_IAT')}
                 cold['J3'] = ('open',)
                 variants.append(('CLT/IAT cold or unplugged', {}, cold))
@@ -1997,7 +2065,7 @@ def baseline_checks(sysm, year, fw, board_fw):
         F = _evaluate(dc, dc, sysm, [], None)
         sev = 'CHECK' if vcar == 24.0 else None
         issues += [(sev or f[0], f'{label}: {f[1]}') for f in F if f[0] != 'OK']
-        for rail, want in (('+3V3', 3.3), ('+5V', 5.0), ('V5_SENS', 5.0)):
+        for rail, want in (('+3V3', 3.3), ('+5V', 5.0), ('V5_SENS', 5.0), ('V5_EXT', 5.0)):
             if abs(dc.V.get(rail, 0) - want) > 0.1:
                 issues.append(('CHECK', f'{label}: {rail} at {dc.V.get(rail, 0):.2f} V'))
     for s_, t in issues:
@@ -2041,12 +2109,21 @@ def main():
         row('FAIL', 'copper', 'all', 'pcbnew not importable: run with /usr/bin/python3 (KiCad 7)')
         finish()
     dparts = list(design.parts)
-    dcu, dnames = check_copper('daughter', DAUGHTER_PCB, dparts)
+    dcu, dnames, dbad = check_copper('daughter', DAUGHTER_PCB, dparts)
+    if dbad:
+        dnames = design_names(dparts)
+        row('CHECK', 'copper', 'daughter', f'{DAUGHTER_PCB} does not match the design (routing not updated): the '
+            'sections below use the design netlist for the daughterboard, not the copper')
     mb_cache, pcbs, systems = {}, {}, {}
     for year, module, pcb, etype, early in years:
         if module not in mb_cache:
             M, mparts = mb_parts(module)
-            cu, mnames = check_copper(year if module != 'mb_nb2' else '2001-05', pcb, mparts)
+            lab = year if module != 'mb_nb2' else '2001-05'
+            cu, mnames, mbad = check_copper(lab, pcb, mparts)
+            if mbad:
+                mnames = design_names(mparts)
+                row('CHECK', 'copper', lab, f'{pcb} does not match the design (routing not updated): the sections '
+                    'below use the design netlist for this motherboard, not the copper')
             check_mating(DAUGHTER_PCB, pcb, year if module != 'mb_nb2' else '2001-05', pcbs)
             mb_cache[module] = (mparts, mnames)
         mparts, mnames = mb_cache[module]
