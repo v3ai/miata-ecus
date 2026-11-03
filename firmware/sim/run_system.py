@@ -76,7 +76,7 @@ def build(year, out, probes, stim):
           'sysbus WriteDoubleWord 0x1FFFF7E8 0x066DFF34', 'sysbus WriteDoubleWord 0x1FFFF7EC 0x34385111',
           'sysbus WriteDoubleWord 0x1FFFF7F0 0x43123329',
           f'sysbus LoadSymbolsFrom @{WBO_ELF}',
-          'lsu LogEvery 0.25', 'lsu SetBattery 14.0', 'lsu SetLambda 1.0',
+          'lsu LogEvery 0.05', 'lsu SetBattery 14.0', 'lsu SetLambda 1.0',
           'connector Connect sysbus.can1 can']
     # the ECU machine
     L += setup
