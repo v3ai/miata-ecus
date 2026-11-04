@@ -311,8 +311,12 @@ that needs the same hand finishing.
 5. **Schematic and layout review.** No person has reviewed the schematic yet. The wideband *circuit* is the proven FOME design, but since rev 0.3 its *layout* is new to this board, so it no longer inherits the module's proven layout. Bring up the wideband on the first boards before relying on it (heater control, pump current, and lambda reading against a known sensor).
 6. **Wideband first flash.** It goes through the main MCU (rev 0.4), so no extra cable is needed: the board's rusEFI firmware has the programming feature (`wbo_uart_flash`). A Tag-Connect TC2030-NL cable on J102 is the fallback.
 7. **Parts packed tight.** The rev 0.7 and 0.8 clamps and the larger resistors sit closer to their neighbours than KiCad's
-   courtyards allow (97 courtyard overlaps in the DRC report; 42 in rev 0.7); the part bodies themselves clear.
-   Look at D19-D41 and the input columns in JLC's 3D preview before ordering.
+   courtyards allow (93 courtyard overlaps in the DRC report; 42 in rev 0.7); the part bodies themselves clear.
+   Pad to pad, no two parts' pads are closer than 0.25 mm (every gap keeps a solder-mask web), and against JLCPCB's
+   recommended minimum spacing per package pair (`scripts/jlc_spacing.py`) three places remain short, all around the
+   wideband MCU: C122 is 0.26 mm from U106 (0.4 recommended) and 0.41 mm from U102 (0.5); U106 is 1.15 mm from U102
+   (1.25). RN1 is 0.35 mm from U13 (0.4). These are recommendations for placement and rework clearance; the bridging
+   risk at those gaps is low. Look at these and the input columns in JLC's 3D preview and DFM report before ordering.
 8. **Injector drivers at full load.** Rev 0.8's DPAK drivers estimate 110 °C at 90 % duty, 7200 rpm and 85 °C ambient (VERIFICATION.md, Rev 0.8). The estimate rests on a copper-area model; measure a driver's temperature at full load before track use.
 9. **Filled vias in the DPAK tabs.** Order the board with via-in-pad (epoxy-filled and capped vias); open vias in the tab pads would wick solder away from Q1-Q8.
 10. **After an LSU wire short to battery,** check R108-R110 (1206): they take the fault so U101 doesn't, and R108 can open.

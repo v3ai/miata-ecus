@@ -581,6 +581,13 @@ the re-routed boards: `circuit_sim_full.py` 84 OK / 12 CHECK / 1 REF / 0 FAIL (s
 0 shorts on all six boards, all 80 J1/J2 pads on JD1/JD2 at the new (14.5, 42.0) mm offset, schematic netlist 958
 pads / 0 differences, DRC 0 unconnected / 0 clearance errors on every board, `check_pins.py` OK.
 
+**Part spacing (2026-11-03).** Pad-to-pad gaps between different parts checked against JLCPCB's recommended minimum
+spacing per package pair (`scripts/jlc_spacing.py`). The daughterboard had 14 pairs short; 11 were fixed by moving
+the part 0.03-0.47 mm (with its track ends, `scripts/nudge_part.py`; DRC still clean): R144/R146 (1206, now 0.37 mm
+from R145), F2, RN1/U13, C2/C5 by U1, C34/C35/C66/C67 by their ICs, D30 by U102. Left short, with no room to move:
+C122 between U106 and U102 (0.26 / 0.41 mm against 0.4 / 0.5), U106 to U102 (1.15 / 1.25), RN1 to U13 (0.35 / 0.4).
+No two parts' pads are closer than 0.25 mm. The motherboards have none short.
+
 ## Open items
 The 2026-11-02 findings N1-N13 are listed in [New hardware findings](#new-hardware-findings-2026-11-02); what rev 0.7
 fixed is in [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings) and what rev 0.8 fixed in
