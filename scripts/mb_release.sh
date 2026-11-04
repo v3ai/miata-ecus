@@ -19,7 +19,11 @@ mv $OUT/$P.kicad_pcb.tmp $OUT/${P}_in.kicad_pcb
 rm -f $OUT/${P}_in.kicad_pcb $OUT/${P}_in.kicad_pro $OUT/$P.kicad_pcb.kicad_pro $OUT/*.kicad_prl
 /usr/bin/python3 $S/mb_tvs_copper.py $OUT/$P.kicad_pcb      # 1989-93 injector clamps: heat-spreading copper
 /usr/bin/python3 $S/mb_cleanup.py $OUT/$P.kicad_pcb
+/usr/bin/python3 $S/silk_jlc.py $OUT/$P.kicad_pcb > /dev/null                 # JLCPCB silkscreen minimums
+/usr/bin/python3 $S/via_hole_gap.py $OUT/$P.kicad_pcb $OUT/$P.kicad_pcb > /dev/null   # 0.45 mm via to pad hole
 /usr/bin/python3 $S/drc.py $OUT/$P.kicad_pcb $OUT/fab/drc_report.txt | tail -1
+/usr/bin/python3 $S/jlc_spacing.py $OUT/$P.kicad_pcb | head -1
+/usr/bin/python3 $S/jlc_fab_check.py $OUT/$P.kicad_pcb | head -6
 /usr/bin/python3 $S/mb_export.py $MOD $OUT/$P.kicad_pcb $OUT/fab
 ( cd $OUT && kicad-cli sch export pdf -o ${P}_schematic.pdf $P.kicad_sch >/dev/null 2>&1 )
 mkdir -p $OUT/ecu_mb.pretty && cp $S/../mb/ecu_mb.pretty/*.kicad_mod $OUT/ecu_mb.pretty/
