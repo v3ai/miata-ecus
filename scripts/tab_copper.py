@@ -103,8 +103,10 @@ def columns(board):
         t0, t1 = ToMM(tb.GetTop()) - OY, ToMM(tb.GetBottom()) - OY
         if t1 < jy:                                   # driver above J1 (rev 0.8)
             out.append((ref, nn, cx - HALF_W, Y_TOP, cx + HALF_W, jy + 0.5))
-        else:                                         # driver below J1 (rev 0.9)
-            out.append((ref, nn, cx - HALF_W, max(Y_TOP, jy - 1.4), cx + HALF_W, t1 + 0.6))
+        else:                                         # driver below J1 (rev 0.9): board edge down past the leads
+            # (the fill keeps its clearance around the input and source leads and their tracks)
+            lead_bottom = max(ToMM(p.GetBoundingBox().GetBottom()) - OY for p in fp.Pads() if p.GetNumber() != '2')
+            out.append((ref, nn, cx - HALF_W, Y_TOP, cx + HALF_W, max(t1 + 0.6, lead_bottom + 0.3)))
     return out
 
 

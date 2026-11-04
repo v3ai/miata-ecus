@@ -1,9 +1,25 @@
-# Miata ECU — daughterboard rev 0.8 (routed, unverified)
+# Miata ECU — daughterboard rev 0.9 (routed, unverified)
 
 125 × 76 mm, **4 layers**. All SMD parts are on top; the two 1×40 2.54 mm male headers are mounted on the
 **bottom side** (plastic under the board, pins pointing down) so the board plugs straight into female
 headers on the year-specific motherboard. J1 on the top edge carries power and outputs, J2 on the
 bottom edge carries inputs, comms and the LSU 4.9 wideband sensor.
+
+## What changed in rev 0.9
+Layout only; the circuit is rev 0.8's.
+- **J1 back on the top edge, J2 on the bottom edge**, as up to rev 0.7, with the four mounting holes in the corners.
+  The 16 mm strip of output drivers that rev 0.8 put above J1 now sits just below it: each VND7NV04 (Q1-Q8) stands
+  with its tab up against its own J1 pin and its leads facing the level shifters, and the relay switches, the
+  ignition diodes and pull-down switches and their resistors are mirrored the same way. Everything else keeps its
+  rev 0.8 place and copper.
+- **Drain copper** per driver: @AREA@, joined by @VIAS@ thermal vias (most in the tab pad; order them filled and
+  capped). Estimated junction to ambient @RTH@ °C/W (rev 0.8: 48).
+- **On the motherboards** the daughterboard sits 16 mm lower, centred top to bottom (42 mm from the top edge, as up to
+  rev 0.7): J1 and the upper standoffs are at their rev 0.7 places, J2, the lower standoffs and the AUX header 16 mm
+  lower. A rev 0.9 daughterboard needs a motherboard of rev 0.9 (1989-95) or 0.7 (1996-2005).
+- **Re-routed incrementally:** the rev 0.8 copper was kept everywhere except the nets of the moved parts
+  (`route_eco.py`), which `route.py` routed again; four connections were finished by hand (`hand_route_all.py`).
+  DRC: 0 unconnected, 0 clearance errors.
 
 ## What changed in rev 0.8
 Fixes for what the rev 0.7 checks still flagged (`VERIFICATION.md`, [Rev 0.8](../VERIFICATION.md#rev-08-driver-temperature-and-protected-outputs)):
