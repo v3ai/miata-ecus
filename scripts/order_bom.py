@@ -168,10 +168,31 @@ def jlc_rotation(fp_name, kicad_deg):
     return kicad_deg % 360
 
 
+# Centre: JLC places its part model's centre on Mid X/Y. Where a KiCad footprint's origin is not the centre of its
+# pads, the CPL gives the pad centre instead (offset in the footprint's own frame, mm, KiCad y down).
+# USB4105: KiCad's origin sits 1.14 mm in front of the pad field (toward the board edge); JLC's preview of the rev 0.9
+# motherboard showed the connector that far forward, its contacts short of the pads.
+JLC_OFFSET = [
+    (r'^USB_C_GCT_USB4105', (0.0, -1.14)),
+]
+
+
+def jlc_offset(fp_name):
+    for pat, off in JLC_OFFSET:
+        if re.match(pat, fp_name):
+            return off
+    return (0.0, 0.0)
+
+
 def cpl_row(fp):
     """Designator, Mid X, Mid Y, Layer, Rotation for one footprint (pcbnew FOOTPRINT)."""
+    import math
     import pcbnew
     pos = fp.GetPosition()
     name = fp.GetFPIDAsString().split(':')[-1]
-    return [fp.GetReference(), f'{pcbnew.ToMM(pos.x):.3f}mm', f'{-pcbnew.ToMM(pos.y):.3f}mm',
+    ox, oy = jlc_offset(name)
+    a = math.radians(-fp.GetOrientationDegrees())          # KiCad rotates counter-clockwise on a y-down board
+    x = pcbnew.ToMM(pos.x) + ox * math.cos(a) - oy * math.sin(a)
+    y = pcbnew.ToMM(pos.y) + ox * math.sin(a) + oy * math.cos(a)
+    return [fp.GetReference(), f'{x:.3f}mm', f'{-y:.3f}mm',
             'Bottom' if fp.IsFlipped() else 'Top', f'{jlc_rotation(name, fp.GetOrientationDegrees()):.0f}']

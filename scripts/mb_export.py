@@ -32,7 +32,12 @@ for p in parts:
         agg.setdefault((p['value'], p['fp'].split(':')[1], p['lcsc']), []).append(p['ref'])
 with open(out + '/' + PRE + 'jlcpcb_bom.csv', 'w', newline='') as f:
     w = csv.writer(f); w.writerow(['Comment', 'Designator', 'Footprint', 'LCSC Part #'])
+    MPN = order_bom.MPN
     for (v, fp, l), refs in agg.items():
+        # connectors by their part number, so JLC's matching doesn't flag "USB-C" against USB4105-GF-A and
+        # leave the line unticked
+        if refs[0].startswith('J') and MPN.get(l, {}).get('mpn'):
+            v = MPN[l]['mpn']
         w.writerow([v, ','.join(refs), fp, l])
 
 b = pcbnew.LoadBoard(board_path)
