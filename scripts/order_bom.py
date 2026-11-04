@@ -63,9 +63,12 @@ def self_rows(kind, parts):
             continue                                            # assembled, or a case mounting hole
         if p.get('dnp'):                                        # footprint left empty: optional
             m = MPN.get(p['lcsc'], {})
-            agg.setdefault(('dnp', p['lcsc']), dict(item=m.get('desc') or p['value'], refs=[], mfr=m.get('mfr', ''),
-                                                    mpn=m.get('mpn', '') or p['value'], lcsc=p['lcsc'], req='Optional',
-                                                    notes=p['desc']))['refs'].append(r)
+            a = agg.setdefault(('dnp', p['lcsc']), dict(item=m.get('desc') or p['value'], refs=[], mfr=m.get('mfr', ''),
+                                                        mpn=m.get('mpn', '') or p['value'], lcsc=p['lcsc'],
+                                                        req='Optional', notes=''))
+            a['refs'].append(r)
+            # each option keeps its own note (R20-R22 and R27 share a part but not a purpose)
+            a['notes'] = (a['notes'] + '; ' if a['notes'] else '') + f"{r}: {p['desc']}"
         elif p['lcsc']:                                         # through-hole part you fit yourself
             m = MPN.get(p['lcsc'], {})
             key = (p['lcsc'],)
@@ -85,9 +88,11 @@ def self_rows(kind, parts):
             lc = 'C23162' if p['value'] == '4.7k' else ('C17477' if p['value'] == '0R' else '')
             m = MPN.get(lc, {})
             key = ('opt', p['value'], p['fp'])
-            agg.setdefault(key, dict(item=m.get('desc') or p['value'], refs=[], mfr=m.get('mfr', ''),
-                                     mpn=m.get('mpn', ''), lcsc=lc, req='Optional',
-                                     notes=p['desc'].replace('NOT FITTED: ', '')))['refs'].append(r)
+            a = agg.setdefault(key, dict(item=m.get('desc') or p['value'], refs=[], mfr=m.get('mfr', ''),
+                                         mpn=m.get('mpn', ''), lcsc=lc, req='Optional', notes=''))
+            a['refs'].append(r)
+            # each option keeps its own note (R20-R22 and R27 share a part but not a purpose)
+            a['notes'] = (a['notes'] + '; ' if a['notes'] else '') + f"{r}: {p['desc'].replace('NOT FITTED: ', '')}"
     for v in agg.values():
         rows.append((v['item'], len(v['refs']), ','.join(v['refs']), v['mfr'], v['mpn'], v['lcsc'], v['req'], v['notes']))
     if kind == 'mb':
