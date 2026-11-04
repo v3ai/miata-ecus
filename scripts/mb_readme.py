@@ -49,13 +49,14 @@ if getattr(M, 'CHANGES', None):
     o += [f'- {c}' for c in M.CHANGES]
     o.append('')
 P = M.NAME
+F = 'fab/' + C.fab_prefix(sys.argv[1], os.environ.get('MBREV', '0.0'))     # fab file names carry year and rev
 o.append('## Files')
 o.append('| Path | What |\n|---|---|')
 o.append(f'| `{P}.kicad_pro / .kicad_sch / .kicad_pcb` | KiCad 7 project. Root schematic plus three sheets: harness, daughterboard, I/O |')
 o.append(f'| `{P}_schematic.pdf` | Schematic PDF |')
-o.append('| `fab/jlcpcb_gerbers.zip`, `fab/jlcpcb_bom.csv`, `fab/jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |')
-o.append('| `fab/self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt, standoffs and screws, plus the not-fitted options. Its columns load into LCSC\'s BOM tool |')
-o.append('| `fab/parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |')
+o.append(f'| `{F}jlcpcb_gerbers.zip`, `{F}jlcpcb_bom.csv`, `{F}jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |')
+o.append(f'| `{F}self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt, standoffs and screws, plus the not-fitted options. Its columns load into LCSC\'s BOM tool |')
+o.append(f'| `{F}parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |')
 o.append('| `fab/drc_report.txt` | KiCad DRC |')
 o.append('| `ecu_mb.pretty/`, `fp-lib-table` | Project footprints (harness header, MAP sensor lying flat, USB-C, M4 case hole) |')
 o.append('| `renders/` | Top and bottom copper |')
@@ -107,7 +108,7 @@ if any(p['ref'] == 'R23' for p in C.parts):
              'control unit.**\n')
 o.append('## Assembly')
 o.append('- The daughterboard plugs into JD1/JD2 (8.5 mm sockets) on four M3 × 11 mm standoffs.')
-o.append('- Fitted by hand (all in `fab/self_order_bom.csv`): the harness header (salvage from a stock ECU or use a clone), the daughterboard sockets JD1/JD2, the LSU and IAT connectors, the AUX header, the JP1 header and its shunt (EXT or STOCK), the MAP sensor, the standoffs, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC\'s quote whether that needs Standard PCBA.')
+o.append(f'- Fitted by hand (all in `{F}self_order_bom.csv`): the harness header (salvage from a stock ECU or use a clone), the daughterboard sockets JD1/JD2, the LSU and IAT connectors, the AUX header, the JP1 header and its shunt (EXT or STOCK), the MAP sensor, the standoffs, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC\'s quote whether that needs Standard PCBA.')
 o.append('- The case needs cut-outs in its bottom edge for the LSU, IAT, USB-C and MAP hose.\n')
 o.append('## Still to verify')
 o += [f'- {v}' for v in getattr(M, 'VERIFY', ['The case geometry, against a stock case with calipers.'])]

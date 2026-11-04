@@ -134,3 +134,11 @@ def nets():
             if n and n not in out:
                 out.append(n)
     return out
+
+
+YEAR_NAME = {'mb_na6': '1989-93', 'mb_na8': '1994-95', 'mb_na96': '1996-97', 'mb_nb1': '1999-2000', 'mb_nb2': '2001-05'}
+
+
+def fab_prefix(module, rev):
+    """Prefix of a motherboard's fab files, e.g. miata-ecu-motherboard-1989-93-rev0.9_"""
+    return f'miata-ecu-motherboard-{YEAR_NAME.get(module, module)}-rev{rev}_'
