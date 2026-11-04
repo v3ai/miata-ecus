@@ -71,8 +71,8 @@ Each board folder contains:
 - a schematic PDF;
 - JLCPCB gerbers, BOM and placement files in `fab/`, with the DRC report. The JLC BOM is the SMD parts (and USB-C);
   `fab/self_order_bom.csv` is everything you order and solder yourself, and
-  [`shopping/order_all_boards.csv`](shopping/order_all_boards.csv) adds up all five motherboards, five daughterboards and the in-car parts
-  (the same list as a page with quantities and tick boxes: [`shopping/shopping_list.html`](shopping/shopping_list.html));
+  [`additional-parts/order_all_boards.csv`](additional-parts/order_all_boards.csv) adds up all five motherboards, five daughterboards and the in-car parts
+  (the same list as a page with quantities and tick boxes: [`additional-parts/shopping_list.html`](additional-parts/shopping_list.html));
 - renders;
 - a README with the pinout, assembly notes and open questions.
 
