@@ -53,7 +53,7 @@ for fp in b.GetFootprints():
             holes.append(Point(mm(pd.GetPosition().x), mm(pd.GetPosition().y)).buffer(mm(pd.GetDrillSize().x) / 2))
 ob = {l: prepared.prep(unary_union(obs[l]).buffer(CL + TW / 2)) for l in obs}
 ov = {l: prepared.prep(unary_union(obs[l]).buffer(CL + VD / 2)) for l in obs}
-hv = prepared.prep(unary_union(holes).buffer(0.25 + VD / 2)) if holes else None
+hv = prepared.prep(unary_union(holes).buffer(0.32 + VD / 2)) if holes else None   # via hole >= 0.47 mm from any hole (JLC: 0.45)
 G = 0.05
 nx, ny = int((X1 - X0) / G) + 1, int((Y1 - Y0) / G) + 1
 def xy(i, j): return (X0 + i * G, Y0 + j * G)

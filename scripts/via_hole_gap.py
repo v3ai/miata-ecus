@@ -1,7 +1,7 @@
 """via_hole_gap.py in out [gap]: keep every via hole at least `gap` mm (default 0.47; JLCPCB asks 0.45 mm between a
 pad hole and another hole) from the plated and non-plated pad holes. A GND or +3V3 via with no track on it (a
-stitching via: the planes connect it) is deleted; any other via moves straight away from the hole, dragging the
-track ends on it. Zones refilled."""
+stitching via: the planes connect it) is deleted; a routed via that is too close is reported (exit status 1) for
+re-routing, since moving it could break other clearances. Zones refilled."""
 import sys, math, pcbnew
 mm, IU = pcbnew.ToMM, pcbnew.FromMM
 src, out = sys.argv[1], sys.argv[2]
@@ -20,16 +20,12 @@ for v in [t for t in b.GetTracks() if t.Type() == pcbnew.PCB_VIA_T]:
                     if abs(mm(getattr(t, 'Get' + e)().x) - vx) < 1e-3 and abs(mm(getattr(t, 'Get' + e)().y) - vy) < 1e-3]
             if not ends and v.GetNetname() in ('GND', '+3V3'):
                 dele.append(v)
-            else:
-                k = (GAP - d) / max(math.hypot(vx - hx, vy - hy), 1e-6)
-                dx, dy = (vx - hx) * k, (vy - hy) * k
-                v.SetPosition(pcbnew.VECTOR2I(IU(vx + dx), IU(vy + dy)))
-                for t, e in ends:
-                    getattr(t, 'Set' + e)(pcbnew.VECTOR2I(IU(vx + dx), IU(vy + dy)))
-                moved.append((v.GetNetname(), round(vx, 2), round(vy, 2), round(dx, 3), round(dy, 3)))
+            else:                           # a routed via: report it (re-route that net with hand_route.py)
+                moved.append((v.GetNetname(), round(vx, 2), round(vy, 2), round(d, 3)))
             break
 for v in dele:
     b.Remove(v)
-print('deleted stitching vias:', len(dele), ' moved:', moved)
+print('deleted stitching vias:', len(dele), ' routed vias too close (net, x, y, gap):', moved)
 b.Save(out)
 b = pcbnew.LoadBoard(out); pcbnew.ZONE_FILLER(b).Fill(b.Zones()); b.Save(out)
+sys.exit(1 if moved else 0)
