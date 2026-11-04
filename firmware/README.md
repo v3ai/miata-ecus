@@ -84,6 +84,10 @@ gets no fuel or spark with the key on, check that you didn't pick 2003-05 on a 2
 - **Inputs:** SW1 = vehicle speed, SW2 = A/C switch, SW3 = clutch.
 - **Sensors:** TPS, MAP (on-board MPX5700AP), CLT and IAT, MAF/AFM on AUX3. External 0-5 V wideband on AFR, used
   only if the CAN wideband is switched off.
+  - **1989-93 manual cars have no TPS**, only an idle switch: the TPS input reads 0 V and rusEFI reports the sensor
+    failed (open-loop idle, no TPS acceleration fuel, no overrun cut). Fit the aftermarket sensor to the 1989-93
+    motherboard's J6 (rev 0.10, same input as harness 2M; see `motherboards/1989-93/README.md`), then calibrate
+    closed and wide-open throttle in TunerStudio. No firmware setting changes.
 - **Wideband:** the on-board unit, over CAN.
 
 ### Board facts the firmware pins (TunerStudio can't change them)

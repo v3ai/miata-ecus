@@ -43,6 +43,7 @@ HARNESS.update({
     '2H': '',            # data link connector
     '2J': '',            # EGR function sensor
     '2L': 'IN_AUX1',     # electrical load (rear defroster) -> idle up
+    '2M': 'IN_TPS',      # throttle position sensor (0-5 V)
     '2R': 'OUT_ALT',     # pressure regulator control solenoid (generic low side)
     '2S': 'OUT_LS7',     # condenser fan relay
     '2U': 'OUT_INJ1',    # injector No.1 (94-95: one wire per injector, sequential)
@@ -53,4 +54,4 @@ HARNESS.update({
 
 
 def build_parts():
-    return base.build_parts(HARNESS, paired_injectors=False, idle_pullup=False)   # 94-95: one wire per injector
+    return base.build_parts(HARNESS, paired_injectors=False, idle_pullup=False, tps_conn=False)   # 94-95: one wire per injector

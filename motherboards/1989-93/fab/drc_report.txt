@@ -1,15 +1,11 @@
-** Drc report for /home/claude/miata-ecus/scripts/../mb/release_8993/miata_mb_8993.kicad_pcb **
-** Created on 2026-11-03 22:29:22 **
+** Drc report for ../mb/release_8993/miata_mb_8993.kicad_pcb **
+** Created on 2026-11-04 01:46:00 **
 
-** Found 107 DRC violations **
+** Found 108 DRC violations **
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(119.0000 mm, 92.3000 mm): Reference 'HD1'
     @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
-    @(235.0000 mm, 92.3000 mm): Reference 'HD2'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(163.5825 mm, 160.2373 mm): Line on F.Silkscreen
@@ -18,6 +14,10 @@
     Rule: board setup constraints silk; Severity: warning
     @(166.7100 mm, 160.0000 mm): Reference 'R22'
     @(166.1225 mm, 160.2373 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
+    @(235.0000 mm, 92.3000 mm): Reference 'HD2'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(194.4325 mm, 169.8373 mm): Line on F.Silkscreen
@@ -310,6 +310,9 @@
 [lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
     @(195.7100 mm, 169.6000 mm): Footprint R6
+[lib_footprint_issues]: The current configuration does not include the library 'Connector_Molex'.
+    Local override; Severity: warning
+    @(200.5000 mm, 202.3000 mm): Footprint J6
 [lib_footprint_issues]: The current configuration does not include the library 'Fuse'.
     Local override; Severity: warning
     @(144.0000 mm, 193.0000 mm): Footprint F1

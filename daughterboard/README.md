@@ -16,7 +16,7 @@ Layout only; the circuit is rev 0.8's.
   capped). Estimated junction to ambient 48 °C/W, as in rev 0.8 (sequential injectors at 90 % duty, 7200 rpm, 85 °C ambient: 109 °C).
 - **On the motherboards** the daughterboard sits 16 mm lower, centred top to bottom (42 mm from the top edge, as up to
   rev 0.7): JD1 and the upper standoffs are at their rev 0.7 places, JD2, the lower standoffs and the AUX header 16 mm
-  lower. A rev 0.9 daughterboard needs a motherboard of rev 0.9 (1989-95) or 0.7 (1996-2005).
+  lower. A rev 0.9 daughterboard needs a motherboard of rev 0.9 or later (1989-95; 1989-93 is now rev 0.10) or 0.7 (1996-2005).
 - **Re-routed incrementally:** the rev 0.8 copper was kept everywhere except the nets of the moved parts
   (`route_eco.py`), which `route.py` routed again; four connections were finished by hand (`hand_route_all.py`).
   DRC: 0 unconnected, 0 clearance errors.

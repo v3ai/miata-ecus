@@ -57,5 +57,5 @@ with open(out + '/' + PRE + 'parts_list.csv', 'w', newline='') as f:
         asm = 'JLC' if order_bom.is_jlc('mb', p) else ('mechanical' if p['ref'].startswith('H') else
                                                         ('hand-fit' if p['lcsc'] else 'hand-fit / not fitted'))
         w.writerow([p['ref'], p['value'], p['fp'], p['lcsc'], asm, p['desc']])
-order_bom.write_self_bom('mb', parts, out + '/' + PRE + 'self_order_bom.csv')
+order_bom.write_self_bom('mb', parts, out + '/' + PRE + 'self_order_bom.csv', sys.argv[1])
 print('exported', out, len(agg), 'BOM lines')
