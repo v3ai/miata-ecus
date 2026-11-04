@@ -12,7 +12,8 @@ X0, Y0, X1, Y1 = map(float, sys.argv[4:8])
 SRC = sys.argv[8].split(':')
 DSTS = [d.split(':') for d in sys.argv[9].split(',')]
 mm, IU = pcbnew.ToMM, pcbnew.FromMM
-TW, VD, CL = 0.2, 0.6, 0.17
+TW, VD = 0.2, 0.6
+CL = float(__import__('os').environ.get('CL', '0.17'))   # clearance + margin: 0.17 for the daughterboard's 0.15 rule, 0.22 for the motherboards' 0.2
 b = pcbnew.LoadBoard(src)
 win = box(X0 - 2, Y0 - 2, X1 + 2, Y1 + 2)
 obs = {'F.Cu': [], 'B.Cu': []}
@@ -79,7 +80,8 @@ def near_pad(key, l, i, j):
 def cell(x, y): return (round((x - X0) / G), round((y - Y0) / G))
 srcpad = next(t for t in targets if t[0] == SRC)
 c = srcpad[2].centroid; si, sj = cell(c.x, c.y)
-start = (srcpad[1][0], si, sj)
+starts = [(l, si, sj) for l in srcpad[1]]          # a through-hole source pad starts on either layer, no via
+start = starts[0]
 goal_cells = set()
 for k, layers, poly in targets:
     if k == SRC:
@@ -93,8 +95,8 @@ def h(i, j):
     x, y = xy(i, j); return min(math.hypot(x - a, y - b_) for a, b_ in gx)
 DIRS = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
 LC = {'F.Cu': 1.6, 'B.Cu': 1.0}   # prefer the bottom layer here
-openq = [(h(si, sj), 0.0, start, None)]
-came, cost = {}, {start: 0.0}
+openq = [(h(si, sj), 0.0, st, None) for st in starts]
+came, cost = {}, {st: 0.0 for st in starts}
 found = None
 while openq:
     f, g, s, d = heapq.heappop(openq)
@@ -122,7 +124,7 @@ while openq:
 if not found:
     print('no path'); sys.exit(1)
 path = [found]
-while path[-1] != start:
+while path[-1] not in starts:
     path.append(came[path[-1]][0])
 path.reverse()
 # compress into segments and vias

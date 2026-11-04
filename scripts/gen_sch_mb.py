@@ -59,7 +59,7 @@ def choose(p):
     if r == 'J5':
         return 'Connector_Generic', 'Conn_02x08_Odd_Even'
     if r == 'J6':
-        return 'Connector_Generic', 'Conn_01x06'
+        return 'Connector_Generic', 'Conn_01x04'
     if r == 'JP1':
         return 'Jumper', 'Jumper_3_Open'
     if r.startswith('JP'):
@@ -166,6 +166,9 @@ def sheet_io(s):
     s.wire('JP1.2', (jx, jy + 7.62)); s.wire((jx, jy + 7.62), (jx + 12.7, jy + 7.62))
     s.lab('IN_IAT', (jx + 12.7, jy + 7.62), 'right')
     s.text('shunt LCSC C5305, fitted by hand', 213.36, 119.38, 1.27)
+    if 'J6' in S.PARTS:
+        s.text('Aftermarket TPS lead J6 (1989-93 manual cars): pin 2 is the same input as harness 2M', 193.04, 127.0, 1.27)
+        s.place('J6', 203.2, 134.62, 180)
 
     # ---- USB
     s.text('USB-C (device): tuning, logs, DFU firmware update', 279.4, 22.86)

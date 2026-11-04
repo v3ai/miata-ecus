@@ -1,4 +1,4 @@
-# Miata ECU motherboard 1989-1993 (NA6), rev 0.9
+# Miata ECU motherboard 1989-1993 (NA6), rev 0.10
 
 The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**. It carries:
 
@@ -7,6 +7,7 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 - the sockets for the universal daughterboard, which does all the engine control (including the wideband controller).
 
 ## Changes in this revision
+- Rev 0.10, for daughterboard rev 0.9: new connector J6 (Molex Micro-Fit 1x4, right angle, LCSC C277684) on the bottom edge between the USB-C and the MAP sensor, for an aftermarket throttle position sensor on the manual cars, whose stock throttle switch only reports idle: 1 = protected 5 V (V5_EXT), 2 = the TPS input (IN_TPS, the same input as harness pin 2M), 3 = sensor ground, 4 = cable shield. Its two nets are hand-routed on the bottom layer; the rest of the board is unchanged. The sensor, adapter plate, plug and cable are in the self-order BOM. The case needs one more cut-out.
 - Rev 0.9, for daughterboard rev 0.9: the daughterboard sits 16 mm lower, centred on the board (42 mm from the top, as up to rev 0.7), with its J1 on its top edge again: JD1 and the upper standoffs HD1/HD2 are back at their rev 0.7 places, JD2, the lower standoffs HD3/HD4, the AUX header J5 (with F4 beside it) and the parts placed against JD2 (CAN termination R1/R6, pull-up options) are 16 mm lower, and the board is routed again. Not compatible with a rev 0.8 daughterboard.
 - Rev 0.8, for daughterboard rev 0.8: the harness's sensor 5 V (1N, 2K) and the AUX header pin J5-14 now come from the daughterboard's protected 5 V (V5_EXT, JD1 pin 13, which was a ground pin): a sensor 5 V wire shorted to the battery no longer back-feeds the MAP sensor and the ECU's own 5 V. The MAP sensor keeps its own supply (V5_SENS). The daughterboard outline on the silkscreen is 16 mm taller (125 x 76 mm): its new strip of output drivers overhangs the free area above JD1. D3/D4 (the batch injector clamps) are now SMCJ30A (33.3-36.8 V breakdown) instead of SMCJ40A: the new daughterboard drivers clamp at 40 V minimum, so a 40 V TVS could leave the turn-off energy in a driver; at 30 V the TVS always clamps first. Not-fitted option R27: 4.7k pull-up from the protected 5 V for the manual cars' TPS idle switch on 2L.
 - Rev 0.7: LSU heater fuse F1 is a 3 A hold PTC (LUTE 2920L300/30GR, 30 V, 2920 size) instead of the 2 A 1812 part. A cold LSU 4.9 heater draws 1.6-2.3 A rms at the start of the wideband's warm-up, more than the old fuse holds once warm, so it could trip and the controller time out. No 1812 PTC holds 3 A above 8 V.
@@ -21,9 +22,9 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 |---|---|
 | `miata_mb_8993.kicad_pro / .kicad_sch / .kicad_pcb` | KiCad 7 project. Root schematic plus three sheets: harness, daughterboard, I/O |
 | `miata_mb_8993_schematic.pdf` | Schematic PDF |
-| `fab/miata-ecu-motherboard-1989-93-rev0.9_jlcpcb_gerbers.zip`, `fab/miata-ecu-motherboard-1989-93-rev0.9_jlcpcb_bom.csv`, `fab/miata-ecu-motherboard-1989-93-rev0.9_jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |
-| `fab/miata-ecu-motherboard-1989-93-rev0.9_self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt, standoffs and screws, plus the not-fitted options. Its columns load into LCSC's BOM tool |
-| `fab/miata-ecu-motherboard-1989-93-rev0.9_parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |
+| `fab/miata-ecu-motherboard-1989-93-rev0.10_jlcpcb_gerbers.zip`, `fab/miata-ecu-motherboard-1989-93-rev0.10_jlcpcb_bom.csv`, `fab/miata-ecu-motherboard-1989-93-rev0.10_jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |
+| `fab/miata-ecu-motherboard-1989-93-rev0.10_self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt, standoffs and screws, plus the not-fitted options. Its columns load into LCSC's BOM tool |
+| `fab/miata-ecu-motherboard-1989-93-rev0.10_parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |
 | `fab/drc_report.txt` | KiCad DRC |
 | `ecu_mb.pretty/`, `fp-lib-table` | Project footprints (harness header, MAP sensor lying flat, USB-C, M4 case hole) |
 | `renders/` | Top and bottom copper |
@@ -94,6 +95,7 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J, 2R, 2S.
 | J3 | IAT (Micro-Fit 1×2) | M12×1.5 open-element thermistor, used when the IAT jumper JP1 is on EXT |
 | JP1 | IAT source jumper (1×3, 2.54 mm) | Shunt on **2-3 (EXT, default)**: the IAT connector J3. Shunt on **1-2 (STOCK)**: the stock air-temp sensor through the harness (inside the AFM on 1989-97, the MAF on 1999-2005). Set the matching sensor curve in TunerStudio; the pull-up is 2.7 kΩ |
 | J4 | USB-C | USB 2.0 device: tuning, logging, DFU |
+| J6 | Aftermarket TPS (Micro-Fit 1×4) | Manual cars: 1 = protected 5 V, 2 = TPS signal (the same input as harness pin 2M), 3 = sensor ground, 4 = cable shield. See *Throttle position sensor* below |
 | U2 | MPX5700AP | Absolute MAP sensor (15-700 kPa, case 867B). Lies flat on 2 × M3, marking side up, leads bent 90° down, the single barb toward the board centre |
 
 **CAN:** R1 + R6 terminate the bus at the ECU end; remove R6 if the bus is terminated elsewhere.
@@ -104,7 +106,9 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J, 2R, 2S.
 
 **Switch inputs (R20-R22, not fitted):** the VSS, A/C and clutch inputs read signals that are driven to 12 V. If your car's signal only switches to ground (or is open collector), fit the 4.7 kΩ pull-up for that input. Never fit it for a switch that drives 12 V: the input would always read on.
 
-**TPS idle switch (R27, not fitted):** on the manual cars 2L is the throttle sensor's idle switch, which closes to ground at idle. Fit the 4.7 kΩ pull-up to the protected 5 V if you want the ECU to read it.
+**Throttle position sensor (manual cars):** the 1989-93 manual cars have no throttle position sensor, only a switch that closes at idle (2L). The ECU calculates fuel from the MAP sensor, so the car runs without one, but rusEFI then flags the throttle sensor as failed and drops closed-loop idle, throttle-based acceleration fuel and overrun fuel cut. The fix is a real 0-5 V sensor on its own lead to J6. **Sensor:** Bosch 0 280 122 001 (= BMW 13 63 1 721 456), on an adapter plate that bolts to the side of the throttle body in place of the stock switch: Flyin' Miata's TPS upgrade kit (no-TPS option), or a printed plate (Thingiverse 4476762, Printables 619337; print in ASA). **Lead:** about 3 m of shielded 3 × 22 AWG cable rated 105 °C or more, from J6 (Micro-Fit 43645-0400 receptacle) through the firewall to a Bosch 3-pin Junior Timer plug (1 237 000 039). J6 pin 1 (5 V) and pin 3 (ground) go to the two ends of the sensor track (sensor pins 1 and 2, about 2 kΩ between them at any throttle), pin 2 to the wiper (sensor pin 3); the shield drain goes to J6 pin 4 and stays open at the sensor end. If the reading falls as the throttle opens, swap pins 1 and 3 at the sensor plug. Unplug the stock switch's plug and tape it up. In TunerStudio, calibrate the throttle closed and wide open. **Automatics already have a real sensor on 2M: leave J6 empty**, since both feed the same input. Every part is in the self-order BOM, marked "Manual cars".
+
+**TPS idle switch (R27, not fitted):** on the manual cars 2L is the throttle switch's idle contact, which closes to ground at idle. Fit the 4.7 kΩ pull-up to the protected 5 V only if you keep the stock switch and want the ECU to read it; with the J6 sensor it isn't needed.
 
 **Sensor 5 V:** the harness's 5 V reference and the AUX header pin J5-14 come from the daughterboard's protected 5 V regulator (V5_EXT; it survives a short to the battery or to ground). The MAP sensor has its own supply (V5_SENS), so a damaged sensor wire doesn't take the MAP reading with it.
 
@@ -112,10 +116,11 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J, 2R, 2S.
 
 ## Assembly
 - The daughterboard plugs into JD1/JD2 (8.5 mm sockets) on four M3 × 11 mm standoffs.
-- Fitted by hand (all in `fab/miata-ecu-motherboard-1989-93-rev0.9_self_order_bom.csv`): the harness header (salvage from a stock ECU or use a clone), the daughterboard sockets JD1/JD2, the LSU and IAT connectors, the AUX header, the JP1 header and its shunt (EXT or STOCK), the MAP sensor, the standoffs, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC's quote whether that needs Standard PCBA.
-- The case needs cut-outs in its bottom edge for the LSU, IAT, USB-C and MAP hose.
+- Fitted by hand (all in `fab/miata-ecu-motherboard-1989-93-rev0.10_self_order_bom.csv`): the harness header (salvage from a stock ECU or use a clone), the daughterboard sockets JD1/JD2, the LSU and IAT connectors, the TPS connector J6, the AUX header, the JP1 header and its shunt (EXT or STOCK), the MAP sensor, the standoffs, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC's quote whether that needs Standard PCBA.
+- The case needs cut-outs in its bottom edge for the LSU, IAT, USB-C, TPS lead (J6) and MAP hose.
 
 ## Still to verify
 - The case geometry: hole centres and header 1A position, with calipers on a stock case.
 - Your car's fan wiring: early cars switch the fan relay on 1R, later ones on 1L; both are driven (fan and spare outputs).
-- LCSC stock for the extended parts (C124412, C127367, C587650, C3020560, C410772, C46641168, C3406).
+- LCSC stock for the extended parts (C124412, C127367, C277684, C587650, C3020560, C410772, C46641168, C3406).
+- The TPS conversion on a manual car: the adapter plate against your throttle body, the sensor's output range across the throttle travel (calibrate closed and wide open in TunerStudio), and the J6 cut-out in the case.

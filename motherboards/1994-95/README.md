@@ -69,7 +69,7 @@ TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); ru
 | 2I | `OUT_TACH` | tach out |  |
 | 2K | `V5_EXT` | sensor 5 V reference (out; protected, short-to-battery proof) | 5 V sensor reference (protected harness 5 V) |
 | 2L | `IN_AUX1` | spare analog 1 | electrical load (rear defroster) -> idle up |
-| 2M | `IN_TPS` | TPS | TPS signal (AT / VTPS conversion) |
+| 2M | `IN_TPS` | TPS | throttle position sensor (0-5 V) |
 | 2N | `IN_AUX2` | spare analog 2 | heated O2 sensor (narrowband) |
 | 2O | `IN_AUX3` | spare analog 3 | air flow meter signal (vane AFM; rusEFI's 1994 page calls it MAF) |
 | 2P | `HARN_IAT` | stock air-temp sensor (JP1 on STOCK) | intake air thermosensor in the AFM (IAT jumper JP1 on STOCK to use it) |

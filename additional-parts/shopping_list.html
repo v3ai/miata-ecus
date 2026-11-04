@@ -60,6 +60,7 @@ tr.zero{opacity:.45}
 tr.done td{text-decoration:line-through;text-decoration-color:var(--muted)}
 tr.done td:last-child{text-decoration:none}
 .check{width:18px;height:18px;accent-color:var(--accent)}
+td.item b a{color:var(--accent);text-underline-offset:2px}
 .foot{color:var(--muted);font-size:13.5px;max-width:90ch}
 @media (max-width:640px){.actions{margin-left:0}.sep{display:none}}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
@@ -69,7 +70,7 @@ tr.done td:last-child{text-decoration:none}
 <main>
   <header>
     <h1>Miata ECU: parts JLCPCB won't fit</h1>
-    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.5 and the five motherboards (1989-93 and 1994-95 rev 0.6, 1996-97 / 1999-2000 / 2001-05 rev 0.4). Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
+    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.9 and the five motherboards (1989-93 rev 0.10, 1994-95 rev 0.9, 1996-97 / 1999-2000 / 2001-05 rev 0.7), plus the parts that go in the car. Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
   </header>
 
   <div class="counts" role="group" aria-label="Build counts">
@@ -82,6 +83,7 @@ tr.done td:last-child{text-decoration:none}
     <div class="count"><label for="n-0105">01–05</label><input id="n-0105" type="number" min="0" value="1"></div>
     <div class="sep"></div>
     <div class="count"><label for="n-car">Cars to fit</label><input id="n-car" type="number" min="0" value="1"></div>
+    <div class="count"><label for="n-mt">89–93 manual cars</label><input id="n-mt" type="number" min="0" value="1"></div>
     <div class="actions"><span id="copied" aria-live="polite"></span><button class="ghost" id="reset" type="button">Clear ticks</button><button id="copy" type="button">Copy as CSV</button></div>
   </div>
 
@@ -124,6 +126,7 @@ const GROUPS = [
   {item:'Micro-Fit 3.0 header, 1×2, right angle', pn:'Molex 43650-0200', lcsc:'C587650', per:'mb', q:1, who:'must', note:'J3, IAT sensor.'},
   {item:'Box header, 2×8, 2.54 mm', pn:'BOOMELE 2.54-2*8P', lcsc:'C3406', per:'mb', q:1, who:'must', note:'J5, AUX.'},
   {item:'Pin header, 1×3, 2.54 mm', pn:'BOOMELE 2.54-1*3P', lcsc:'C49257', per:'mb', q:1, who:'must', note:'JP1, holds the shunt above.'},
+  {item:'Micro-Fit 3.0 header, 1×4, right angle', pn:'Molex 43650-0400', lcsc:'C277684', per:'8993', q:1, who:'must', note:'J6 on the 1989-93 board only: the aftermarket throttle sensor lead (manual cars). Fit it on every 1989-93 board; an automatic just leaves it empty.'},
  ]},
  {id:'optional', title:'Optional parts on the motherboard', sub:'Not fitted by default. Buy only if your car needs them.', rows:[
   {item:'Resistor 4.7 kΩ, 0603', pn:'UNI-ROYAL 0603WAF4701T5E', lcsc:'C23162', per:'mb', q:3, who:'opt',
@@ -142,6 +145,21 @@ const GROUPS = [
   {item:'Vacuum hose to the intake manifold', pn:'hose to fit the MAP barb', per:'car', q:1, who:'must', note:'From the MPX5700AP barb to a manifold vacuum port.'},
   {item:'Case', pn:'stock ECU case', per:'car', q:1, who:'must', note:'1989-95 boards fit the stock NA case: reuse yours. The 1996-2005 outlines are provisional until those cases are measured.'},
  ]},
+ {id:'tps', title:'1989-93 manual cars: throttle position sensor', sub:'These cars have only an idle switch on the throttle. A real 0-5 V sensor on its own lead to J6 gives closed-loop idle, acceleration fuel and overrun cut. Automatics already have one: skip this group.', rows:[
+  {item:'Throttle position sensor, 0-5 V', pn:'Bosch 0 280 122 001', per:'mt', q:1, who:'must',
+   note:'Same part as BMW 13 63 1 721 456. Pins 1 and 2 are the track ends (5 V and ground, about 2 kΩ apart at any throttle), pin 3 the signal: check with an ohmmeter before wiring.'},
+  {item:'TPS adapter plate, NA6 throttle body', pn:'Flyin’ Miata TPS upgrade kit, no-TPS option', per:'mt', q:1, who:'must',
+   note:'Bolts to the side of the throttle body in place of the stock switch. Or print one instead (next row).', link:'https://flyinmiata.com/products/tps-upgrade'},
+  {item:'Printed adapter plate (instead of the kit)', pn:'Thingiverse 4476762 / Printables 619337', per:'mt', q:1, who:'opt',
+   note:'Print in ASA (PLA and PETG soften in the engine bay). Two M4 screws and nuts hold the sensor; two M4 screws with wide washers hold the plate to the throttle body. Check the licence on the model page.', link:'https://www.printables.com/model/619337-bmw-tps-adaptor-maximum-beef'},
+  {item:'TPS plug, Bosch Junior Timer 3-pin, with terminals', pn:'Bosch 1 237 000 039', per:'mt', q:1, who:'must',
+   note:'Buy it as a kit (e.g. EFI Hardware C03F-0002): loose terminals often don’t fit the housing.', link:'https://www.efihardware.com/products/388/connector-TPS-Module-3-pin-plug-Bosch'},
+  {item:'Shielded cable, 3 × 22 AWG + drain, 105 °C or better (m)', pn:'M27500-22SB3T23 or equivalent', per:'mt', q:3, who:'must',
+   note:'J6 to the sensor, through the firewall: about 3 m, measure your route. Drain to J6 pin 4 only. Office cable rated 60 °C won’t last under the hood.'},
+  {item:'Micro-Fit 3.0 receptacle, 1×4', pn:'Molex 43645-0400', per:'mt', q:1, who:'must', note:'Mates with J6: 1 = 5 V, 2 = signal, 3 = ground, 4 = shield.'},
+  {item:'Micro-Fit 3.0 female crimp terminal (TPS lead)', pn:'Molex 43030-0007', per:'mt', q:4, who:'must', note:'For the J6 receptacle; buy spares.'},
+  {item:'Split loom, 6 mm (m)', pn:'6 mm convoluted loom', per:'mt', q:2, who:'opt', note:'Engine-bay run; keep the lead away from the exhaust and the coil wires.'},
+ ]},
  {id:'once', title:'Tools (once)', sub:'No programmer is needed: the main MCU flashes over USB and the board flashes its own wideband MCU.', rows:[
   {item:'USB-C cable', pn:'USB-C to your computer', per:'once', q:1, who:'must', note:'Flashing (DFU) and tuning.'},
   {item:'SWD probe (ST-Link V2 or V3)', pn:'ST-LINK', per:'once', q:1, who:'opt', note:'Fallback for first bring-up if USB or the on-board wideband flashing doesn’t work.'},
@@ -155,13 +173,14 @@ const num = id => Math.max(0, parseInt($(id).value, 10) || 0);
 function mult(per){
   if (per === 'd') return num('n-d');
   if (per === 'car') return num('n-car');
+  if (per === 'mt') return num('n-mt');
   if (per === 'once') return 1;
   if (per === 'mb') return YEARS.reduce((s, y) => s + num('n-' + y), 0);
   if (per === 'na') return num('n-8993') + num('n-9495');
   return num('n-' + per);
 }
-const PER_LABEL = {d:'per daughterboard', mb:'per motherboard', na:'per 1989-95 board', car:'per car', once:'once',
-  '8993':'per 1989-93 board', '9697':'per 1996-97 board','9900':'per 1999-2000 board','0105':'per 2001-05 board'};
+const PER_LABEL = {d:'per daughterboard', mb:'per motherboard', na:'per 1989-95 board', car:'per car', mt:'per 1989-93 manual car', once:'once',
+  '8993':'per 1989-93 board', '9495':'per 1994-95 board', '9697':'per 1996-97 board','9900':'per 1999-2000 board','0105':'per 2001-05 board'};
 const WHO = {must:['p-must','You fit it'], jlc:['p-jlc','JLC or you'], opt:['p-opt','Optional']};
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
@@ -179,7 +198,7 @@ function render(){
        const key = g.id + i, total = r.q * mult(r.per), w = WHO[r.who];
        const pn = r.lcsc ? `${esc(r.pn)}<br><a href="${LCSC(r.lcsc)}" target="_blank" rel="noopener noreferrer">LCSC ${r.lcsc}</a>` : esc(r.pn);
        return `<tr class="${total === 0 ? 'zero' : ''} ${ticks[key] ? 'done' : ''}">
-        <td class="item"><b>${esc(r.item)}</b>${r.warn ? ` <span class="pill p-warn">${esc(r.warn)}</span>` : ''}<span class="note">${esc(r.note)}</span></td>
+        <td class="item"><b>${r.link ? `<a href="${r.link}" target="_blank" rel="noopener noreferrer">${esc(r.item)}</a>` : esc(r.item)}</b>${r.warn ? ` <span class="pill p-warn">${esc(r.warn)}</span>` : ''}<span class="note">${esc(r.note)}</span></td>
         <td class="pn">${pn}</td>
         <td><span class="pill ${w[0]}">${w[1]}</span></td>
         <td class="qty">${total}<small>${r.q} ${esc(PER_LABEL[r.per])}</small></td>

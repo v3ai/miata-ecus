@@ -56,11 +56,14 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 >
 > **Rev 0.9:** layout only. J1 is back on the daughterboard's top edge with the driver strip below it, and the
 > daughterboard sits 16 mm lower, centred on each motherboard. Re-checked: same results as rev 0.8.
+>
+> **1989–93 motherboard rev 0.10:** a connector (J6) for an aftermarket throttle position sensor, for the manual cars,
+> which only have an idle switch. See [Throttle position sensor (1989–93 manual cars)](#throttle-position-sensor-198993-manual-cars).
 
 | Board | Folder | Rev | Harness header | Case fit |
 |---|---|---|---|---|
 | Daughterboard (all years) | [`daughterboard/`](daughterboard/) | 0.9 | 2 × 1×40 to the motherboard | 125 × 76 mm, 4 layers |
-| 1989–93 (NA6) | [`motherboards/1989-93/`](motherboards/1989-93/) | 0.9 | TE 174917-6, 48 pins | stock NA case outline |
+| 1989–93 (NA6) | [`motherboards/1989-93/`](motherboards/1989-93/) | 0.10 | TE 174917-6, 48 pins | stock NA case outline |
 | 1994–95 (NA8) | [`motherboards/1994-95/`](motherboards/1994-95/) | 0.9 | TE 174917-6, 48 pins | stock NA case outline |
 | 1996–97 (NA8, OBD-II) | [`motherboards/1996-97/`](motherboards/1996-97/) | 0.7 | TE 178780-1, 76 positions | **provisional** (NA outline) |
 | 1999–2000 (NB1) | [`motherboards/1999-2000/`](motherboards/1999-2000/) | 0.7 | TE 176122-6, 64 positions | **provisional** (NA outline) |
@@ -70,7 +73,7 @@ Each board folder contains:
 - the KiCad 7 project (schematic and board);
 - a schematic PDF;
 - JLCPCB gerbers, BOM and placement files in `fab/`, with the DRC report, named for the board and revision (for example
-  `miata-ecu-motherboard-1989-93-rev0.9_jlcpcb_gerbers.zip`). The JLC BOM is the SMD parts (and USB-C);
+  `miata-ecu-motherboard-1989-93-rev0.10_jlcpcb_gerbers.zip`). The JLC BOM is the SMD parts (and USB-C);
   `…_self_order_bom.csv` is everything you order and solder yourself, and
   [`additional-parts/order_all_boards.csv`](additional-parts/order_all_boards.csv) adds up all five motherboards, five daughterboards and the in-car parts
   (the same list as a page with quantities and tick boxes: [`additional-parts/shopping_list.html`](additional-parts/shopping_list.html));
@@ -100,6 +103,26 @@ Each motherboard has an IAT jumper (JP1, a 3-pin header with a removable shunt) 
   1999–2005, so it's only available while that meter stays in the intake.
 
 Pick the matching sensor curve in TunerStudio. The firmware already accounts for the board's 2.7 kΩ pull-up and divider.
+
+## Throttle position sensor (1989–93 manual cars)
+The 1989–93 manual cars have no throttle position sensor: the part on the throttle body is a switch that only says
+"idle" (harness pin 2L). The automatics have a real 0–5 V sensor on 2M, as do all 1994–2005 cars. The ECU calculates
+fuel from its MAP sensor, so a manual car runs without one, but rusEFI then treats the throttle sensor as failed: no
+closed-loop idle, no throttle-based acceleration fuel and no overrun fuel cut.
+
+The 1989–93 motherboard (rev 0.10) has a connector for a real sensor on its own lead, J6 on the bottom edge
+(1 = protected 5 V, 2 = signal, 3 = ground, 4 = cable shield). The kit, all in the board's self-order BOM as
+"Manual cars":
+- **Sensor:** Bosch 0 280 122 001 (= BMW 13 63 1 721 456), a 0–5 V potentiometer.
+- **Adapter plate**, in place of the stock switch: [Flyin' Miata's TPS upgrade kit](https://flyinmiata.com/products/tps-upgrade)
+  (no-TPS option), or a printed one: [Mazda MX5 - BMW TPS adapter](https://www.thingiverse.com/thing:4476762) or its
+  thicker remix [BMW tps adaptor maximum beef](https://www.printables.com/model/619337-bmw-tps-adaptor-maximum-beef),
+  printed in ASA, with M4 screws.
+- **Lead:** about 3 m of shielded 3 × 22 AWG cable rated 105 °C or more, a Micro-Fit 43645-0400 receptacle at J6 and a
+  Bosch 3-pin Junior Timer plug (1 237 000 039) at the sensor.
+
+Wiring and calibration are in the [1989–93 README](motherboards/1989-93/README.md). Automatics keep their stock sensor
+and leave J6 empty: both use the same ECU input.
 
 ## Things to know before ordering
 - **1996–2005 case geometry is a placeholder.** These motherboards use the NA board outline and mounting holes until a
