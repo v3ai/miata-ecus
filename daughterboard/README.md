@@ -12,10 +12,10 @@ Layout only; the circuit is rev 0.8's.
   with its tab up against its own J1 pin and its leads facing the level shifters, and the relay switches, the
   ignition diodes and pull-down switches and their resistors are mirrored the same way. Everything else keeps its
   rev 0.8 place and copper.
-- **Drain copper** per driver: @AREA@, joined by @VIAS@ thermal vias (most in the tab pad; order them filled and
-  capped). Estimated junction to ambient @RTH@ °C/W (rev 0.8: 48).
+- **Drain copper** per driver: 84-100 mm² on F.Cu and 95-108 mm² on each of In2.Cu and B.Cu (the column now runs from the board edge down past the driver's leads), joined by 34-42 thermal vias (most in the tab pad; order them filled and
+  capped). Estimated junction to ambient 48 °C/W, as in rev 0.8 (sequential injectors at 90 % duty, 7200 rpm, 85 °C ambient: 109 °C).
 - **On the motherboards** the daughterboard sits 16 mm lower, centred top to bottom (42 mm from the top edge, as up to
-  rev 0.7): J1 and the upper standoffs are at their rev 0.7 places, J2, the lower standoffs and the AUX header 16 mm
+  rev 0.7): JD1 and the upper standoffs are at their rev 0.7 places, JD2, the lower standoffs and the AUX header 16 mm
   lower. A rev 0.9 daughterboard needs a motherboard of rev 0.9 (1989-95) or 0.7 (1996-2005).
 - **Re-routed incrementally:** the rev 0.8 copper was kept everywhere except the nets of the moved parts
   (`route_eco.py`), which `route.py` routed again; four connections were finished by hand (`hand_route_all.py`).
@@ -252,7 +252,8 @@ labels stay within one sheet. Board nets carry the same names (sheet-local nets 
 Rebuild: `scripts/daughter_make.sh <workdir>` (build, route, header flip, finishing, DRC), then
 `scripts/daughter_release.sh <workdir>/finished.kicad_pcb <outdir>` (wired schematic, schematic-vs-design netlist
 check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, renders).
-Rev 0.8 was not routed from scratch: `route_eco.py` (with `DY=16`) carried the rev 0.7 copper over, `route.py` finished
+Rev 0.9 was routed from the finished rev 0.8 copper (`route_eco.py` against the rev 0.8 placement, keeping every net
+whose parts didn't move), then finished the same way. Rev 0.8 was not routed from scratch: `route_eco.py` (with `DY=16`) carried the rev 0.7 copper over, `route.py` finished
 it, then `flip_headers.py`, `daughter_finish.py`, the hand routes (`hand_route_all.py` with the open connections DRC
 lists), `clean_dangling.py` and `daughter_patch.py`. A from-scratch `daughter_make.sh` run gives a different layout
 that needs the same hand finishing.

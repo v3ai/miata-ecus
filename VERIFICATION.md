@@ -1,7 +1,7 @@
 # Verification report
 
-**Date:** 2026-10-30; full-firmware emulation, expanded circuit and board checks 2026-11-02; rev 0.7 and 0.8 fixes 2026-11-03.
-**Boards:** daughterboard rev 0.8; motherboards 1989-93 and 1994-95 rev 0.8, 1996-97 / 1999-2000 / 2001-05 rev 0.6.
+**Date:** 2026-10-30; full-firmware emulation, expanded circuit and board checks 2026-11-02; rev 0.7 and 0.8 fixes 2026-11-03; rev 0.9 layout 2026-11-03.
+**Boards:** daughterboard rev 0.9; motherboards 1989-93 and 1994-95 rev 0.9, 1996-97 / 1999-2000 / 2001-05 rev 0.7.
 These revisions carry the fixes this review called for (see [Rev 0.5 changes](#rev-05-changes-and-re-verification),
 [Rev 0.6](#rev-06-stm32f103-wideband-controller), [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings) and
 [Rev 0.8](#rev-08-driver-temperature-and-protected-outputs)).
@@ -571,6 +571,15 @@ data) were left with no path. They were closed by hand: a few short wideband net
 order (`hand_route_all.py`), and the comms and warning LEDs moved from PD13/PD14 to the free PC8/PC9, which the
 firmware follows. `hand_route.py` now keeps 0.2 mm from non-plated holes (the Tag-Connect's), and `clean_dangling.py`
 removes the stubs and stacked vias the rip-ups leave.
+
+### Rev 0.9: layout only
+J1 back on the daughterboard's top edge with the driver strip below it, and the daughterboard 16 mm lower, centred on
+every motherboard (JD2, the lower standoffs and the AUX header moved with it). The circuit is rev 0.8's. Re-run on
+the re-routed boards: `circuit_sim_full.py` 84 OK / 12 CHECK / 1 REF / 0 FAIL (same as rev 0.8; drivers 48 °C/W from
+187 mm² effective drain copper and 34-42 thermal vias each, sequential injectors 109 °C at 85 °C ambient),
+`board_checks.py` 1587 OK / 270 CHECK / 4 FAIL (the same four LSU-wire cases), copper rebuilt from geometry 0 opens /
+0 shorts on all six boards, all 80 J1/J2 pads on JD1/JD2 at the new (14.5, 42.0) mm offset, schematic netlist 958
+pads / 0 differences, DRC 0 unconnected / 0 clearance errors on every board, `check_pins.py` OK.
 
 ## Open items
 The 2026-11-02 findings N1-N13 are listed in [New hardware findings](#new-hardware-findings-2026-11-02); what rev 0.7
