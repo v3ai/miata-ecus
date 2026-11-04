@@ -1,15 +1,7 @@
 ** Drc report for /home/claude/miata-ecus/scripts/../mb/release_0105/miata_mb_0105.kicad_pcb **
-** Created on 2026-11-03 20:41:16 **
+** Created on 2026-11-03 20:55:13 **
 
-** Found 61 DRC violations **
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(194.4325 mm, 169.8373 mm): Line on F.Silkscreen
-    @(194.2800 mm, 169.6000 mm): Reference 'R6'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(177.0000 mm, 189.0000 mm): PCB Text 'Miata ECU motherboard 2001-2005 (N...' on F.Silkscreen
-    @(6.0000 mm, -3.5840 mm): Polygon on F.Silkscreen
+** Found 59 DRC violations **
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(140.9500 mm, 69.6000 mm): Reference 'J1'
@@ -24,7 +16,7 @@
     @(140.9500 mm, 42.6000 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(119.0000 mm, 92.3000 mm): Reference 'HD1'
+    @(235.0000 mm, 92.3000 mm): Reference 'HD2'
     @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
@@ -32,15 +24,16 @@
     @(164.1700 mm, 160.0000 mm): Reference 'R21'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(166.7100 mm, 160.0000 mm): Reference 'R22'
-    @(166.1225 mm, 160.2373 mm): Line on F.Silkscreen
+    @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
+    @(119.0000 mm, 92.3000 mm): Reference 'HD1'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(235.0000 mm, 92.3000 mm): Reference 'HD2'
-    @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(177.0000 mm, 189.0000 mm): PCB Text 'Miata ECU motherboard 2001-2005 (N...' on F.Silkscreen
+    @(194.2800 mm, 169.6000 mm): Reference 'R6'
+    @(194.4325 mm, 169.8373 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(166.7100 mm, 160.0000 mm): Reference 'R22'
+    @(166.1225 mm, 160.2373 mm): Line on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
     @(140.9500 mm, 42.6000 mm): Line on F.Silkscreen

@@ -1,30 +1,27 @@
 ** Drc report for /home/claude/miata-ecus/scripts/../mb/release_9900/miata_mb_9900.kicad_pcb **
-** Created on 2026-11-03 20:24:06 **
+** Created on 2026-11-03 20:55:02 **
 
-** Found 51 DRC violations **
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(194.2800 mm, 169.6000 mm): Reference 'R6'
-    @(194.4325 mm, 169.8373 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(164.1700 mm, 160.0000 mm): Reference 'R21'
-    @(163.5825 mm, 160.2373 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(166.7100 mm, 160.0000 mm): Reference 'R22'
-    @(166.1225 mm, 160.2373 mm): Line on F.Silkscreen
+** Found 50 DRC violations **
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(119.0000 mm, 92.3000 mm): Reference 'HD1'
     @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(235.0000 mm, 92.3000 mm): Reference 'HD2'
+    @(163.5825 mm, 160.2373 mm): Line on F.Silkscreen
+    @(164.1700 mm, 160.0000 mm): Reference 'R21'
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(166.7100 mm, 160.0000 mm): Reference 'R22'
+    @(166.1225 mm, 160.2373 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
     @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(177.0000 mm, 189.0000 mm): PCB Text 'Miata ECU motherboard 1999-2000 (N...' on F.Silkscreen
+    @(235.0000 mm, 92.3000 mm): Reference 'HD2'
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(194.2800 mm, 169.6000 mm): Reference 'R6'
+    @(194.4325 mm, 169.8373 mm): Line on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
     @(194.2800 mm, 169.6000 mm): Reference 'R6'
@@ -32,6 +29,10 @@
     Local override; Severity: error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu
     @(168.1100 mm, 180.7875 mm): PTH pad 16 [GND] of J5
+[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
+    Local override; Severity: error
+    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu
+    @(170.6800 mm, 94.7500 mm): PTH pad 18 [GND] of JD1
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
     Local override; Severity: error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu
@@ -48,10 +49,6 @@
     Local override; Severity: error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu
     @(176.8000 mm, 203.9200 mm): Pad B12 [GND] of J4 on F.Cu
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu
-    @(170.6800 mm, 94.7500 mm): PTH pad 18 [GND] of JD1
 [lib_footprint_issues]: The current configuration does not include the library 'Connector_Molex'.
     Local override; Severity: warning
     @(129.0000 mm, 202.3000 mm): Footprint J2

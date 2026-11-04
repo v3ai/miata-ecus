@@ -1,42 +1,35 @@
 ** Drc report for /home/claude/miata-ecus/scripts/../mb/release_9697/miata_mb_9697.kicad_pcb **
-** Created on 2026-11-03 20:16:30 **
+** Created on 2026-11-03 20:54:50 **
 
-** Found 54 DRC violations **
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(177.0000 mm, 189.0000 mm): PCB Text 'Miata ECU motherboard 1996-1997 (N...' on F.Silkscreen
-    @(6.0000 mm, -3.5840 mm): Polygon on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(194.2800 mm, 169.6000 mm): Reference 'R6'
-    @(194.4325 mm, 169.8373 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(235.0000 mm, 92.3000 mm): Reference 'HD2'
-    @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
+** Found 52 DRC violations **
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(200.2969 mm, 61.8291 mm): Footprint Text '4B' of J1
     @(202.9227 mm, 61.4044 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(119.0000 mm, 92.3000 mm): Reference 'HD1'
-    @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
     @(238.0006 mm, 61.8291 mm): Footprint Text '4Z' of J1
     @(242.0732 mm, 61.3794 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(164.1700 mm, 160.0000 mm): Reference 'R21'
+    @(235.0000 mm, 92.3000 mm): Reference 'HD2'
+    @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
     @(163.5825 mm, 160.2373 mm): Line on F.Silkscreen
+    @(164.1700 mm, 160.0000 mm): Reference 'R21'
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
+    @(119.0000 mm, 92.3000 mm): Reference 'HD1'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(166.1225 mm, 160.2373 mm): Line on F.Silkscreen
     @(166.7100 mm, 160.0000 mm): Reference 'R22'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(177.0000 mm, 189.0000 mm): PCB Text 'Miata ECU motherboard 1996-1997 (N...' on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(194.2800 mm, 169.6000 mm): Reference 'R6'
+    @(194.4325 mm, 169.8373 mm): Line on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
     @(194.2800 mm, 169.6000 mm): Reference 'R6'
@@ -50,16 +43,16 @@
     @(168.1100 mm, 180.7875 mm): PTH pad 16 [GND] of J5
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
     Local override; Severity: error
+    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu
+    @(168.1100 mm, 180.7875 mm): PTH pad 16 [GND] of J5
+[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
+    Local override; Severity: error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu
     @(176.8000 mm, 203.9200 mm): Pad A1 [GND] of J4 on F.Cu
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
     Local override; Severity: error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu
     @(176.8000 mm, 203.9200 mm): Pad B12 [GND] of J4 on F.Cu
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu
-    @(168.1100 mm, 180.7875 mm): PTH pad 16 [GND] of J5
 [lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
     @(195.7100 mm, 169.6000 mm): Footprint R6
