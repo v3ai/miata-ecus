@@ -1,7 +1,15 @@
 ** Drc report for /home/claude/miata-ecus/scripts/../mb/release_8993/miata_mb_8993.kicad_pcb **
-** Created on 2026-11-03 19:42:00 **
+** Created on 2026-11-03 20:54:26 **
 
-** Found 108 DRC violations **
+** Found 107 DRC violations **
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(119.0000 mm, 92.3000 mm): Reference 'HD1'
+    @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
+    @(235.0000 mm, 92.3000 mm): Reference 'HD2'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(163.5825 mm, 160.2373 mm): Line on F.Silkscreen
@@ -12,19 +20,8 @@
     @(166.1225 mm, 160.2373 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(194.2800 mm, 169.6000 mm): Reference 'R6'
     @(194.4325 mm, 169.8373 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(119.0000 mm, 92.3000 mm): Reference 'HD1'
-    @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(235.0000 mm, 92.3000 mm): Reference 'HD2'
-    @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(177.0000 mm, 189.0000 mm): PCB Text 'Miata ECU motherboard 1989-1993 (N...' on F.Silkscreen
+    @(194.2800 mm, 169.6000 mm): Reference 'R6'
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
     @(139.7025 mm, 68.1300 mm): PTH pad 1A [<no net>] of J1

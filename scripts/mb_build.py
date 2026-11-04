@@ -124,7 +124,8 @@ def build(modname, out):
             t.SetTextSize(VECTOR2I(FromMM(1.0), FromMM(1.0))); t.SetTextThickness(FromMM(0.15)); board.Add(t)
         jp.Reference().SetVisible(False)
     t = pcbnew.PCB_TEXT(board); t.SetText(M.TITLE + '  rev ' + os.environ.get('MBREV', '0.3')); t.SetLayer(pcbnew.F_SilkS)
-    t.SetPosition(P(M.W / 2, M.DAUGHTER[1] + dpl.BOARD_H + 21.0)); t.SetTextSize(VECTOR2I(FromMM(1.6), FromMM(1.6))); t.SetTextThickness(FromMM(0.22))
+    # rev 0.9: the title goes in the free band between the harness header and the daughterboard
+    t.SetPosition(P(M.W / 2, M.DAUGHTER[1] - 8.0)); t.SetTextSize(VECTOR2I(FromMM(1.6), FromMM(1.6))); t.SetTextThickness(FromMM(0.22))
     board.Add(t)
     # sanity: daughter sockets must sit exactly under the daughter's header pins
     import design as daughter
