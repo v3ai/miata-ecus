@@ -1,11 +1,35 @@
 ** Drc report for /home/claude/miata-ecus/scripts/../mb/release_9900/miata_mb_9900.kicad_pcb **
-** Created on 2026-11-03 20:55:02 **
+** Created on 2026-11-03 22:30:11 **
 
-** Found 50 DRC violations **
+** Found 56 DRC violations **
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(157.0484 mm, 61.8291 mm): Footprint Text '1V' of J1
+    @(154.3967 mm, 61.1298 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(162.9971 mm, 61.8291 mm): Footprint Text '2B' of J1
+    @(154.3967 mm, 61.1298 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(119.0000 mm, 92.3000 mm): Reference 'HD1'
     @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(126.3500 mm, 61.8291 mm): Footprint Text '1B' of J1
+    @(118.0975 mm, 61.1298 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(183.9978 mm, 61.8291 mm): Footprint Text '2P' of J1
+    @(192.5983 mm, 61.1298 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(189.9440 mm, 61.8291 mm): Footprint Text '3B' of J1
+    @(192.5983 mm, 61.1298 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(227.6477 mm, 61.8291 mm): Footprint Text '3Z' of J1
+    @(235.8977 mm, 61.1298 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(163.5825 mm, 160.2373 mm): Line on F.Silkscreen
@@ -31,10 +55,6 @@
     @(168.1100 mm, 180.7875 mm): PTH pad 16 [GND] of J5
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
     Local override; Severity: error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu
-    @(170.6800 mm, 94.7500 mm): PTH pad 18 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu
     @(221.4800 mm, 94.7500 mm): PTH pad 38 [GND] of JD1
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
@@ -49,6 +69,10 @@
     Local override; Severity: error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu
     @(176.8000 mm, 203.9200 mm): Pad B12 [GND] of J4 on F.Cu
+[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
+    Local override; Severity: error
+    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu
+    @(170.6800 mm, 94.7500 mm): PTH pad 18 [GND] of JD1
 [lib_footprint_issues]: The current configuration does not include the library 'Connector_Molex'.
     Local override; Severity: warning
     @(129.0000 mm, 202.3000 mm): Footprint J2

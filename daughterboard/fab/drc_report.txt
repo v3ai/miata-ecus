@@ -1,7 +1,7 @@
 ** Drc report for /home/claude/miata-ecus/daughterboard/miata_ecu_daughter.kicad_pcb **
-** Created on 2026-11-03 22:28:57 **
+** Created on 2026-11-03 22:32:18 **
 
-** Found 479 DRC violations **
+** Found 474 DRC violations **
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(151.3500 mm, 121.5100 mm): Line on F.Silkscreen
@@ -1632,26 +1632,6 @@
     Rule: board setup constraints courtyard; Severity: error
     @(136.1500 mm, 112.7500 mm): Footprint D38
     @(134.0000 mm, 114.9000 mm): Footprint D24
-[clearance]: Clearance violation (netclass 'Default' clearance 0.1500 mm; actual 0.1329 mm)
-    Rule: netclass 'Default'; Severity: error
-    @(178.7500 mm, 99.0000 mm): Track [USB_DM] on B.Cu, length 4.2426 mm
-    @(176.8812 mm, 97.8849 mm): Via [WB_NRST] on F.Cu - B.Cu
-[clearance]: Clearance violation (netclass 'Default' clearance 0.1500 mm; actual 0.1408 mm)
-    Rule: netclass 'Default'; Severity: error
-    @(176.8812 mm, 97.8849 mm): Via [WB_NRST] on F.Cu - B.Cu
-    @(176.3300 mm, 97.3900 mm): Via [WB_PROG_RX] on F.Cu - B.Cu
-[clearance]: Clearance violation (netclass 'Default' clearance 0.1500 mm; actual 0.1408 mm)
-    Rule: netclass 'Default'; Severity: error
-    @(176.8812 mm, 97.8849 mm): Via [WB_NRST] on F.Cu - B.Cu
-    @(176.3300 mm, 97.3900 mm): Via [WB_PROG_RX] on F.Cu - B.Cu
-[clearance]: Clearance violation (netclass 'Default' clearance 0.1500 mm; actual 0.1408 mm)
-    Rule: netclass 'Default'; Severity: error
-    @(176.8812 mm, 97.8849 mm): Via [WB_NRST] on F.Cu - B.Cu
-    @(176.3300 mm, 97.3900 mm): Via [WB_PROG_RX] on F.Cu - B.Cu
-[clearance]: Clearance violation (netclass 'Default' clearance 0.1500 mm; actual 0.1408 mm)
-    Rule: netclass 'Default'; Severity: error
-    @(176.8812 mm, 97.8849 mm): Via [WB_NRST] on F.Cu - B.Cu
-    @(176.3300 mm, 97.3900 mm): Via [WB_PROG_RX] on F.Cu - B.Cu
 
 ** Found 0 unconnected pads **
 

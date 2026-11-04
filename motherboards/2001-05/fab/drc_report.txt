@@ -1,5 +1,5 @@
 ** Drc report for /home/claude/miata-ecus/scripts/../mb/release_0105/miata_mb_0105.kicad_pcb **
-** Created on 2026-11-03 20:55:13 **
+** Created on 2026-11-03 22:30:27 **
 
 ** Found 59 DRC violations **
 [silk_overlap]: Silkscreen overlap
@@ -12,8 +12,8 @@
     @(140.9500 mm, 42.6000 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(140.9500 mm, 60.4000 mm): Footprint Text '2B' of J1
     @(140.9500 mm, 42.6000 mm): Line on F.Silkscreen
+    @(140.9500 mm, 60.4000 mm): Footprint Text '2B' of J1
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(235.0000 mm, 92.3000 mm): Reference 'HD2'

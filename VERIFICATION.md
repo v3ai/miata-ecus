@@ -581,12 +581,14 @@ the re-routed boards: `circuit_sim_full.py` 84 OK / 12 CHECK / 1 REF / 0 FAIL (s
 0 shorts on all six boards, all 80 J1/J2 pads on JD1/JD2 at the new (14.5, 42.0) mm offset, schematic netlist 958
 pads / 0 differences, DRC 0 unconnected / 0 clearance errors on every board, `check_pins.py` OK.
 
-**Part spacing (2026-11-03).** Pad-to-pad gaps between different parts checked against JLCPCB's recommended minimum
-spacing per package pair (`scripts/jlc_spacing.py`). The daughterboard had 14 pairs short; 11 were fixed by moving
-the part 0.03-0.47 mm (with its track ends, `scripts/nudge_part.py`; DRC still clean): R144/R146 (1206, now 0.37 mm
-from R145), F2, RN1/U13, C2/C5 by U1, C34/C35/C66/C67 by their ICs, D30 by U102. Left short, with no room to move:
-C122 between U106 and U102 (0.26 / 0.41 mm against 0.4 / 0.5), U106 to U102 (1.15 / 1.25), RN1 to U13 (0.35 / 0.4).
-No two parts' pads are closer than 0.25 mm. The motherboards have none short.
+**JLCPCB guidelines (2026-11-03).** All six boards checked against JLCPCB's recommended minimum spacing per
+package pair (`scripts/jlc_spacing.py`) and its published PCB capabilities (`scripts/jlc_fab_check.py`). Changes on
+the daughterboard: 14 parts moved 0.03-0.5 mm (R144/R146, F2, RN1, U13, C2/C5, C34/C35/C66/C67, D30, and U106 with
+C118/C122 away from U102; `scripts/nudge_part.py`, positions recorded in `placement.py`), nine nets around U106
+re-routed by hand (`hand_route.py` now keeps a via hole 0.47 mm from any other hole), four GND stitching vias removed
+beside J1 holes (`scripts/via_hole_gap.py`), and the silkscreen raised to 0.15 mm lines / 1.0 mm text on every board
+(`scripts/silk_jlc.py`; KiCad's library outlines are 0.12 mm). Result: 0 pairs under JLC's spacing, 0 fab-capability
+issues, on all six boards; DRC 0 unconnected / 0 clearance errors.
 
 ## Open items
 The 2026-11-02 findings N1-N13 are listed in [New hardware findings](#new-hardware-findings-2026-11-02); what rev 0.7
