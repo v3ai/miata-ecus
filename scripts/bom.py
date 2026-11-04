@@ -114,10 +114,12 @@ def jlc_cpl(board_path, path):
 
 
 if __name__ == '__main__':
+    import os
     out = sys.argv[1]
-    jlc_bom(out + '/jlcpcb_bom.csv')
-    order_bom.write_self_bom('daughter', design.parts, out + '/self_order_bom.csv')
+    pre = os.environ.get('FABPREFIX', '')        # e.g. miata-ecu-daughterboard-rev0.9_ (export.sh sets it)
+    jlc_bom(f'{out}/{pre}jlcpcb_bom.csv')
+    order_bom.write_self_bom('daughter', design.parts, f'{out}/{pre}self_order_bom.csv')
     if len(sys.argv) > 2:
-        jlc_cpl(sys.argv[2], out + '/jlcpcb_cpl.csv')
+        jlc_cpl(sys.argv[2], f'{out}/{pre}jlcpcb_cpl.csv')
     tot = sum(r['qty'] for r in rows())
     print(len(rows()), 'lines', tot, 'parts')
