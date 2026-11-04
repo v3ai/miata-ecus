@@ -9,12 +9,12 @@ A plug-in [rusEFI](https://rusefi.com) engine computer for the 1989–2005 Mazda
 
 The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 standoffs.
 
-![The daughterboard plugged into the 1989–93 motherboard](docs/images/assembly_1989-93.jpg)
+![The daughterboard plugged into the 1989–93 motherboard](images/assembly_1989-93.jpg)
 
 <table>
 <tr>
-<td width="50%"><img src="docs/images/assembly_lifted.jpg" alt="The daughterboard lifted off the motherboard's sockets and standoffs"></td>
-<td width="50%"><img src="docs/images/daughterboard.jpg" alt="The daughterboard on its own, headers underneath"></td>
+<td width="50%"><img src="images/assembly_lifted.jpg" alt="The daughterboard lifted off the motherboard's sockets and standoffs"></td>
+<td width="50%"><img src="images/daughterboard.jpg" alt="The daughterboard on its own, headers underneath"></td>
 </tr>
 <tr>
 <td align="center"><sub>Daughterboard lifted off its sockets and standoffs</sub></td>
@@ -71,7 +71,8 @@ Each board folder contains:
 - a schematic PDF;
 - JLCPCB gerbers, BOM and placement files in `fab/`, with the DRC report. The JLC BOM is the SMD parts (and USB-C);
   `fab/self_order_bom.csv` is everything you order and solder yourself, and
-  [`docs/order_all_boards.csv`](docs/order_all_boards.csv) adds up all five motherboards, five daughterboards and the in-car parts;
+  [`shopping/order_all_boards.csv`](shopping/order_all_boards.csv) adds up all five motherboards, five daughterboards and the in-car parts
+  (the same list as a page with quantities and tick boxes: [`shopping/shopping_list.html`](shopping/shopping_list.html));
 - renders;
 - a README with the pinout, assembly notes and open questions.
 
