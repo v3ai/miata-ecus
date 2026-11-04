@@ -1,5 +1,7 @@
 """Placement for the 125 x 76 mm daughterboard (mm, board origin top-left, y down).
 
+Rev 0.9: J1 back on the top edge and the driver strip moved below it (see the end of this file); the rest unchanged.
+
 Rev 0.8: the board grew a 16 mm strip above J1 (over empty motherboard space under the harness header on every year).
 Everything below J1 keeps its rev 0.7 coordinates in this file ("the old frame": J1 at y 2.75); the strip is at
 negative y in that frame, and every position is shifted down by DY at the end, so the board origin stays top-left.
@@ -317,6 +319,21 @@ put('R147', 53.55, 8.2 - DY, 90)   # ignition output pull-down
 # rev 0.8: shift the whole old frame down by the strip's height
 for _r, _v in list(PLACE.items()):
     PLACE[_r] = (_v[0], round(_v[1] + DY, 4)) + tuple(_v[2:])
+
+# rev 0.9: J1 and the top holes back at the top edge (their rev 0.7 places), and the driver strip below J1 instead of
+# above it: every strip part is reflected about the middle of the 16 mm band (y -> STRIP_FLIP - y) and turned 180 deg,
+# so each DPAK's tab still faces its own J1 pin, now from below, and its leads face the level shifters. Everything else
+# keeps its rev 0.8 place.
+STRIP_FLIP = 21.5               # rev 0.8 strip y 0..16 -> rev 0.9 y 5.5..21.5; J1 18.75 -> 2.75
+J1_Y, J2_Y = 2.75, 57.25 + DY
+HOLES = [(4.5, 4.5), (120.5, 4.5), (4.5, 55.5 + DY), (120.5, 55.5 + DY)]
+STRIP = [r for r, v in PLACE.items() if v[1] < 16.5 and not r.startswith('H') and r != 'J1']
+for _r in STRIP:
+    _v = PLACE[_r]
+    PLACE[_r] = (_v[0], round(STRIP_FLIP - _v[1], 4), (_v[2] + 180) % 360) + tuple(_v[3:])
+put('J1', hx(1), J1_Y, 90)
+for i, (x, y) in enumerate(HOLES):
+    put(f'H{1+i}', x, y)
 
 for p in design.parts:
     if p['ref'] not in PLACE:

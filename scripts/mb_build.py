@@ -111,10 +111,9 @@ def build(modname, out):
         t = pcbnew.PCB_TEXT(board); t.SetText(label); t.SetLayer(pcbnew.F_SilkS)
         t.SetPosition(P(x + w / 2, y + h / 2)); t.SetTextSize(VECTOR2I(FromMM(1.5), FromMM(1.5)))
         t.SetTextThickness(FromMM(0.2)); board.Add(t)
-    # the daughterboard outline: rev 0.8 grew a strip of DY mm above its J1 row (the low-side drivers), over free
-    # motherboard space; its headers and holes keep their places
+    # the daughterboard outline (125 x 76 mm since rev 0.8; J1 on its top edge again since rev 0.9)
     import placement as dpl
-    rect(M.DAUGHTER[0], M.DAUGHTER[1] - dpl.DY, dpl.BOARD_W, dpl.BOARD_H, 'DAUGHTERBOARD')
+    rect(M.DAUGHTER[0], M.DAUGHTER[1], dpl.BOARD_W, dpl.BOARD_H, 'DAUGHTERBOARD')
     # IAT source jumper: position names over its end pins, the function under the middle one
     jp = board.FindFootprintByReference('JP1')
     if jp:
@@ -125,12 +124,12 @@ def build(modname, out):
             t.SetTextSize(VECTOR2I(FromMM(1.0), FromMM(1.0))); t.SetTextThickness(FromMM(0.15)); board.Add(t)
         jp.Reference().SetVisible(False)
     t = pcbnew.PCB_TEXT(board); t.SetText(M.TITLE + '  rev ' + os.environ.get('MBREV', '0.3')); t.SetLayer(pcbnew.F_SilkS)
-    t.SetPosition(P(M.W / 2, M.DAUGHTER[1] + 81.0)); t.SetTextSize(VECTOR2I(FromMM(1.6), FromMM(1.6))); t.SetTextThickness(FromMM(0.22))
+    t.SetPosition(P(M.W / 2, M.DAUGHTER[1] + dpl.BOARD_H + 21.0)); t.SetTextSize(VECTOR2I(FromMM(1.6), FromMM(1.6))); t.SetTextThickness(FromMM(0.22))
     board.Add(t)
     # sanity: daughter sockets must sit exactly under the daughter's header pins
     import design as daughter
     dx, dy = M.DAUGHTER
-    for ref, yy in (('JD1', 2.75), ('JD2', 57.25)):
+    for ref, yy in (('JD1', dpl.J1_Y), ('JD2', dpl.J2_Y)):
         fp = board.FindFootprintByReference(ref)
         for pad in fp.Pads():
             k = int(pad.GetNumber())

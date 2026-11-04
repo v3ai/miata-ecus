@@ -56,7 +56,7 @@ CASE_NOTE = ('Stock NA case (same for 1990-95). Outline and holes come from the 
              'NA6 KiCad board (rev a/b), which uses the same Mazda case outline. H1 is a recessed boss: stack 3 M4 washers under the board.')
 HEADER_DESC = ('TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); rusEFI\'s 1990 page calls the '
                'second plug 3A-3Z. TE lists it as not currently available: desolder one from a stock ECU or use a clone. Fitted by hand.')
-CHANGES = ["Rev 0.8, for daughterboard rev 0.8: the harness's sensor 5 V (1N, 2K) and the AUX header pin J5-14 now come from the daughterboard's protected 5 V (V5_EXT, JD1 pin 13, which was a ground pin): a sensor 5 V wire shorted to the battery no longer back-feeds the MAP sensor and the ECU's own 5 V. The MAP sensor keeps its own supply (V5_SENS). The daughterboard outline on the silkscreen is 16 mm taller (125 x 76 mm): its new strip of output drivers overhangs the free area above JD1. D3/D4 (the batch injector clamps) are now SMCJ30A (33.3-36.8 V breakdown) instead of SMCJ40A: the new daughterboard drivers clamp at 40 V minimum, so a 40 V TVS could leave the turn-off energy in a driver; at 30 V the TVS always clamps first. Not-fitted option R27: 4.7k pull-up from the protected 5 V for the manual cars' TPS idle switch on 2L.",
+CHANGES = ["Rev 0.9, for daughterboard rev 0.9: the daughterboard sits 16 mm lower, centred on the board (42 mm from the top, as up to rev 0.7), with its J1 on its top edge again: JD1 and the upper standoffs HD1/HD2 are back at their rev 0.7 places, JD2, the lower standoffs HD3/HD4, the AUX header J5 (with F4 beside it) and the parts placed against JD2 (CAN termination R1/R6, pull-up options) are 16 mm lower, and the board is routed again. Not compatible with a rev 0.8 daughterboard.", "Rev 0.8, for daughterboard rev 0.8: the harness's sensor 5 V (1N, 2K) and the AUX header pin J5-14 now come from the daughterboard's protected 5 V (V5_EXT, JD1 pin 13, which was a ground pin): a sensor 5 V wire shorted to the battery no longer back-feeds the MAP sensor and the ECU's own 5 V. The MAP sensor keeps its own supply (V5_SENS). The daughterboard outline on the silkscreen is 16 mm taller (125 x 76 mm): its new strip of output drivers overhangs the free area above JD1. D3/D4 (the batch injector clamps) are now SMCJ30A (33.3-36.8 V breakdown) instead of SMCJ40A: the new daughterboard drivers clamp at 40 V minimum, so a 40 V TVS could leave the turn-off energy in a driver; at 30 V the TVS always clamps first. Not-fitted option R27: 4.7k pull-up from the protected 5 V for the manual cars' TPS idle switch on 2L.",
            "Rev 0.7: LSU heater fuse F1 is a 3 A hold PTC (LUTE 2920L300/30GR, 30 V, 2920 size) instead of the 2 A 1812 part. A cold LSU 4.9 heater draws 1.6-2.3 A rms at the start of the wideband's warm-up, more than the old fuse holds once warm, so it could trip and the controller time out. No 1812 PTC holds 3 A above 8 V.",
            'Rev 0.6: freewheel diode D1 on the idle valve and D2 on the purge solenoid (2X) to its +12 V feed (the PWM turn-off energy no longer goes into the daughterboard driver); F4 resettable fuse on the AUX +12 V pin J5-15; not-fitted 12 V pull-up options R20-R22 for the VSS / A/C / clutch inputs. INJ1+INJ4 drive 2U and INJ2+INJ3 drive 2V in parallel (R23/R24), with an SMCJ40A clamp per wire (D3/D4), so no driver carries two injectors; 2Y/2Z are only reached through the not-fitted sequential-conversion links R25/R26.',
            'Rev 0.5: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
@@ -169,14 +169,17 @@ def placement():
     dx, dy = DAUGHTER
     P = {'J1': (HDR_1A[0], HDR_1A[1], 0)}
     P.update({k: (x, y, 0) for k, (x, y) in CASE_HOLES.items()})
-    # daughterboard sockets: pin 1 under daughter J1/J2 pin 1, pins run +x -> rotate -90
-    P['JD1'] = (dx + 13.0, dy + 2.75, 90)
-    P['JD2'] = (dx + 13.0, dy + 57.25, 90)
-    for i, (hx, hy) in enumerate([(4.5, 4.5), (120.5, 4.5), (4.5, 55.5), (120.5, 55.5)]):
+    # daughterboard sockets: pin 1 under daughter J1/J2 pin 1, pins run +x -> rotate -90. Rev 0.9: the daughterboard
+    # (125 x 76 mm) has J1 on its top edge and J2 on its bottom edge again, so JD2 and the lower standoffs sit 16 mm
+    # lower than in rev 0.7 and the board is centred top to bottom
+    import placement as dpl
+    P['JD1'] = (dx + 13.0, dy + dpl.J1_Y, 90)
+    P['JD2'] = (dx + 13.0, dy + dpl.J2_Y, 90)
+    for i, (hx, hy) in enumerate(dpl.HOLES):
         P[f'HD{i + 1}'] = (dx + hx, dy + hy, 0)
     # CAN termination right under the daughterboard's CAN pins (JD2 27/28)
-    P['R1'] = (dx + 13.0 + 26.5 * 2.54 - 0.9, dy + 61.6, 90)
-    P['R6'] = (dx + 13.0 + 26.5 * 2.54 + 0.9, dy + 61.6, 90)
+    P['R1'] = (dx + 13.0 + 26.5 * 2.54 - 0.9, dy + dpl.J2_Y + 4.35, 90)
+    P['R6'] = (dx + 13.0 + 26.5 * 2.54 + 0.9, dy + dpl.J2_Y + 4.35, 90)
     # bottom edge, left to right: LSU, IAT, USB-C, MAP. Connector mouths at the edge.
     P['J2'] = (29.0, 152.3, 180)       # LSU 4.9 (moved 6 mm right in rev 0.2)
     P['F1'] = (44.0, 143.0, 90)
@@ -193,7 +196,7 @@ def placement():
     P['C2'] = (143.6, 136.6, 90)
     P['C3'] = (143.6, 148.0, 90)
     # AUX box header, body centred on the board below the daughterboard (set in mb_build)
-    P['J5'] = ('centre', W / 2, 113.0, -90)
+    P['J5'] = ('centre', W / 2, dy + dpl.BOARD_H + 11.0, -90)     # rev 0.9: 16 mm lower, with the daughterboard
     C.protection_place(P)
     # 1989-93 injector pairing links and clamps, under the daughterboard between JD1's injector pins
     P['R23'] = (84.6, 49.0, 0)
@@ -203,5 +206,5 @@ def placement():
     P['D3'] = (72.0, 64.0, 0)
     P['D4'] = (86.0, 64.0, 0)
     # 2L idle-switch pull-up option, above its JD2 pin (IN_AUX1 = J2 pin 9) like R20-R22
-    P['R27'] = (DAUGHTER[0] + 13.0 + 8 * 2.54, DAUGHTER[1] + 52.0, 90)
+    P['R27'] = (DAUGHTER[0] + 13.0 + 8 * 2.54, DAUGHTER[1] + dpl.J2_Y - 5.25, 90)
     return P

@@ -253,7 +253,7 @@ for (const y in YEARS) PCBS['mb' + y] = {pre:`mb${y}_`, label:`Motherboard ${YEA
 let year = '8993';
 const curMB = () => PCBS['mb' + year];
 const STACK = 12.6;                      // daughterboard underside above the motherboard underside (1.6 + 8.5 socket + 2.5 header)
-const DAUGHTER_AT = [14.5, 26.0];         // daughterboard top-left corner on the motherboard (mm; rev 0.8 added a 16 mm strip above J1)
+const DAUGHTER_AT = [14.5, 42.0];         // daughterboard top-left corner on the motherboard (mm; rev 0.9: J1 on the top edge, centred)
 let parts = [], byRef = new Map(), mode = 'd';
 const assy = new THREE.Group(); assy.visible = false; scene.add(assy);
 
@@ -281,7 +281,7 @@ async function loadSurface(pcb){
   const maps = side => Promise.all(['albedo', 'orm', 'normal'].map(k => tl.loadAsync(`${pre}${side}_${k}.webp${ASSET_V}`)));
   const [top, bot, tab] = await Promise.all([maps('top'), maps('bottom'), fetch(`${pre}parts.json${ASSET_V}`).then(r => r.json())]);
   const [BW, BH] = tab.size;
-  pcb.centre = tab.centre; pcb.size = tab.size;
+  pcb.centre = tab.centre; pcb.size = tab.size; pcb.holes = tab.holes;
   pcb.group = new THREE.Group(); scene.add(pcb.group);
   pcb.partMeshes = []; pcb.markings = [];
   const slab = new THREE.Mesh(new THREE.BoxGeometry(BW - 0.2, 1.58, BH - 0.2), fr4Edge);
@@ -378,7 +378,8 @@ function buildHardware(dx, dz){
   const steel = new THREE.MeshPhysicalMaterial({color:0xb9bcc0, metalness:1, roughness:0.32});
   const brass = new THREE.MeshPhysicalMaterial({color:0xc9a55a, metalness:1, roughness:0.38});
   const d = PCBS.d;
-  for (const [hx, hy] of [[4.5, 4.5], [120.5, 4.5], [4.5, 55.5], [120.5, 55.5]]) {
+  // the daughterboard's own mounting holes (parts.json), so the posts always sit under them
+  for (const [hx, hy] of (d.holes || [[4.5, 4.5], [120.5, 4.5], [4.5, 71.5], [120.5, 71.5]])) {
     const x = dx + hx - d.centre[0], z = dz + hy - d.centre[1];
     const st = new THREE.Mesh(new THREE.CylinderGeometry(3.175, 3.175, STACK - 1.6, 6), brass);
     st.position.set(x, 1.6 + (STACK - 1.6) / 2, z); st.castShadow = st.receiveShadow = true; assy.add(st);
