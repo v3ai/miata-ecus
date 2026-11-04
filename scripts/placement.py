@@ -335,6 +335,29 @@ put('J1', hx(1), J1_Y, 90)
 for i, (x, y) in enumerate(HOLES):
     put(f'H{1+i}', x, y)
 
+# rev 0.9: nudges to JLCPCB's recommended part-to-part spacing (scripts/jlc_spacing.py), mm, applied on the routed
+# board with scripts/nudge_part.py and recorded here so a rebuild places the parts the same way
+NUDGE = {
+    'R144': (-0.12, 0.0),
+    'R146': (0.12, 0.0),
+    'F2': (0.07, 0.0),
+    'RN1': (0.12, 0.0),
+    'U13': (-0.05, 0.0),
+    'C67': (0.0, -0.16),
+    'C5': (0.0, 0.24),
+    'C2': (0.0, -0.22),
+    'C35': (0.0, -0.03),
+    'C66': (0.0, -0.03),
+    'C34': (0.0, -0.03),
+    'D30': (0.0, 0.47),
+    'U106': (0.0, -0.5),
+    'C122': (0.0, -0.25),
+    'C118': (0.0, -0.5),
+}
+for _r, (_dx, _dy) in NUDGE.items():
+    _v = PLACE[_r]
+    PLACE[_r] = (round(_v[0] + _dx, 4), round(_v[1] + _dy, 4)) + tuple(_v[2:])
+
 for p in design.parts:
     if p['ref'] not in PLACE:
         print('not placed:', p['ref'])
