@@ -1,16 +1,17 @@
-routed in 653s, failed: []
-removed 0 GND vias
+built /home/claude/miata-ecus/scripts/../mb/work_8993/8993_placed.kicad_pcb 41 parts 63 nets
+routed in 739s, failed: []
+removed 52 GND vias
 schematic sheets ['harness.kicad_sch', 'daughter.kicad_sch', 'io.kicad_sch'] symbols 41
 pads checked 213 mismatches 0 extra 0 merged 0
 linked 41 footprints; renamed 6 nets
 D3: 33 cathode vias, 2 anode vias
 D4: 47 cathode vias, 4 anode vias
-D3 OUT_INJ1 island mm2: {'F.Cu': 118.1, 'B.Cu': 78.5}
+D3 OUT_INJ1 island mm2: {'F.Cu': 118.1, 'B.Cu': 93.2}
 D4 OUT_INJ2 island mm2: {'F.Cu': 115.0, 'B.Cu': 115.0}
 removed 8 GND vias
-{'silk_overlap': 4, 'silk_over_copper': 50, 'starved_thermal': 6, 'lib_footprint_issues': 41, 'silk_edge_clearance': 2, 'hole_clearance': 4}
+{'silk_overlap': 5, 'silk_over_copper': 50, 'starved_thermal': 6, 'lib_footprint_issues': 41, 'silk_edge_clearance': 2, 'hole_clearance': 4}
 exported /home/claude/miata-ecus/scripts/../mb/release_8993/fab 13 BOM lines
 released /home/claude/miata-ecus/scripts/../mb/release_8993
 made /home/claude/miata-ecus/scripts/../mb/release_8993
 wrote /home/claude/miata-ecus/mb/release_8993/README.md 34 pins used
-zipped /home/claude/miata-ecus/mb/miata_mb_8993_rev0.8.zip
+zipped /home/claude/miata-ecus/mb/miata_mb_8993_rev0.9.zip
