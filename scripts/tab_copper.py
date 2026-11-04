@@ -1,4 +1,5 @@
-"""Heat-spreading copper for the eight low-side drivers Q1-Q8 (rev 0.8: ST VND7NV04, DPAK, on the strip above J1).
+"""Heat-spreading copper for the eight low-side drivers Q1-Q8 (ST VND7NV04, DPAK; rev 0.8 on a strip above J1, since rev
+0.9 on the strip just below it, tab up).
 
 Each driver's drain tab is its output net, so the spreading copper is that net: a column of OUT_x copper as wide as
 the driver pitch allows (6.9 mm of the 7.62 mm pitch, leaving the gap the driver's input line climbs through), from
@@ -83,8 +84,14 @@ def _clear(board, x, y, netcode, own=None, own_ref=None):
     return True
 
 
+def _tab(fp):
+    return next(p for p in fp.Pads() if p.GetNumber() == '2' and p.GetSize().x > FromMM(5))
+
+
 def columns(board):
-    """(ref, net, x0, y0, x1, y1) of each driver's copper column, board mm"""
+    """(ref, net, x0, y0, x1, y1) of each driver's copper column, board mm: from the J1 pad to the tab side of the
+    driver. Rev 0.8 had the drivers above J1 (column from the board edge down to the pad); since rev 0.9 they stand
+    below it (column from just above the pad down to the bottom of the tab)."""
     out = []
     for ref, nn in DRIVERS.items():
         fp = board.FindFootprintByReference(ref)
@@ -92,7 +99,12 @@ def columns(board):
             continue
         cx = ToMM(fp.GetPosition().x) - OX
         _, jy = _j1_pad(board, nn)
-        out.append((ref, nn, cx - HALF_W, Y_TOP, cx + HALF_W, jy + 0.5))
+        tb = _tab(fp).GetBoundingBox()
+        t0, t1 = ToMM(tb.GetTop()) - OY, ToMM(tb.GetBottom()) - OY
+        if t1 < jy:                                   # driver above J1 (rev 0.8)
+            out.append((ref, nn, cx - HALF_W, Y_TOP, cx + HALF_W, jy + 0.5))
+        else:                                         # driver below J1 (rev 0.9)
+            out.append((ref, nn, cx - HALF_W, max(Y_TOP, jy - 1.4), cx + HALF_W, t1 + 0.6))
     return out
 
 
@@ -104,11 +116,15 @@ def add(board):
             _zone(board, net, layer, x0, y0, x1, y1)
         # thermal vias over the tab and the copper below it (not in the lead area at the top of the column)
         fp = board.FindFootprintByReference(ref)
-        tab = next(p for p in fp.Pads() if p.GetNumber() == '2' and p.GetSize().x > FromMM(5))
-        ty0 = ToMM(tab.GetBoundingBox().GetTop()) - OY - 0.6
+        tab = _tab(fp)
+        tby0, tby1 = ToMM(tab.GetBoundingBox().GetTop()) - OY, ToMM(tab.GetBoundingBox().GetBottom()) - OY
+        if tby1 < y1 - 1.0:                           # rev 0.8: tab and the copper below it, down to J1
+            ty0, ty1 = tby0 - 0.6, y1 - 1.2
+        else:                                         # rev 0.9: J1 down to the bottom of the tab
+            ty0, ty1 = y0 + 0.6, tby1 - 0.4
         n = 0
         y = ty0
-        while y <= y1 - 1.2:
+        while y <= ty1:
             x = x0 + 0.6
             while x <= x1 - 0.6:
                 tb = tab.GetBoundingBox()

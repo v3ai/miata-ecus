@@ -105,9 +105,10 @@ def protection_place(P, vvt=True):
     P['D1'] = (pin(31), dy + 10.0, 90)
     if vvt:
         P['D2'] = (pin(34), dy + 10.0, 90)
+    import placement as dpl
     for ref, k in (('R20', 15), ('R21', 16), ('R22', 17)):
-        P[ref] = (pin(k), dy + 52.0, 90)
-    P['F4'] = (98.0, 113.0, 0)
+        P[ref] = (pin(k), dy + dpl.J2_Y - 5.25, 90)
+    P['F4'] = (98.0, dy + dpl.BOARD_H + 11.0, 0)          # beside J5
     return P
 
 

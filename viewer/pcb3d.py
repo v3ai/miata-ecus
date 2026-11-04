@@ -390,6 +390,9 @@ for p in rows:
         lo = np.minimum(lo, boxes[i][0]); hi = np.maximum(hi, boxes[i][1])
     hi[1] = max(hi[1], 1.8)
     p['box'] = [round(float(x), 3) for x in (*lo, *hi)]
-json.dump(dict(size=[round(BW, 4), round(BH, 4)], centre=[round(CX - 100, 4), round(CZ - 50, 4)], parts=rows),
+# mounting holes (board mm, same frame as centre), for the viewer's standoffs
+holes = [[round(pcbnew.ToMM(fp.GetPosition().x) - 100, 3), round(pcbnew.ToMM(fp.GetPosition().y) - 50, 3)]
+         for fp in pcbnew.LoadBoard(BOARD).GetFootprints() if re.fullmatch(r'H\d+', fp.GetReference())]
+json.dump(dict(size=[round(BW, 4), round(BH, 4)], centre=[round(CX - 100, 4), round(CZ - 50, 4)], holes=holes, parts=rows),
           open(f'{OUT}/{PRE}parts.json', 'w'), separators=(',', ':'))
 print('parts', len(rows), 'meshes', len(boxes), 'groups', len(groups), 'board mesh', brd is not None)
