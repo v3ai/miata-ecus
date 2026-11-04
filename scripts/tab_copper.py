@@ -5,8 +5,9 @@ Each driver's drain tab is its output net, so the spreading copper is that net: 
 the driver pitch allows (6.9 mm of the 7.62 mm pitch, leaving the gap the driver's input line climbs through), from
 the strip's top edge down onto the driver's own J1 pad, on F.Cu, B.Cu and In2.Cu (the +3V3 plane layer: the strip
 has no 3.3 V parts, and the drain islands take priority over the plane there). A field of thermal vias joins the
-three layers under and around the tab, including vias in the tab pad itself (order the board with the vias plugged /
-filled, or accept a little solder wicking into the 0.3 mm holes). Other nets' copper inside a column keeps its clearance (the zone fills
+three layers under and around the tab, including vias in the tab pad itself (order the board with the vias epoxy-
+filled and capped, JLC's via-in-pad process; a solder-mask plug is not for vias in pads; or leave them open and accept a
+little solder wicking into the 0.3 mm holes). Other nets' copper inside a column keeps its clearance (the zone fills
 around it), and vias are only placed where they clear everything.
 
 (Rev 0.7 had F.Cu/B.Cu zones for the four injector drivers only, on SOT-223 parts below J1.)
