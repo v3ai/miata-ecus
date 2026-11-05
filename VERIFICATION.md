@@ -482,7 +482,7 @@ changed for each, and what remains, is in [Rev 0.7](#rev-07-fixes-for-the-2026-1
 | N8 | Medium | **Injector drivers at sustained high duty:** on 1989-93 each NCV8406A at 90 % duty reaches about 142 °C junction at 60 °C ambient and thermal shutdown at 85 °C ambient (about 20 mm² of tab copper). *Corrected in rev 0.7: the sequential years are worse, because each driver also absorbs its injector's turn-off energy (see Rev 0.7)* | More copper on the tabs (pour on both layers with vias), or convert to sequential |
 | N9 | Low | **Switch inputs in a 35 V load dump** (battery-fed switch closed): 8.1 V on the FT pin, against 7.3 V abs max | 1N4148WS to +3V3, as on the hall inputs |
 | N10 | Low | **AUX header J5:** UART TX/RX (PC6/PC7) and the AFR input (PC4) have no protection | Series resistors and clamps if the header is used with car wiring; fine for bench use |
-| N11 | Low | **1989-93 2L** (manual-transmission idle switch, ground-switching) has no pull-up, so it can't be read. **1994-95 2L** (electrical-load signal), if it switches to battery, over-drives PC5 | 1989-93: a manual car has no throttle position sensor for the firmware to read instead; rusEFI treats the TPS as failed (open-loop idle, no TPS acceleration fuel, no overrun cut). Fixed by the J6 sensor conversion in motherboard rev 0.10 (see below); fit R27 only to keep the stock switch. 1994-95: check the signal level on a car before wiring it |
+| N11 | Low | **1989-93 2L** (manual-transmission idle switch, ground-switching) has no pull-up, so it can't be read. **1994-95 2L** (electrical-load signal), if it switches to battery, over-drives PC5 | 1989-93: a manual car has no throttle position sensor for the firmware to read instead; rusEFI treats the TPS as failed (open-loop idle, no TPS acceleration fuel, no overrun cut). Fixed by the stock-plug sensor conversion in motherboard rev 0.11 (see below); fit R27 only to keep the stock switch. 1994-95: check the signal level on a car before wiring it |
 | N12 | Low (inherited from FOME) | **ESR reads 27 % low** (C102 droops within each ESR half period), so the sensor runs at about 740 °C instead of 780 °C | A firmware calibration in our wideband port, or leave it as FOME and rusEFI do |
 | N13 | Low | **+5V at 3.9 V in a level II crank pulse:** the TC4427 and the SN74LVC4245A port A are rated from 4.5 V. Both still switch, with less drive | None needed; noted |
 
@@ -590,24 +590,33 @@ beside J1 holes (`scripts/via_hole_gap.py`), and the silkscreen raised to 0.15 m
 (`scripts/silk_jlc.py`; KiCad's library outlines are 0.12 mm). Result: 0 pairs under JLC's spacing, 0 fab-capability
 issues, on all six boards; DRC 0 unconnected / 0 clearance errors.
 
-### 1989-93 motherboard rev 0.10: throttle position sensor connector
-The 1989-93 manual cars have only an idle switch on the throttle (2L), so the firmware had no throttle position sensor
-on those cars (rusEFI's idle controller falls back to open loop when the TPS reads as failed:
-`IdleController::determinePhase`). Rev 0.10 adds J6 (Micro-Fit 1×4, LCSC C277684) on the bottom edge for an
-aftermarket 0-5 V sensor on its own shielded lead: 1 = V5_EXT, 2 = IN_TPS, 3 = GND, 4 = GND (shield). Both signals
-are nets that the harness already reaches (2K and 2M), so the fault cases already cover a TPS lead shorted to ground or
-the battery. V5_EXT and IN_TPS are hand-routed on the bottom layer at the board's 0.2 mm clearance
-(`hand_route.py`, `CL=0.22`), two GND stitching vias under J6's pegs removed; nothing else moved. Re-checked: DRC
-0 unconnected / 0 clearance errors, schematic netlist 217 pads / 0 differences, `jlc_spacing.py` 0 pairs,
-`jlc_fab_check.py` OK, `board_checks.py` 1587 OK / 270 CHECK / 4 FAIL (unchanged: the four LSU-wire cases), copper
-rebuilt from geometry matches the design, `check_pins.py` OK. The sensor kit (Bosch 0 280 122 001 on an NA6 adapter
-plate, lead, plugs) is in the 1989-93 self-order BOM; not yet fitted to a car.
+### 1989-93 motherboard rev 0.11: throttle position sensor on the stock plug
+The 1989-93 manual cars have a two-contact throttle switch, not a sensor, so the firmware had no TPS on those cars
+(rusEFI's idle controller falls back to open loop when the TPS reads as failed: `IdleController::determinePhase`).
+Rev 0.10 added a separate 4-pin lead (J6); rev 0.11 replaces it with the stock-wiring conversion that rusEFI's
+Hellen NA6 board (0R links from 1N to the sensor 5 V and from 2L to the TPS input, read from its KiCad files) and MRE48
+use, after rusEFI forum reports that the switch plug carries the idle contact on 1N, ground on 2D and the full-throttle
+contact on 2L.
+
+That also showed a fault in every earlier revision: 1N was wired straight to the protected sensor 5 V (from the Hellen
+pin map, which is that board's converted setting). If 1N is the idle contact, a car with the stock switch shorts the 5 V
+to ground at every idle; the TLS115 survives (current-limited), but the 5 V for the air flow meter (2K), the CLT/IAT
+pull-ups and the AUX header collapses. Rev 0.11 leaves 1N open unless R28 is fitted.
+
+Links (0805): R28 1N to V5_EXT (not fitted), R29 2L to IN_AUX1 (fitted), R30 2L to IN_TPS (not fitted). Hand-routed into
+the rev 0.9 copper at the board's 0.2 mm clearance (`hand_route.py`, `CL=0.22`; it can now join a net's existing copper,
+`COPPER`), the 2L run to AUX1 cut for R29, two GND stitching vias beside the links removed; nothing else moved.
+Re-checked: DRC 0 unconnected / 0 clearance errors, schematic netlist 219 pads / 0 differences, `jlc_spacing.py`
+0 pairs, `jlc_fab_check.py` OK, `board_checks.py` 1590 OK / 264 CHECK / 4 FAIL (1989-93 faults 124 OK / 37 CHECK,
+was 121 / 43: the 1N-to-ground cases no longer pull down the sensor 5 V; the four FAILs are the LSU-wire cases),
+copper rebuilt from geometry matches the design, `check_pins.py` OK. Still to check on a car: which plug wire reaches
+1N, 2L and 2D.
 
 ## Open items
 The 2026-11-02 findings N1-N13 are listed in [New hardware findings](#new-hardware-findings-2026-11-02); what rev 0.7
 fixed is in [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings) and what rev 0.8 fixed in
 [Rev 0.8](#rev-08-driver-temperature-and-protected-outputs). Still open from that list: the LSU drive resistors in an
-IP or RT short (N3, the ICs are protected), N11 (1994-95 2L on a car; 1989-93 now has the J6 sensor), N12 (ESR, inherited) and N13 (noted).
+IP or RT short (N3, the ICs are protected), N11 (1994-95 2L on a car; 1989-93 now takes a sensor on the stock plug), N12 (ESR, inherited) and N13 (noted).
 
 | # | Issue | What to do |
 |---|---|---|

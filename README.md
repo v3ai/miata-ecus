@@ -57,13 +57,14 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 > **Rev 0.9:** layout only. J1 is back on the daughterboard's top edge with the driver strip below it, and the
 > daughterboard sits 16 mm lower, centred on each motherboard. Re-checked: same results as rev 0.8.
 >
-> **1989–93 motherboard rev 0.10:** a connector (J6) for an aftermarket throttle position sensor, for the manual cars,
-> which only have an idle switch. See [Throttle position sensor (1989–93 manual cars)](#throttle-position-sensor-198993-manual-cars).
+> **1989–93 motherboard rev 0.11:** the manual cars' throttle position sensor conversion uses the stock throttle switch
+> plug, through three 0 Ω links. Pin 1N is no longer wired straight to the sensor 5 V, which the stock switch would have
+> shorted at every idle. See [Throttle position sensor (1989–93 manual cars)](#throttle-position-sensor-198993-manual-cars).
 
 | Board | Folder | Rev | Harness header | Case fit |
 |---|---|---|---|---|
 | Daughterboard (all years) | [`daughterboard/`](daughterboard/) | 0.9 | 2 × 1×40 to the motherboard | 125 × 76 mm, 4 layers |
-| 1989–93 (NA6) | [`motherboards/1989-93/`](motherboards/1989-93/) | 0.10 | TE 174917-6, 48 pins | stock NA case outline |
+| 1989–93 (NA6) | [`motherboards/1989-93/`](motherboards/1989-93/) | 0.11 | TE 174917-6, 48 pins | stock NA case outline |
 | 1994–95 (NA8) | [`motherboards/1994-95/`](motherboards/1994-95/) | 0.9 | TE 174917-6, 48 pins | stock NA case outline |
 | 1996–97 (NA8, OBD-II) | [`motherboards/1996-97/`](motherboards/1996-97/) | 0.7 | TE 178780-1, 76 positions | **provisional** (NA outline) |
 | 1999–2000 (NB1) | [`motherboards/1999-2000/`](motherboards/1999-2000/) | 0.7 | TE 176122-6, 64 positions | **provisional** (NA outline) |
@@ -73,7 +74,7 @@ Each board folder contains:
 - the KiCad 7 project (schematic and board);
 - a schematic PDF;
 - JLCPCB gerbers, BOM and placement files in `fab/`, with the DRC report, named for the board and revision (for example
-  `miata-ecu-motherboard-1989-93-rev0.10_jlcpcb_gerbers.zip`). The JLC BOM is the SMD parts (and USB-C);
+  `miata-ecu-motherboard-1989-93-rev0.11_jlcpcb_gerbers.zip`). The JLC BOM is the SMD parts (and USB-C);
   `…_self_order_bom.csv` is everything you order and solder yourself, and
   [`additional-parts/order_all_boards.csv`](additional-parts/order_all_boards.csv) adds up all five motherboards, five daughterboards and the in-car parts
   (the same list as a page with quantities and tick boxes: [`additional-parts/shopping_list.html`](additional-parts/shopping_list.html));
@@ -105,24 +106,22 @@ Each motherboard has an IAT jumper (JP1, a 3-pin header with a removable shunt) 
 Pick the matching sensor curve in TunerStudio. The firmware already accounts for the board's 2.7 kΩ pull-up and divider.
 
 ## Throttle position sensor (1989–93 manual cars)
-The 1989–93 manual cars have no throttle position sensor: the part on the throttle body is a switch that only says
-"idle" (harness pin 2L). The automatics have a real 0–5 V sensor on 2M, as do all 1994–2005 cars. The ECU calculates
-fuel from its MAP sensor, so a manual car runs without one, but rusEFI then treats the throttle sensor as failed: no
-closed-loop idle, no throttle-based acceleration fuel and no overrun fuel cut.
+The 1989–93 manual cars have no throttle position sensor: the part on the throttle body is a switch with an idle
+contact and a full-throttle contact. The automatics have a real 0–5 V sensor on 2M, as do all 1994–2005 cars. The ECU
+calculates fuel from its MAP sensor, so a manual car runs without one, but rusEFI then treats the throttle sensor as
+failed: no closed-loop idle, no throttle-based acceleration fuel and no overrun fuel cut.
 
-The 1989–93 motherboard (rev 0.10) has a connector for a real sensor on its own lead, J6 on the bottom edge
-(1 = protected 5 V, 2 = signal, 3 = ground, 4 = cable shield). The kit, all in the board's self-order BOM as
-"Manual cars":
-- **Sensor:** Bosch 0 280 122 001 (= BMW 13 63 1 721 456), a 0–5 V potentiometer.
-- **Adapter plate**, in place of the stock switch: [Flyin' Miata's TPS upgrade kit](https://flyinmiata.com/products/tps-upgrade)
-  (no-TPS option), or a printed one: [Mazda MX5 - BMW TPS adapter](https://www.thingiverse.com/thing:4476762) or its
-  thicker remix [BMW tps adaptor maximum beef](https://www.printables.com/model/619337-bmw-tps-adaptor-maximum-beef),
-  printed in ASA, with M4 screws.
-- **Lead:** about 3 m of shielded 3 × 22 AWG cable rated 105 °C or more, a Micro-Fit 43645-0400 receptacle at J6 and a
-  Bosch 3-pin Junior Timer plug (1 237 000 039) at the sensor.
+The switch's plug has three wires: idle contact (1N), ground (2D) and full-throttle contact (2L). A sensor needs
+three: 5 V, ground and signal. So, as on rusEFI's Hellen NA6 and MRE boards, a sensor plugs into the stock plug and the
+1989–93 motherboard (rev 0.11) sets those pins with 0 Ω links: **fit R28** (5 V on 1N) and **move R29 to R30** (2L to
+the throttle input). The kit, in the board's self-order BOM as "Manual cars":
+- **Sensor:** a Kia sensor with the same 3-pin Mazda plug (Kia 0K01118911, or the others the
+  [rusEFI wiki](https://wiki.rusefi.com/Legacy-Miata-NA-48-pin-board-for-MRE) lists).
+- **Mount:** [Mazda NA6 Miata variable TPS mount](https://www.thingiverse.com/thing:3414132), printed in ASA.
+- **Or instead:** [Flyin' Miata's TPS upgrade kit](https://flyinmiata.com/products/tps-upgrade) with its sensor.
 
-Wiring and calibration are in the [1989–93 README](motherboards/1989-93/README.md). Automatics keep their stock sensor
-and leave J6 empty: both use the same ECU input.
+Check the plug's wiring and the sensor's pins on your car before fitting R28: see the
+[1989–93 README](motherboards/1989-93/README.md). Automatics leave R28 and R30 off.
 
 ## Things to know before ordering
 - **1996–2005 case geometry is a placeholder.** These motherboards use the NA board outline and mounting holes until a

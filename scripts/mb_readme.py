@@ -80,8 +80,6 @@ o.append('| J2 | LSU 4.9 (Molex Micro-Fit 2×3, right angle) | Pin n = LSU pin n
 o.append('| J3 | IAT (Micro-Fit 1×2) | M12×1.5 open-element thermistor, used when the IAT jumper JP1 is on EXT |')
 o.append('| JP1 | IAT source jumper (1×3, 2.54 mm) | Shunt on **2-3 (EXT, default)**: the IAT connector J3. Shunt on **1-2 (STOCK)**: the stock air-temp sensor through the harness (inside the AFM on 1989-97, the MAF on 1999-2005). Set the matching sensor curve in TunerStudio; the pull-up is 2.7 kΩ |')
 o.append('| J4 | USB-C | USB 2.0 device: tuning, logging, DFU |')
-if any(p['ref'] == 'J6' for p in C.parts):
-    o.append('| J6 | Aftermarket TPS (Micro-Fit 1×4) | Manual cars: 1 = protected 5 V, 2 = TPS signal (the same input as harness pin 2M), 3 = sensor ground, 4 = cable shield. See *Throttle position sensor* below |')
 o.append('| U2 | MPX5700AP | Absolute MAP sensor (15-700 kPa, case 867B). Lies flat on 2 × M3, marking side up, leads bent 90° down, the single barb toward the board centre |\n')
 o.append('**CAN:** R1 + R6 terminate the bus at the ECU end; remove R6 if the bus is terminated elsewhere.\n')
 o.append('**AUX (J5, 2×8 box header):** what the stock harness has no pins for: COP 3/4, boost, alternator and main-relay outputs, '
@@ -95,26 +93,26 @@ o.append('**Protection (motherboard rev 0.4 / 0.6):** D1 (and D2 where the VVT d
 o.append('**Switch inputs (R20-R22, not fitted):** the VSS, A/C and clutch inputs read signals that are driven to 12 V. If '
          'your car\'s signal only switches to ground (or is open collector), fit the 4.7 kΩ pull-up for that input. Never fit '
          'it for a switch that drives 12 V: the input would always read on.\n')
-if any(p['ref'] == 'J6' for p in C.parts):
+if any(p['ref'] == 'R28' for p in C.parts):
     o.append('**Throttle position sensor (manual cars):** the 1989-93 manual cars have no throttle position sensor, only '
-             'a switch that closes at idle (2L). The ECU calculates fuel from the MAP sensor, so the car runs without '
-             'one, but rusEFI then flags the throttle sensor as failed and drops closed-loop idle, throttle-based '
-             'acceleration fuel and overrun fuel cut. The fix is a real 0-5 V sensor on its own lead to J6. '
-             '**Sensor:** Bosch 0 280 122 001 (= BMW 13 63 1 721 456), on an adapter plate that bolts to the side of '
-             'the throttle body in place of the stock switch: Flyin\' Miata\'s TPS upgrade kit (no-TPS option), or a '
-             'printed plate (Thingiverse 4476762, Printables 619337; print in ASA). **Lead:** about 3 m of shielded '
-             '3 × 22 AWG cable rated 105 °C or more, from J6 (Micro-Fit 43645-0400 receptacle) through the firewall to '
-             'a Bosch 3-pin Junior Timer plug (1 237 000 039). J6 pin 1 (5 V) and pin 3 (ground) go to the two '
-             'ends of the sensor track (sensor pins 1 and 2, about 2 kΩ between them at any throttle), pin 2 to the '
-             'wiper (sensor pin 3); the shield drain goes to J6 pin 4 and stays open at the sensor end. If the reading '
-             'falls as the throttle opens, swap pins 1 and 3 at the sensor plug. Unplug the stock switch\'s plug and '
-             'tape it up. In TunerStudio, calibrate the throttle closed and wide open. **Automatics already have a real '
-             'sensor on 2M: leave J6 empty**, since both feed the same input. Every part is in the self-order BOM, '
-             'marked "Manual cars".\n')
+             'a two-contact switch. The ECU calculates fuel from the MAP sensor, so the car runs without one, but rusEFI '
+             'then flags the throttle sensor as failed and drops closed-loop idle, throttle-based acceleration fuel and '
+             'overrun fuel cut. A 0-5 V sensor fits on the stock wiring, as on rusEFI\'s Hellen NA6 and MRE boards: the '
+             'switch plug has three wires, the idle contact (1N), ground (2D) and the full-throttle contact (2L), and a '
+             'sensor needs 5 V, ground and a signal. **Board links:** fit R28 (0R 0805) to put the protected 5 V on 1N, '
+             'and move the 0R from R29 to R30 so that 2L goes to the TPS input instead of AUX1. Until R28 is fitted, 1N '
+             'is open: with the stock switch fitted, 5 V on 1N would be shorted to ground at every idle. '
+             '**Sensor:** a Kia sensor with the same 3-pin Mazda plug (0K01118911 and the others in the self-order BOM) '
+             'plugs into the stock plug, on a printed mount (Thingiverse 3414132, print in ASA); or Flyin\' Miata\'s TPS '
+             'upgrade kit. **Before fitting R28,** unplug the switch and check on your car which plug wire reaches 1N, '
+             '2L and 2D, and on the sensor which pins are the ends of its track (constant resistance between them at any '
+             'throttle): those must meet 1N and 2D, and the third (the wiper) 2L. In TunerStudio, calibrate the throttle '
+             'closed and wide open (a reversed sensor calibrates the same way). **Automatics** already have a sensor on 2M '
+             '(with its 5 V on 2K): leave R28 and R30 off. Every part is in the self-order BOM.\n')
 if any(p['ref'] == 'R27' for p in C.parts):
-    o.append('**TPS idle switch (R27, not fitted):** on the manual cars 2L is the throttle switch\'s idle contact, which '
-             'closes to ground at idle. Fit the 4.7 kΩ pull-up to the protected 5 V only if you keep the stock switch '
-             'and want the ECU to read it; with the J6 sensor it isn\'t needed.\n')
+    o.append('**Throttle switch contact (R27, not fitted):** on the manual cars 2L is one of the throttle switch\'s '
+             'contacts, which closes to ground. Fit the 4.7 kΩ pull-up to the protected 5 V only if you keep the stock '
+             'switch and want the ECU to read it (on AUX1, through R29); never with a sensor on 2L.\n')
 o.append('**Sensor 5 V:** the harness\'s 5 V reference and the AUX header pin J5-14 come from the daughterboard\'s '
          'protected 5 V regulator (V5_EXT; it survives a short to the battery or to ground). The MAP sensor has its own '
          'supply (V5_SENS), so a damaged sensor wire doesn\'t take the MAP reading with it.\n')
@@ -125,11 +123,11 @@ if any(p['ref'] == 'R23' for p in C.parts):
              'own 40 V minimum clamp, so the drivers never take the turn-off energy. For a sequential conversion (new wires to 2Y/2Z), remove R23/R24, '
              'fit R25/R26 and switch the firmware to sequential. **Never fit R26 on an automatic: 2Z goes to the A/T '
              'control unit.**\n')
-TPSJ = ', the TPS connector J6' if any(p['ref'] == 'J6' for p in C.parts) else ''
+TPSJ = ''
 o.append('## Assembly')
 o.append('- The daughterboard plugs into JD1/JD2 (8.5 mm sockets) on four M3 × 11 mm standoffs.')
 o.append(f'- Fitted by hand (all in `{F}self_order_bom.csv`): the harness header (salvage from a stock ECU or use a clone), the daughterboard sockets JD1/JD2, the LSU and IAT connectors{TPSJ}, the AUX header, the JP1 header and its shunt (EXT or STOCK), the MAP sensor, the standoffs, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC\'s quote whether that needs Standard PCBA.')
-o.append('- The case needs cut-outs in its bottom edge for the LSU, IAT, ' + ('USB-C, TPS lead (J6)' if any(p['ref'] == 'J6' for p in C.parts) else 'USB-C') + ' and MAP hose.\n')
+o.append('- The case needs cut-outs in its bottom edge for the LSU, IAT, USB-C and MAP hose.\n')
 o.append('## Still to verify')
 o += [f'- {v}' for v in getattr(M, 'VERIFY', ['The case geometry, against a stock case with calipers.'])]
 open(sys.argv[2], 'w').write('\n'.join(o) + '\n')

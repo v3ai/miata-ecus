@@ -54,4 +54,4 @@ HARNESS.update({
 
 
 def build_parts():
-    return base.build_parts(HARNESS, paired_injectors=False, idle_pullup=False, tps_conn=False)   # 94-95: one wire per injector
+    return base.build_parts(HARNESS, paired_injectors=False, idle_pullup=False, tps_links=False)   # 94-95: one wire per injector

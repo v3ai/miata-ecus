@@ -1004,13 +1004,5 @@
   "mfr": "Diodes Incorporated",
   "mpn": "B360A-13-F",
   "note": ""
- },
- "C277684": {
-  "correct_lcsc": null,
-  "desc": "Micro-Fit 3.0 header, 1x4 (4P), 3.0mm, right angle, through-hole",
-  "match": true,
-  "mfr": "MOLEX",
-  "mpn": "436500400",
-  "note": "jlcpcb.com/partdetail/C277684: 1x4P, 3 mm, right angle, extended part. Matches the 43650-0400 footprint."
  }
 }

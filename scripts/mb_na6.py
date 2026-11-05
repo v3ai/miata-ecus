@@ -56,7 +56,7 @@ CASE_NOTE = ('Stock NA case (same for 1990-95). Outline and holes come from the 
              'NA6 KiCad board (rev a/b), which uses the same Mazda case outline. H1 is a recessed boss: stack 3 M4 washers under the board.')
 HEADER_DESC = ('TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); rusEFI\'s 1990 page calls the '
                'second plug 3A-3Z. TE lists it as not currently available: desolder one from a stock ECU or use a clone. Fitted by hand.')
-CHANGES = ["Rev 0.10, for daughterboard rev 0.9: new connector J6 (Molex Micro-Fit 1x4, right angle, LCSC C277684) on the bottom edge between the USB-C and the MAP sensor, for an aftermarket throttle position sensor on the manual cars, whose stock throttle switch only reports idle: 1 = protected 5 V (V5_EXT), 2 = the TPS input (IN_TPS, the same input as harness pin 2M), 3 = sensor ground, 4 = cable shield. Its two nets are hand-routed on the bottom layer; the rest of the board is unchanged. The sensor, adapter plate, plug and cable are in the self-order BOM. The case needs one more cut-out.", "Rev 0.9, for daughterboard rev 0.9: the daughterboard sits 16 mm lower, centred on the board (42 mm from the top, as up to rev 0.7), with its J1 on its top edge again: JD1 and the upper standoffs HD1/HD2 are back at their rev 0.7 places, JD2, the lower standoffs HD3/HD4, the AUX header J5 (with F4 beside it) and the parts placed against JD2 (CAN termination R1/R6, pull-up options) are 16 mm lower, and the board is routed again. Not compatible with a rev 0.8 daughterboard.", "Rev 0.8, for daughterboard rev 0.8: the harness's sensor 5 V (1N, 2K) and the AUX header pin J5-14 now come from the daughterboard's protected 5 V (V5_EXT, JD1 pin 13, which was a ground pin): a sensor 5 V wire shorted to the battery no longer back-feeds the MAP sensor and the ECU's own 5 V. The MAP sensor keeps its own supply (V5_SENS). The daughterboard outline on the silkscreen is 16 mm taller (125 x 76 mm): its new strip of output drivers overhangs the free area above JD1. D3/D4 (the batch injector clamps) are now SMCJ30A (33.3-36.8 V breakdown) instead of SMCJ40A: the new daughterboard drivers clamp at 40 V minimum, so a 40 V TVS could leave the turn-off energy in a driver; at 30 V the TVS always clamps first. Not-fitted option R27: 4.7k pull-up from the protected 5 V for the manual cars' TPS idle switch on 2L.",
+CHANGES = ["Rev 0.11, for daughterboard rev 0.9: the throttle position sensor conversion uses the stock throttle switch plug, as rusEFI's Hellen NA6 and MRE boards do, instead of rev 0.10's separate lead: J6 is gone. Harness pin 1N (the manual cars' idle contact) is no longer wired straight to the sensor 5 V: it goes through R28 (0R, not fitted), so a car with the stock switch no longer shorts the 5 V to ground at every idle (rev 0.10 and earlier did, if 1N is the idle contact as the rusEFI sources say). Pin 2L goes through R29 (0R, fitted) to the spare analog AUX1 as before, or through R30 (0R, not fitted) to the TPS input. For a sensor on the stock plug: fit R28, move R29 to R30. The links are hand-routed into the rev 0.9 copper; nothing else moved.", "Rev 0.10 (replaced by 0.11): J6, a 4-pin connector for a separate TPS lead.", "Rev 0.9, for daughterboard rev 0.9: the daughterboard sits 16 mm lower, centred on the board (42 mm from the top, as up to rev 0.7), with its J1 on its top edge again: JD1 and the upper standoffs HD1/HD2 are back at their rev 0.7 places, JD2, the lower standoffs HD3/HD4, the AUX header J5 (with F4 beside it) and the parts placed against JD2 (CAN termination R1/R6, pull-up options) are 16 mm lower, and the board is routed again. Not compatible with a rev 0.8 daughterboard.", "Rev 0.8, for daughterboard rev 0.8: the harness's sensor 5 V (1N, 2K) and the AUX header pin J5-14 now come from the daughterboard's protected 5 V (V5_EXT, JD1 pin 13, which was a ground pin): a sensor 5 V wire shorted to the battery no longer back-feeds the MAP sensor and the ECU's own 5 V. The MAP sensor keeps its own supply (V5_SENS). The daughterboard outline on the silkscreen is 16 mm taller (125 x 76 mm): its new strip of output drivers overhangs the free area above JD1. D3/D4 (the batch injector clamps) are now SMCJ30A (33.3-36.8 V breakdown) instead of SMCJ40A: the new daughterboard drivers clamp at 40 V minimum, so a 40 V TVS could leave the turn-off energy in a driver; at 30 V the TVS always clamps first. Not-fitted option R27: 4.7k pull-up from the protected 5 V for the manual cars' TPS idle switch on 2L.",
            "Rev 0.7: LSU heater fuse F1 is a 3 A hold PTC (LUTE 2920L300/30GR, 30 V, 2920 size) instead of the 2 A 1812 part. A cold LSU 4.9 heater draws 1.6-2.3 A rms at the start of the wideband's warm-up, more than the old fuse holds once warm, so it could trip and the controller time out. No 1812 PTC holds 3 A above 8 V.",
            'Rev 0.6: freewheel diode D1 on the idle valve and D2 on the purge solenoid (2X) to its +12 V feed (the PWM turn-off energy no longer goes into the daughterboard driver); F4 resettable fuse on the AUX +12 V pin J5-15; not-fitted 12 V pull-up options R20-R22 for the VSS / A/C / clutch inputs. INJ1+INJ4 drive 2U and INJ2+INJ3 drive 2V in parallel (R23/R24), with an SMCJ40A clamp per wire (D3/D4), so no driver carries two injectors; 2Y/2Z are only reached through the not-fitted sequential-conversion links R25/R26.',
            'Rev 0.5: IAT source is now a removable jumper (JP1, 1x3 2.54 mm header + shunt) instead of the R4 / R5 0R links: shunt on EXT (default) reads the IAT connector J3, on STOCK the stock harness sensor; labelled on the silkscreen.',
@@ -68,8 +68,10 @@ CHANGES = ["Rev 0.10, for daughterboard rev 0.9: new connector J6 (Molex Micro-F
 VERIFY = ['The case geometry: hole centres and header 1A position, with calipers on a stock case.',
           'Your car\'s fan wiring: early cars switch the fan relay on 1R, later ones on 1L; both are driven (fan and spare outputs).',
           'LCSC stock for the extended parts (C124412, C127367, C277684, C587650, C3020560, C410772, C46641168, C3406).',
-          'The TPS conversion on a manual car: the adapter plate against your throttle body, the sensor\'s output range '
-          'across the throttle travel (calibrate closed and wide open in TunerStudio), and the J6 cut-out in the case.']
+          'Harness pins 1N and 2L on a 1989-93 car: with the throttle switch unplugged, which plug wire reaches each (the '
+          'rusEFI sources give 1N = idle contact, 2D = ground, 2L = full-throttle contact). Do this before fitting R28.',
+          'The TPS conversion on a manual car: the sensor and mount against your throttle body, and the sensor\'s output '
+          'across the throttle travel (calibrate closed and wide open in TunerStudio).']
 HDR_1A = (39.7, 18.13)        # pad 1A of the 174917 (lower row); header centred on the board
 DAUGHTER = (14.5, 42.0)       # daughterboard top-left corner on this board
 
@@ -89,7 +91,7 @@ HARNESS = {
     '1K': '',
     '1L': 'OUT_FAN',     # radiator fan relay
     '1M': 'IN_SW1',      # vehicle speed sensor
-    '1N': 'V5_EXT',      # sensor 5 V ref on NA6 (Hellen NA6 map; the daughter's protected harness 5 V); 2K carries it too
+    '1N': 'HARN_1N',     # manual cars: the stock throttle switch's idle contact (closes to ground at idle). 5 V only through R28 (not fitted), for a 0-5 V sensor on the stock plug
     '1O': '',            # brake light switch
     '1P': '',            # power steering switch
     '1Q': 'IN_SW2',      # A/C switch
@@ -108,8 +110,8 @@ HARNESS = {
     '2I': 'OUT_TACH',
     '2J': '',
     '2K': 'V5_EXT',      # 5 V sensor reference (protected harness 5 V)
-    '2L': 'IN_AUX1',     # MT idle switch (TPS) / spare analog
-    '2M': 'IN_TPS',      # TPS signal (AT / VTPS conversion)
+    '2L': 'HARN_2L',     # manual cars: the throttle switch's other contact. R29 (fitted) to the spare analog AUX1, or R30 (not fitted) to the TPS input after a sensor conversion
+    '2M': 'IN_TPS',      # automatics' TPS signal (a manual car's converted sensor comes in on 2L through R30)
     '2N': 'IN_AUX2',     # stock narrowband O2
     '2O': 'IN_AUX3',     # AFM flap signal
     '2P': 'HARN_IAT',    # AFM air temp (IAT jumper JP1 on STOCK to use it)
@@ -126,7 +128,7 @@ HARNESS = {
 }
 
 
-def build_parts(harness=None, paired_injectors=True, idle_pullup=True, tps_conn=True):
+def build_parts(harness=None, paired_injectors=True, idle_pullup=True, tps_links=True):
     C.parts.clear()
     C.add('J1', 'TE 174917-6', 'ecu_mb:TE_174917-6_48P', '', harness or HARNESS,
           'Stock harness header, 48 pins (22 + 26). Hand-solder; salvage from a stock ECU or use a clone')
@@ -138,19 +140,25 @@ def build_parts(harness=None, paired_injectors=True, idle_pullup=True, tps_conn=
     if paired_injectors:
         injector_pairs()
     if idle_pullup:
-        # 1989-93 2L: the manual cars' TPS idle switch closes to ground at idle and has no pull-up of its own
+        # 1989-93 2L: the manual cars' throttle switch contact closes to ground and has no pull-up of its own
         C.add('R27', '4.7k', 'Resistor_SMD:R_0603_1608Metric', '', {1: 'V5_EXT', 2: 'IN_AUX1'},
-              'NOT FITTED: 5 V pull-up for the TPS idle switch on 2L (manual cars). Fit (4.7k 0603, LCSC C23162; '
-              '1.1 mA with the switch closed) if the idle switch is used; from the protected harness 5 V')
-    if tps_conn:
-        # rev 0.10: 1989-93 manual cars have only an idle switch on the throttle (2L), no throttle position sensor. J6
-        # takes a separate shielded lead to an aftermarket 0-5 V sensor (Bosch 0 280 122 001 on an adapter plate),
-        # so the conversion doesn't depend on which TPS wires a manual car's harness carries. Pin 2 is the same
-        # IN_TPS input as harness pin 2M (automatics' sensor): use one or the other, never both.
-        C.add('J6', 'TPS', 'Connector_Molex:Molex_Micro-Fit_3.0_43650-0400_1x04_P3.00mm_Horizontal', 'C277684',
-              {1: 'V5_EXT', 2: 'IN_TPS', 3: 'GND', 4: 'GND'},
-              'Aftermarket throttle position sensor lead (1989-93 manual cars): 1 = protected 5 V, 2 = TPS signal '
-              '(same input as harness 2M), 3 = sensor ground, 4 = cable shield (ground at this end only)')
+              'NOT FITTED: 5 V pull-up for the stock throttle switch contact on 2L (manual cars, R29 fitted). Fit (4.7k '
+              '0603, LCSC C23162; 1.1 mA with the switch closed) to read the stock switch; never with a sensor on 2L')
+    if tps_links:
+        # rev 0.11: 1989-93 manual cars have a two-contact throttle switch, not a throttle position sensor. Its plug
+        # has three wires: idle contact (1N), signal ground (2D) and the other contact (2L). Like rusEFI's Hellen NA6
+        # and MRE boards, a 0-5 V sensor plugs into that stock plug: R28 puts the protected 5 V on 1N, and R30 (in
+        # place of R29) takes 2L to the TPS input. Until then 1N is left open: with the stock switch fitted, 5 V on 1N
+        # would be shorted to ground at every idle (rev 0.10 and earlier wired 1N straight to the sensor 5 V).
+        r0805 = 'Resistor_SMD:R_0805_2012Metric'
+        C.add('R28', '0R', r0805, '', {1: 'HARN_1N', 2: 'V5_EXT'},
+              'NOT FITTED: TPS conversion only (manual cars): protected 5 V to 1N for a 0-5 V sensor on the stock plug. '
+              'Never with the stock throttle switch: it shorts 1N to ground at idle')
+        C.add('R29', '0R', r0805, 'C17477', {1: 'HARN_2L', 2: 'IN_AUX1'},
+              'Stock: 2L to the spare analog input AUX1 (remove for a TPS conversion)')
+        C.add('R30', '0R', r0805, '', {1: 'HARN_2L', 2: 'IN_TPS'},
+              'NOT FITTED: TPS conversion only (manual cars): 2L to the TPS input, in place of R29. '
+              'Never on an automatic: its sensor is on 2M')
     return C.parts
 
 
@@ -191,13 +199,12 @@ def placement():
     # CAN termination right under the daughterboard's CAN pins (JD2 27/28)
     P['R1'] = (dx + 13.0 + 26.5 * 2.54 - 0.9, dy + dpl.J2_Y + 4.35, 90)
     P['R6'] = (dx + 13.0 + 26.5 * 2.54 + 0.9, dy + dpl.J2_Y + 4.35, 90)
-    # bottom edge, left to right: LSU, IAT, USB-C, (TPS on 1989-93), MAP. Connector mouths at the edge.
+    # bottom edge, left to right: LSU, IAT, USB-C, MAP. Connector mouths at the edge.
     P['J2'] = (29.0, 152.3, 180)       # LSU 4.9 (moved 6 mm right in rev 0.2)
     P['F1'] = (44.0, 143.0, 90)
     P['J3'] = (55.0, 152.3, 180)
     P['JP1'] = (52.46, 145.0, 90)      # IAT source jumper: pins 1 (STOCK) .. 3 (EXT) left to right
     P['J4'] = (80.0, 157.6, 0)
-    P['J6'] = (100.5, 152.3, 180)       # rev 0.10 (1989-93 only): aftermarket TPS lead, between the USB-C and the MAP
     P['R2'] = (73.5, 151.0, 90)
     P['R3'] = (86.5, 151.0, 90)
     P['U4'] = (80.0, 149.0, 0)
@@ -219,4 +226,8 @@ def placement():
     P['D4'] = (86.0, 64.0, 0)
     # 2L idle-switch pull-up option, above its JD2 pin (IN_AUX1 = J2 pin 9) like R20-R22
     P['R27'] = (DAUGHTER[0] + 13.0 + 8 * 2.54, DAUGHTER[1] + dpl.J2_Y - 5.25, 90)
+    # rev 0.11 TPS links (positions set against the routed rev 0.9 copper; see VERIFICATION.md)
+    P['R28'] = (58.2, 22.75, 0)      # just below the harness header, under 1N
+    P['R29'] = (49.09, 102.5, 270)   # in a gap cut into the old 2L-AUX1 run
+    P['R30'] = (42.5, 102.5, 180)    # between the 2L run and the TPS run
     return P
