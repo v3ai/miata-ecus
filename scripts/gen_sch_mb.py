@@ -166,9 +166,6 @@ def sheet_io(s):
     s.wire('JP1.2', (jx, jy + 7.62)); s.wire((jx, jy + 7.62), (jx + 12.7, jy + 7.62))
     s.lab('IN_IAT', (jx + 12.7, jy + 7.62), 'right')
     s.text('shunt LCSC C5305, fitted by hand', 213.36, 119.38, 1.27)
-    if 'J6' in S.PARTS:
-        s.text('Aftermarket TPS lead J6 (1989-93 manual cars): pin 2 is the same input as harness 2M', 193.04, 127.0, 1.27)
-        s.place('J6', 203.2, 134.62, 180)
 
     # ---- USB
     s.text('USB-C (device): tuning, logs, DFU firmware update', 279.4, 22.86)
@@ -196,7 +193,12 @@ def sheet_io(s):
     s.text('Switch-input 12 V pull-ups, NOT fitted: fit only for a signal that switches to ground', 279.4, 187.96, 1.27)
     for k, r in enumerate(('R20', 'R21', 'R22')):
         s.o2(r, 294.64 + k * 20.32, 203.2, 'v')
-    if 'R27' in S.PARTS:
+    if 'R27' in S.PARTS and 'R28' in S.PARTS:
+        s.text('Throttle switch plug (1N, 2L): R27 stock-switch pull-up (NOT fitted).', 355.6, 185.42, 1.27)
+        s.text('Sensor on the stock plug: fit R28 (5 V on 1N), move R29 to R30 (2L to TPS)', 355.6, 189.23, 1.27)
+        for k, r in enumerate(('R27', 'R28', 'R29', 'R30')):
+            s.o2(r, 360.68 + k * 15.24, 203.2, 'v')
+    elif 'R27' in S.PARTS:
         s.text('2L idle switch pull-up (NOT fitted)', 355.6, 187.96, 1.27)
         s.o2('R27', 360.68, 203.2, 'v')
     if 'R23' in S.PARTS:

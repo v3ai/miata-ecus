@@ -70,7 +70,7 @@ td.item b a{color:var(--accent);text-underline-offset:2px}
 <main>
   <header>
     <h1>Miata ECU: parts JLCPCB won't fit</h1>
-    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.9 and the five motherboards (1989-93 rev 0.10, 1994-95 rev 0.9, 1996-97 / 1999-2000 / 2001-05 rev 0.7), plus the parts that go in the car. Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
+    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.9 and the five motherboards (1989-93 rev 0.11, 1994-95 rev 0.9, 1996-97 / 1999-2000 / 2001-05 rev 0.7), plus the parts that go in the car. Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
   </header>
 
   <div class="counts" role="group" aria-label="Build counts">
@@ -126,13 +126,14 @@ const GROUPS = [
   {item:'Micro-Fit 3.0 header, 1×2, right angle', pn:'Molex 43650-0200', lcsc:'C587650', per:'mb', q:1, who:'must', note:'J3, IAT sensor.'},
   {item:'Box header, 2×8, 2.54 mm', pn:'BOOMELE 2.54-2*8P', lcsc:'C3406', per:'mb', q:1, who:'must', note:'J5, AUX.'},
   {item:'Pin header, 1×3, 2.54 mm', pn:'BOOMELE 2.54-1*3P', lcsc:'C49257', per:'mb', q:1, who:'must', note:'JP1, holds the shunt above.'},
-  {item:'Micro-Fit 3.0 header, 1×4, right angle', pn:'Molex 43650-0400', lcsc:'C277684', per:'8993', q:1, who:'must', note:'J6 on the 1989-93 board only: the aftermarket throttle sensor lead (manual cars). Fit it on every 1989-93 board; an automatic just leaves it empty.'},
  ]},
  {id:'optional', title:'Optional parts on the motherboard', sub:'Not fitted by default. Buy only if your car needs them.', rows:[
   {item:'Resistor 4.7 kΩ, 0603', pn:'UNI-ROYAL 0603WAF4701T5E', lcsc:'C23162', per:'mb', q:3, who:'opt',
    note:'R20-R22: pull-ups for VSS, A/C and clutch. Fit one only where that signal switches to ground. Never on a line the car drives to 12 V.'},
   {item:'Resistor 0 Ω, 0805', pn:'UNI-ROYAL 0805W8F0000T5E', lcsc:'C17477', per:'8993', q:2, who:'opt', warn:'Never on an automatic',
    note:'R25/R26 on the 1989-93 board: only for a sequential injection conversion (with R23/R24 removed). 2Z is the A/T unit on automatics.'},
+  {item:'Resistor 0 Ω, 0805 (TPS links)', pn:'UNI-ROYAL 0805W8F0000T5E', lcsc:'C17477', per:'mt', q:2, who:'opt', warn:'Manual cars only',
+   note:'R28 (5 V on 1N) and R30 (2L to the TPS input, after removing R29) on the 1989-93 board, for a sensor on the stock throttle plug. Never with the stock switch still fitted.'},
  ]},
  {id:'car', title:'In the car', sub:'One set per car you install in.', rows:[
   {item:'Bosch LSU 4.9 wideband sensor', pn:'Bosch 0 258 017 025', per:'car', q:1, who:'must', note:'The board runs it directly; no separate wideband controller.'},
@@ -145,20 +146,13 @@ const GROUPS = [
   {item:'Vacuum hose to the intake manifold', pn:'hose to fit the MAP barb', per:'car', q:1, who:'must', note:'From the MPX5700AP barb to a manifold vacuum port.'},
   {item:'Case', pn:'stock ECU case', per:'car', q:1, who:'must', note:'1989-95 boards fit the stock NA case: reuse yours. The 1996-2005 outlines are provisional until those cases are measured.'},
  ]},
- {id:'tps', title:'1989-93 manual cars: throttle position sensor', sub:'These cars have only an idle switch on the throttle. A real 0-5 V sensor on its own lead to J6 gives closed-loop idle, acceleration fuel and overrun cut. Automatics already have one: skip this group.', rows:[
-  {item:'Throttle position sensor, 0-5 V', pn:'Bosch 0 280 122 001', per:'mt', q:1, who:'must',
-   note:'Same part as BMW 13 63 1 721 456. Pins 1 and 2 are the track ends (5 V and ground, about 2 kΩ apart at any throttle), pin 3 the signal: check with an ohmmeter before wiring.'},
-  {item:'TPS adapter plate, NA6 throttle body', pn:'Flyin’ Miata TPS upgrade kit, no-TPS option', per:'mt', q:1, who:'must',
-   note:'Bolts to the side of the throttle body in place of the stock switch. Or print one instead (next row).', link:'https://flyinmiata.com/products/tps-upgrade'},
-  {item:'Printed adapter plate (instead of the kit)', pn:'Thingiverse 4476762 / Printables 619337', per:'mt', q:1, who:'opt',
-   note:'Print in ASA (PLA and PETG soften in the engine bay). Two M4 screws and nuts hold the sensor; two M4 screws with wide washers hold the plate to the throttle body. Check the licence on the model page.', link:'https://www.printables.com/model/619337-bmw-tps-adaptor-maximum-beef'},
-  {item:'TPS plug, Bosch Junior Timer 3-pin, with terminals', pn:'Bosch 1 237 000 039', per:'mt', q:1, who:'must',
-   note:'Buy it as a kit (e.g. EFI Hardware C03F-0002): loose terminals often don’t fit the housing.', link:'https://www.efihardware.com/products/388/connector-TPS-Module-3-pin-plug-Bosch'},
-  {item:'Shielded cable, 3 × 22 AWG + drain, 105 °C or better (m)', pn:'M27500-22SB3T23 or equivalent', per:'mt', q:3, who:'must',
-   note:'J6 to the sensor, through the firewall: about 3 m, measure your route. Drain to J6 pin 4 only. Office cable rated 60 °C won’t last under the hood.'},
-  {item:'Micro-Fit 3.0 receptacle, 1×4', pn:'Molex 43645-0400', per:'mt', q:1, who:'must', note:'Mates with J6: 1 = 5 V, 2 = signal, 3 = ground, 4 = shield.'},
-  {item:'Micro-Fit 3.0 female crimp terminal (TPS lead)', pn:'Molex 43030-0007', per:'mt', q:4, who:'must', note:'For the J6 receptacle; buy spares.'},
-  {item:'Split loom, 6 mm (m)', pn:'6 mm convoluted loom', per:'mt', q:2, who:'opt', note:'Engine-bay run; keep the lead away from the exhaust and the coil wires.'},
+ {id:'tps', title:'1989-93 manual cars: throttle position sensor', sub:'These cars have only a throttle switch. A real 0-5 V sensor plugs into the stock switch plug and gives closed-loop idle, acceleration fuel and overrun cut. On the board, fit R28 and move R29 to R30 (0 Ω 0805, in the optional parts above). Automatics already have one: skip this group.', rows:[
+  {item:'Throttle position sensor, Kia, Mazda-style 3-pin plug', pn:'Kia 0K01118911', per:'mt', q:1, who:'must', link:'https://wiki.rusefi.com/Legacy-Miata-NA-48-pin-board-for-MRE',
+   note:'Also 0K24718911, 0K30A18911 or aftermarket TH291 / 5S5504 / TPS4185. Plugs into the stock plug. Before fitting R28, check which sensor pins are the track ends (constant resistance between them) and that they meet the 1N and 2D wires; the wiper must meet 2L.'},
+  {item:'TPS mount for the NA6 throttle body (3D print)', pn:'Thingiverse 3414132', per:'mt', q:1, who:'must', link:'https://www.thingiverse.com/thing:3414132',
+   note:'Holds the Kia sensor on the throttle shaft in place of the stock switch. Print in ASA (PLA and PETG soften in the engine bay). Check the licence on the model page.'},
+  {item:'Flyin’ Miata TPS upgrade kit, with sensor (instead of the two rows above)', pn:'FM 07-360XX', per:'mt', q:1, who:'opt', link:'https://flyinmiata.com/products/tps-upgrade',
+   note:'Bought alternative: plate plus OEM or BMW sensor; Flyin’ Miata says it plugs into the stock harness. Check that it comes with the lead for the stock plug.'},
  ]},
  {id:'once', title:'Tools (once)', sub:'No programmer is needed: the main MCU flashes over USB and the board flashes its own wideband MCU.', rows:[
   {item:'USB-C cable', pn:'USB-C to your computer', per:'once', q:1, who:'must', note:'Flashing (DFU) and tuning.'},

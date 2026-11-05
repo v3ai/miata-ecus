@@ -1,5 +1,6 @@
 """Route one missing connection on a finished board with a two-layer grid A* over the real copper.
 usage: hand_route.py in.kicad_pcb out.kicad_pcb NET  x0 y0 x1 y1 (search window, mm)  srcpad(ref:num) dst pads(ref:num,...)
+A destination of COPPER means any existing track or via of NET inside the window (join the net's routed copper).
 Tracks 0.2 mm, vias 0.6/0.3, clearance 0.15 mm (+0.02 margin). GND/+3V3 zones are ignored as obstacles and refilled."""
 import sys, heapq, math
 import pcbnew
@@ -18,8 +19,17 @@ b = pcbnew.LoadBoard(src)
 win = box(X0 - 2, Y0 - 2, X1 + 2, Y1 + 2)
 obs = {'F.Cu': [], 'B.Cu': []}
 holes = []
+COPPER = ['COPPER'] in DSTS
+copper = []                         # (layers, polygon) of NET's own tracks and vias, as goals when COPPER is asked
 for t in b.GetTracks():
     if t.GetNetname() == NET:
+        if COPPER:
+            if t.Type() == pcbnew.PCB_VIA_T:
+                p = t.GetPosition(); g = Point(mm(p.x), mm(p.y)).buffer(mm(t.GetWidth()) / 2)
+                copper.append((['F.Cu', 'B.Cu'], g))
+            elif t.GetLayerName() in ('F.Cu', 'B.Cu'):
+                s, e = t.GetStart(), t.GetEnd()
+                copper.append(([t.GetLayerName()], LineString([(mm(s.x), mm(s.y)), (mm(e.x), mm(e.y))]).buffer(mm(t.GetWidth()) / 2, cap_style=1)))
         continue
     if t.Type() == pcbnew.PCB_VIA_T:
         p = t.GetPosition(); g = Point(mm(p.x), mm(p.y)).buffer(mm(t.GetWidth()) / 2)
@@ -90,7 +100,18 @@ for k, layers, poly in targets:
     gi, gj = cell(c.x, c.y)
     for l in layers:
         goal_cells.add((l, gi, gj))
+for layers, g in copper:            # every grid cell inside the net's own copper is a goal
+    g = g.buffer(-0.03)
+    if g.is_empty or not g.intersects(box(X0, Y0, X1, Y1)):
+        continue
+    x0_, y0_, x1_, y1_ = g.bounds
+    for i in range(max(0, int((x0_ - X0) / G)), min(nx, int((x1_ - X0) / G) + 2)):
+        for j in range(max(0, int((y0_ - Y0) / G)), min(ny, int((y1_ - Y0) / G) + 2)):
+            if g.contains(Point(*xy(i, j))):
+                for l in layers:
+                    goal_cells.add((l, i, j))
 gx = [(xy(i, j)) for (_, i, j) in goal_cells]
+gx = gx[::max(1, len(gx) // 400)]   # heuristic only: a sample of the goal cells keeps it fast
 def h(i, j):
     x, y = xy(i, j); return min(math.hypot(x - a, y - b_) for a, b_ in gx)
 DIRS = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]

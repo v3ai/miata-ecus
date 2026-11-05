@@ -14,7 +14,7 @@ MPN = json.load(open(os.path.join(HERE, 'mpn.json')))
 # parts that have an LCSC number but that you fit yourself (left out of the JLC BOM and CPL)
 HAND = {
     'daughter': {'J1', 'J2'},                                   # 1x40 pin headers, bottom side
-    'mb': {'JD1', 'JD2', 'J2', 'J3', 'J5', 'J6', 'JP1', 'U2'},  # sockets, Micro-Fit, AUX, IAT jumper header, MAP
+    'mb': {'JD1', 'JD2', 'J2', 'J3', 'J5', 'JP1', 'U2'},        # sockets, Micro-Fit, AUX, IAT jumper header, MAP
 }
 # footprints with nothing to fit (Tag-Connect SWD pads: the cable presses on)
 PADS_ONLY = {'daughter': {'J3', 'J102'}, 'mb': set()}
@@ -38,44 +38,28 @@ HARNESS = {
     'TE 176122-6': ('TE Connectivity', '176122-6', 'Alternate 4-174518-7'),
     'TE 353830-5': ('TE Connectivity', '353830-5', 'Alternate 1123038-2'),
 }
-# 1989-93 manual cars: the stock throttle "sensor" is only an idle / full-throttle switch. The conversion to a real
-# 0-5 V sensor wired to the board's J6 (rev 0.10). Bought per car; listed in the 1989-93 self-order BOM and in the
-# whole-build list. (item, qty, mfr, mpn, lcsc, required, notes)
+# 1989-93 manual cars: the stock throttle "sensor" is a two-contact switch. The conversion to a real 0-5 V sensor that
+# plugs into the stock switch plug, with the motherboard's R28 / R30 links (rev 0.11). Bought per car; listed in the
+# 1989-93 self-order BOM and in the whole-build list. (item, qty, mfr, mpn, lcsc, required, notes)
 TPS_REQ = 'Manual cars'
 YEAR_CAR = {'mb_na6': [
-    ('Throttle position sensor, 0-5 V potentiometer, 3 pins', 1, 'Bosch', '0 280 122 001', '', TPS_REQ,
-     'Same part as BMW 13 63 1 721 456; the sensor the NA6 adapter plates below are made for. 86 deg usable travel, '
-     '2 kOhm track, -40 to +130 C. Pins 1 and 2 are the ends of the track (5 V and ground, about 2 kOhm between them '
-     'at any throttle), pin 3 the wiper (signal): check with an ohmmeter before wiring. Replaces the stock idle switch'),
-    ('TPS adapter plate for the NA6 throttle body (buy)', 1, 'Flyin\' Miata', 'TPS upgrade kit 07-360XX, no-TPS option', '',
-     TPS_REQ, 'Bolts to the side of the 1990-93 manual throttle body and carries the Bosch / BMW sensor. Either this or '
-     'the printed plate below. Not with an NB intake manifold'),
-    ('TPS adapter plate for the NA6 throttle body (3D print)', 1, '', 'Thingiverse 4476762 or Printables 619337', '',
-     'Optional', 'Instead of the bought plate: Skuzzle\'s "Mazda MX5 - BMW TPS adapter" (Thingiverse 4476762), or its '
-     'thicker remix "BMW tps adaptor maximum beef" (Printables 619337). Print in ASA (PLA and PETG soften in the engine '
-     'bay); check the licence on the model page'),
-    ('Screw, M4, with nut (sensor to printed plate)', 2, '', 'M4 screw + M4 nut, length to suit the plate', '', 'Optional',
-     'Printed plate only'),
-    ('Screw, M4, with wide (fender) washer (printed plate to throttle body)', 2, '', 'M4 screw + M4 fender washer, length to suit', '',
-     'Optional', 'Printed plate only: the wide washers spread the load on the plastic'),
-    ('TPS plug, Bosch Junior Timer 3-pin, with terminals', 1, 'Bosch', '1 237 000 039', '', TPS_REQ,
-     'Mates with the Bosch 0 280 122 001. Buy it as a kit with its terminals (e.g. EFI Hardware C03F-0002): loose '
-     'terminals often don\'t fit the housing'),
-    ('Shielded cable, 3 x 22 AWG with drain, 105 C or better', 3, '', 'M27500-22SB3T23 (or equivalent), metres', '', TPS_REQ,
-     'J6 to the sensor: about 3 m from the ECU in the passenger footwell through the firewall to the throttle body; '
-     'measure your route. Shield drain to J6 pin 4 only (open at the sensor end). Office cable rated 60 C is not '
-     'good enough under the hood. Three twisted 22 AWG TXL wires in loom also work (leave pin 4 empty)'),
-    ('Micro-Fit 3.0 receptacle, 1x4', 1, 'Molex', '43645-0400', '', TPS_REQ,
-     'Mates with J6: 1 = 5 V, 2 = TPS signal, 3 = sensor ground, 4 = shield drain'),
-    ('Micro-Fit 3.0 female crimp terminal, 20-24 AWG (TPS lead)', 4, 'Molex', '43030-0007', '', TPS_REQ,
-     'For the J6 receptacle; buy spares'),
-    ('Convoluted loom, 6 mm (1/4 in), split', 2, '', '6 mm split loom, metres', '', 'Optional',
-     'Engine-bay run of the TPS lead; tie it to the engine harness, away from the exhaust and the coil leads'),
+    ('Throttle position sensor, Kia, 3-pin Mazda-style plug', 1, 'Kia', '0K01118911', '', TPS_REQ,
+     'Also sold as 0K24718911, 0K30A18911 or aftermarket TH291 / 5S5504 / TPS4185 (rusEFI wiki list). Plugs into the '
+     'car\'s stock throttle switch plug: 1N gives it 5 V (fit R28), 2D is its ground, 2L its signal (move R29 to R30). '
+     'Before fitting R28, check with an ohmmeter which sensor pins are the track ends (constant resistance between them '
+     'at any throttle) and that they meet the 1N and 2D wires; the third pin, the wiper, must meet 2L. If the reading '
+     'falls as the throttle opens, TunerStudio\'s calibration handles it'),
+    ('TPS mount for the NA6 throttle body (3D print)', 1, '', 'Thingiverse 3414132', '', TPS_REQ,
+     '"Mazda NA6 Miata variable TPS mount": holds the Kia sensor on the throttle shaft in place of the stock switch. '
+     'Print in ASA (PLA and PETG soften in the engine bay); check the licence on the model page'),
+    ('TPS upgrade kit with sensor (instead of the two rows above)', 1, 'Flyin\' Miata', 'TPS upgrade kit 07-360XX, with TPS', '',
+     'Optional', 'Bought alternative: adapter plate plus an OEM or BMW sensor; Flyin\' Miata says it plugs into the stock '
+     'harness. Check that it comes with the lead for the stock plug. Not with an NB intake manifold'),
 ]}
 URLS = {
-    'TPS upgrade kit 07-360XX, no-TPS option': 'https://flyinmiata.com/products/tps-upgrade',
-    'Thingiverse 4476762 or Printables 619337': 'https://www.thingiverse.com/thing:4476762',
-    '1 237 000 039': 'https://www.efihardware.com/products/388/connector-TPS-Module-3-pin-plug-Bosch',
+    '0K01118911': 'https://wiki.rusefi.com/Legacy-Miata-NA-48-pin-board-for-MRE',
+    'Thingiverse 3414132': 'https://www.thingiverse.com/thing:3414132',
+    'TPS upgrade kit 07-360XX, with TPS': 'https://flyinmiata.com/products/tps-upgrade',
 }
 COLS = ['Line', 'Item', 'Quantity', 'Designator', 'Manufacturer', 'Manufacture Part Number', 'LCSC Part Number',
         'Required', 'Find it', 'Notes']
