@@ -1,0 +1,41 @@
+{%- liquid
+  assign collection = section.settings.collection
+  assign limit = section.settings.limit
+  assign columns = section.settings.columns | plus: 0
+-%}
+<section id="{{ section.settings.anchor | default: section.id | handle }}" class="section">
+  <div class="page-width">
+    <div class="section-head">
+      <h2 class="h2">{{ section.settings.heading | escape | newline_to_br }}</h2>
+      {%- if collection != blank -%}
+        <a class="link-arrow" href="{{ collection.url }}">{{ 'products.view_all' | t }}</a>
+      {%- endif -%}
+    </div>
+    <ul class="product-grid product-grid--{{ section.settings.columns }}" role="list">
+      {%- if collection != blank and collection.products_count > 0 -%}
+        {%- for product in collection.products limit: limit -%}
+          <li>{% render 'product-card', product: product %}</li>
+        {%- endfor -%}
+      {%- else -%}
+        {%- for i in (1..columns) -%}
+          <li>{% render 'product-card', product: blank %}</li>
+        {%- endfor -%}
+      {%- endif -%}
+    </ul>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Featured collection",
+  "class": "section-featured",
+  "settings": [
+    { "type": "text", "id": "anchor", "label": "Anchor", "default": "shop" },
+    { "type": "textarea", "id": "heading", "label": "Heading", "default": "Shop" },
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "range", "id": "limit", "label": "Products", "min": 2, "max": 12, "step": 1, "default": 6 },
+    { "type": "select", "id": "columns", "label": "Columns on desktop", "default": "3", "options": [ { "value": "2", "label": "2" }, { "value": "3", "label": "3" }, { "value": "4", "label": "4" } ] }
+  ],
+  "presets": [ { "name": "Featured collection" } ]
+}
+{% endschema %}

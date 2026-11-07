@@ -1,0 +1,76 @@
+{%- liquid
+  assign fallback = section.settings.fallback_image
+-%}
+<section class="hero hero--{{ section.settings.layout }}">
+  <div class="page-width hero__grid">
+    <div class="hero__copy">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h1 class="display">{{ section.settings.heading | escape | newline_to_br }}</h1>
+      {%- if section.settings.text != blank -%}
+        <div class="lede">{{ section.settings.text }}</div>
+      {%- endif -%}
+      {%- if section.settings.button_label != blank or section.settings.button_label_2 != blank -%}
+        <div class="btn-row">
+          {%- if section.settings.button_label != blank -%}
+            <a class="btn" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">{{ section.settings.button_label | escape }}</a>
+          {%- endif -%}
+          {%- if section.settings.button_label_2 != blank -%}
+            <a class="btn btn--outline" href="{{ section.settings.button_link_2 | default: '#how' }}">{{ section.settings.button_label_2 | escape }}</a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+      {%- if section.blocks.size > 0 -%}
+        <ul class="hero__meta eyebrow" role="list" style="list-style:none;margin:0;padding:0">
+          {%- for block in section.blocks -%}
+            <li {{ block.shopify_attributes }}>{{ block.settings.text | escape }}</li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+    <div class="hero__media">
+      {%- if section.settings.image != blank -%}
+        {{ section.settings.image | image_url: width: 2400 | image_tag: loading: 'eager', fetchpriority: 'high', sizes: '(min-width: 990px) 60vw, 100vw', widths: '750, 1100, 1500, 2000, 2400' }}
+      {%- elsif fallback != 'none' -%}
+        {%- render 'theme-image', name: fallback, alt: section.settings.heading, eager: true -%}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Hero",
+  "tag": "div",
+  "class": "section-hero",
+  "max_blocks": 4,
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Plug-in engine computer" },
+    { "type": "textarea", "id": "heading", "label": "Heading", "default": "The Miata ECU.\nRebuilt." },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>A rusEFI engine computer that fits the stock case and plugs into the stock harness. Built-in wideband. Tune over USB-C.</p>" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop" },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+    { "type": "text", "id": "button_label_2", "label": "Second button label", "default": "How it works" },
+    { "type": "url", "id": "button_link_2", "label": "Second button link" },
+    { "type": "image_picker", "id": "image", "label": "Image", "info": "Leave empty to use the built-in render below." },
+    {
+      "type": "select", "id": "fallback_image", "label": "Built-in render", "default": "assembly",
+      "options": [
+        { "value": "assembly", "label": "Assembled (1989-93)" },
+        { "value": "lifted", "label": "Exploded" },
+        { "value": "daughterboard", "label": "Daughterboard" },
+        { "value": "none", "label": "None" }
+      ]
+    },
+    {
+      "type": "select", "id": "layout", "label": "Layout", "default": "split",
+      "options": [ { "value": "split", "label": "Text beside image" }, { "value": "stacked", "label": "Text above image" } ]
+    }
+  ],
+  "blocks": [
+    { "type": "meta", "name": "Fact", "settings": [ { "type": "text", "id": "text", "label": "Text", "default": "1989–2005" } ] }
+  ],
+  "presets": [ { "name": "Hero" } ]
+}
+{% endschema %}

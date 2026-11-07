@@ -1,0 +1,31 @@
+<div class="page-width main-page">
+  <div class="section-head" style="margin:0">
+    <h1 class="h1">{{ 'customer.account.title' | t }}</h1>
+    <a class="link-arrow" href="{{ routes.account_logout_url }}">{{ 'customer.logout' | t }}</a>
+  </div>
+  <div class="cart-layout">
+    <div class="stack">
+      <h2 class="h3">{{ 'customer.account.orders' | t }}</h2>
+      {%- paginate customer.orders by 20 -%}
+        {%- if customer.orders.size > 0 -%}
+          <table class="table-plain">
+            <thead><tr><th>{{ 'customer.order.number' | t }}</th><th>{{ 'customer.order.date' | t }}</th><th>{{ 'customer.order.status' | t }}</th><th>{{ 'customer.order.total' | t }}</th></tr></thead>
+            <tbody>
+              {%- for order in customer.orders -%}
+                <tr><td><a href="{{ order.customer_url }}">{{ order.name }}</a></td><td>{{ order.created_at | time_tag: format: 'date' }}</td><td>{{ order.fulfillment_status_label }}</td><td>{{ order.total_net_amount | money_with_currency }}</td></tr>
+              {%- endfor -%}
+            </tbody>
+          </table>
+        {%- else -%}
+          <p>{{ 'customer.account.no_orders' | t }}</p>
+        {%- endif -%}
+        {%- if paginate.pages > 1 -%}{% render 'pagination', paginate: paginate %}{%- endif -%}
+      {%- endpaginate -%}
+    </div>
+    <aside class="cart-summary">
+      <h2 class="h4">{{ 'customer.account.details' | t }}</h2>
+      {{ customer.default_address | format_address }}
+      <a class="link-arrow" href="{{ routes.account_addresses_url }}">{{ 'customer.addresses.view' | t: count: customer.addresses_count }}</a>
+    </aside>
+  </div>
+</div>

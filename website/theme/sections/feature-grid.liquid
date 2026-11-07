@@ -1,0 +1,43 @@
+<section class="section{% if section.settings.invert %} scheme-invert{% endif %}">
+  <div class="page-width">
+    {%- if section.settings.heading != blank -%}
+      <div class="section-head">
+        <h2 class="h2">{{ section.settings.heading | escape | newline_to_br }}</h2>
+        {%- if section.settings.text != blank -%}<p>{{ section.settings.text | escape }}</p>{%- endif -%}
+      </div>
+    {%- endif -%}
+    <ol class="feature-grid{% if section.settings.columns == '3' %} feature-grid--3{% endif %}" role="list">
+      {%- for block in section.blocks -%}
+        <li class="feature" {{ block.shopify_attributes }}>
+          <span class="feature__num">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+          <h3 class="h3">{{ block.settings.title | escape }}</h3>
+          <p>{{ block.settings.text | escape }}</p>
+        </li>
+      {%- endfor -%}
+    </ol>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Feature grid",
+  "class": "section-features",
+  "max_blocks": 12,
+  "settings": [
+    { "type": "textarea", "id": "heading", "label": "Heading", "default": "What's on the board" },
+    { "type": "text", "id": "text", "label": "Text" },
+    { "type": "select", "id": "columns", "label": "Columns on desktop", "default": "3", "options": [ { "value": "2", "label": "2" }, { "value": "3", "label": "3" } ] },
+    { "type": "checkbox", "id": "invert", "label": "White on black", "default": false }
+  ],
+  "blocks": [
+    {
+      "type": "feature", "name": "Feature",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Feature" },
+        { "type": "textarea", "id": "text", "label": "Text", "default": "One line about it." }
+      ]
+    }
+  ],
+  "presets": [ { "name": "Feature grid" } ]
+}
+{% endschema %}

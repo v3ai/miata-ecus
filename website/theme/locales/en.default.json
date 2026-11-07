@@ -1,0 +1,185 @@
+{
+  "accessibility": {
+    "skip_to_content": "Skip to content"
+  },
+  "general": {
+    "menu": "Menu",
+    "main_navigation": "Main",
+    "search": "Search",
+    "account": "Account",
+    "cart": "Cart",
+    "items_in_cart": {
+      "one": "{{ count }} item in cart",
+      "other": "{{ count }} items in cart"
+    },
+    "page": "Page {{ page }}",
+    "pagination": "Pages",
+    "previous": "Previous page",
+    "next": "Next page"
+  },
+  "products": {
+    "add_to_cart": "Add to cart",
+    "added": "Added",
+    "sold_out": "Sold out",
+    "unavailable": "Unavailable",
+    "sale": "Sale",
+    "from_price": "From {{ price }}",
+    "regular_price": "Regular price",
+    "sale_price": "Sale price",
+    "quantity": "Quantity",
+    "increase": "Increase quantity",
+    "decrease": "Decrease quantity",
+    "variant": "Version",
+    "view_all": "View all",
+    "placeholder_title": "Product",
+    "coming_soon": "Coming soon"
+  },
+  "fit": {
+    "years": "Years",
+    "chassis": "Chassis",
+    "connector": "ECU connector",
+    "status": "Status",
+    "link": "Product",
+    "view": "View",
+    "available": "In stock",
+    "sold_out": "Sold out"
+  },
+  "collections": {
+    "label": "Collection",
+    "empty": "Nothing here yet.",
+    "count": {
+      "one": "{{ count }} product",
+      "other": "{{ count }} products"
+    }
+  },
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty.",
+    "continue": "Continue shopping",
+    "remove": "Remove",
+    "note": "Order note",
+    "subtotal": "Subtotal",
+    "taxes_shipping": "Taxes and shipping calculated at checkout.",
+    "update": "Update",
+    "checkout": "Check out"
+  },
+  "newsletter": {
+    "label": "Email",
+    "placeholder": "Email",
+    "submit": "Sign up",
+    "success": "Thanks. You're on the list."
+  },
+  "contact": {
+    "name": "Name",
+    "email": "Email",
+    "car": "Car",
+    "car_placeholder": "Year, model, transmission",
+    "message": "Message",
+    "send": "Send",
+    "success": "Thanks. We'll get back to you."
+  },
+  "search": {
+    "title": "Search",
+    "label": "Search the store",
+    "placeholder": "Search",
+    "submit": "Search",
+    "results_count": {
+      "one": "{{ count }} result for “{{ terms }}”",
+      "other": "{{ count }} results for “{{ terms }}”"
+    }
+  },
+  "not_found": {
+    "text": "This page doesn't exist.",
+    "home": "Home"
+  },
+  "blogs": {
+    "empty": "No posts yet.",
+    "back": "All posts"
+  },
+  "password": {
+    "owner": "Store owner",
+    "label": "Password",
+    "enter": "Enter"
+  },
+  "gift_card": {
+    "title": "Your {{ value }} gift card",
+    "code": "Use this code at checkout",
+    "expired": "Expired or disabled",
+    "shop": "Shop",
+    "print": "Print",
+    "apple_wallet": "Add to Apple Wallet"
+  },
+  "customer": {
+    "email": "Email",
+    "password": "Password",
+    "password_confirm": "Confirm password",
+    "first_name": "First name",
+    "last_name": "Last name",
+    "logout": "Log out",
+    "login": {
+      "title": "Log in",
+      "submit": "Log in",
+      "forgot": "Forgot your password?",
+      "guest": "Checking out?",
+      "guest_continue": "Continue as a guest"
+    },
+    "recover": {
+      "title": "Reset your password",
+      "submit": "Send reset link",
+      "success": "We've emailed you a link to reset your password."
+    },
+    "register": {
+      "title": "Create account",
+      "submit": "Create account"
+    },
+    "account": {
+      "title": "Account",
+      "orders": "Orders",
+      "no_orders": "No orders yet.",
+      "details": "Details"
+    },
+    "order": {
+      "title": "Order {{ name }}",
+      "number": "Order",
+      "date": "Date",
+      "status": "Fulfilment",
+      "total": "Total",
+      "product": "Product",
+      "subtotal": "Subtotal",
+      "cancelled": "Cancelled",
+      "track": "Track",
+      "billing": "Billing address",
+      "shipping": "Shipping address"
+    },
+    "addresses": {
+      "title": "Addresses",
+      "view": {
+        "one": "{{ count }} address",
+        "other": "{{ count }} addresses"
+      },
+      "default": "Default",
+      "edit": "Edit",
+      "delete": "Delete",
+      "delete_confirm": "Delete this address?",
+      "add": "Add an address",
+      "save": "Save",
+      "set_default": "Set as default",
+      "address1": "Address",
+      "address2": "Apartment, suite",
+      "city": "City",
+      "country": "Country",
+      "province": "State or province",
+      "zip": "ZIP or postal code",
+      "phone": "Phone"
+    },
+    "activate": {
+      "title": "Activate your account",
+      "submit": "Activate",
+      "decline": "Decline"
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "submit": "Save password"
+    }
+  }
+}

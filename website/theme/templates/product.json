@@ -1,0 +1,30 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "eyebrow": { "type": "eyebrow", "settings": { "text": "" } },
+        "title": { "type": "title", "settings": {} },
+        "price": { "type": "price", "settings": {} },
+        "buy": { "type": "buy", "settings": { "show_dynamic_checkout": false } },
+        "note": { "type": "note", "settings": { "text": "<p>Sold for off-road and competition use only.</p>" } },
+        "description": { "type": "description", "settings": {} }
+      },
+      "block_order": ["eyebrow", "title", "price", "buy", "note", "description"],
+      "settings": {}
+    },
+    "fit": {
+      "type": "compatibility",
+      "blocks": {
+        "r1": { "type": "row", "settings": { "years": "1989–93", "chassis": "NA · 1.6", "connector": "48-pin, 2 plugs", "status": "Prototype", "highlight": true } },
+        "r2": { "type": "row", "settings": { "years": "1994–95", "chassis": "NA · 1.8", "connector": "48-pin, 2 plugs", "status": "Prototype", "highlight": true } },
+        "r3": { "type": "row", "settings": { "years": "1996–97", "chassis": "NA · 1.8 OBD-II", "connector": "76-pin", "status": "Coming later", "highlight": false } },
+        "r4": { "type": "row", "settings": { "years": "1999–00", "chassis": "NB · 1.8", "connector": "64-pin", "status": "Coming later", "highlight": false } },
+        "r5": { "type": "row", "settings": { "years": "2001–05", "chassis": "NB · 1.8 VVT", "connector": "72-pin, 3 rows", "status": "Coming later", "highlight": false } }
+      },
+      "block_order": ["r1", "r2", "r3", "r4", "r5"],
+      "settings": { "anchor": "fit", "heading": "Find your year", "text": "", "invert": false }
+    }
+  },
+  "order": ["main", "fit"]
+}

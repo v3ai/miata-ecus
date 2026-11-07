@@ -142,6 +142,7 @@ Check the plug's wiring and the sensor's pins on your car before fitting R28: se
 | `research/` | Pinout research for 1996–2005 (sources compared per pin) |
 | `viewer/` | Interactive 3D viewer: the daughterboard alone, or assembled on any year's motherboard. Click a part for its details and shop links |
 | `firmware/` | The rusEFI board definition, the wideband flasher, the simulation tests and the verification tools. rusEFI itself is a submodule in `firmware/ext/rusefi` |
+| `website/` | A black-and-white Shopify theme for selling the boards, draft product listings and product photos ([website/README.md](website/README.md)) |
 | `VERIFICATION.md` | Pinout, datasheet, simulation, flashing and safety review, with the hardware changes it calls for |
 | `.github/workflows/firmware.yaml` | CI: checks the pin map against the board design and builds the firmware |
 

@@ -1,0 +1,30 @@
+<div class="page-width main-page" style="padding-top:0">
+  {%- form 'contact', id: 'contact-form', class: 'stack', style: 'max-width:640px' -%}
+    {%- if form.posted_successfully? -%}
+      <p class="form-message" role="status">{{ 'contact.success' | t }}</p>
+    {%- elsif form.errors -%}
+      <div class="form-message" role="alert">{{ form.errors | default_errors }}</div>
+    {%- endif -%}
+    <div class="field">
+      <label for="contact-name">{{ 'contact.name' | t }}</label>
+      <input id="contact-name" type="text" name="contact[name]" autocomplete="name" value="{{ form.name }}">
+    </div>
+    <div class="field">
+      <label for="contact-email">{{ 'contact.email' | t }}</label>
+      <input id="contact-email" type="email" name="contact[email]" autocomplete="email" required value="{{ form.email }}">
+    </div>
+    <div class="field">
+      <label for="contact-car">{{ 'contact.car' | t }}</label>
+      <input id="contact-car" type="text" name="contact[car]" placeholder="{{ 'contact.car_placeholder' | t }}">
+    </div>
+    <div class="field">
+      <label for="contact-body">{{ 'contact.message' | t }}</label>
+      <textarea id="contact-body" name="contact[body]">{{ form.body }}</textarea>
+    </div>
+    <div><button class="btn" type="submit">{{ 'contact.send' | t }}</button></div>
+  {%- endform -%}
+</div>
+
+{% schema %}
+{ "name": "Contact form", "class": "section-contact", "settings": [], "presets": [ { "name": "Contact form" } ] }
+{% endschema %}

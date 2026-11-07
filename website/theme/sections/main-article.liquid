@@ -1,0 +1,15 @@
+<article class="page-width main-page">
+  <header class="stack">
+    <span class="eyebrow">{{ article.published_at | time_tag: format: 'date' }}</span>
+    <h1 class="h1">{{ article.title | escape }}</h1>
+  </header>
+  {%- if article.image -%}
+    {{ article.image | image_url: width: 2000 | image_tag: widths: '750, 1100, 1500, 2000', sizes: '100vw' }}
+  {%- endif -%}
+  <div class="rte">{{ article.content }}</div>
+  <a class="link-arrow" href="{{ blog.url }}">{{ 'blogs.back' | t }}</a>
+</article>
+
+{% schema %}
+{ "name": "Article", "class": "section-main-article", "settings": [] }
+{% endschema %}

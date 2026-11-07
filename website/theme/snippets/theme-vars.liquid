@@ -1,0 +1,34 @@
+{%- comment -%}
+  Fonts and the two colours. The heading font defaults to Jost, Shopify's replacement for Futura (Futura left
+  Shopify's font library in 2025). To use real Futura, put an Adobe Fonts web project ID (Futura PT) in
+  Theme settings > Typography; the theme then loads it and puts its family first.
+{%- endcomment -%}
+{%- liquid
+  assign heading_font = settings.type_heading_font
+  assign body_font = settings.type_body_font
+  assign body_font_bold = body_font | font_modify: 'weight', 'bold'
+  assign body_font_italic = body_font | font_modify: 'style', 'italic'
+-%}
+{%- if settings.adobe_fonts_project != blank -%}
+  <link rel="preconnect" href="https://use.typekit.net" crossorigin>
+  <link rel="stylesheet" href="https://use.typekit.net/{{ settings.adobe_fonts_project | escape }}.css">
+{%- endif -%}
+<link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  {{ body_font_bold | font_face: font_display: 'swap' }}
+  {{ body_font_italic | font_face: font_display: 'swap' }}
+
+  :root {
+    --black: #000;
+    --white: #fff;
+    --font-heading: {% if settings.adobe_fonts_project != blank and settings.adobe_fonts_family != blank %}{{ settings.adobe_fonts_family }}, {% endif %}{{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --font-heading-weight: {% if settings.adobe_fonts_project != blank and settings.adobe_fonts_family != blank %}700{% else %}{{ heading_font.weight }}{% endif %};
+    --font-body: {% if settings.adobe_fonts_project != blank and settings.adobe_fonts_family != blank and settings.adobe_fonts_body %}{{ settings.adobe_fonts_family }}, {% endif %}{{ body_font.family }}, {{ body_font.fallback_families }};
+    --font-body-weight: {{ body_font.weight }};
+    --font-body-weight-bold: {{ body_font_bold.weight | default: 700 }};
+    --heading-tracking: {{ settings.heading_tracking | divided_by: 1000.0 }}em;
+    --page-width: {{ settings.page_width }}px;
+  }
+{% endstyle %}

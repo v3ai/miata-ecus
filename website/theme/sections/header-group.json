@@ -1,0 +1,15 @@
+{
+  "type": "header",
+  "name": "Header group",
+  "sections": {
+    "header": {
+      "type": "header",
+      "settings": {
+        "announcement": "Prototype run: sign up for first batch",
+        "menu": "main-menu",
+        "show_search": false
+      }
+    }
+  },
+  "order": ["header"]
+}

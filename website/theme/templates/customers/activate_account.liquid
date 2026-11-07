@@ -1,0 +1,9 @@
+<div class="page-width main-page" style="max-width:720px">
+  <h1 class="h1">{{ 'customer.activate.title' | t }}</h1>
+  {%- form 'activate_customer_password', class: 'stack' -%}
+    {%- if form.errors -%}<div class="form-message" role="alert">{{ form.errors | default_errors }}</div>{%- endif -%}
+    <div class="field"><label for="act-pass">{{ 'customer.password' | t }}</label><input id="act-pass" type="password" name="customer[password]" autocomplete="new-password"></div>
+    <div class="field"><label for="act-pass2">{{ 'customer.password_confirm' | t }}</label><input id="act-pass2" type="password" name="customer[password_confirmation]" autocomplete="new-password"></div>
+    <div class="btn-row"><button class="btn" type="submit">{{ 'customer.activate.submit' | t }}</button><button class="btn btn--outline" type="submit" name="decline">{{ 'customer.activate.decline' | t }}</button></div>
+  {%- endform -%}
+</div>

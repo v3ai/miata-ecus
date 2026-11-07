@@ -1,0 +1,33 @@
+<div class="page-width main-page" style="max-width:860px">
+  <a class="link-arrow" href="{{ routes.account_url }}">{{ 'customer.account.title' | t }}</a>
+  <h1 class="h1">{{ 'customer.addresses.title' | t }}</h1>
+  {%- paginate customer.addresses by 10 -%}
+    <ul class="article-list" role="list">
+      {%- for address in customer.addresses -%}
+        <li>
+          {%- if address == customer.default_address -%}<span class="status status--on" style="justify-self:start">{{ 'customer.addresses.default' | t }}</span>{%- endif -%}
+          {{ address | format_address }}
+          <details>
+            <summary class="link-arrow" style="cursor:pointer;list-style:none">{{ 'customer.addresses.edit' | t }}</summary>
+            {%- form 'customer_address', address, class: 'stack', style: 'margin-top:16px' -%}
+              {% render 'address-fields', form: form, address: address, prefix: address.id %}
+              <div class="btn-row"><button class="btn" type="submit">{{ 'customer.addresses.save' | t }}</button></div>
+            {%- endform -%}
+          </details>
+          <form method="post" action="{{ routes.account_addresses_url }}/{{ address.id }}" onsubmit="return confirm('{{ 'customer.addresses.delete_confirm' | t }}');">
+            <input type="hidden" name="_method" value="delete">
+            <button class="btn btn--outline" type="submit" style="min-height:40px">{{ 'customer.addresses.delete' | t }}</button>
+          </form>
+        </li>
+      {%- endfor -%}
+    </ul>
+    {%- if paginate.pages > 1 -%}{% render 'pagination', paginate: paginate %}{%- endif -%}
+  {%- endpaginate -%}
+  <details>
+    <summary class="btn" style="list-style:none">{{ 'customer.addresses.add' | t }}</summary>
+    {%- form 'customer_address', customer.new_address, class: 'stack', style: 'margin-top:24px' -%}
+      {% render 'address-fields', form: form, address: customer.new_address, prefix: 'new' %}
+      <div class="btn-row"><button class="btn" type="submit">{{ 'customer.addresses.add' | t }}</button></div>
+    {%- endform -%}
+  </details>
+</div>

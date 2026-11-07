@@ -1,0 +1,40 @@
+<section id="{{ section.settings.anchor | default: section.id | handle }}" class="section{% if section.settings.invert %} scheme-invert{% endif %}">
+  <div class="page-width faq-layout">
+    <div class="stack" style="align-content:start">
+      <h2 class="h2">{{ section.settings.heading | escape | newline_to_br }}</h2>
+      {%- if section.settings.text != blank -%}<div class="rte">{{ section.settings.text }}</div>{%- endif -%}
+    </div>
+    <div class="faq">
+      {%- for block in section.blocks -%}
+        <details {{ block.shopify_attributes }}>
+          <summary>{{ block.settings.question | escape }}</summary>
+          <div class="faq__answer rte">{{ block.settings.answer }}</div>
+        </details>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "FAQ",
+  "class": "section-faq",
+  "max_blocks": 16,
+  "settings": [
+    { "type": "text", "id": "anchor", "label": "Anchor", "default": "faq" },
+    { "type": "textarea", "id": "heading", "label": "Heading", "default": "Questions" },
+    { "type": "richtext", "id": "text", "label": "Text" },
+    { "type": "checkbox", "id": "invert", "label": "White on black", "default": false }
+  ],
+  "blocks": [
+    {
+      "type": "question", "name": "Question",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question", "default": "Question" },
+        { "type": "richtext", "id": "answer", "label": "Answer", "default": "<p>Answer</p>" }
+      ]
+    }
+  ],
+  "presets": [ { "name": "FAQ" } ]
+}
+{% endschema %}

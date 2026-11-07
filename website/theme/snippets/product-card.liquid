@@ -1,0 +1,33 @@
+{%- doc -%}
+  A product in a grid: image on white, title, price. A blank product renders a placeholder card.
+  @param {product} product - the product, or blank
+{%- enddoc -%}
+<article class="card">
+  <div class="card__media">
+    {%- if product != blank and product.featured_media -%}
+      {%- assign alt = product.featured_media.alt | default: product.title -%}
+      {{ product.featured_media | image_url: width: 1000 | image_tag: loading: 'lazy', sizes: '(min-width: 990px) 33vw, (min-width: 600px) 50vw, 100vw', widths: '400, 600, 800, 1000', alt: alt }}
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+    {%- endif -%}
+  </div>
+  <div class="card__body">
+    <h3 class="card__title h4">
+      {%- if product != blank -%}
+        <a href="{{ product.url }}">{{ product.title | escape }}</a>
+      {%- else -%}
+        {{ 'products.placeholder_title' | t }}
+      {%- endif -%}
+    </h3>
+    {%- if product != blank -%}{% render 'price', product: product %}{%- endif -%}
+  </div>
+  {%- if product != blank -%}
+    {%- if product.tags contains 'coming-soon' -%}
+      <span class="card__badge status">{{ 'products.coming_soon' | t }}</span>
+    {%- elsif product.available == false -%}
+      <span class="card__badge status">{{ 'products.sold_out' | t }}</span>
+    {%- elsif product.compare_at_price > product.price -%}
+        <span class="card__badge status status--on">{{ 'products.sale' | t }}</span>
+    {%- endif -%}
+  {%- endif -%}
+</article>
