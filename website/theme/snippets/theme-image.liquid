@@ -1,0 +1,32 @@
+{%- doc -%}
+  One of the theme's built-in board renders (black solder mask on white).
+  @param {string} name - assembly, lifted, daughterboard, daughterboard-top, or a year: 8993, 9495, 9697, 9900, 0105
+  @param {string} [alt] - alt text
+  @param {boolean} [eager] - load immediately (above the fold)
+  @param {string} [sizes] - sizes attribute
+{%- enddoc -%}
+{%- liquid
+  case name
+    when 'assembly'
+      assign file = 'render-assembly-8993'
+    when 'lifted'
+      assign file = 'render-assembly-lifted'
+    when 'daughterboard'
+      assign file = 'render-daughterboard'
+    when 'daughterboard-top'
+      assign file = 'render-daughterboard-top'
+    else
+      assign file = 'render-assembly-' | append: name
+  endcase
+  assign w = 2000
+  assign h = 1300
+-%}
+<img
+  src="{{ file | append: '-1200.jpg' | asset_url }}"
+  srcset="{{ file | append: '-1200.jpg' | asset_url }} 1200w, {{ file | append: '-2000.jpg' | asset_url }} 2000w"
+  sizes="{{ sizes | default: '(min-width: 990px) 60vw, 100vw' }}"
+  width="{{ w }}"
+  height="{{ h }}"
+  alt="{{ alt | escape }}"
+  {% if eager %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+>

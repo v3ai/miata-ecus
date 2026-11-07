@@ -1,0 +1,9 @@
+<div class="page-width cart-empty">
+  <p class="display">404</p>
+  <p class="lede">{{ 'not_found.text' | t }}</p>
+  <a class="btn" href="{{ routes.root_url }}">{{ 'not_found.home' | t }}</a>
+</div>
+
+{% schema %}
+{ "name": "404", "class": "section-404", "settings": [] }
+{% endschema %}

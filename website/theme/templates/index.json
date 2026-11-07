@@ -1,0 +1,116 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "blocks": {
+        "meta-1": { "type": "meta", "settings": { "text": "NA · NB" } },
+        "meta-2": { "type": "meta", "settings": { "text": "1989–2005" } },
+        "meta-3": { "type": "meta", "settings": { "text": "rusEFI inside" } }
+      },
+      "block_order": ["meta-1", "meta-2", "meta-3"],
+      "settings": {
+        "eyebrow": "Plug-in engine computer",
+        "heading": "New brain.\nStock plug.",
+        "text": "<p>A rusEFI engine computer for the 1989–2005 Mazda MX-5 Miata. It fits the stock case, plugs into the stock harness and runs its own wideband. Tune it over USB-C.</p>",
+        "button_label": "Shop",
+        "button_link": "#shop",
+        "button_label_2": "How it works",
+        "button_link_2": "#how",
+        "fallback_image": "assembly",
+        "layout": "split"
+      }
+    },
+    "specs": {
+      "type": "spec-band",
+      "blocks": {
+        "s1": { "type": "item", "settings": { "text": "rusEFI" } },
+        "s2": { "type": "item", "settings": { "text": "STM32F407" } },
+        "s3": { "type": "item", "settings": { "text": "LSU 4.9 wideband" } },
+        "s4": { "type": "item", "settings": { "text": "700 kPa MAP" } },
+        "s5": { "type": "item", "settings": { "text": "USB-C" } },
+        "s6": { "type": "item", "settings": { "text": "Stock case & plug" } }
+      },
+      "block_order": ["s1", "s2", "s3", "s4", "s5", "s6"],
+      "settings": {}
+    },
+    "how": {
+      "type": "split",
+      "blocks": {
+        "c1": { "type": "column", "settings": { "title": "The brain", "text": "<p>One daughterboard runs the engine on every year: an STM32F407 running rusEFI, 8 low-side drivers, 7 protected relay and lamp outputs, 4 ignition outputs and a built-in LSU 4.9 wideband controller.</p>" } },
+        "c2": { "type": "column", "settings": { "title": "The adapter", "text": "<p>A motherboard for your model year fits the stock ECU case and takes the stock harness plug. It carries the MAP sensor, the wideband and air-temperature connectors and USB-C.</p>" } },
+        "c3": { "type": "column", "settings": { "title": "The upgrade path", "text": "<p>Same brain, any year. Change cars, swap the motherboard.</p>" } }
+      },
+      "block_order": ["c1", "c2", "c3"],
+      "settings": {
+        "anchor": "how",
+        "fallback_image": "lifted",
+        "image_right": false,
+        "invert": false,
+        "eyebrow": "How it works",
+        "heading": "Two boards.\nOne brain.",
+        "text": "<p>Every unit is two boards stacked on sockets and standoffs.</p>"
+      }
+    },
+    "features": {
+      "type": "feature-grid",
+      "blocks": {
+        "f1": { "type": "feature", "settings": { "title": "Plug in", "text": "Fits the stock ECU case and the stock harness plug. Add a wideband sensor and a vacuum hose." } },
+        "f2": { "type": "feature", "settings": { "title": "Wideband built in", "text": "An on-board LSU 4.9 controller, the open-source rusEFI design. No separate controller or gauge box." } },
+        "f3": { "type": "feature", "settings": { "title": "Boost ready", "text": "A 700 kPa absolute MAP sensor on the board reads vacuum through high boost." } },
+        "f4": { "type": "feature", "settings": { "title": "Tune over USB-C", "text": "rusEFI firmware, tuned in TunerStudio. Firmware updates over the same cable." } },
+        "f5": { "type": "feature", "settings": { "title": "Protected outputs", "text": "Drivers with current limiting and thermal shutdown, and a separately protected sensor supply." } },
+        "f6": { "type": "feature", "settings": { "title": "Open", "text": "rusEFI firmware is open source; the board designs are MIT-licensed." } }
+      },
+      "block_order": ["f1", "f2", "f3", "f4", "f5", "f6"],
+      "settings": { "heading": "What's on the board", "columns": "3", "invert": false }
+    },
+    "fit": {
+      "type": "compatibility",
+      "blocks": {
+        "r1": { "type": "row", "settings": { "years": "1989–93", "chassis": "NA · 1.6", "connector": "48-pin, 2 plugs", "status": "Prototype", "highlight": true } },
+        "r2": { "type": "row", "settings": { "years": "1994–95", "chassis": "NA · 1.8", "connector": "48-pin, 2 plugs", "status": "Prototype", "highlight": true } },
+        "r3": { "type": "row", "settings": { "years": "1996–97", "chassis": "NA · 1.8 OBD-II", "connector": "76-pin", "status": "Coming later", "highlight": false } },
+        "r4": { "type": "row", "settings": { "years": "1999–00", "chassis": "NB · 1.8", "connector": "64-pin", "status": "Coming later", "highlight": false } },
+        "r5": { "type": "row", "settings": { "years": "2001–05", "chassis": "NB · 1.8 VVT", "connector": "72-pin, 3 rows", "status": "Coming later", "highlight": false } }
+      },
+      "block_order": ["r1", "r2", "r3", "r4", "r5"],
+      "settings": {
+        "anchor": "fit",
+        "heading": "Find your year",
+        "text": "One motherboard per model year. The brain is the same on all of them.",
+        "invert": false
+      }
+    },
+    "shop": {
+      "type": "featured-collection",
+      "settings": { "anchor": "shop", "heading": "Shop", "limit": 6, "columns": "3" }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "q1": { "type": "question", "settings": { "question": "Which cars does it fit?", "answer": "<p>The 1989–2005 Mazda MX-5 Miata, NA and NB, with one motherboard per model-year range (see Find your year). Cars swapped from automatic to manual are covered.</p>" } },
+        "q2": { "type": "question", "settings": { "question": "What else do I need?", "answer": "<p>A Bosch LSU 4.9 wideband sensor with a bung in the exhaust, a vacuum hose from the board's MAP sensor to the intake manifold, and your car's stock ECU case.</p>" } },
+        "q3": { "type": "question", "settings": { "question": "Do I need a laptop?", "answer": "<p>To tune, yes. TunerStudio talks to rusEFI over USB-C, and the firmware has a base setup for each year.</p>" } },
+        "q4": { "type": "question", "settings": { "question": "Is it street legal?", "answer": "<p>No. It replaces an emissions-certified engine computer, so it is sold for off-road and competition use only.</p>" } },
+        "q5": { "type": "question", "settings": { "question": "Is it open source?", "answer": "<p>The firmware is rusEFI, which is open source. The board designs are MIT-licensed.</p>" } },
+        "q6": { "type": "question", "settings": { "question": "When does it ship?", "answer": "<p>The first boards are being built and tested. Sign up below and we'll email you once when the first batch is ready.</p>" } }
+      },
+      "block_order": ["q1", "q2", "q3", "q4", "q5", "q6"],
+      "settings": { "anchor": "faq", "heading": "Questions", "invert": false }
+    },
+    "cta": {
+      "type": "rich-text",
+      "settings": {
+        "eyebrow": "First batch",
+        "heading": "Get on the list.",
+        "heading_size": "display",
+        "text": "<p>One email when it ships. Nothing else.</p>",
+        "button_label": "Sign up",
+        "button_link": "#footer-email",
+        "center": true,
+        "invert": true
+      }
+    }
+  },
+  "order": ["hero", "specs", "how", "features", "fit", "shop", "faq", "cta"]
+}

@@ -1,0 +1,68 @@
+<section id="{{ section.settings.anchor | default: section.id | handle }}" class="section{% if section.settings.invert %} scheme-invert{% endif %}">
+  <div class="page-width split{% if section.settings.image_right %} split--reverse{% endif %}">
+    <div class="split__media">
+      {%- if section.settings.image != blank -%}
+        {{ section.settings.image | image_url: width: 2000 | image_tag: loading: 'lazy', sizes: '(min-width: 990px) 58vw, 100vw', widths: '750, 1100, 1500, 2000' }}
+      {%- elsif section.settings.fallback_image != 'none' -%}
+        {%- render 'theme-image', name: section.settings.fallback_image, alt: section.settings.heading, sizes: '(min-width: 990px) 58vw, 100vw' -%}
+      {%- endif -%}
+    </div>
+    <div class="split__copy">
+      {%- if section.settings.eyebrow != blank -%}<p class="eyebrow">{{ section.settings.eyebrow | escape }}</p>{%- endif -%}
+      <h2 class="h2">{{ section.settings.heading | escape | newline_to_br }}</h2>
+      {%- if section.settings.text != blank -%}<div class="rte">{{ section.settings.text }}</div>{%- endif -%}
+      {%- if section.blocks.size > 0 -%}
+        <div class="split__columns">
+          {%- for block in section.blocks -%}
+            <div class="split__column" {{ block.shopify_attributes }}>
+              <h3 class="h4">{{ block.settings.title | escape }}</h3>
+              <div class="rte">{{ block.settings.text }}</div>
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+      {%- if section.settings.link_label != blank -%}
+        <a class="link-arrow" href="{{ section.settings.link }}">{{ section.settings.link_label | escape }}</a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Image with text",
+  "class": "section-split",
+  "max_blocks": 4,
+  "settings": [
+    { "type": "text", "id": "anchor", "label": "Anchor", "info": "For links like #how. Letters and dashes.", "default": "how" },
+    { "type": "image_picker", "id": "image", "label": "Image" },
+    {
+      "type": "select", "id": "fallback_image", "label": "Built-in render", "default": "lifted",
+      "options": [
+        { "value": "assembly", "label": "Assembled (1989-93)" },
+        { "value": "lifted", "label": "Exploded" },
+        { "value": "daughterboard", "label": "Daughterboard" },
+        { "value": "daughterboard-top", "label": "Daughterboard, from above" },
+        { "value": "none", "label": "None" }
+      ]
+    },
+    { "type": "checkbox", "id": "image_right", "label": "Image on the right", "default": false },
+    { "type": "checkbox", "id": "invert", "label": "White on black", "default": false },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "How it works" },
+    { "type": "textarea", "id": "heading", "label": "Heading", "default": "Two boards.\nOne brain." },
+    { "type": "richtext", "id": "text", "label": "Text" },
+    { "type": "text", "id": "link_label", "label": "Link label" },
+    { "type": "url", "id": "link", "label": "Link" }
+  ],
+  "blocks": [
+    {
+      "type": "column", "name": "Column",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Title" },
+        { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Text</p>" }
+      ]
+    }
+  ],
+  "presets": [ { "name": "Image with text" } ]
+}
+{% endschema %}

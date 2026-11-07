@@ -1,0 +1,127 @@
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign form_id = 'product-form-' | append: section.id
+-%}
+<section class="product" data-product-section data-money-format="{{ shop.money_format | escape }}" data-label-add="{{ 'products.add_to_cart' | t | escape }}" data-label-sold="{% if product.tags contains 'coming-soon' %}{{ 'products.coming_soon' | t | escape }}{% else %}{{ 'products.sold_out' | t | escape }}{% endif %}" data-label-unavailable="{{ 'products.unavailable' | t | escape }}" data-label-added="{{ 'products.added' | t | escape }}">
+  <div class="product__media">
+    {%- for media in product.media -%}
+      {%- if media.media_type == 'image' -%}
+        {%- liquid
+          assign loading = 'lazy'
+          if forloop.first
+            assign loading = 'eager'
+          endif
+          assign alt = media.alt | default: product.title
+        -%}
+        <figure>
+          {{ media | image_url: width: 1600 | image_tag: loading: loading, sizes: '(min-width: 990px) 58vw, 100vw', widths: '600, 900, 1200, 1600', alt: alt }}
+        </figure>
+      {%- else -%}
+        <figure>{{ media | media_tag: image_size: '1600x' }}</figure>
+      {%- endif -%}
+    {%- else -%}
+      <figure>{{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}</figure>
+    {%- endfor -%}
+  </div>
+
+  <div class="product__info">
+    <div class="product__info-inner">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'eyebrow' -%}
+            <p class="eyebrow" {{ block.shopify_attributes }}>{{ block.settings.text | default: product.type | escape }}</p>
+
+          {%- when 'title' -%}
+            <h1 class="product__title" {{ block.shopify_attributes }}>{{ product.title | escape }}</h1>
+
+          {%- when 'price' -%}
+            <div class="product__price" data-price-wrap {{ block.shopify_attributes }}>{% render 'price', variant: current_variant %}</div>
+
+          {%- when 'buy' -%}
+            <div {{ block.shopify_attributes }}>
+              {%- form 'product', product, id: form_id, class: 'stack', novalidate: 'novalidate', data-product-form: '' -%}
+                {%- unless product.has_only_default_variant -%}
+                  {%- for option in product.options_with_values -%}
+                    <fieldset class="variant-picker js-only">
+                      <legend class="label">{{ option.name | escape }}</legend>
+                      <div class="variant-picker__options">
+                        {%- for value in option.values -%}
+                          {%- assign input_id = section.id | append: '-' | append: option.position | append: '-' | append: forloop.index0 -%}
+                          <input type="radio" id="{{ input_id }}" name="option{{ option.position }}" value="{{ value | escape }}" data-option-index="{{ forloop.parentloop.index0 }}"{% if option.selected_value == value %} checked{% endif %}>
+                          <label for="{{ input_id }}">{{ value | escape }}</label>
+                        {%- endfor -%}
+                      </div>
+                    </fieldset>
+                  {%- endfor -%}
+                {%- endunless -%}
+                <div class="field{% unless product.has_only_default_variant %} no-js-only{% endunless %}"{% if product.has_only_default_variant %} hidden{% endif %}>
+                  <label for="{{ form_id }}-id">{{ 'products.variant' | t }}</label>
+                  <select id="{{ form_id }}-id" name="id" data-variant-select>
+                    {%- for variant in product.variants -%}
+                      <option value="{{ variant.id }}"{% if variant == current_variant %} selected{% endif %}{% unless variant.available %} disabled{% endunless %}>{{ variant.title | escape }} – {{ variant.price | money }}</option>
+                    {%- endfor -%}
+                  </select>
+                </div>
+                <div class="buy-row">
+                  <div class="qty">
+                    <button type="button" data-qty="-1" aria-label="{{ 'products.decrease' | t }}">&minus;</button>
+                    <label class="visually-hidden" for="{{ form_id }}-qty">{{ 'products.quantity' | t }}</label>
+                    <input id="{{ form_id }}-qty" type="number" name="quantity" value="1" min="1" inputmode="numeric">
+                    <button type="button" data-qty="1" aria-label="{{ 'products.increase' | t }}">+</button>
+                  </div>
+                  <button class="btn btn--full" type="submit" name="add" data-add-button{% unless current_variant.available %} disabled{% endunless %}>
+                    {%- if current_variant.available -%}{{ 'products.add_to_cart' | t }}{%- elsif product.tags contains 'coming-soon' -%}{{ 'products.coming_soon' | t }}{%- else -%}{{ 'products.sold_out' | t }}{%- endif -%}
+                  </button>
+                </div>
+                {%- if block.settings.show_dynamic_checkout -%}{{ form | payment_button }}{%- endif -%}
+                <p class="form-message" role="status" data-form-error hidden></p>
+              {%- endform -%}
+            </div>
+
+          {%- when 'note' -%}
+            {%- if block.settings.text != blank -%}
+              <div class="product__note rte" {{ block.shopify_attributes }}>{{ block.settings.text }}</div>
+            {%- endif -%}
+
+          {%- when 'description' -%}
+            {%- if product.description != blank -%}
+              <div class="rte" {{ block.shopify_attributes }}>{{ product.description }}</div>
+            {%- endif -%}
+
+          {%- when 'fact' -%}
+            {%- if block.settings.value != blank -%}
+              <ul class="product__facts" role="list" {{ block.shopify_attributes }}>
+                <li><span>{{ block.settings.label | escape }}</span><span>{{ block.settings.value }}</span></li>
+              </ul>
+            {%- endif -%}
+
+          {%- when 'text' -%}
+            <div class="rte" {{ block.shopify_attributes }}>{{ block.settings.text }}</div>
+
+          {%- when '@app' -%}
+            {% render block %}
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+  <script type="application/json" data-product-json>{{ product | json }}</script>
+</section>
+
+{% schema %}
+{
+  "name": "Product",
+  "class": "section-main-product",
+  "settings": [],
+  "blocks": [
+    { "type": "@app" },
+    { "type": "eyebrow", "name": "Eyebrow", "limit": 1, "settings": [ { "type": "text", "id": "text", "label": "Text", "info": "Leave empty to show the product type." } ] },
+    { "type": "title", "name": "Title", "limit": 1, "settings": [] },
+    { "type": "price", "name": "Price", "limit": 1, "settings": [] },
+    { "type": "buy", "name": "Buy buttons", "limit": 1, "settings": [ { "type": "checkbox", "id": "show_dynamic_checkout", "label": "Show dynamic checkout buttons", "default": false } ] },
+    { "type": "note", "name": "Note", "settings": [ { "type": "richtext", "id": "text", "label": "Text" } ] },
+    { "type": "description", "name": "Description", "limit": 1, "settings": [] },
+    { "type": "fact", "name": "Fact", "settings": [ { "type": "text", "id": "label", "label": "Label", "default": "Fits" }, { "type": "text", "id": "value", "label": "Value", "info": "Connect a product metafield to vary it per product." } ] },
+    { "type": "text", "name": "Text", "settings": [ { "type": "richtext", "id": "text", "label": "Text" } ] }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,29 @@
+<div class="spec-band scheme-invert">
+  <ul class="spec-band__list page-width" role="list">
+    {%- for block in section.blocks -%}
+      <li class="spec-band__item" {{ block.shopify_attributes }}>{{ block.settings.text | escape }}</li>
+    {%- endfor -%}
+  </ul>
+</div>
+
+{% schema %}
+{
+  "name": "Spec band",
+  "class": "section-spec-band",
+  "max_blocks": 8,
+  "blocks": [
+    { "type": "item", "name": "Item", "settings": [ { "type": "text", "id": "text", "label": "Text", "default": "rusEFI" } ] }
+  ],
+  "presets": [
+    {
+      "name": "Spec band",
+      "blocks": [
+        { "type": "item", "settings": { "text": "rusEFI" } },
+        { "type": "item", "settings": { "text": "STM32F407" } },
+        { "type": "item", "settings": { "text": "LSU 4.9 wideband" } },
+        { "type": "item", "settings": { "text": "USB-C" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

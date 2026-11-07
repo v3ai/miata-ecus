@@ -1,0 +1,24 @@
+{%- doc -%}
+  Price of a product or of one variant.
+  @param {product} [product] - the product (shows "from" when variant prices differ)
+  @param {variant} [variant] - a variant instead
+{%- enddoc -%}
+{%- liquid
+  if variant
+    assign price = variant.price
+    assign compare = variant.compare_at_price
+    assign varies = false
+  else
+    assign price = product.price
+    assign compare = product.compare_at_price
+    assign varies = product.price_varies
+  endif
+-%}
+<span class="price" data-price>
+  {%- if compare > price -%}
+    <s><span class="visually-hidden">{{ 'products.regular_price' | t }}</span>{{ compare | money }}</s>
+    <span class="visually-hidden">{{ 'products.sale_price' | t }}</span>
+  {%- endif -%}
+  {%- assign price_money = price | money -%}
+  {%- if varies -%}{{ 'products.from_price' | t: price: price_money }}{%- else -%}{{ price_money }}{%- endif -%}
+</span>

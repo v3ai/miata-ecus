@@ -1,0 +1,68 @@
+{%- if section.settings.announcement != blank -%}
+  <div class="announcement eyebrow">
+    {%- if section.settings.announcement_link != blank -%}
+      <a href="{{ section.settings.announcement_link }}">{{ section.settings.announcement | escape }}</a>
+    {%- else -%}
+      {{ section.settings.announcement | escape }}
+    {%- endif -%}
+  </div>
+{%- endif -%}
+<header class="site-header">
+  <div class="page-width site-header__inner">
+    <details class="menu-drawer">
+      <summary aria-label="{{ 'general.menu' | t }}">{{ 'general.menu' | t }}</summary>
+      <nav class="menu-drawer__panel" aria-label="{{ 'general.menu' | t }}">
+        {%- for link in section.settings.menu.links -%}
+          <a href="{{ link.url }}"{% if link.active %} aria-current="page"{% endif %}>{{ link.title | escape }}</a>
+        {%- endfor -%}
+        {%- if shop.customer_accounts_enabled -%}
+          <a href="{{ routes.account_url }}">{{ 'general.account' | t }}</a>
+        {%- endif -%}
+      </nav>
+    </details>
+
+    <a class="site-header__logo" href="{{ routes.root_url }}">
+      {%- if section.settings.logo != blank -%}
+        {{ section.settings.logo | image_url: width: 400 | image_tag: alt: shop.name, height: section.settings.logo_height, style: 'width:auto;' }}
+      {%- else -%}
+        {{ shop.name | escape }}
+      {%- endif -%}
+    </a>
+
+    <nav class="site-nav" aria-label="{{ 'general.main_navigation' | t }}">
+      {%- for link in section.settings.menu.links -%}
+        <a href="{{ link.url }}"{% if link.active %} aria-current="page"{% endif %}>{{ link.title | escape }}</a>
+      {%- endfor -%}
+    </nav>
+
+    <div class="site-header__actions">
+      {%- if section.settings.show_search -%}
+        <a class="hide-mobile" href="{{ routes.search_url }}">{{ 'general.search' | t }}</a>
+      {%- endif -%}
+      {%- if shop.customer_accounts_enabled -%}
+        <a class="hide-mobile" href="{{ routes.account_url }}">{{ 'general.account' | t }}</a>
+      {%- endif -%}
+      <a href="{{ routes.cart_url }}" id="cart-link">
+        {{- 'general.cart' | t -}}
+        <span class="cart-count" data-cart-count{% if cart.item_count == 0 %} hidden{% endif %}>{{ cart.item_count }}</span>
+        <span class="visually-hidden">{{ 'general.items_in_cart' | t: count: cart.item_count }}</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "class": "section-header",
+  "enabled_on": { "groups": ["header"] },
+  "settings": [
+    { "type": "text", "id": "announcement", "label": "Announcement bar text", "info": "Leave empty to hide the bar." },
+    { "type": "url", "id": "announcement_link", "label": "Announcement link" },
+    { "type": "image_picker", "id": "logo", "label": "Logo", "info": "Leave empty to show the store name in the heading font." },
+    { "type": "range", "id": "logo_height", "label": "Logo height", "min": 20, "max": 60, "step": 2, "unit": "px", "default": 32 },
+    { "type": "link_list", "id": "menu", "label": "Menu", "default": "main-menu" },
+    { "type": "checkbox", "id": "show_search", "label": "Show search link", "default": false }
+  ]
+}
+{% endschema %}

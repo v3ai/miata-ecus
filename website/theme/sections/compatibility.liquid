@@ -1,0 +1,73 @@
+<section id="{{ section.settings.anchor | default: section.id | handle }}" class="section{% if section.settings.invert %} scheme-invert{% endif %}">
+  <div class="page-width">
+    <div class="section-head">
+      <h2 class="h2">{{ section.settings.heading | escape | newline_to_br }}</h2>
+      {%- if section.settings.text != blank -%}<p>{{ section.settings.text | escape }}</p>{%- endif -%}
+    </div>
+    <table class="fit-table">
+      <thead>
+        <tr>
+          <th scope="col">{{ 'fit.years' | t }}</th>
+          <th scope="col">{{ 'fit.chassis' | t }}</th>
+          <th scope="col">{{ 'fit.connector' | t }}</th>
+          <th scope="col">{{ 'fit.status' | t }}</th>
+          <th scope="col"><span class="visually-hidden">{{ 'fit.link' | t }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign p = block.settings.product
+            assign status = block.settings.status
+            if status == blank and p != blank
+              if p.available
+                assign status = 'fit.available' | t
+              else
+                assign status = 'fit.sold_out' | t
+              endif
+            endif
+          -%}
+          <tr {{ block.shopify_attributes }}>
+            <td class="fit-table__years">{{ block.settings.years | escape }}</td>
+            <td>{{ block.settings.chassis | escape }}</td>
+            <td>{{ block.settings.connector | escape }}</td>
+            <td><span class="status{% if block.settings.highlight %} status--on{% endif %}">{{ status | escape }}</span></td>
+            <td>
+              {%- if p != blank -%}
+                <a class="link-arrow" href="{{ p.url }}">{{ 'fit.view' | t }}<span class="visually-hidden"> {{ p.title | escape }}</span></a>
+              {%- endif -%}
+            </td>
+          </tr>
+        {%- endfor -%}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Compatibility",
+  "class": "section-fit",
+  "max_blocks": 10,
+  "settings": [
+    { "type": "text", "id": "anchor", "label": "Anchor", "default": "fit" },
+    { "type": "textarea", "id": "heading", "label": "Heading", "default": "Fits your car" },
+    { "type": "text", "id": "text", "label": "Text" },
+    { "type": "checkbox", "id": "invert", "label": "White on black", "default": false }
+  ],
+  "blocks": [
+    {
+      "type": "row", "name": "Model years",
+      "settings": [
+        { "type": "text", "id": "years", "label": "Years", "default": "1989–93" },
+        { "type": "text", "id": "chassis", "label": "Chassis and engine", "default": "NA6 · 1.6" },
+        { "type": "text", "id": "connector", "label": "Connector", "default": "48-pin, 2 plugs" },
+        { "type": "product", "id": "product", "label": "Product" },
+        { "type": "text", "id": "status", "label": "Status", "info": "Leave empty to show In stock / Sold out from the product." },
+        { "type": "checkbox", "id": "highlight", "label": "Filled status label", "default": false }
+      ]
+    }
+  ],
+  "presets": [ { "name": "Compatibility" } ]
+}
+{% endschema %}

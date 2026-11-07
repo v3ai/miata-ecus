@@ -1,0 +1,30 @@
+<div class="page-width main-page">
+  <div class="stack">
+    <a class="link-arrow" href="{{ routes.account_url }}">{{ 'customer.account.title' | t }}</a>
+    <h1 class="h1">{{ 'customer.order.title' | t: name: order.name }}</h1>
+    <p class="muted">{{ order.created_at | time_tag: format: 'date_at_time' }}</p>
+    {%- if order.cancelled -%}<p class="status">{{ 'customer.order.cancelled' | t }}</p>{%- endif -%}
+  </div>
+  <table class="table-plain">
+    <thead><tr><th>{{ 'customer.order.product' | t }}</th><th>{{ 'products.quantity' | t }}</th><th>{{ 'customer.order.total' | t }}</th></tr></thead>
+    <tbody>
+      {%- for line_item in order.line_items -%}
+        <tr>
+          <td>{{ line_item.title | link_to: line_item.product.url }}{% if line_item.fulfillment %}<br><span class="muted">{{ line_item.fulfillment.created_at | time_tag: format: 'date' }}{% if line_item.fulfillment.tracking_url %} · <a href="{{ line_item.fulfillment.tracking_url }}">{{ 'customer.order.track' | t }}</a>{% endif %}</span>{% endif %}</td>
+          <td>{{ line_item.quantity }}</td>
+          <td>{{ line_item.final_line_price | money }}</td>
+        </tr>
+      {%- endfor -%}
+    </tbody>
+    <tfoot>
+      <tr><td colspan="2">{{ 'customer.order.subtotal' | t }}</td><td>{{ order.line_items_subtotal_price | money }}</td></tr>
+      {%- for shipping_method in order.shipping_methods -%}<tr><td colspan="2">{{ shipping_method.title }}</td><td>{{ shipping_method.price | money }}</td></tr>{%- endfor -%}
+      {%- for tax_line in order.tax_lines -%}<tr><td colspan="2">{{ tax_line.title }}</td><td>{{ tax_line.price | money }}</td></tr>{%- endfor -%}
+      <tr><td colspan="2"><strong>{{ 'customer.order.total' | t }}</strong></td><td><strong>{{ order.total_net_amount | money_with_currency }}</strong></td></tr>
+    </tfoot>
+  </table>
+  <div class="cart-layout">
+    <div class="stack"><h2 class="h4">{{ 'customer.order.billing' | t }}</h2>{{ order.billing_address | format_address }}</div>
+    <div class="stack"><h2 class="h4">{{ 'customer.order.shipping' | t }}</h2>{{ order.shipping_address | format_address }}</div>
+  </div>
+</div>

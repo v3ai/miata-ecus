@@ -1,0 +1,32 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Mono",
+    "theme_version": "1.0.0",
+    "theme_author": "miata-ecus",
+    "theme_documentation_url": "https://github.com/v3ai/miata-ecus/tree/main/website",
+    "theme_support_url": "https://github.com/v3ai/miata-ecus/issues"
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Futura left Shopify's font library in 2025; Jost is Shopify's replacement and the default here. For real Futura, add Futura PT to an Adobe Fonts web project and enter its ID and family below."
+      },
+      { "type": "font_picker", "id": "type_heading_font", "label": "Heading font", "default": "jost_n7" },
+      { "type": "font_picker", "id": "type_body_font", "label": "Body font", "default": "jost_n4" },
+      { "type": "text", "id": "adobe_fonts_project", "label": "Adobe Fonts web project ID", "info": "The ID from the project's embed code, e.g. abc1def. Leave empty to use the fonts above." },
+      { "type": "text", "id": "adobe_fonts_family", "label": "Adobe Fonts family name", "default": "futura-pt", "info": "As the embed code names it." },
+      { "type": "checkbox", "id": "adobe_fonts_body", "label": "Use it for body text too", "default": false },
+      { "type": "range", "id": "heading_tracking", "label": "Heading letter spacing", "min": -40, "max": 80, "step": 5, "unit": "‰", "default": 0 }
+    ]
+  },
+  {
+    "name": "Layout",
+    "settings": [
+      { "type": "range", "id": "page_width", "label": "Page width", "min": 1000, "max": 1800, "step": 50, "unit": "px", "default": 1500 },
+      { "type": "image_picker", "id": "favicon", "label": "Favicon" }
+    ]
+  }
+]

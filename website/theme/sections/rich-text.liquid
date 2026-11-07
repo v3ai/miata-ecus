@@ -1,0 +1,28 @@
+<section class="section{% if section.settings.invert %} scheme-invert{% endif %}">
+  <div class="page-width stack{% if section.settings.center %} center{% endif %}"{% if section.settings.center %} style="justify-items:center"{% endif %}>
+    {%- if section.settings.eyebrow != blank -%}<p class="eyebrow">{{ section.settings.eyebrow | escape }}</p>{%- endif -%}
+    {%- if section.settings.heading != blank -%}<h2 class="{{ section.settings.heading_size }}">{{ section.settings.heading | escape | newline_to_br }}</h2>{%- endif -%}
+    {%- if section.settings.text != blank -%}<div class="rte lede" style="max-width:52ch">{{ section.settings.text }}</div>{%- endif -%}
+    {%- if section.settings.button_label != blank -%}
+      <div class="btn-row"><a class="btn" href="{{ section.settings.button_link }}">{{ section.settings.button_label | escape }}</a></div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Rich text",
+  "class": "section-rich-text",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "textarea", "id": "heading", "label": "Heading", "default": "Heading" },
+    { "type": "select", "id": "heading_size", "label": "Heading size", "default": "h1", "options": [ { "value": "display", "label": "Huge" }, { "value": "h1", "label": "Large" }, { "value": "h2", "label": "Medium" } ] },
+    { "type": "richtext", "id": "text", "label": "Text" },
+    { "type": "text", "id": "button_label", "label": "Button label" },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+    { "type": "checkbox", "id": "center", "label": "Centre", "default": true },
+    { "type": "checkbox", "id": "invert", "label": "White on black", "default": true }
+  ],
+  "presets": [ { "name": "Rich text" } ]
+}
+{% endschema %}

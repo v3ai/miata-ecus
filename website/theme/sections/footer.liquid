@@ -1,0 +1,73 @@
+<footer class="site-footer scheme-invert">
+  <div class="page-width">
+    <div class="site-footer__top">
+      <div class="stack">
+        {%- if section.settings.tagline != blank -%}
+          <p class="h3">{{ section.settings.tagline | escape }}</p>
+        {%- endif -%}
+        {%- if section.settings.show_newsletter -%}
+          {%- form 'customer', class: 'newsletter', id: 'footer-newsletter' -%}
+            <input type="hidden" name="contact[tags]" value="newsletter">
+            <label class="visually-hidden" for="footer-email">{{ 'newsletter.label' | t }}</label>
+            <input class="input" id="footer-email" type="email" name="contact[email]" autocomplete="email" placeholder="{{ 'newsletter.placeholder' | t }}" required>
+            <button class="btn" type="submit">{{ 'newsletter.submit' | t }}</button>
+            {%- if form.posted_successfully? -%}<p role="status" style="flex-basis:100%;margin:12px 0 0">{{ 'newsletter.success' | t }}</p>{%- endif -%}
+          {%- endform -%}
+        {%- endif -%}
+      </div>
+      {%- for block in section.blocks -%}
+        <div {{ block.shopify_attributes }}>
+          <h2>{{ block.settings.heading | escape }}</h2>
+          <ul>
+            {%- for link in block.settings.menu.links -%}
+              <li><a href="{{ link.url }}">{{ link.title | escape }}</a></li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endfor -%}
+    </div>
+
+    {%- if section.settings.note != blank -%}
+      <div class="site-footer__note">{{ section.settings.note }}</div>
+    {%- endif -%}
+
+    {%- if section.settings.show_wordmark -%}
+      <div class="site-footer__wordmark" aria-hidden="true" data-fit-text><span>{{ shop.name | escape }}</span></div>
+    {%- endif -%}
+
+    <div class="site-footer__bottom">
+      <span>&copy; {{ 'now' | date: '%Y' }} {{ shop.name | escape }}</span>
+      <span>{{ powered_by_link }}</span>
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "class": "section-footer",
+  "enabled_on": { "groups": ["footer"] },
+  "max_blocks": 3,
+  "settings": [
+    { "type": "text", "id": "tagline", "label": "Tagline", "default": "One brain. Every year." },
+    { "type": "checkbox", "id": "show_newsletter", "label": "Show email sign-up", "default": true },
+    {
+      "type": "richtext",
+      "id": "note",
+      "label": "Small print",
+      "default": "<p>For off-road and competition use only. Not legal for sale or use on pollution-controlled motor vehicles.</p><p>Mazda, MX-5 and Miata are trademarks of Mazda Motor Corporation. Not affiliated with or endorsed by Mazda.</p>"
+    },
+    { "type": "checkbox", "id": "show_wordmark", "label": "Show large store name", "default": true }
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": "Menu",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading", "default": "Shop" },
+        { "type": "link_list", "id": "menu", "label": "Menu", "default": "footer" }
+      ]
+    }
+  ]
+}
+{% endschema %}
