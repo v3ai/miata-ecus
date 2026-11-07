@@ -1,4 +1,4 @@
-"""Writes products.csv (Shopify product import, every product a draft at price 0: set prices before publishing)
+"""Writes products.csv (Shopify product import: one ECU per model-year range, $399 each, as drafts until the boards are proven)
 and products.json (the same data, for the theme preview). usage: python3 make_products.py"""
 import csv, json, os
 here = os.path.dirname(os.path.abspath(__file__))
@@ -10,6 +10,7 @@ COMMON = [
     ('Outputs', '8 low-side drivers, 7 protected relay and lamp outputs, 4 ignition'),
     ('Tuning', 'TunerStudio over USB-C'),
 ]
+PRICE = '399.00'
 YOU_ADD = 'A Bosch LSU 4.9 sensor and exhaust bung, a vacuum hose to the intake manifold, your stock ECU case'
 
 YEARS = [
@@ -20,14 +21,11 @@ YEARS = [
     dict(key='9495', years='1994–95', title='Plug-in ECU 1994–95', chassis='NA · 1.8', connector='Stock 48-pin (2 plugs)',
          fits='1994–95 MX-5 Miata, manual and manual-swapped', status='Prototype', extra=''),
     dict(key='9697', years='1996–97', title='Plug-in ECU 1996–97', chassis='NA · 1.8 OBD-II', connector='Stock 76-pin',
-         fits='1996–97 MX-5 Miata, manual and manual-swapped', status='Coming later',
-         extra='<p>Coming later: the board is designed, and its fit in the stock case is still to be confirmed.</p>'),
+         fits='1996–97 MX-5 Miata, manual and manual-swapped', status='Prototype', extra=''),
     dict(key='9900', years='1999–2000', title='Plug-in ECU 1999–2000', chassis='NB · 1.8', connector='Stock 64-pin',
-         fits='1999–2000 MX-5 Miata, manual and manual-swapped', status='Coming later',
-         extra='<p>Coming later: the board is designed, and its fit in the stock case is still to be confirmed.</p>'),
+         fits='1999–2000 MX-5 Miata, manual and manual-swapped', status='Prototype', extra=''),
     dict(key='0105', years='2001–05', title='Plug-in ECU 2001–05', chassis='NB · 1.8 VVT', connector='Stock 72-pin (3 rows)',
-         fits='2001–05 MX-5 Miata, manual and manual-swapped', status='Coming later',
-         extra='<p>Coming later: the board is designed, and its fit in the stock case is still to be confirmed.</p>'),
+         fits='2001–05 MX-5 Miata, manual and manual-swapped', status='Prototype', extra=''),
 ]
 
 
@@ -46,15 +44,9 @@ def ecu_body(y):
 products = []
 for y in YEARS:
     products.append(dict(handle=f'plug-in-ecu-{y["years"].replace("–", "-")}', title=y['title'], type='Plug-in ECU',
-                         tags=f'ECU, {y["chassis"].split(" · ")[0]}, {y["years"]}' + (', coming-soon' if y['status'] == 'Coming later' else ''),
+                         tags=f'ECU, {y["chassis"].split(" · ")[0]}, {y["years"]}',
                          body=ecu_body(y), key=y['key'],
                          image=f'render-assembly-{y["key"]}', status=y['status']))
-products.append(dict(
-    handle='daughterboard', title='Daughterboard', type='Board', tags='ECU, daughterboard', key='d',
-    image='render-daughterboard', status='Prototype',
-    body=('<p>The brain on its own: the universal board that runs the engine on every year. For a second car or a '
-          'different year, keep it and swap the motherboard.</p>'
-          + table(COMMON[:4] + [('Fits', 'Every motherboard, 1989–2005')]))))
 
 HEAD = ['Handle', 'Title', 'Body (HTML)', 'Vendor', 'Type', 'Tags', 'Published', 'Option1 Name', 'Option1 Value',
         'Variant SKU', 'Variant Inventory Policy', 'Variant Fulfillment Service', 'Variant Price',
@@ -65,7 +57,7 @@ with open(os.path.join(here, 'products.csv'), 'w', newline='', encoding='utf-8')
     w.writerow(HEAD)
     for p in products:
         w.writerow([p['handle'], p['title'], p['body'], '', p['type'], p['tags'], 'FALSE', 'Title', 'Default Title',
-                    p['handle'], 'deny', 'manual', '0.00', 'TRUE', 'TRUE', '', '', 'FALSE', p['title'],
+                    p['handle'], 'deny', 'manual', PRICE, 'TRUE', 'TRUE', '', '', 'FALSE', p['title'],
                     f'{p["title"]}: a plug-in rusEFI engine computer for the Mazda MX-5 Miata.', 'draft'])
 json.dump(products, open(os.path.join(here, 'products.json'), 'w'), indent=1, ensure_ascii=False)
 print(len(products), 'products')

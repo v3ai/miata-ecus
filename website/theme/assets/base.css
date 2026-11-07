@@ -142,6 +142,7 @@ h1, h2, h3, h4, .display, .h1, .h2, .h3 { text-wrap: balance; }
 .hero__copy { display: flex; flex-direction: column; gap: 28px; padding-bottom: clamp(32px, 5vw, 64px); }
 .hero__meta { display: flex; flex-wrap: wrap; gap: 8px 24px; }
 .hero__media { margin-inline: calc(-1 * clamp(16px, 4vw, 48px)); }
+.hero .display { font-size: clamp(2.75rem, 6vw, 7.5rem); line-height: .9; }
 .hero__media img { width: 100%; }
 @media (min-width: 990px) {
   .hero__grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center; padding-block: clamp(40px, 6vw, 88px); }
@@ -149,6 +150,7 @@ h1, h2, h3, h4, .display, .h1, .h2, .h3 { text-wrap: balance; }
   .hero__media { margin-inline: 0 calc(-1 * clamp(16px, 4vw, 48px)); }
   .hero--stacked .hero__grid { grid-template-columns: minmax(0, 1fr); }
   .hero--stacked .hero__media { margin-inline: calc(-1 * clamp(16px, 4vw, 48px)); }
+.hero .display { font-size: clamp(2.75rem, 6vw, 7.5rem); line-height: .9; }
 }
 
 /* ---------- spec band ---------- */
