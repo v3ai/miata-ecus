@@ -89,13 +89,14 @@ td.item b a{color:var(--accent);text-underline-offset:2px}
 
   <div id="groups"></div>
 
-  <p class="foot">Quantities are per board or per car times your counts above; buy a few spare crimp terminals and shunts. Links go to DigiKey (US stock, no import duties to deal with); where the board BOM names a Chinese-brand part DigiKey doesn’t carry, the part number here is a same-size equivalent. <b>Copy DigiKey list</b> gives the required parts as “Manufacturer Part Number, Quantity”, ready to paste into a DigiKey list upload. Parts without a link (harness connectors, sensors, screws, hose) come from elsewhere. The JLCPCB parts lists (<span class="pn">fab/…_jlcpcb_bom.csv</span>) hold only what JLC assembles, so nothing here is double-ordered. Check stock on the day you order.</p>
+  <p class="foot">Quantities are per board or per car times your counts above; buy a few spare crimp terminals and shunts. Links go to DigiKey (US stock, no import duties to deal with); where the board BOM names a Chinese-brand part DigiKey doesn’t carry, the part number here is a same-size equivalent. <b>Copy DigiKey list</b> gives the required parts as “Manufacturer Part Number, Quantity”, ready to paste into a DigiKey list upload. The screws and nuts link to McMaster-Carr (packs of 100, so one pack covers several boards). Parts without a link (harness connectors, sensors, hose) come from elsewhere. The JLCPCB parts lists (<span class="pn">fab/…_jlcpcb_bom.csv</span>) hold only what JLC assembles, so nothing here is double-ordered. Check stock on the day you order.</p>
 </main>
 
 <script>
 // who: must = you buy and fit it; jlc = in the JLCPCB list, Standard PCBA or hand; opt = only if you need it
 // per: 'd' daughterboard, 'mb' every motherboard, a year key for one year, 'na' 1989-95 boards, 'car', 'once'
 const DK = m => `https://www.digikey.com/en/products/result?keywords=${encodeURIComponent(m)}`;
+const MC = m => `https://www.mcmaster.com/${encodeURIComponent(m)}/`;
 const GROUPS = [
  {id:'daughter', title:'Daughterboard', sub:'One set per daughterboard. Every daughterboard fits every motherboard.', rows:[
   {item:'Pin header, 1×40, 2.54 mm, male', pn:'Sullins PRPC040SAAN-RC', dk:'PRPC040SAAN-RC', per:'d', q:2, who:'must',
@@ -116,11 +117,13 @@ const GROUPS = [
    note:'For JP1 (IAT source). Not in the BOM. EXT reads the board’s IAT connector, STOCK the harness sensor.'},
   {item:'MAP sensor MPX5700AP (absolute, case 867B)', pn:'NXP MPX5700AP', dk:'MPX5700AP', per:'mb', q:1, who:'must',
    note:'Lies flat, marking side up, leads bent 90° down, barb toward the board centre. JLCPCB won’t bend and bolt it.'},
-  {item:'M3 screw and nut (MAP sensor)', pn:'M3 × 10 pan head + nut', per:'mb', q:2, who:'must',
-   note:'Holds the MAP sensor down through its two holes.'},
+  {item:'M3 × 10 mm pan head screw (MAP sensor)', pn:'McMaster 92000A120', mc:'92000A120', per:'mb', q:2, who:'must',
+   note:'Holds the MAP sensor down through its two holes. 18-8 stainless, Phillips; sold in packs of 100.'},
+  {item:'M3 nylon-insert locknut (MAP sensor)', pn:'McMaster 93625A100', mc:'93625A100', per:'mb', q:2, who:'must',
+   note:'Goes under the board on the MAP sensor screws; the nylon insert stops it vibrating loose in the car. 18-8 stainless; pack of 100.'},
   {item:'Standoff, M3 × 11 mm, female-female', pn:'Würth 970110321', dk:'970110321', per:'mb', q:4, who:'must',
    note:'Holds the daughterboard above the motherboard (8.5 mm sockets + headers). Steel, 5.5 mm hex. Any M3 × 11 mm female-female hex standoff does.'},
-  {item:'M3 screw for the standoffs', pn:'M3 × 6 pan head', per:'mb', q:8, who:'must', note:'Two per standoff.'},
+  {item:'M3 × 6 mm pan head screw (standoffs)', pn:'McMaster 92000A116', mc:'92000A116', per:'mb', q:8, who:'must', note:'Two per standoff, one through each board. 18-8 stainless, Phillips; pack of 100.'},
   {item:'Socket, 1×20, 2.54 mm, female, 8.5 mm', pn:'Sullins PPTC201LFBN-RC', dk:'PPTC201LFBN-RC', per:'mb', q:4, who:'must', note:'JD1 and JD2 for the daughterboard: two 1×20 end to end fill each 1×40 row (the 1×40 version, PPTC401LFBN-RC, is not normally stocked). Check the listing says 0.335″ (8.51 mm) insulation height: the 11 mm standoffs depend on it.'},
   {item:'Micro-Fit 3.0 header, 2×3, right angle', pn:'Molex 0430450600', dk:'0430450600', per:'mb', q:1, who:'must', note:'J2, LSU 4.9 wideband.'},
   {item:'Micro-Fit 3.0 header, 1×2, right angle', pn:'Molex 0436500200', dk:'0436500200', per:'mb', q:1, who:'must', note:'J3, IAT sensor.'},
@@ -190,7 +193,8 @@ function render(){
      <thead><tr><th scope="col">Item</th><th scope="col">Part number</th><th scope="col">Fitted by</th><th scope="col" style="text-align:right">Qty</th><th scope="col">Have</th></tr></thead>
      <tbody>${g.rows.map((r, i) => {
        const key = g.id + i, total = r.q * mult(r.per), w = WHO[r.who];
-       const pn = r.dk ? `${esc(r.pn)}<br><a href="${DK(r.dk)}" target="_blank" rel="noopener noreferrer">DigiKey</a>` : esc(r.pn);
+       const pn = r.dk ? `${esc(r.pn)}<br><a href="${DK(r.dk)}" target="_blank" rel="noopener noreferrer">DigiKey</a>`
+         : r.mc ? `${esc(r.pn)}<br><a href="${MC(r.mc)}" target="_blank" rel="noopener noreferrer">McMaster-Carr</a>` : esc(r.pn);
        return `<tr class="${total === 0 ? 'zero' : ''} ${ticks[key] ? 'done' : ''}">
         <td class="item"><b>${r.link ? `<a href="${r.link}" target="_blank" rel="noopener noreferrer">${esc(r.item)}</a>` : esc(r.item)}</b>${r.warn ? ` <span class="pill p-warn">${esc(r.warn)}</span>` : ''}<span class="note">${esc(r.note)}</span></td>
         <td class="pn">${pn}</td>
@@ -209,10 +213,10 @@ document.addEventListener('change', e => {
 $('reset').addEventListener('click', () => { ticks = {}; saveTicks(); render(); });
 $('copy').addEventListener('click', async () => {
   const q = s => `"${String(s).replace(/"/g, '""')}"`;
-  const lines = [['Group','Item','Part number','Manufacturer Part Number','Fitted by','Qty','Per'].map(q).join(',')];
+  const lines = [['Group','Item','Part number','DigiKey (manufacturer part number)','McMaster-Carr','Fitted by','Qty','Per'].map(q).join(',')];
   for (const g of GROUPS) for (const r of g.rows) {
     const total = r.q * mult(r.per); if (!total) continue;
-    lines.push([g.title, r.item, r.pn, r.dk || '', WHO[r.who][1], total, `${r.q} ${PER_LABEL[r.per]}`].map(q).join(','));
+    lines.push([g.title, r.item, r.pn, r.dk || '', r.mc || '', WHO[r.who][1], total, `${r.q} ${PER_LABEL[r.per]}`].map(q).join(','));
   }
   try { await navigator.clipboard.writeText(lines.join('\n')); $('copied').textContent = 'Copied'; }
   catch (e) { $('copied').textContent = 'Copy was blocked by the browser'; }
