@@ -280,7 +280,7 @@
           "type": "question",
           "settings": {
             "question": "What else do I need?",
-            "answer": "<p>A Bosch LSU 4.9 wideband sensor with a bung in the exhaust, a vacuum hose from the board's MAP sensor to the intake manifold, and your car's stock ECU case.</p>"
+            "answer": "<p>A Bosch LSU 4.9 wideband sensor and its lead (the sensor screws into the stock front oxygen sensor's hole), a vacuum hose from the board's MAP sensor to the intake manifold, and your car's stock ECU case.</p>"
           }
         },
         "q3": {

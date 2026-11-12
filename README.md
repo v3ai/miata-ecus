@@ -24,6 +24,84 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 
 <sub>Renders from the 3D viewer in <a href="viewer/"><code>viewer/</code></a>, with black solder mask (<code>MASK=black</code> in <code>viewer/pcb3d.py</code>). The harness header, the LSU and IAT connectors and the MAP sensor are simplified stand-in models.</sub>
 
+**Fitting one to a car:** [INSTALL.md](INSTALL.md) has labelled pictures of every connector, the header pin maps, the
+MAP hose and wideband for each year, and the first start.
+
+## Features and limitations
+
+No board has been built yet. "Can" below means the hardware is designed for it and the firmware is set up for it; where
+the firmware part has run in [emulation](firmware/sim/), that is as far as the proof goes.
+
+### What it can do
+
+**On every year**
+- **Plugs into the stock harness** and fits the stock ECU's case (1990–95; the 1996–2005 fit is unchecked).
+- **Fuel from manifold pressure** (speed-density), with the MAP sensor on the board. The stock airflow meter is not
+  used and can come out of the intake.
+- **MAP sensor good for boost:** 15–700 kPa absolute, so a turbo or supercharger needs no sensor change.
+- **Wideband oxygen sensor controller on the board** for a Bosch LSU 4.9. No separate gauge or controller box.
+- **Closed-loop fuel from the wideband**, switched on from the first start: ±10 % at idle and cruise, +10 / −5 %
+  under load.
+- **A base tune for each year**, loaded by the year button in TunerStudio ([what is in it](firmware/README.md#base-tune)).
+- **Four injector outputs** for high-impedance injectors. Sequential on 1994–2005; in pairs on 1989–93, as the
+  stock harness is wired.
+- **Four ignition outputs** (5 V logic): two on the harness for the stock coils, two more on the AUX header for one
+  coil per cylinder.
+- **Closed-loop idle** (on cars with a throttle position sensor), radiator fan, second fan, A/C clutch, fuel pump,
+  check-engine light and tachometer, on the stock wires.
+- **One USB-C port** for tuning (TunerStudio) and firmware updates, including the wideband's firmware.
+- **Protected outputs.** Every driver limits its current and shuts down when it overheats. In simulation every
+  harness pin was shorted to ground, 14.4 V and 24 V; what still fails is listed in
+  [VERIFICATION.md](VERIFICATION.md#rev-08-driver-temperature-and-protected-outputs).
+
+**By year**
+
+| | 1989–93 | 1994–95 | 1996–97 | 1999–2000 | 2001–05 |
+|---|---|---|---|---|---|
+| Injection | pairs | sequential | sequential | sequential | sequential |
+| Variable valve timing | – | – | – | – | closed loop, rusEFI's target table |
+| Knock sensor | add your own | add your own | add your own | stock sensor | stock sensor |
+| Alternator voltage | alternator's own | alternator's own | alternator's own | ECU, ships off | ECU, ships off |
+| Main relay held by the ECU | – | – | – | – | 2003–05 |
+| Stock oxygen-sensor heater | – | – | driven | driven | not driven |
+| Throttle position | switch only on manual cars | sensor | sensor | sensor | sensor |
+
+**For a turbo and other add-ons** (the 16-pin AUX header, [pin map](INSTALL.md#header-pin-maps))
+- Boost-control valve output, already assigned in the firmware.
+- Knock sensor input for the cars that have none.
+- Coil 3 and coil 4 outputs.
+- A spare 0–5 V analog input, two inputs for magnetic (VR) crank and cam sensors, a 3.3 V serial port, 5 V and a
+  fused 12 V.
+- rusEFI's own functions are all in the firmware (launch control, boost by table or closed loop, knock retard,
+  general-purpose PWM tables, Lua scripts). None of them is set up or tested on this board.
+
+### What it can't do
+
+- **It is untested.** No board has been assembled, powered or run in a car.
+- **The base tune is a starting point.** The tables came from other people's cars. Nobody has tuned them under
+  boost, and the 1989–97 fuel table stops at 128 kPa.
+- **No logging on the board.** There is no SD card: a log needs a laptop on the USB port.
+- **No CAN on any connector.** The CAN bus only links the main processor to the wideband. No CAN dash, no CAN
+  expansion.
+- **No drive-by-wire throttle.** Every supported car has a cable throttle; this only matters for an engine swap.
+- **No flex-fuel input** of its own.
+- **High-impedance injectors only**, and the ignition outputs need coils with built-in igniters or the stock
+  igniter. They can't drive a bare coil.
+- **One wideband**, four cylinders.
+- **The stock case has to be cut** for the wideband plug, the air-temperature plug, USB-C and the MAP hose. The
+  1996–2005 boards still have the 1990–95 outline and mounting holes.
+- **The AUX header is a ribbon-cable header inside the case**, not a sealed plug, and its 12 V pin is limited to
+  0.5 A.
+- **1990–93:** the fuel pump is switched by the airflow meter, so removing the meter needs one added wire
+  ([INSTALL.md](INSTALL.md#199093)). Manual cars have no throttle position sensor until one is
+  [fitted](#throttle-position-sensor-198993-manual-cars).
+- **1999–2005:** alternator control ships switched off until the wire has been checked on a car.
+- **Not street legal as an emissions device.** No OBD-II diagnostics or readiness monitors, no immobiliser, and it
+  doesn't run the EGR valve, the 1999–2005 purge valve, the 2001–05 intake shutter valves (VTCS) or the rear oxygen
+  sensor. The 1999–2000 VICS solenoid is wired but not set up.
+- **Automatic cars are untested**, and the transmission unit's signals are mostly left unconnected.
+- **2004–05 Mazdaspeed is not supported.**
+
 > **Status:** every board is fully routed and passes KiCad DRC (no clearance errors, no unconnected items), and each
 > schematic's netlist has been checked pad-by-pad against its board. **None of them has been built or tested yet**, and
 > no person has reviewed the schematics. Read each board's README, especially its *Still to verify* or *Before ordering* list.
@@ -100,8 +178,8 @@ See [`firmware/README.md`](firmware/README.md). It compiles, but hasn't run on h
 ## Air temperature sensor
 Each motherboard has an IAT jumper (JP1, a 3-pin header with a removable shunt) next to the IAT connector:
 - **EXT (default):** the aftermarket M12 thermistor on the IAT connector.
-- **STOCK:** the stock sensor through the harness. It sits inside the flap-type AFM on 1989–97 and inside the MAF on
-  1999–2005, so it's only available while that meter stays in the intake.
+- **STOCK:** the stock sensor through the harness. It sits inside the airflow meter on 1989–97 and in the air filter
+  box on 1999–2005, so it's only available while the stock intake stays on the car.
 
 Pick the matching sensor curve in TunerStudio. The firmware already accounts for the board's 2.7 kΩ pull-up and divider.
 
@@ -143,6 +221,8 @@ Check the plug's wiring and the sensor's pins on your car before fitting R28: se
 | `viewer/` | Interactive 3D viewer: the daughterboard alone, or assembled on any year's motherboard. Click a part for its details and shop links |
 | `firmware/` | The rusEFI board definition, the wideband flasher, the simulation tests and the verification tools. rusEFI itself is a submodule in `firmware/ext/rusefi` |
 | `website/` | A black-and-white Shopify theme for selling the boards, draft product listings and product photos ([website/README.md](website/README.md)) |
+| `INSTALL.md` | Fitting the ECU to a car: labelled pictures, header pin maps, the MAP hose and wideband per year, first start |
+| `images/` | Renders, and the labelled pictures and pin maps (`scripts/annotate.py` redraws those from the board files) |
 | `VERIFICATION.md` | Pinout, datasheet, simulation, flashing and safety review, with the hardware changes it calls for |
 | `.github/workflows/firmware.yaml` | CI: checks the pin map against the board design and builds the firmware |
 
@@ -171,8 +251,14 @@ The firmware build is described in [`firmware/README.md`](firmware/README.md).
 The viewer is a static page. To open it, run `cd viewer && python3 -m http.server`, then browse to `http://localhost:8000`.
 `viewer/pcb3d.py` rebuilds its assets from a board; it also needs `trimesh`, `cascadio`, `Pillow` and `gltfpack`.
 
+The labelled pictures and pin maps in [INSTALL.md](INSTALL.md) come from the viewer and the board files:
+`scripts/annotate.py --three <unpacked three@0.160.0 package>` redraws them (needs Playwright with Chromium, and `Pillow`).
+
 ## Credits and licences
 - This project (the board designs, scripts and viewer) is released under the [MIT licence](LICENSE).
+- One firmware file is GPL-3.0: `firmware/board/miata_nb_tune.cpp` holds the 1999–2005 base tune tables, copied from
+  rusEFI. The firmware you build includes rusEFI, so the built firmware is GPL-3.0 as a whole
+  ([firmware/README.md](firmware/README.md#licences)).
 - The wideband controller circuit is the FOME / rusEFI open-source wideband module
   ([mck1117/wideband](https://github.com/mck1117/wideband), `board_module` rev C, MIT licence). Its source files and
   licence are in `scripts/wideband_ref/`.

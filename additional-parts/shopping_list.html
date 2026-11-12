@@ -140,13 +140,14 @@ const GROUPS = [
  ]},
  {id:'car', title:'In the car', sub:'One set per car you install in.', rows:[
   {item:'Bosch LSU 4.9 wideband sensor', pn:'Bosch 0 258 017 025', per:'car', q:1, who:'must', note:'The board runs it directly; no separate wideband controller.'},
-  {item:'O2 sensor weld bung, M18 × 1.5', pn:'M18 × 1.5 bung', per:'car', q:1, who:'must', note:'If the exhaust doesn’t already have a spare port.'},
+  {item:'O2 sensor weld bung, M18 × 1.5', pn:'M18 × 1.5 bung', per:'car', q:1, who:'opt', note:'Only to keep the stock oxygen sensor as well. The LSU 4.9 screws into the stock front sensor’s hole (same M18 × 1.5 thread).'},
   {item:'Micro-Fit 3.0 receptacle, 2×3', pn:'Molex 0430250600', dk:'0430250600', per:'car', q:1, who:'must', note:'Mates with J2 (LSU 4.9).'},
   {item:'Micro-Fit 3.0 female crimp terminal, 20-24 AWG', pn:'Molex 0430300007', dk:'0430300007', per:'car', q:8, who:'must', note:'6 for the LSU lead, 2 for the IAT lead.'},
   {item:'LSU 4.9 extension lead or sensor-side connector', pn:'LSU 4.9 pigtail', per:'car', q:1, who:'must', note:'Saves crimping the sensor-side Bosch plug. Wire it to the 43025-0600 at the board end.'},
   {item:'IAT sensor, M12 × 1.5 open element', pn:'open-element thermistor', per:'car', q:1, who:'opt', note:'Only with JP1 on EXT. On STOCK the board reads the car’s own air-temp sensor.'},
   {item:'Micro-Fit 3.0 receptacle, 1×2', pn:'Molex 0436450200', dk:'0436450200', per:'car', q:1, who:'opt', note:'Mates with J3, for the IAT sensor above.'},
-  {item:'Vacuum hose to the intake manifold', pn:'hose to fit the MAP barb', per:'car', q:1, who:'must', note:'From the MPX5700AP barb to a manifold vacuum port.'},
+  {item:'Silicone vacuum hose, 3-4 mm (1/8-5/32 in) inside diameter, 3 m', pn:'4 mm ID silicone vacuum hose', per:'car', q:1, who:'must', note:'From the MAP sensor’s barb to the intake manifold. 1994-97 cars need most of it: the ECU is behind the seat. Where to connect it on each year: INSTALL.md, MAP hose.'},
+  {item:'Barbed vacuum tee, 4 mm (5/32 in)', pn:'4 mm barbed tee', per:'car', q:1, who:'opt', note:'Needed when the manifold port already has a hose on it: 1990-95 cars with cruise control and every 1996-97. Not needed if your manifold has a free, capped nipple.'},
   {item:'Case', pn:'stock ECU case', per:'car', q:1, who:'must', note:'1989-95 boards fit the stock NA case: reuse yours. The 1996-2005 outlines are provisional until those cases are measured.'},
  ]},
  {id:'tps', title:'1989-93 manual cars: throttle position sensor', sub:'These cars have only a throttle switch. A real 0-5 V sensor plugs into the stock switch plug and gives closed-loop idle, acceleration fuel and overrun cut. On the board, fit R28 and move R29 to R30 (0 Ω 0805, in the optional parts above). Automatics already have one: skip this group.', rows:[

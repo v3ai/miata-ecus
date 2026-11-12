@@ -11,7 +11,7 @@ COMMON = [
     ('Tuning', 'TunerStudio over USB-C'),
 ]
 PRICE = '399.00'
-YOU_ADD = 'A Bosch LSU 4.9 sensor and exhaust bung, a vacuum hose to the intake manifold, your stock ECU case'
+YOU_ADD = 'A Bosch LSU 4.9 sensor (it fits the stock front oxygen sensor\'s hole) and its lead, a vacuum hose to the intake manifold, your stock ECU case'
 
 YEARS = [
     dict(key='8993', years='1989–93', title='Plug-in ECU 1989–93', chassis='NA · 1.6', connector='Stock 48-pin (2 plugs)',
