@@ -22,7 +22,7 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 </tr>
 </table>
 
-<sub>Renders from the 3D viewer in <a href="viewer/"><code>viewer/</code></a>, with black solder mask (<code>MASK=black</code> in <code>viewer/pcb3d.py</code>). The harness header, the LSU and IAT connectors and the MAP sensor are simplified stand-in models.</sub>
+<sub>Renders from the 3D viewer in <a href="viewer/"><code>viewer/</code></a>, with black solder mask (<code>MASK=black</code> in <code>viewer/pcb3d.py</code>). The harness header, the LSU and IAT connectors, the MAP sensor and the heater fuse F1 are simplified stand-in models.</sub>
 
 **Fitting one to a car:** [INSTALL.md](INSTALL.md) has labelled pictures of every connector, the header pin maps, the
 MAP hose and wideband for each year, and the first start.
