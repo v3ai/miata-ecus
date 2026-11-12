@@ -21,13 +21,13 @@ CHANGES = ["Rev 0.9, for daughterboard rev 0.9: the daughterboard sits 16 mm low
            'Rev 0.3: first release, from the 89-93 rev 0.3 template: same case, outline, holes and 48-pin header; 94-95 pin map '
            '(rusEFI "Mazda Miata 1994" page and the Hellen NA6/94 connector map).']
 VERIFY = ['The case geometry, as for 89-93: one stock case with calipers.',
-          '1C (VIO): ignition-switch sense on the 1990 diagram, unlabelled on the 1994 page; it is only an input here (diode-isolated on the daughterboard).',
+          '1C (VIO): the starter (START) signal, live only while cranking (Link\'s MX5 pinout: "Start Signal"; the rusEFI 1990 page calls it ignition-on). It is only an input here (diode-isolated on the daughterboard), and the firmware does not use it as ignition sense (2026-11-12).',
           'LCSC stock for the extended parts (C124412, C127367, C587650, C3020560, C410772, C46641168, C3406).']
 HARNESS = dict(base.HARNESS)
 HARNESS.update({
     '1N': '',            # 94-95: to the AT control unit - never drive the 5 V reference here
     '1R': '',            # 94-95: not the fan any more (fan relay is 1L)
-    '1C': 'VIGN_IN',     # VIO: ignition switch (input only)
+    '1C': 'VIGN_IN',     # VIO: starter (START) signal, battery only while cranking (input only; not used as ignition sense)
     '2N': 'IN_AUX2',     # heated O2 sensor (narrowband)
     '2O': 'IN_AUX3',     # air flow meter signal (vane AFM; rusEFI's 1994 page calls it MAF)
     '2P': 'HARN_IAT',    # intake air thermosensor in the AFM (IAT jumper JP1 on STOCK to use it)

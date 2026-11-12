@@ -53,7 +53,7 @@ TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); ru
 | Pin | Net | Use | Stock function / note |
 |---|---|---|---|
 | 1B | `VBAT_IN` | ECU power (main relay) | main relay output: ECU power |
-| 1C | `VIGN_IN` | ignition switch sense | ignition switch |
+| 1C | `VIGN_IN` | switched 12 V sense (wakes the logic supply) | starter (START) signal: battery only while cranking. Not ignition-on: the firmware doesn't use it as ignition sense |
 | 1E | `OUT_CEL` | check engine lamp |  |
 | 1G | `OUT_IGN1` | ignition 1 (5 V logic) | igniter 1&4 (wasted spark) / COP 1 |
 | 1H | `OUT_IGN2` | ignition 2 (5 V logic) | igniter 2&3 (wasted spark) / COP 2 |

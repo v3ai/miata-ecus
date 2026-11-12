@@ -114,12 +114,15 @@ static void setInputs() {
 
 	// Ignition-switch sense: only years whose harness has the wire set it (see setIgnitionSense()). With a channel
 	// assigned rusEFI trusts it, and a missing wire would read "key off" and cut fuel and spark. Without one it uses
-	// the battery voltage, which comes from the key-switched main relay on 1996-2002.
+	// the battery voltage, which comes from the key-switched main relay on 1989-2002.
 	engineConfiguration->ignKeyAdcChannel = EFI_ADC_NONE;
 	engineConfiguration->ignKeyAdcDivider = MIATA_VBATT_DIVIDER;
 }
 
-// 1989-95: 1C (VIO); 2003-05: 4S (IG1). The ECU needs it on 2003-05 to know when to drop the main relay it holds.
+// 2003-05 only: 4S (IG1). The ECU needs it there to know when to drop the main relay it holds.
+// Not 1989-95: their 1C is the starter (START) signal, live only while cranking (Link's MX5 pinout: "Start Signal").
+// As ignition sense it would read "key off" as soon as the key springs back from START, and rusEFI would cut fuel and
+// spark. The key-switched main relay on 1B already tells the ECU the key is on.
 static void setIgnitionSense() {
 	engineConfiguration->ignKeyAdcChannel = MIATA_IN_VIGN;
 }
@@ -188,11 +191,14 @@ static void setMiataNbCommon() {
 	engineConfiguration->fan1AcMode = fan_ac_mode_e::Relay;
 	engineConfiguration->tachPulsePerRev = 2;
 
-	// The NB charging system is regulated by the engine computer through the alternator field (ALT output).
-	// Alternator control ships OFF: the field current and its supply haven't been measured (VERIFICATION.md M5), and
-	// the low-side driver is a SOT-223 part. The pin and PID are set up, so turning it on is one switch in TunerStudio
-	// (Alternator control) once the field has been measured. Until then the car may not charge: watch the battery.
+	// The NB charging voltage is set by the engine computer: harness pin 1O (NB1) / 3M (NB2) is a logic-level PWM
+	// input to the regulator inside the alternator, not the field coil itself (a scope on a stock 1999 ECU showed
+	// 250 Hz; working MS3 / ECUMaster set-ups drive it from a low side with a 1k pull-up to 5 V, about 5 mA).
+	// Alternator control ships OFF until a car has been checked (VERIFICATION.md M5): with the ECU unplugged and the
+	// key on, the wire either already sits high (the alternator pulls it up: just turn on "Alternator control") or
+	// near 0 V (then fit 1k + 1N4148 from AUX J5-14, 5 V, to J5-4, OUT_ALT first). The pin and PID are set up.
 	engineConfiguration->alternatorControlPin = MIATA_ALT;
+	engineConfiguration->alternatorPwmFrequency = 250;   // as the stock ECU
 	engineConfiguration->isAlternatorControlEnabled = false;
 	// VBATT is measured on the board's +12V rail, after the reverse diode D7 and the PTC F1, so it reads about
 	// 0.3-0.4 V below the battery. A 14.0 V target therefore holds the battery near 14.3-14.4 V, inside the stock NB
@@ -265,7 +271,6 @@ void miataApplyYearPreset(engine_type_e engineType) {
 		// This needs the rev 0.6 1989-93 motherboard: on an older one INJ3/INJ4 would drive the unused 2Y/2Z pins
 		// and each 2U/2V driver would carry two injectors on its own.
 		setMazdaMiataNA6();
-		setIgnitionSense();
 		engineConfiguration->injectionMode = IM_BATCH;
 		engineConfiguration->injectionPins[0] = MIATA_INJ1;   // slot 1 -> 2U
 		engineConfiguration->injectionPins[1] = MIATA_INJ2;   // slot 2 -> 2V
@@ -275,7 +280,6 @@ void miataApplyYearPreset(engine_type_e engineType) {
 	case engine_type_e::MAZDA_MIATA_NA94:
 		// 1994-95: four injector wires (2U/2V/2Y/2Z), sequential like rusEFI's own 1994 preset.
 		setMazdaMiataNA94();
-		setIgnitionSense();
 		break;
 	case engine_type_e::MAZDA_MIATA_NA96:
 		// 1996-97: sequential; the VVT driver runs the front O2 heater (harness pin 3M).

@@ -35,7 +35,8 @@ Gpio getWarningLedPin() {
 // The fifteen low-side drivers (injectors, idle, VVT, boost, alternator, and since rev 0.8 the relay, lamp and tach
 // outputs) sit behind two level shifters whose shared output enable is pulled up on the board: they stay off through reset, boot, the bootloader and DFU. The firmware releases them
 // only once the engine controller has configured every output (a few slow ticks after start), takes them off again
-// for the whole of any configuration change, and never enables them during a fatal error.
+// while rusEFI re-applies its pins during a configuration change (every Burn), and never enables them during a fatal
+// error.
 //
 // MIATA_DRV_EN is open drain with inverted logic: logical 0 (OutputPin's initial state) leaves the pin released, so
 // the shifter stays disabled from the moment the pin is set up; logical 1 pulls it low and enables the drivers.
@@ -80,24 +81,39 @@ static void setDriversEnabled(bool enabled) {
 	driverEnable.setValue(enabled ? 1 : 0, /*isForce*/ true);
 }
 
+// PC14 (MIATA_FP) is also the LSE oscillator's input pin, and the oscillator owns it whenever RCC_BDCR.LSEON is set,
+// whatever the GPIO mode. board/mcuconf.h keeps ChibiOS from setting the bit, but the backup domain survives a
+// reset, so a bootloader or firmware built without it may have left it set: clear it before any output is used.
+static void releaseLsePins() {
+	PWR->CR |= PWR_CR_DBP;           // backup-domain write access (ChibiOS leaves it open anyway)
+	RCC->BDCR &= ~RCC_BDCR_LSEON;    // no 32 kHz crystal on this board
+}
+
 static void miataBoardInitHardware() {
+	releaseLsePins();
 	parkUnusedLowSideInputs();
 	driverEnable.initPin("Low-side enable", MIATA_DRV_EN, OM_OPENDRAIN_INVERTED);   // starts released: disabled
 	setDriversEnabled(false);
 	initWidebandUartFlash();
 }
 
-// Stop phase of a configuration change: rusEFI is about to release and re-start its pins. Disable the drivers
-// first, so a released control pin (pulled up for a moment) can't switch one on.
+// Stop phase of a configuration change (every Burn): rusEFI is about to release the pins whose setting changed and
+// re-start them. Disable the drivers first, so a released control pin (pulled up for a moment) can't switch one on.
 static void miataBoardStopHardware() {
 	reconfiguring = true;
 	setDriversEnabled(false);
 }
 
-// Straight after rusEFI has re-started its pins: park whatever is now unused; the next slow tick enables again.
+// Straight after rusEFI has re-started its pins (same call): park whatever is now unused and enable the drivers again
+// at once, so a Burn with the engine running drops the outputs only for the re-configuration itself (it used
+// to wait for the next slow tick, up to 50 ms without injectors, pump or the 2003-05 main relay). Not before the
+// start-up delay has run, and never during a fatal error.
 static void miataBoardOnConfigurationChange(const engine_configuration_s* /*previousConfiguration*/) {
 	parkUnusedLowSideInputs();
 	reconfiguring = false;
+	if (slowTicks >= 4) {
+		setDriversEnabled(!hasFirmwareError());
+	}
 }
 
 static void miataBoardSlowCallback() {

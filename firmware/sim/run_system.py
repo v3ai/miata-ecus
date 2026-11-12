@@ -84,7 +84,7 @@ def build(year, out, probes, stim):
           'connector Connect sysbus.can2 can', 'connector Connect sniffer can',
           f'sniffer SetOutputFile "{os.path.join(out, "can.txt")}"',
           ]
-    car = dict(vbat=14.0, key=True, tps_v=0.6, map_kpa=35, clt_ohm=240.0, iat_ohm=2000.0, maf_v=1.3)
+    car = dict(vbat=14.0, key=True, tps_v=0.6, map_kpa=35, clt_ohm=240.0, iat_ohm=2000.0, maf_v=1.3, vign_mode=y['vign'])
     L += [f'adc SetPinVoltage "{p}" {v:.4f}' for p, v in E.car_pins(**{**car, 'vbat': 12.4, 'map_kpa': 100}).items()]
     t = 0.0
     for name, dur in PHASES:
