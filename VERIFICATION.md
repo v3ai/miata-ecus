@@ -649,7 +649,9 @@ same assumptions as the design.
 
 **Fixed in the parts order:** the daughterboard sockets were tin (Sullins PPTC201LFBN-RC) on gold-flash header pins
 (PRPC040SAAN-RC). Tin against gold corrodes and frets under vibration, on the pins that carry crank, cam and injector
-signals. The hand-fit list now has **PPPC201LFBN-RC** (gold, same 8.5 mm height).
+signals. The hand-fit list now has a one-piece gold 1×40 socket, **Würth 61304011821** (8.50 mm insulation height,
+in stock at DigiKey; alternatives Samtec SSQ-140-01-G-S or two gold Sullins PPPC201LFBN-RC end to end). The LCSC socket
+in the board BOMs (C124412) is already gold.
 
 **Confirmed, for the next board revision (not changed):**
 - **CEL behind the shared driver enable:** it can't light while the drivers are off, so not on a fatal error.
