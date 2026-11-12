@@ -675,6 +675,28 @@ in the board BOMs (C124412) is already gold.
 
 **Not a problem:** R8 = 10k sets the LMR14020 to about 2.18 MHz by TI's formula; fine.
 
+### Base tune and closed-loop fuel (2026-11-12)
+A check of what each year button actually loads found the 1999-2005 buttons starting from rusEFI's generic fuel and
+ignition tables, with an empty VVT target table: rusEFI compiles its NB tables only for its own Hellen boards. The
+1989-97 buttons already loaded rusEFI's Miata tables.
+
+**Changed in firmware (no board change):**
+- **1999-2005 load rusEFI's NB tables** (`firmware/board/miata_nb_tune.cpp`, copied unchanged from rusEFI's
+  `mazda_miata_vvt.cpp` at the pinned commit, GPL-3.0): fuel, ignition, injector dead time, cranking fuel, idle
+  curves, and on 2001-05 the VVT target table.
+- **Closed-loop fuel from the wideband is on in a fresh tune**, all years: idle and cruise ±10 %, under load +10 % /
+  −5 % (a wrong lean reading can't take much fuel out). Set in the fresh-tune defaults, not the boot-time overrides,
+  so a tuner can switch it off and it stays off.
+
+| Check | Result |
+|---|---|
+| Board unit tests (`test_miata_ecu.cpp`): table corner values per year, VVT target only on 2001-05, trim limits | 18 passed; end-to-end, 117 firmware functions across 6 years |
+| Firmware builds with the new file (offline compile check) | Links; 669 kB |
+
+**Not checked, and can't be without a car:** whether the tables suit a given engine. They were made on other cars,
+the 1994-97 years run a fuel table made on a 1.6, and nothing is tuned above about 100 kPa. See
+[firmware/README.md, Base tune](firmware/README.md#base-tune).
+
 ## Open items
 The 2026-11-02 findings N1-N13 are listed in [New hardware findings](#new-hardware-findings-2026-11-02); what rev 0.7
 fixed is in [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings) and what rev 0.8 fixed in

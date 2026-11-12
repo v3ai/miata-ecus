@@ -145,13 +145,25 @@ void miataBoardDefaultConfiguration() {
 	engineConfiguration->canWriteEnabled = true;
 	engineConfiguration->enableAemXSeries = true;
 
+	// Closed-loop fuel from the on-board wideband, on by default: every board has the sensor input, and the base
+	// tables were tuned on other cars, so let the ECU trim towards the target lambda once the engine is warm
+	// (rusEFI's defaults: after 60 s, coolant above 60 C, AFR 12-17). Idle and cruise may move 10 % either way.
+	// Under load it may add 10 % but remove only 5 %: a sensor that wrongly reads rich must not lean a loaded
+	// engine out. With no sensor fitted there is no reading and no correction. A fresh tune only: turn "Short term
+	// fuel trim" off in TunerStudio and it stays off.
+	engineConfiguration->fuelClosedLoopCorrectionEnabled = true;
+	for (int region : { ftRegionIdle, ftRegionCruise, ftRegionPower }) {
+		engineConfiguration->stft.cellCfgs[region].maxAdd = 10;
+		engineConfiguration->stft.cellCfgs[region].maxRemove = region == ftRegionPower ? 5 : 10;
+	}
+
 	engineConfiguration->cylindersCount = 4;
 	engineConfiguration->firingOrder = FO_1_3_4_2;
 }
 
 // --- NB (1999-2005). rusEFI's own NB presets are built for Hellen boards only, so the engine facts are repeated
-// here (values from rusEFI's config/engines/mazda/mazda_miata_vvt.cpp). The VE/ignition tables stay at rusEFI's
-// defaults: start from a base map for your car.
+// here (values from rusEFI's config/engines/mazda/mazda_miata_vvt.cpp), and its NB base tables (VE, ignition,
+// injector lag, cranking, idle, VVT target) are loaded by miataSetNbBaseTune() in miata_nb_tune.cpp.
 static void setMiataNbCommon() {
 	engineConfiguration->displacement = 1.839;
 	engineConfiguration->cylindersCount = 4;
@@ -225,6 +237,7 @@ static void setMiataNb1() {
 	setMiataNbCommon();
 	strcpy(engineConfiguration->engineCode, "NB1");
 	engineConfiguration->injector.flow = 256;
+	miataSetNbBaseTune(false);
 	// No VVT on the NB1: the VVT driver runs the front O2 sensor heater (harness pin 1U).
 	engineConfiguration->o2heaterPin = MIATA_VVT;
 	// MAINRLY drives the VICS solenoid (3Q); rusEFI has no VICS strategy, so set it up as a GPPWM output if wanted.
@@ -236,6 +249,7 @@ static void setMiataNb2() {
 	engineConfiguration->injector.flow = 265;
 	engineConfiguration->fuelReferencePressure = 400; // returnless system, 58 psi
 	engineConfiguration->injectorCompensationMode = ICM_FixedRailPressure;
+	miataSetNbBaseTune(true);
 
 	if (!nb2Early) {
 		// 2003-05: the ECU holds the main relay (3H) and senses the key on 4S.
@@ -244,7 +258,7 @@ static void setMiataNb2() {
 	}
 	// 2001-02: the key switches the main relay and 4S/3H are not wired, so neither is used.
 
-	// VVT oil control valve (pin 4R). The target table starts at rusEFI's default: fill in vvtTable1.
+	// VVT oil control valve (pin 4R). The target table is rusEFI's NB2 table (miataSetNbBaseTune).
 	engineConfiguration->vvtPins[0] = MIATA_VVT;
 	engineConfiguration->auxPid[0].pFactor = 2;
 	engineConfiguration->auxPid[0].iFactor = 0.005;

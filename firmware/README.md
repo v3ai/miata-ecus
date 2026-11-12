@@ -12,6 +12,7 @@ all five motherboards. You pick the model year in TunerStudio.
 |---|---|
 | `board/meta-info.env`, `board/board.mk` | Board name (`miata-ecu`), MCU, build flags. Also: OpenBLT bootloader, red error LED, knock ADC, the USART3 link, and where the wideband image comes from |
 | `board/miata_board.cpp`, `board/miata_pins.h` | Pin map, board facts (dividers, pull-ups, CAN2, MAP sensor), the five year presets and warning expiry |
+| `board/miata_nb_tune.cpp` | The 1999-2005 base tune: rusEFI's NB fuel, ignition, injector-lag and VVT target tables, copied unchanged (this one file is GPL-3.0) |
 | `board/board_configuration.cpp` | Hooks the above into rusEFI and adds the hardware-only parts (LEDs, wideband flasher) |
 | `board/mcuconf.h` | rusEFI's STM32F4 clock settings with the 32 kHz oscillator off (PC14 is the fuel pump; there is no 32 kHz crystal) |
 | `board/tests/`, `board/board_unit_tests.mk` | Engine simulation of every year inside rusEFI's unit-test engine (see [Verification](#verification)) |
@@ -77,8 +78,34 @@ gets no fuel or spark with the key on, check that you didn't pick 2003-05 on a 2
     which the SMC package handles.
 - **1994-95:** four injector wires (2U/2V/2Y/2Z), sequential, as in rusEFI's own 1994 preset.
 - **NB years:** rusEFI builds its NB presets for its Hellen boards only, so the engine facts are repeated here
-  (displacement, trigger, injector flow, idle and alternator PID, VVT PID). The VE, ignition and VVT target tables
-  stay at rusEFI's generic defaults. Load a base map for your car before driving.
+  (displacement, trigger, injector flow, idle and alternator PID, VVT PID), and rusEFI's NB fuel, ignition and VVT
+  target tables are loaded from a copy in `board/miata_nb_tune.cpp`.
+
+### Base tune
+Every year button loads a complete starting tune: the engine runs on it without opening a table. None of it has run
+on this board, and the tables were made on other people's cars, so treat it as a first start, not a finished tune.
+
+| Year button | Fuel (VE) table | Ignition table | Stock injectors set |
+|---|---|---|---|
+| 1989-93 | rusEFI's 1.6 table, from a running MAP-based 1.6 (2020) | rusEFI's NA Miata table, with timing pulled above 100 kPa | 212 cc/min |
+| 1994-95 | the same 1.6 table (rusEFI uses it for the 1.8 too) | the same NA table | 254 cc/min |
+| 1996-97 | the same 1.6 table | the same NA table | 265 cc/min |
+| 1999-2000 | rusEFI's NB table, from a running 2001-05 car (2017) | rusEFI's NB table | 256 cc/min |
+| 2001-05 | the same NB table, plus rusEFI's VVT target table | rusEFI's NB table | 265 cc/min |
+
+- **What else is set:** cranking fuel, warm-up and idle-speed curves, closed-loop idle, a 7200 rpm limit, fan
+  temperatures, the coolant and air-temperature sensor curves for the stock sensors, and a target mixture that goes
+  richer as load rises (rusEFI's default: lambda 1.0 in cruise, 0.90 at 100 kPa, 0.80 at 175 kPa).
+- **Closed-loop fuel is on.** Once the engine is warm, the ECU trims fuel towards the target using the on-board
+  wideband. It may move idle and cruise fuel 10 % either way; under load it may add 10 % but remove only 5 %. With no
+  sensor fitted there is no correction. It only applies to a fresh tune: switch "Short term fuel trim" off in
+  TunerStudio and it stays off.
+- **Where it is weakest:**
+  - The 1994-97 years run a fuel table made on a 1.6. Expect the wideband to do more correcting there.
+  - Above about 100 kPa (boost) the NB fuel table is a flat 80 %, and the NA table stops at 128 kPa. Nobody has
+    tuned these tables under boost: a turbo car needs a tuner before it sees full throttle.
+  - Bigger injectors need their flow and dead time entered in the injector settings.
+- **Always:** check base timing with a timing light before the first drive (step 11 below).
 
 ### Same on every year
 - **Outputs:** fuel pump, A/C relay, radiator fan, second fan (LS7), check engine lamp, tach, idle valve, INJ1-4,
@@ -181,7 +208,7 @@ Read this before the engine runs for the first time.
    TunerStudio shows the wideband on CAN before you fit the sensor in the exhaust.
 4. **Trigger.** Crank with the injectors unplugged and look at the trigger log. If rusEFI won't sync, the hall
    input may need the opposite polarity: try the trigger "invert" settings.
-5. **Switch inputs** are 12 V inputs through a 33k/10k divider, with no pull-up. Check that your car's VSS, A/C
+5. **Switch inputs** are 12 V inputs through a 22k/10k divider, with no pull-up. Check that your car's VSS, A/C
    and clutch signals actually drive the line high. A signal that only pulls to ground needs the motherboard's
    pull-up for that input fitted (R20-R22, 4.7k 0603, not fitted by default). Don't fit one on a line the car
    drives to 12 V.
@@ -199,12 +226,16 @@ Read this before the engine runs for the first time.
    4. First run: watch battery voltage. If it climbs past about 15 V, switch it off and invert the output.
    The pin, the PID, 250 Hz (as the stock ECU) and the 14.0 V target are already set up. Until it's on the car may
    not charge, so watch the battery.
-8. **NB tables:** set VE, ignition and (NB2) the VVT target before driving. The defaults are generic.
+8. **Base tune:** every year starts from Miata fuel and ignition tables (see [Base tune](#base-tune)). Watch the
+   wideband on the first drives, and have a turbo car tuned before full throttle.
 9. **Hard acceleration and the check engine light:** rusEFI logs a trigger timing warning when a tooth lands >10°
    from where it predicted it. In simulation that happened at 1526 rpm/s and not at 763 rpm/s (free revving). The engine keeps running; the light
    blinks the code for a few seconds, then the board's warning expiry clears it.
 10. **Outputs left alone:** the NA purge solenoid (1989-93), the pressure-regulator solenoid (1994-95) and the NB1
    VICS solenoid have no rusEFI function. They stay off unless you set them up as general-purpose PWM outputs.
+11. **Base timing.** Before the first drive, lock the timing (Ignition hardware: Timing Mode = fixed, Fixed Timing
+   = 10), check it with a timing light on cylinder 1, and correct "Trigger Angle Advance" in the Trigger settings
+   until the light reads 10 degrees. Then set Timing Mode back to dynamic.
 
 ## Building
 **Normal build (needs Java and an ARM GCC; it's what CI runs):**
@@ -239,7 +270,8 @@ See [VERIFICATION.md](../VERIFICATION.md): pinout audit, datasheet review, engin
 simulation and the safety review, with the hardware changes they call for.
 
 ## Licences
-- **This folder** is MIT, like the rest of the repository. A few NB engine values are taken from rusEFI's
-  `mazda_miata_vvt.cpp`.
+- **This folder** is MIT, like the rest of the repository, except `board/miata_nb_tune.cpp`: its tables are copied
+  from rusEFI's `mazda_miata_vvt.cpp`, so that file is GPL-3.0. A few NB engine values in `miata_board.cpp` come
+  from the same rusEFI file.
 - **The firmware you build includes rusEFI**, which is GPL-3.0, so the built firmware is GPL-3.0.
 - **The wideband image** is from [rusefi/wideband](https://github.com/rusefi/wideband) (MIT).

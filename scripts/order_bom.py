@@ -145,11 +145,12 @@ def write_self_bom(kind, parts, path, module=None):
 # one set per car you install in (not on any board)
 CAR = [
     ('Wideband sensor, Bosch LSU 4.9', 1, 'Bosch', '0 258 017 025', '', 'Yes', 'The board runs it directly'),
-    ('O2 sensor weld bung, M18 x 1.5', 1, '', 'M18 x 1.5 weld bung', '', 'Yes', 'Unless the exhaust has a spare port'),
+    ('O2 sensor weld bung, M18 x 1.5', 1, '', 'M18 x 1.5 weld bung', '', 'Optional', 'Only to keep the stock oxygen sensor as well: the LSU 4.9 screws into the stock front sensor\'s hole (same M18 x 1.5 thread)'),
     ('Micro-Fit 3.0 receptacle, 2x3', 1, 'Molex', '43025-0600', '', 'Yes', 'Mates with J2 (LSU 4.9)'),
     ('Micro-Fit 3.0 female crimp terminal, 20-24 AWG', 8, 'Molex', '43030-0007', '', 'Yes', '6 for the LSU lead, 2 for the IAT lead; buy spares'),
     ('LSU 4.9 extension lead or sensor-side connector', 1, '', 'LSU 4.9 pigtail', '', 'Yes', 'Wire it to the 43025-0600 at the board end'),
-    ('Vacuum hose, MAP barb to intake manifold', 1, '', 'vacuum hose to fit the MPX5700AP barb', '', 'Yes', ''),
+    ('Silicone vacuum hose, 3-4 mm (1/8-5/32 in) inside diameter, 3 m', 1, '', '4 mm ID silicone vacuum hose', '', 'Yes', 'MAP sensor barb to the intake manifold. 1994-97 need most of it (ECU behind the seat). See INSTALL.md, MAP hose'),
+    ('Barbed vacuum tee, 4 mm (5/32 in)', 1, '', '4 mm barbed tee', '', 'Optional', 'Needed when the manifold port already has a hose on it: cars with cruise control (1990-95) and every 1996-97. Not needed on a free capped nipple'),
     ('Micro-Fit 3.0 receptacle, 1x2', 1, 'Molex', '43645-0200', '', 'Optional', 'Mates with J3, only with an external IAT (JP1 on EXT)'),
     ('IAT sensor, M12 x 1.5 open element', 1, '', 'open-element air temperature sensor', '', 'Optional', 'Only with JP1 on EXT; on STOCK the car\'s own sensor is used'),
 ]

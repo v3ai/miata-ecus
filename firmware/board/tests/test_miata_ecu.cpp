@@ -610,6 +610,35 @@ void checkConfiguration(engine_type_e year) {
 		EXPECT_EQ(MIATA_HALL1, engineConfiguration->triggerInputPins[1]) << "NA secondary = SGT (3E/4F)";
 	}
 
+	// base tune: every year starts from Miata fuel and ignition tables, not rusEFI's generic ones, and trims with the
+	// on-board wideband
+	EXPECT_TRUE(engineConfiguration->fuelClosedLoopCorrectionEnabled) << "closed-loop fuel from the on-board wideband";
+	EXPECT_NEAR(10, engineConfiguration->stft.cellCfgs[ftRegionCruise].maxAdd, 0.01);
+	EXPECT_NEAR(10, engineConfiguration->stft.cellCfgs[ftRegionCruise].maxRemove, 0.01);
+	EXPECT_NEAR(10, engineConfiguration->stft.cellCfgs[ftRegionPower].maxAdd, 0.01);
+	EXPECT_NEAR(5, engineConfiguration->stft.cellCfgs[ftRegionPower].maxRemove, 0.01) << "under load: lean out by 5 % at most";
+	if (nb) {
+		// rusEFI's NB tables (miata_nb_tune.cpp), [load][rpm]
+		EXPECT_NEAR(700, config->veRpmBins[0], 0.5);
+		EXPECT_NEAR(220, config->veLoadBins[15], 0.5);
+		EXPECT_NEAR(35, config->veTable[0][0], 0.5) << "20 kPa, 700 rpm";
+		EXPECT_NEAR(71, config->veTable[9][0], 0.5) << "85 kPa, 700 rpm";
+		EXPECT_NEAR(250, config->ignitionLoadBins[15], 0.5);
+		EXPECT_NEAR(14, config->ignitionTable[0][0], 0.5) << "25 kPa, 700 rpm";
+		EXPECT_NEAR(1, config->ignitionTable[15][0], 0.5) << "250 kPa, 700 rpm: timing pulled under boost";
+		EXPECT_NEAR(1.25f, engineConfiguration->injector.battLagCorrTable[0][6], 0.01) << "injector lag at 14 V";
+		EXPECT_NEAR(27.5f, config->crankingCycleBaseFuel[0][0], 0.1);
+		// VVT target table: 2001-05 only (30 kPa, 3000 rpm -> 20 degrees); the NB1 has no VVT
+		EXPECT_NEAR(year == engine_type_e::MAZDA_MIATA_NB2 ? 20 : 0, config->vvtTable1[0][3], 0.5);
+	} else {
+		// rusEFI's NA tables (setMapVeTable / miataNA_setIgnitionTable)
+		EXPECT_NEAR(650, config->veRpmBins[0], 0.5);
+		EXPECT_NEAR(128, config->veLoadBins[15], 0.5);
+		EXPECT_NEAR(40, config->veTable[0][0], 0.5) << "20 kPa, 650 rpm";
+		EXPECT_NEAR(250, config->ignitionLoadBins[15], 0.5);
+		EXPECT_NEAR(15, config->ignitionTable[0][0], 0.5);
+	}
+
 	// year-specific outputs
 	switch (year) {
 	case engine_type_e::MAZDA_MIATA_NA6:
