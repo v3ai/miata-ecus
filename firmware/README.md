@@ -13,6 +13,7 @@ all five motherboards. You pick the model year in TunerStudio.
 | `board/meta-info.env`, `board/board.mk` | Board name (`miata-ecu`), MCU, build flags. Also: OpenBLT bootloader, red error LED, knock ADC, the USART3 link, and where the wideband image comes from |
 | `board/miata_board.cpp`, `board/miata_pins.h` | Pin map, board facts (dividers, pull-ups, CAN2, MAP sensor), the five year presets and warning expiry |
 | `board/board_configuration.cpp` | Hooks the above into rusEFI and adds the hardware-only parts (LEDs, wideband flasher) |
+| `board/mcuconf.h` | rusEFI's STM32F4 clock settings with the 32 kHz oscillator off (PC14 is the fuel pump; there is no 32 kHz crystal) |
 | `board/tests/`, `board/board_unit_tests.mk` | Engine simulation of every year inside rusEFI's unit-test engine (see [Verification](#verification)) |
 | `board/wideband_uart_flash.cpp` | Programs the wideband MCU over its ROM serial bootloader |
 | `wideband/` | The wideband MCU's firmware: rusEFI's wideband controller sources with this board's STM32F103 port (`miata_f1/`), `build.sh`, and the built image the main firmware carries (`miata_wbo_f103.bin`) |
@@ -46,8 +47,8 @@ A blank board starts with the 1989–93 settings.
 
 | Button | rusEFI engine type | Trigger | Injection | Ignition sense | Year-specific outputs |
 |---|---|---|---|---|---|
-| 1989-93 (NA6, 1.6) | `MAZDA_MIATA_NA6` | NA CAS: SGC on HALL2, SGT on HALL1 | batch, two drivers per wire | 1C | none (VVT driver = purge, not driven) |
-| 1994-95 (NA8, 1.8) | `MAZDA_MIATA_NA94` | NA CAS | sequential | 1C | none (ALT driver = pressure regulator solenoid, not driven) |
+| 1989-93 (NA6, 1.6) | `MAZDA_MIATA_NA6` | NA CAS: SGC on HALL2, SGT on HALL1 | batch, two drivers per wire | none (1C is the starter signal) | none (VVT driver = purge, not driven) |
+| 1994-95 (NA8, 1.8) | `MAZDA_MIATA_NA94` | NA CAS | sequential | none (1C is the starter signal) | none (ALT driver = pressure regulator solenoid, not driven) |
 | 1996-97 (NA8, OBD-II) | `MAZDA_MIATA_NA96` | NA CAS | sequential | none | O2 heater on the VVT driver |
 | 1999-2000 (NB1) | `MAZDA_MIATA_NB1` | NB crank on HALL1, cam on HALL2 | sequential | none | O2 heater on VVT, alternator field on ALT (control off by default) |
 | 2001-02 (NB2, VVT) | `MAZDA_MIATA_NB2` without main relay or ignition sense | NB crank + VVT cam | sequential | none | VVT valve, alternator field (control off by default) |
@@ -55,7 +56,9 @@ A blank board starts with the 1989–93 settings.
 
 **Pick the right NB2 button.** 2001-02 and 2003-05 use the same motherboard but are wired differently. rusEFI cuts
 fuel and spark while the ignition-sense input reads "off", so that input is only switched on for the years whose
-harness carries the wire (1C, 4S). A car without the wire uses battery voltage instead, rusEFI's default. If an NB2
+harness carries an ignition-on wire (4S on 2003-05). Every other year uses battery voltage instead, rusEFI's default,
+which comes from the key-switched main relay. 1989-95 pin 1C is not ignition-on: it is the starter (START) signal, live
+only while cranking, so using it would cut fuel and spark the moment the key springs back. If an NB2
 gets no fuel or spark with the key on, check that you didn't pick 2003-05 on a 2001-02 car.
 
 - **NA years** use rusEFI's own Miata presets (`setMazdaMiataNA6`, `setMazdaMiataNA94`, `setMazdaMiata96`), which
@@ -94,10 +97,16 @@ gets no fuel or spark with the key on, check that you didn't pick 2003-05 on a 2
 - **Low-side enable (PA8):** the injector, idle, VVT, boost and alternator drivers sit behind a 5 V level shifter
   whose enable is pulled up on the board, so they stay off through reset, boot, the bootloader and DFU. The firmware
   releases them a few slow ticks (about 200 ms) after start, once every output is configured, and never while a
-  fatal error is active. It also takes them off for the whole of a configuration change (when rusEFI releases and
-  re-starts its pins) and enables them again afterwards. The pin is driven open drain with inverted logic, so it is
+  fatal error is active. It also takes them off while rusEFI re-applies its pins after a configuration change (every
+  Burn) and enables them again as soon as that's done, so a Burn with the engine running drops the outputs only for
+  the re-configuration itself, not until the next slow tick (up to 50 ms). The pin is driven open drain with inverted logic, so it is
   released (drivers off) from the moment it is set up, and the writes are forced so they also hold in hardware QC
   mode. It shows up as "Low-side enable" in the pin list.
+- **No 32 kHz crystal; PC14 is the fuel pump.** PC14 is also the 32 kHz oscillator's input, and the oscillator takes
+  the pin over whenever it's switched on. rusEFI's F4 default switches it on at every boot (and waits about a second
+  for a crystal this board doesn't have), so `board/mcuconf.h` turns it off for the firmware and the bootloader, and
+  the board start-up clears it again in case an older image left it on. The real-time clock runs from the internal
+  32 kHz RC oscillator instead.
 - **Unused low-side control pins** (for example ALT on the NA years) are parked as inputs with pull-down by the board
   code: at start-up, after every configuration change and on every slow tick. rusEFI's own "unused" state is a
   pull-up, which would switch that driver on.
@@ -179,11 +188,17 @@ Read this before the engine runs for the first time.
 6. **Battery voltage reads low.** VBATT is measured after the board's reverse diode and fuse, so it reads about
    0.3-0.4 V below the battery. Compare it with a voltmeter on the first start; it shifts the NB charging voltage
    by the same amount.
-7. **NB alternator: control ships off.** On NB cars the engine computer regulates the charging voltage through the
-   alternator field (ALT output), but the field current hasn't been measured (VERIFICATION.md M5) and the driver is
-   rated 1.4 A. Until it's switched on the car may not charge, so watch battery voltage. Measure the field current
-   (or check the FSM); if it's within the driver's rating, turn on "Alternator control" in TunerStudio. The pin, PID
-   and 14.0 V target are already set up.
+7. **NB alternator: control ships off.** On NB cars the engine computer sets the charging voltage. Harness pin 1O
+   (1999-2000) or 3M (2001-05) is a logic-level PWM input to the regulator inside the alternator (about 5 mA), not
+   the field coil, so the ALT driver can run it. Check the wire once per car type before switching it on
+   (VERIFICATION.md M5):
+   1. ECU unplugged, key on: measure 1O / 3M to ground at the harness plug.
+   2. **About 5 V or 12 V:** the alternator pulls it up. Turn on "Alternator control" in TunerStudio.
+   3. **Near 0 V:** fit a 1k resistor in series with a 1N4148 from AUX J5-14 (5 V, anode) to J5-4 (OUT_ALT) first,
+      then turn it on.
+   4. First run: watch battery voltage. If it climbs past about 15 V, switch it off and invert the output.
+   The pin, the PID, 250 Hz (as the stock ECU) and the 14.0 V target are already set up. Until it's on the car may
+   not charge, so watch the battery.
 8. **NB tables:** set VE, ignition and (NB2) the VVT target before driving. The defaults are generic.
 9. **Hard acceleration and the check engine light:** rusEFI logs a trigger timing warning when a tooth lands >10°
    from where it predicted it. In simulation that happened at 1526 rpm/s and not at 763 rpm/s (free revving). The engine keeps running; the light

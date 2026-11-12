@@ -21,7 +21,7 @@ H = M.HARNESS
 used = [(p, n) for p, n in H.items() if n]
 unused = [p for p, n in H.items() if not n]
 
-ROLE = {'VBAT_IN': 'ECU power (main relay)', 'VIGN_IN': 'ignition switch sense', 'GND': 'ground',
+ROLE = {'VBAT_IN': 'ECU power (main relay)', 'VIGN_IN': 'switched 12 V sense (wakes the logic supply)', 'GND': 'ground',
         'V5_SENS': 'sensor 5 V reference (out)', 'V5_EXT': 'sensor 5 V reference (out; protected, short-to-battery proof)', 'HARN_IAT': 'stock air-temp sensor (JP1 on STOCK)'}
 for n in ('INJ1', 'INJ2', 'INJ3', 'INJ4'):
     ROLE['OUT_' + n] = f'injector {n[-1]}'

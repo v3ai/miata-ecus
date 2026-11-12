@@ -82,7 +82,7 @@ TE **353830-5** (alt. 1123038-2), 72 positions in three rows: OEM plug 2 = 2A-2R
 | 4O | `GND` | ground | analogue sensor ground |
 | 4P | `IN_CLT` | coolant temp | coolant temperature |
 | 4R | `OUT_VVT` | PWM low side (VVT driver) | VVT oil control valve (low side, PWM) |
-| 4S | `VIGN_IN` | ignition switch sense | IG1 ignition switch sense (2003-05) |
+| 4S | `VIGN_IN` | switched 12 V sense (wakes the logic supply) | IG1 ignition switch sense (2003-05) |
 | 4V | `IN_TPS` | TPS | throttle position sensor |
 | 4W | `IN_AUX2` | spare analog 2 | front HO2S |
 | 4X | `IN_AUX3` | spare analog 3 | MAF signal |

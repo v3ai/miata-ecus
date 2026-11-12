@@ -44,17 +44,17 @@ PORT_NET = {PINS[int(p)]: net for p, net in design.mcu.items()}
 #    as 2 and plug 4 as 3), plus research/pinouts_9605.md (2005 FSM for NB2).
 # A function missing from a year's dict must not be wired to the harness at all for that year.
 # ignKey is the ignition-switch sense input: rusEFI cuts fuel and spark while it reads "off", so it must be configured
-# exactly on the years whose harness has the wire (1C on 1989-95, 4S on 2003-05) and nowhere else.
+# exactly on the years whose harness has an ignition-on wire (4S on 2003-05) and nowhere else. 1C on 1989-95 is the
+# starter (START) signal, live only while cranking (Link's MX5 pinout: "Start Signal"), so it must not be used.
 EXPECTED = {
     # 1989-93: two drivers per batch injector wire (the motherboard's R23 / R24 links)
     '1989-93': {'ign1&4': '1G', 'ign2&3': '1H', 'inj1': '2U', 'inj2': '2V', 'inj3': '2V', 'inj4': '2U',
                 'fuelPump': '2T', 'fan': '1L',
                 'fan2': '1R', 'acRelay': '1J', 'cel': '1E', 'tach': '2I', 'idle': '2W', 'vss': '1M',
-                'acSwitch': '1Q', 'clutch': '1V', 'crank(SGT)': '2E', 'cam(SGC)': '2G', 'ignKey': '1C'},
+                'acSwitch': '1Q', 'clutch': '1V', 'crank(SGT)': '2E', 'cam(SGC)': '2G'},
     '1994-95': {'ign1&4': '1G', 'ign2&3': '1H', 'inj1': '2U', 'inj2': '2V', 'inj3': '2Y', 'inj4': '2Z',
                 'fuelPump': '2T', 'fan': '1L', 'fan2': '2S', 'acRelay': '1J', 'cel': '1E', 'tach': '2I',
-                'idle': '2W', 'vss': '1M', 'acSwitch': '1Q', 'clutch': '1V', 'crank(SGT)': '2E', 'cam(SGC)': '2G',
-                'ignKey': '1C'},
+                'idle': '2W', 'vss': '1M', 'acSwitch': '1Q', 'clutch': '1V', 'crank(SGT)': '2E', 'cam(SGC)': '2G'},
     '1996-97': {'ign1&4': '4N', 'ign2&3': '4R', 'inj1': '4U', 'inj2': '4V', 'inj3': '4W', 'inj4': '4X',
                 'fuelPump': '1U', 'fan': '1A', 'fan2': '1B', 'acRelay': '1G', 'cel': '1E', 'tach': '4L',
                 'idle': '4Q', 'vss': '1M', 'acSwitch': '1K', 'clutch': '1L', 'crank(SGT)': '4F', 'cam(SGC)': '4G',

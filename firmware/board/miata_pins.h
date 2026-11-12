@@ -30,7 +30,7 @@
 // Relay / lamp / tach outputs, active high: ZXMS6004 protected low sides (rev 0.8; a ULN2003 before), driven at 5 V
 // through a second SN74LVC4245A (U12) on the same MIATA_DRV_EN enable, so they too stay off until the firmware
 // enables the drivers.
-#define MIATA_FP Gpio::C14      // backup-domain pin: drives a CMOS shifter input (no load; ST's switch limit 3 mA)
+#define MIATA_FP Gpio::C14      // backup-domain pin: drives a CMOS shifter input (no load; ST's switch limit 3 mA). Also OSC32_IN: the LSE is kept off (board/mcuconf.h)
 #define MIATA_MAINRLY Gpio::C13 // 2003-05 main relay; NB1 VICS solenoid
 #define MIATA_AC Gpio::E6
 #define MIATA_FAN Gpio::E5

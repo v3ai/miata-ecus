@@ -80,7 +80,7 @@ HARNESS = {
     # plug 1, 22 pins
     '1A': '',            # constant +12 V (memory): not used, the ECU runs off the main relay
     '1B': 'VBAT_IN',     # main relay output: ECU power
-    '1C': 'VIGN_IN',     # ignition switch
+    '1C': 'VIGN_IN',     # starter (START) signal: battery only while cranking. Not ignition-on: the firmware doesn't use it as ignition sense
     '1D': '',            # diagnosis / data link
     '1E': 'OUT_CEL',
     '1F': '',

@@ -50,7 +50,7 @@ TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); ru
 | Pin | Net | Use | Stock function / note |
 |---|---|---|---|
 | 1B | `VBAT_IN` | ECU power (main relay) | main relay output: ECU power |
-| 1C | `VIGN_IN` | ignition switch sense | VIO: ignition switch (input only) |
+| 1C | `VIGN_IN` | switched 12 V sense (wakes the logic supply) | VIO: starter (START) signal, battery only while cranking (input only; not used as ignition sense) |
 | 1E | `OUT_CEL` | check engine lamp |  |
 | 1G | `OUT_IGN1` | ignition 1 (5 V logic) | igniter 1&4 (wasted spark) / COP 1 |
 | 1H | `OUT_IGN2` | ignition 2 (5 V logic) | igniter 2&3 (wasted spark) / COP 2 |
@@ -112,5 +112,5 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1N, 1O, 1P, 1R, 1S, 1T, 1U, 2H, 2J.
 
 ## Still to verify
 - The case geometry, as for 89-93: one stock case with calipers.
-- 1C (VIO): ignition-switch sense on the 1990 diagram, unlabelled on the 1994 page; it is only an input here (diode-isolated on the daughterboard).
+- 1C (VIO): the starter (START) signal, live only while cranking (Link's MX5 pinout: "Start Signal"; the rusEFI 1990 page calls it ignition-on). It is only an input here (diode-isolated on the daughterboard), and the firmware does not use it as ignition sense (2026-11-12).
 - LCSC stock for the extended parts (C124412, C127367, C587650, C3020560, C410772, C46641168, C3406).

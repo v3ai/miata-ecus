@@ -39,12 +39,12 @@ sys.path.insert(0, os.path.join(SIM, 'tools'))
 
 # engine_type_e values (rusEFI controllers/algo/engine_type_e.h)
 YEARS = {
-    '1989-93': dict(engine_type=34, family='NA', nb2_early=False, ign_sense=True, main_relay=False),
-    '1994-95': dict(engine_type=80, family='NA', nb2_early=False, ign_sense=True, main_relay=False),
-    '1996-97': dict(engine_type=10, family='NA', nb2_early=False, ign_sense=False, main_relay=False),
-    '1999-2000': dict(engine_type=83, family='NB', nb2_early=False, ign_sense=False, main_relay=False),
-    '2001-02': dict(engine_type=69, family='NB', nb2_early=True, ign_sense=False, main_relay=False),
-    '2003-05': dict(engine_type=69, family='NB', nb2_early=False, ign_sense=True, main_relay=True),
+    '1989-93': dict(engine_type=34, family='NA', nb2_early=False, ign_sense=False, main_relay=False, vign='start'),
+    '1994-95': dict(engine_type=80, family='NA', nb2_early=False, ign_sense=False, main_relay=False, vign='start'),
+    '1996-97': dict(engine_type=10, family='NA', nb2_early=False, ign_sense=False, main_relay=False, vign=None),
+    '1999-2000': dict(engine_type=83, family='NB', nb2_early=False, ign_sense=False, main_relay=False, vign=None),
+    '2001-02': dict(engine_type=69, family='NB', nb2_early=True, ign_sense=False, main_relay=False, vign=None),
+    '2003-05': dict(engine_type=69, family='NB', nb2_early=False, ign_sense=True, main_relay=True, vign='key'),
 }
 
 # Output pins as PinRecorder inputs (port * 16 + pin), from firmware/board/miata_pins.h
@@ -123,9 +123,17 @@ def mpx5700(kpa):
     return 5.0 * (0.0012858 * kpa + 0.04)
 
 
-def car_pins(vbat, key, tps_v, map_kpa, clt_ohm, iat_ohm, maf_v=1.2):
-    """MCU pin voltages for one car state."""
-    vign = vbat if key else 0.0
+def car_pins(vbat, key, tps_v, map_kpa, clt_ohm, iat_ohm, maf_v=1.2, vign_mode=None, cranking=False):
+    """MCU pin voltages for one car state.
+
+    vign_mode: what the harness puts on the VIGN_IN cavity. 'key' (2003-05 4S): battery while the key is on.
+    'start' (1989-95 1C): battery only while the starter turns. None: no wire on that cavity."""
+    if vign_mode == 'key':
+        vign = vbat if key else 0.0
+    elif vign_mode == 'start':
+        vign = vbat if (key and cranking) else 0.0
+    else:
+        vign = 0.0
     return {
         'PA1': max(0.0, vbat - RAIL_DROP) / VBATT_DIV,    # VBATT (board +12V rail)
         'PA2': vign / VBATT_DIV,                          # ignition sense (1C / 4S)
@@ -261,7 +269,7 @@ def timeline(year, stim):
     steps = []
 
     def pins(**kw):
-        steps.append(('pins', car_pins(**kw)))
+        steps.append(('pins', car_pins(vign_mode=y['vign'], **kw)))
 
     def run(name, seconds):
         steps.append(('run', name, seconds))
@@ -270,7 +278,7 @@ def timeline(year, stim):
     run('boot', 1.2)
     pins(vbat=12.4, key=True, tps_v=0.6, map_kpa=100, clt_ohm=cold, iat_ohm=iat)
     run('keyOn', 1.5)
-    pins(vbat=10.5, key=True, tps_v=0.6, map_kpa=90, clt_ohm=cold, iat_ohm=iat, maf_v=0.6)
+    pins(vbat=10.5, key=True, tps_v=0.6, map_kpa=90, clt_ohm=cold, iat_ohm=iat, maf_v=0.6, cranking=True)
     steps.append(('wheel', 'LoadCapture @%s' % stim['capture']))
     steps.append(('wheel', 'Start'))
     run('crank', stim['captureLength'] + 0.05)

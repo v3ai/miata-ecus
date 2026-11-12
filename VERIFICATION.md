@@ -58,6 +58,10 @@ Nothing here has been built yet, so this is a desk and simulation review. It cov
   taking a battery short so the ICs don't. See [Rev 0.8](#rev-08-driver-temperature-and-protected-outputs).
 - **Review.** A second, independent pass checked this report against the sources. Its corrections are folded in below;
   it found the ignition-sense bug.
+- **External review (2026-11-12).** Found two faults the simulations couldn't see, both now fixed in firmware: 1989-95
+  pin 1C is the starter signal, not ignition-on (the engine would have died when the key left START), and the fuel pump
+  pin PC14 was held by the 32 kHz oscillator. Also corrected the NB alternator question (M5) and the socket plating. See
+  [External review](#external-review-2026-11-12).
 
 ## How it was checked
 | Check | Method | Result |
@@ -112,19 +116,21 @@ Everything matched except these:
   duration.
 - Fuel pump primes at key-on and stays on while running. Tach gives 2 pulses per revolution. The CEL lights at key-on.
 - O2 heater on while running (1996-97, NB1). Alternator field PWM running (NB). Main relay held (2003-05).
-- Ignition sense is configured exactly where the wire exists: 1C on 1989-95, 4S on 2003-05; nowhere else.
+- Ignition sense is configured exactly where an ignition-on wire exists: 4S on 2003-05; nowhere else. (Until
+  2026-11-12 it was also set on 1C for 1989-95, which is the starter signal: see
+  [External review](#external-review-2026-11-12).)
 - Fuel is fully cut at 7600 rpm against the 7200 rpm limit (every year).
 - On the real captures, NB1/NB2 read 875 rpm and 4.26° VVT, the same values rusEFI's own NB2 preset gets.
 
 **Fixed during this review:**
 - **No fuel or spark on 1996-97, 1999-2000 and 2001-02 (critical).**
-  - The board configured rusEFI's ignition-sense input (PA2, VIGN_IN) on every year. That wire exists only on 1989-95
-    (1C) and 2003-05 (4S). Elsewhere the input sits at 0 V, rusEFI decides the key is off, and it cuts fuel and spark
+  - The board configured rusEFI's ignition-sense input (PA2, VIGN_IN) on every year. An ignition-on wire exists only
+    on 2003-05 (4S); 1989-95 have the starter signal on 1C (corrected 2026-11-12, see
+    [External review](#external-review-2026-11-12)). Elsewhere the input sits at 0 V, rusEFI decides the key is off, and it cuts fuel and spark
     (no CEL bulb check or fuel-pump prime either).
   - The first simulation didn't catch it, because rusEFI's unit-test build compiles that cut out (see
     [Limits](#limits-of-the-simulation)). The independent review found it in the code.
-  - Now ignition sense is set only by the 1989-93, 1994-95 and 2003-05 presets. Other years use battery voltage, which
-    is rusEFI's default.
+  - Now ignition sense is set only by the 2003-05 preset. Other years use battery voltage, which is rusEFI's default.
   - 2001-02 and 2003-05 share a motherboard but not the wiring (2003-05 has an ECU-switched main relay and 4S; 2001-02
     has neither), so TunerStudio's Popular Vehicles now has separate **2001-02** and **2003-05** buttons. The tests
     check each year's setting directly.
@@ -179,7 +185,7 @@ re-checked as listed. Refs are the new board's.
 
 | # | Problem (rev 0.4) | Change | Re-check |
 |---|---|---|---|
-| H1 | AUIPS2041 inputs driven at 3.3 V (specified 4.0-5.5 V) | **Daughterboard:** SN74LVC4245A level shifter U11 (the part Hellen uses; LCSC C7859) drives Q1-Q8 at 5 V. Its output enable is pulled up (R71), so the eight drivers stay off through reset, boot, the bootloader and DFU. The firmware enables them on PA8 about 200 ms after start, once every output is configured, disables them for the whole of any configuration change, and never enables them during a fatal error. PA8 is driven open drain with inverted logic, so setting the pin up leaves the drivers off, and its writes are forced so they hold in hardware QC mode. R19-R26 hold the driver inputs low while the shifter is disabled. There was no room for MCU-side pull-downs, and rusEFI parks a released pin as input-with-pull-**up** (which would switch its driver on). So the board firmware parks every unused control pin with the MCU's pull-down: at start-up before enabling, after every configuration change, and on every slow tick | Driver input now about 5 V (circuit sim). Pin check passes with the enable pin; the production firmware compiles and links |
+| H1 | AUIPS2041 inputs driven at 3.3 V (specified 4.0-5.5 V) | **Daughterboard:** SN74LVC4245A level shifter U11 (the part Hellen uses; LCSC C7859) drives Q1-Q8 at 5 V. Its output enable is pulled up (R71), so the eight drivers stay off through reset, boot, the bootloader and DFU. The firmware enables them on PA8 about 200 ms after start, once every output is configured, disables them while rusEFI re-applies its pins after a configuration change (re-enabled as soon as that's done, since 2026-11-12), and never enables them during a fatal error. PA8 is driven open drain with inverted logic, so setting the pin up leaves the drivers off, and its writes are forced so they hold in hardware QC mode. R19-R26 hold the driver inputs low while the shifter is disabled. There was no room for MCU-side pull-downs, and rusEFI parks a released pin as input-with-pull-**up** (which would switch its driver on). So the board firmware parks every unused control pin with the MCU's pull-down: at start-up before enabling, after every configuration change, and on every slow tick | Driver input now about 5 V (circuit sim). Pin check passes with the enable pin; the production firmware compiles and links |
 | H2 | No freewheel diodes on the idle and VVT valves: 3.4 W into the driver's clamp | **Motherboards:** SS34 D1 from the idle valve output to that valve's own +12 V feed: VBAT_IN, or IAC_12V through F2 on NB. D2 on the VVT output where it drives a coil: the purge solenoid on 1989-95, the VVT valve (OCV_12V through F3) on NB2. None on the alternator output (its field supply is unknown) or the O2 heater (resistive) | Idle valve at 200 Hz: **0 W** in the driver clamp (was 3.41 W); VVT valve at 300 Hz: 0 W |
 | H3 | PB2 (BOOT1) floating: DFU entry unreliable | **Daughterboard:** R72 10 kΩ PB2 → GND | Netlist |
 | H4 | 2003-05 key-off back-feed through the ULN2003 clamp diodes | **Daughterboard:** ULN2003 COM now goes to an SMAJ33A TVS (D11, 400 W, breakdown 36.7-40.6 V) instead of +12V. (A first draft used a 33 V zener; review found that a 35 V load dump on the battery-fed relay feeds would push current through it, and a failed-short zener would switch every relay on) | Key off: **0 mA** into the ECU (was 81 mA). Relay kick-back peaks at 42.6 V with the TVS at maximum breakdown (ULN limit 50 V). 35 V load dump on the relay feeds, TVS at minimum breakdown: **0 mA** into it |
@@ -442,6 +448,8 @@ unmodified firmware. Each was modelled or worked around, and is listed in `firmw
 - a timer compare value of 0 never matches, and the counter wraps one count early. Together they stopped ChibiOS's
   system timer on the F103 at its first 16-bit wrap, 32.8 s after boot;
 - the CAN model hides its bit-timing register outside init mode;
+- the RCC model doesn't hand PC14/PC15 to the 32 kHz oscillator while LSEON is set, so the emulation could not see the
+  fuel-pump fault the 2026-11-12 review found;
 - two machines on separate host threads froze at random points. They now share one thread.
 
 ### Expanded circuit simulation
@@ -612,6 +620,59 @@ was 121 / 43: the 1N-to-ground cases no longer pull down the sensor 5 V; the fou
 copper rebuilt from geometry matches the design, `check_pins.py` OK. Still to check on a car: which plug wire reaches
 1N, 2L and 2D.
 
+### External review (2026-11-12)
+An outside review read the design scripts, the board firmware and the routed boards, and checked the firmware against
+the pinned rusEFI. Each finding was re-checked against rusEFI's source, ST and TI documents, other boards and forum
+measurements before acting on it. The emulation and the unit tests had passed the first two because they encoded the
+same assumptions as the design.
+
+**Fixed in firmware (no board change; the ordered boards are fine):**
+- **1989-95 would stall when the key left START.** 1C is the starter (START) signal, live only while cranking (Link's
+  MX5 pinout: "Start Signal"; rusEFI's Hellen NA6 leaves it unconnected), not ignition-on. The 1989-93 and 1994-95
+  presets used it as ignition sense, and rusEFI cuts fuel and spark 0.2 s after that input drops below 6 V
+  (`IgnitionController`, `LimpManager`). The presets no longer set it, so rusEFI uses the battery voltage from the
+  key-switched main relay (1B). The emulation now models 1C as live only while cranking (`run_ecu.py`, `vign='start'`),
+  and `sim_report.py` no longer expects ignition sense on 1C.
+- **Fuel pump output on PC14 would not be driven.** PC14 is also the 32 kHz oscillator's input. rusEFI's F4
+  `mcuconf.h` enables that oscillator; ChibiOS sets LSEON at every boot, waits up to about a second for a crystal this
+  board doesn't have, and never clears the bit. ST: while LSEON is set the oscillator owns PC14/PC15 whatever the GPIO
+  mode. (rusEFI's S105 board notes PC14 "did not work for blinking"; Prometheus and Subaru EG33 turn the LSE off.)
+  New `firmware/board/mcuconf.h` turns it off for the firmware and the OpenBLT bootloader (both read it, checked in
+  their dependency files), RTC from the LSI; board start-up also clears LSEON in case an older image left it set. The
+  boot-time wait is gone too. **Check on the first board:** TunerStudio's fuel pump test pulls J1 pin 6 low.
+- **Every Burn dropped all fifteen low-side outputs for up to 50 ms** (injectors, pump, the 2003-05 main relay): the
+  board hook disabled the drivers for a configuration change and only re-enabled them at the next slow tick. They are
+  now re-enabled as soon as rusEFI has re-applied its pins (`miataBoardOnConfigurationChange`), still never before the
+  start-up delay or during a fatal error.
+- **NB alternator (M5):** the open question was the wrong one; see [Open items](#open-items). The output now runs at
+  250 Hz, as the stock ECU.
+
+**Fixed in the parts order:** the daughterboard sockets were tin (Sullins PPTC201LFBN-RC) on gold-flash header pins
+(PRPC040SAAN-RC). Tin against gold corrodes and frets under vibration, on the pins that carry crank, cam and injector
+signals. The hand-fit list now has **PPPC201LFBN-RC** (gold, same 8.5 mm height).
+
+**Confirmed, for the next board revision (not changed):**
+- **CEL behind the shared driver enable:** it can't light while the drivers are off, so not on a fatal error.
+- **Battery sense** is after D7 and F1: reads 0.4-0.6 V low, varying with load and temperature (firmware note 6).
+  Sense VBAT_IN directly, with its own clamp.
+- **R120 (wideband battery sense)** sits at the wideband end of 153 mm of 0.25 mm VBAT_IN track; move it to J1 so the
+  long track is high impedance.
+- **1989-93 motherboard:** all of 1B's current (logic and LSU heater) runs through 46 mm of 0.6 mm track. About a
+  20 °C rise at the heater's 2.3 A cold peak, adequate, but widen it.
+- **F1 / L1 (logic supply, 0.5 A):** the buck draws about 0.45 A at 8 V while cranking, and a polymer PTC holds much
+  less when hot. A hot car with a weak crank could trip it. A 1206 PTC of about 1 A hold and a matching 1210 inductor
+  fit the same pads (hand rework is possible on the ordered boards); otherwise hot-soak test.
+- **Buck input capacitors** C17/C18 are 7.5 / 4.6 mm from VIN; add 100 nF 50 V at the pins.
+- **Analog clamp leakage when hot** (N2): change the diode type rather than leave it as a check.
+- **Wideband layout:** since rev 0.3 it is our own layout, not FOME's; consider the module layout as a block.
+- **CAN on the AUX header** (it only reaches the terminator), for dashes and gauges.
+- **Driver temperature:** the 48 °C/W estimate is per driver; eight DPAKs in one strip heat each other. Measure.
+- **MAP accuracy:** MPX5700AP ±2.5 % of span is about ±18 kPa worst case against a 30 kPa idle reading; the
+  MPX4250AP (same case and pinout, 20-250 kPa) is about ±3.5 kPa. Kept for now; it's a hand-fit part, so a per-order
+  choice for naturally aspirated cars.
+
+**Not a problem:** R8 = 10k sets the LMR14020 to about 2.18 MHz by TI's formula; fine.
+
 ## Open items
 The 2026-11-02 findings N1-N13 are listed in [New hardware findings](#new-hardware-findings-2026-11-02); what rev 0.7
 fixed is in [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings) and what rev 0.8 fixed in
@@ -620,7 +681,7 @@ IP or RT short (N3, the ICs are protected), N11 (1994-95 2L on a car; 1989-93 no
 
 | # | Issue | What to do |
 |---|---|---|
-| M5 | **NB alternator field drive unknown.** rusEFI's NB presets enable alternator PWM; **our firmware now ships it off** (pin and PID still set up). If the ECU drives the field coil directly (3-5 A, high inductance), a low-side driver (since rev 0.8 a VND7NV04 DPAK, current-limited with thermal shutdown; about 1.3 W allowed at 85 °C) is likely undersized for continuous field current and has no freewheel path | Measure the field current and its supply on a car (or check the FSM) before turning on "Alternator control" in TunerStudio. Until then the car may not charge: watch battery voltage. Add a freewheel diode only once the field's supply is known |
+| M5 | **NB alternator control wire: may need a pull-up.** Corrected 2026-11-12: 1O (NB1) / 3M (NB2) is a logic-level PWM input to the regulator inside the alternator, not the field coil (stock 1999 ECU scoped at 250 Hz; working MS3 and ECUMaster set-ups use a low side with a 1k pull-up to 5 V, about 5 mA). The old worry, 3-5 A of field current, doesn't apply: the VND7NV04 drives it easily. What isn't known is whether the alternator pulls the wire up itself. Firmware ships control off, at 250 Hz | Key on, ECU unplugged: measure 1O / 3M to ground. About 5 or 12 V: turn on "Alternator control". Near 0 V: fit 1k + 1N4148 from AUX J5-14 (5 V, anode) to J5-4 (OUT_ALT), then turn it on. First run: if the battery goes past about 15 V, switch it off and invert the output. Next motherboard revision: a pull-up footprint on the NB boards |
 | M6 | ~~ULN2003 at full load~~ **Resolved in rev 0.8:** the relay, lamp and tach outputs are seven ZXMS6004FF protected low sides (hottest, the NB1 VICS solenoid: Tj 102 °C at 85 °C ambient) | — |
 | Tach | 1989-95 tach cavity 2I: our board drives it as an output (as Hellen does); the wiki tables call it an input | Kept as an output. Check the wiring diagram; if the igniter feeds 2I, set the tach output to none |
 | Switch inputs at cranking | ~~2.09 V at the MCU at 9 V~~ **Resolved in rev 0.8:** 22k/10k dividers give 2.81 V, above ST's tested 2.31 V | — |

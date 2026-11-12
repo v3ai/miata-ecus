@@ -613,7 +613,7 @@ void checkConfiguration(engine_type_e year) {
 	// year-specific outputs
 	switch (year) {
 	case engine_type_e::MAZDA_MIATA_NA6:
-		EXPECT_EQ(MIATA_IN_VIGN, engineConfiguration->ignKeyAdcChannel) << "1C ignition sense";
+		EXPECT_EQ(EFI_ADC_NONE, engineConfiguration->ignKeyAdcChannel) << "1C is the START signal, not ignition sense";
 		EXPECT_EQ(IM_BATCH, engineConfiguration->injectionMode);
 		EXPECT_EQ(MIATA_INJ3, engineConfiguration->injectionPins[2]) << "INJ3 shares 2V with INJ2";
 		EXPECT_EQ(MIATA_INJ4, engineConfiguration->injectionPins[3]) << "INJ4 shares 2U with INJ1";
@@ -622,7 +622,7 @@ void checkConfiguration(engine_type_e year) {
 		EXPECT_NEAR(1.6f, engineConfiguration->displacement, 0.01);
 		break;
 	case engine_type_e::MAZDA_MIATA_NA94:
-		EXPECT_EQ(MIATA_IN_VIGN, engineConfiguration->ignKeyAdcChannel) << "1C ignition sense";
+		EXPECT_EQ(EFI_ADC_NONE, engineConfiguration->ignKeyAdcChannel) << "1C is the START signal, not ignition sense";
 		EXPECT_EQ(IM_SEQUENTIAL, engineConfiguration->injectionMode);
 		EXPECT_EQ(MIATA_INJ3, engineConfiguration->injectionPins[2]);
 		EXPECT_EQ(MIATA_INJ4, engineConfiguration->injectionPins[3]);
@@ -641,7 +641,8 @@ void checkConfiguration(engine_type_e year) {
 		EXPECT_EQ(IM_SEQUENTIAL, engineConfiguration->injectionMode);
 		EXPECT_EQ(MIATA_VVT, engineConfiguration->o2heaterPin) << "front O2 heater on 1U";
 		EXPECT_EQ(MIATA_ALT, engineConfiguration->alternatorControlPin);
-		EXPECT_FALSE(engineConfiguration->isAlternatorControlEnabled) << "alternator control ships off until the field is measured";
+		EXPECT_FALSE(engineConfiguration->isAlternatorControlEnabled) << "alternator control ships off until the field wire is checked";
+		EXPECT_EQ(250, engineConfiguration->alternatorPwmFrequency) << "stock NB ECU field PWM";
 		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->vvtPins[0]);
 		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->mainRelayPin) << "MAINRLY drives VICS on NB1, not a relay";
 		EXPECT_NEAR(256, engineConfiguration->injector.flow, 0.1);
@@ -656,7 +657,8 @@ void checkConfiguration(engine_type_e year) {
 		EXPECT_EQ(MIATA_VVT, engineConfiguration->vvtPins[0]) << "OCV on 4R";
 		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->o2heaterPin);
 		EXPECT_EQ(MIATA_ALT, engineConfiguration->alternatorControlPin);
-		EXPECT_FALSE(engineConfiguration->isAlternatorControlEnabled) << "alternator control ships off until the field is measured";
+		EXPECT_FALSE(engineConfiguration->isAlternatorControlEnabled) << "alternator control ships off until the field wire is checked";
+		EXPECT_EQ(250, engineConfiguration->alternatorPwmFrequency) << "stock NB ECU field PWM";
 		EXPECT_EQ(g_nb2Early ? Gpio::Unassigned : MIATA_MAINRLY, engineConfiguration->mainRelayPin);
 		EXPECT_NEAR(265, engineConfiguration->injector.flow, 0.1);
 		break;
