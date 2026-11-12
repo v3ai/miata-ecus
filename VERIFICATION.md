@@ -692,6 +692,8 @@ ignition tables, with an empty VVT target table: rusEFI compiles its NB tables o
 |---|---|
 | Board unit tests (`test_miata_ecu.cpp`): table corner values per year, VVT target only on 2001-05, trim limits | 18 passed; end-to-end, 117 firmware functions across 6 years |
 | Firmware builds with the new file (offline compile check) | Links; 669 kB |
+| Firmware-in-the-loop, all six model years (`run_ecu.py`) | 0 FAIL, 370 checks OK, as before the change. On 1999-2005 the skipped-spark warning (9009) of the earlier runs no longer appears |
+| OpenBLT bootloader builds with the board sources | Failed in CI on the first push: the bootloader compiles every board file without the engine include paths, and the new file's includes sat outside its `EFI_BOOTLOADER` guard. Fixed; the firmware image is byte-identical apart from the build time stamp. The offline compile check now builds the bootloader too, so this is caught before a push |
 
 **Not checked, and can't be without a car:** whether the tables suit a given engine. They were made on other cars,
 the 1994-97 years run a fuel table made on a 1.6, and nothing is tuned above about 100 kPa. See

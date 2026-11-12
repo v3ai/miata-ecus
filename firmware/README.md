@@ -248,7 +248,8 @@ The output lands in `firmware/ext/rusefi/firmware/deliver/`, and the TunerStudio
 
 **Offline compile check:** rusEFI generates its configuration code with Gradle. Where Gradle can't download,
 `tools/offline_compile_check.sh <rusefi checkout>` builds the board against the generated files rusEFI commits for
-`f407-discovery` instead. This proves the board code compiles and links. It does not produce a firmware to flash.
+`f407-discovery` instead. This proves the board code compiles and links, for the firmware and for the OpenBLT
+bootloader (which compiles the board sources too). It does not produce a firmware to flash.
 
 **Checking pins:** `python3 firmware/tools/check_pins.py` (CI runs it too).
 

@@ -16,11 +16,13 @@
  * drives (firmware/README.md, "Base tune").
  */
 #include "pch.h"
+
+// The bootloader build compiles every board source too, without the engine-configuration include paths.
+#ifndef EFI_BOOTLOADER
+
 #include "miata_board.h"
 #include "mazda_miata_base_maps.h"
 #include "table_helper.h"
-
-#ifndef EFI_BOOTLOADER
 
 // ---- copied from rusEFI mazda_miata_vvt.cpp (GPL-3.0), unchanged ----
 #if VVT_TABLE_SIZE == 8
