@@ -20,6 +20,16 @@ if [ ! -f "$GEN/signature_f407-discovery.h" ]; then      # normally written by g
 fi
 J=../java_tools
 cd "$FW"
+rc=0
 bash bin/compile.sh "$(realpath --relative-to=. "$TMP/board/meta-info.env")" \
   -o .config-sentinel -o .docsenums-sentinel -o .tooljars-sentinel -o .ramdisk-sentinel \
-  -o $J/configuration_definition/build/libs/config_definition-all.jar "$@"
+  -o $J/configuration_definition/build/libs/config_definition-all.jar "$@" || rc=$?
+
+# The OpenBLT bootloader compiles every board source too, with EFI_BOOTLOADER set and without the engine include
+# paths. rusEFI builds it in the bundle step, which comes after the point where the offline build stops (the map
+# reader jar), so build it here: a board file that only compiles for the firmware fails CI otherwise.
+BL_BOARD=$(realpath --relative-to=bootloader "$TMP/board")
+BOARD_DIR=$BL_BOARD BOARD_META_PATH=$BL_BOARD/meta-info.env SHORT_BOARD_NAME=f407-discovery \
+  TGT_SENTINEL=../.target-sentinel make -C bootloader -r SUBMAKE=yes "$@"
+echo "bootloader: built with the board sources"
+exit $rc
