@@ -6,7 +6,7 @@ writes (prefix '' = the daughterboard's historic names):
   <prefix>board.glb.gz.b64.txt                                   merged component meshes
   <prefix>parts.json                                             parts table with 3D pick boxes
 Board-local world frame: mm, Y up, board bottom face at y = 0, centred on the outline's bbox.
-Parts with no KiCad 3D model (the TE harness header, the MAP sensor) get simple procedural models.
+Parts with no KiCad 3D model (the TE harness header, the MAP sensor, the 2920 fuse) get simple procedural models.
 """
 import sys, os, json, math, subprocess, collections, re
 import numpy as np
@@ -303,6 +303,13 @@ if True:                       # procedural models (both boards)
                     extra[DARK].append(cuboid(f, x - 1.05, x + 1.05, y0 - 0.12, y0 + 0.6, zc - 1.05, zc + 1.05))
             for x, y in pins:
                 extra[TIN].append(cuboid(f, x - 0.32, x + 0.32, y - 0.32, y + 0.32, -3.0, 1.7))
+        elif name.endswith('Fuse_2920_7451Metric'):
+            # 2920 (7.4 x 5.1 mm) polymer resettable fuse, the wideband heater's F1 on every motherboard: KiCad has no
+            # model for this package, so without this only its two pads show. Dark body, tinned end terminals on the pads.
+            extra[BLACK].append(cuboid(f, -2.9, 2.9, -2.5, 2.5, 1.6, 2.6))
+            for sx in (-1, 1):
+                x0, x1 = sorted((sx * 2.9, sx * 3.7))
+                extra[TIN].append(cuboid(f, x0, x1, -2.55, 2.55, 1.6, 2.66))
         elif name.endswith('Crystal_SMD_5032-2Pin_5.0x3.2mm'):
             # 5032 ceramic crystal: tan ceramic base, seam-welded metal lid
             extra[CERAMIC].append(cuboid(f, -2.5, 2.5, -1.6, 1.6, 1.6, 1.95))

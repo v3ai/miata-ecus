@@ -46,6 +46,7 @@ def assembled_labels(y):
         ('mb:JP1', 'Air-temperature jumper (JP1)', 'Left two pins: the car’s own sensor (STOCK). Right two: the sensor on J3 (EXT).'),
         ('mb:J3', 'Air-temperature sensor (J3)', 'Optional 2-pin lead for an added sensor. Only read with JP1 on EXT.'),
         ('mb:J2', 'Wideband oxygen sensor (J2)', '6-pin lead to a Bosch LSU 4.9. No separate controller needed.'),
+        ('mb:F1', 'Sensor-heater fuse (F1)', 'Resets itself when it cools. Feeds the wideband sensor’s heater.'),
         ('mbhole:0', 'Case screw holes (6)', holes),
     ]
 
