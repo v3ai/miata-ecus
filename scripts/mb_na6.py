@@ -1,4 +1,5 @@
-"""1989-1993 Miata (NA6, B6ZE 1.6) motherboard.
+"""1989-1995 Miata (NA6 B6ZE 1.6 and NA8 BP 1.8) motherboard. Rev 0.12 merges the 1989-93 and 1994-95 boards: same
+case, same header, and the few pins that differ are on jumpers (see JUMPERS).
 
 Stock case: the NA 48-pin case (same case for 1990-95). Outline and holes from the rusEFI
 microRusEFI NA PnP board (fits this case) and the early Hellen NA6 board (same Mazda case
@@ -8,8 +9,8 @@ family). Harness header TE 174917-6: plug 1 = 1A-1V (22), plug 2 = 2A-2Z (26).
 import math
 import mb_common as C
 
-NAME = 'miata_mb_8993'
-TITLE = 'Miata ECU motherboard 1989-1993 (NA6)'
+NAME = 'miata_mb_8995'
+TITLE = 'Miata ECU motherboard 1989-1995 (NA6 / NA8)'
 W, H = 154.0, 161.5
 
 # ---- outline: Mazda NA case, notched corners (all mm, origin top-left, y down)
@@ -95,7 +96,7 @@ HARNESS = {
     '1O': '',            # brake light switch
     '1P': '',            # power steering switch
     '1Q': 'IN_SW2',      # A/C switch
-    '1R': 'OUT_LS7',     # A/C extra cooling fan relay (BLK/GRN) on 1990-91; moved to 1L on later cars
+    '1R': 'HARN_1R',     # A/C extra cooling fan relay (BLK/GRN) on 1990-91: second fan output through JP3 (position 90-93)
     '1S': '',
     '1T': '',
     '1U': '',
@@ -107,38 +108,71 @@ HARNESS = {
     '2F': 'GND',         # AFM ground
     '2G': 'IN_HALL2',    # CAS cam (SGC)
     '2H': '',
-    '2I': 'OUT_TACH',
+    '2I': 'HARN_2I',     # stock: the igniter's signal INTO the ECU (the igniter drives the tachometer itself). JP5 open.
+                         # Coil-on-plug without the igniter: JP5 fitted, the ECU drives the tachometer through this wire
     '2J': '',
     '2K': 'V5_EXT',      # 5 V sensor reference (protected harness 5 V)
     '2L': 'HARN_2L',     # manual cars: the throttle switch's other contact. R29 (fitted) to the spare analog AUX1, or R30 (not fitted) to the TPS input after a sensor conversion
     '2M': 'IN_TPS',      # automatics' TPS signal (a manual car's converted sensor comes in on 2L through R30)
     '2N': 'IN_AUX2',     # stock narrowband O2
-    '2O': 'IN_AUX3',     # AFM flap signal
-    '2P': 'HARN_IAT',    # AFM air temp (IAT jumper JP1 on STOCK to use it)
+    '2O': 'HARN_2O',     # airflow meter signal. JP6: to the spare analog input (AFM), or the boost valve output on this wire once the meter is gone
+    '2P': 'IN_IAT',      # air temperature sensor in the airflow meter
     '2Q': 'IN_CLT',
-    '2R': '',
-    '2S': '',            # unused on 1990-93 (94-95: condenser fan relay)
+    '2R': 'HARN_2R',     # 1994-95: pressure regulator control solenoid, through JP4. Not connected on 1989-93
+    '2S': 'HARN_2S',     # 1994-95: condenser fan relay, second fan output through JP3 (position 94-95)
     '2T': 'OUT_FP',      # fuel pump relay
-    '2U': 'OUT_INJ1',    # stock: two injectors on this wire (batch); INJ1 + INJ4 drive it in parallel (R23)
-    '2V': 'OUT_INJ2',    # stock: the other two injectors (batch); INJ2 + INJ3 in parallel (R24)
+    '2U': 'OUT_INJ1',    # 1989-93: two injectors on this wire (JP2 on PAIR adds the INJ4 driver). 1994-95: injector 1
+    '2V': 'OUT_INJ2',    # 1989-93: the other two injectors (JP1 on PAIR adds the INJ3 driver). 1994-95: injector 2
     '2W': 'OUT_IACV',
     '2X': 'OUT_VVT',     # purge solenoid (VVT driver reused, set as purge / generic PWM)
-    '2Y': 'HARN_2Y',     # empty on manual cars: INJ3 only through R25 (not fitted) after a sequential conversion
-    '2Z': 'HARN_2Z',     # A/T control unit on automatics: INJ4 only through R26 (not fitted), never on an automatic
+    '2Y': 'HARN_2Y',     # 1994-95: injector 3 (JP1 on SEQ). 1989-93: empty until a sequential conversion
+    '2Z': 'HARN_2Z',     # 1994-95: injector 4 (JP2 on SEQ). 1989-93: A/T control unit on automatics, never JP2 on SEQ there
 }
 
 
-def build_parts(harness=None, paired_injectors=True, idle_pullup=True, tps_links=True):
+# Jumpers (2.54 mm headers with shunts). (ref, pins, nets, silkscreen name, {pin: position label}, description)
+JUMPERS = [
+    ('JP1', 3, {1: 'OUT_INJ2', 2: 'OUT_INJ3', 3: 'HARN_2Y'}, 'INJ3', {1: 'PAIR', 3: 'SEQ'},
+     'Injector 3 driver: PAIR = in parallel with INJ2 on 2V (1989-93 stock harness, two injectors per wire); '
+     'SEQ = its own wire 2Y (1994-95, or a 1989-93 sequential conversion)'),
+    ('JP2', 3, {1: 'OUT_INJ1', 2: 'OUT_INJ4', 3: 'HARN_2Z'}, 'INJ4', {1: 'PAIR', 3: 'SEQ'},
+     'Injector 4 driver: PAIR = in parallel with INJ1 on 2U (1989-93 stock); SEQ = its own wire 2Z (1994-95, or a '
+     '1989-93 sequential conversion). NEVER SEQ on a 1989-93 automatic: 2Z is the A/T control unit'),
+    ('JP3', 3, {1: 'HARN_1R', 2: 'OUT_LS7', 3: 'HARN_2S'}, 'FAN2', {1: '90-93', 3: '94-95'},
+     'Second fan relay output: 1R on 1990-93 (the 1990-91 A/C fan), 2S on 1994-95 (condenser fan)'),
+    ('JP4', 2, {1: 'OUT_ALT', 2: 'HARN_2R'}, '94-95 2R', {},
+     'Fit on 1994-95: the pressure regulator control solenoid on 2R. Leave open on 1989-93'),
+    ('JP5', 2, {1: 'OUT_TACH', 2: 'HARN_2I'}, 'TACH COP', {},
+     'Leave OPEN with the stock igniter: it drives the tachometer and sends its signal to the ECU on 2I. Fit only '
+     'after a coil-on-plug conversion with the igniter removed: the ECU then drives the tachometer through 2I (R37 '
+     'is its 12 V pull-up; join the two tach wires at the old igniter plug)'),
+    ('JP6', 3, {1: 'IN_AUX3', 2: 'HARN_2O', 3: 'OUT_BOOST'}, '2O', {1: 'AFM', 3: 'BOOST'},
+     'Airflow meter signal wire 2O: AFM = to the spare analog input (stock); BOOST = boost valve output on that wire '
+     'once the meter is removed (valve between the old meter plug\'s signal pin and 12 V)'),
+]
+
+
+def build_parts(harness=None, idle_pullup=True, tps_links=True):
     C.parts.clear()
     C.add('J1', 'TE 174917-6', 'ecu_mb:TE_174917-6_48P', '', harness or HARNESS,
-          'Stock harness header, 48 pins (22 + 26). Hand-solder; salvage from a stock ECU or use a clone')
+          'Stock harness header, 48 pins (22 + 26). Hand-solder')
     for ref in CASE_HOLES:
         C.add(ref, 'M4', 'ecu_mb:MountingHole_M4_4.5mm_Pad7', '', {1: 'GND'}, 'Case mounting boss, M4 x 10')
     C.common_parts()
     # idle valve 2W and purge solenoid 2X: both fed from the main relay
     C.protection_parts('VBAT_IN', 'VBAT_IN')
-    if paired_injectors:
-        injector_pairs()
+    for ref, n, pads, name, labels, desc in JUMPERS:
+        C.add(ref, name, f'Connector_PinHeader_2.54mm:PinHeader_1x0{n}_P2.54mm_Vertical', 'C49257' if n == 3 else '',
+              pads, desc + '. Shunt: 2.54 mm jumper cap (LCSC C5305), fitted by hand')
+        C.SILK[ref] = (name, labels)
+    # 1989-93 stock harness: two injectors on each of 2U and 2V. A TVS per wire takes their turn-off energy (about
+    # 37.5 V at 1.8 A, below the VND7NV04 drivers' 40 V minimum clamp)
+    for ref, net, pin in (('D3', 'OUT_INJ1', '2U'), ('D4', 'OUT_INJ2', '2V')):
+        C.add(ref, 'SMCJ30A', 'Diode_SMD:D_SMC', 'C224048', {1: net, 2: 'GND'},
+              f'Injector clamp for the two injectors on {pin} (1989-93); same part as the daughterboard\'s load-dump TVS D6')
+    C.add('R37', '1k', 'Resistor_SMD:R_2512_6332Metric', '', {1: 'VBAT_IN', 2: 'OUT_TACH'},
+          'Tachometer pull-up to 12 V for the coil-on-plug case (JP5 fitted): the stock tachometer needs it once the '
+          'igniter is gone. 2512, 1 W (0.2 W at 14.4 V)')
     if idle_pullup:
         # 1989-93 2L: the manual cars' throttle switch contact closes to ground and has no pull-up of its own
         C.add('R27', '4.7k', 'Resistor_SMD:R_0603_1608Metric', '', {1: 'V5_EXT', 2: 'IN_AUX1'},
@@ -162,28 +196,6 @@ def build_parts(harness=None, paired_injectors=True, idle_pullup=True, tps_links
     return C.parts
 
 
-def injector_pairs():
-    """1989-93 batch harness: each injector wire (2U, 2V) feeds two injectors, about 1.8 A. Two drivers share each
-    wire (rusEFI's batch mode fires cylinder 1's and 4's outputs together, and 3's and 2's), so each driver carries
-    one injector's current, and a TVS per wire takes the turn-off energy that the drivers' own clamps would
-    otherwise absorb. Moving the links (R23/R24 out, R25/R26 in) gives a sequential conversion its own 2Y/2Z
-    drivers instead; never fit R26 on an automatic (2Z is the A/T control unit)."""
-    r0805 = 'Resistor_SMD:R_0805_2012Metric'
-    C.add('R23', '0R', r0805, 'C17477', {1: 'OUT_INJ4', 2: 'OUT_INJ1'},
-          'Batch: INJ4 driver in parallel with INJ1 on 2U (remove for a sequential conversion)')
-    C.add('R24', '0R', r0805, 'C17477', {1: 'OUT_INJ3', 2: 'OUT_INJ2'},
-          'Batch: INJ3 driver in parallel with INJ2 on 2V (remove for a sequential conversion)')
-    C.add('R25', '0R', r0805, '', {1: 'OUT_INJ3', 2: 'HARN_2Y'},
-          'NOT FITTED: sequential conversion only, INJ3 to 2Y (fit instead of R24)')
-    C.add('R26', '0R', r0805, '', {1: 'OUT_INJ4', 2: 'HARN_2Z'},
-          'NOT FITTED: sequential conversion only, INJ4 to 2Z (fit instead of R23). NEVER on an automatic: 2Z is the A/T unit')
-    for ref, net, pin in (('D3', 'OUT_INJ1', '2U'), ('D4', 'OUT_INJ2', '2V')):
-        C.add(ref, 'SMCJ30A', 'Diode_SMD:D_SMC', 'C224048', {1: net, 2: 'GND'},
-              f'Injector clamp for the two injectors on {pin} (30 V standoff, 33.3-36.8 V breakdown, about 37.5 V at '
-              f'the 1.8 A turn-off current: always below the VND7NV04 drivers\' 40 V minimum clamp, so the TVS takes '
-              f'all of the turn-off energy). Same part as the daughterboard\'s load-dump TVS D6')
-
-
 def placement():
     dx, dy = DAUGHTER
     P = {'J1': (HDR_1A[0], HDR_1A[1], 0)}
@@ -202,8 +214,12 @@ def placement():
     # bottom edge, left to right: LSU, IAT, USB-C, MAP. Connector mouths at the edge.
     P['J2'] = (29.0, 152.3, 180)       # LSU 4.9 (moved 6 mm right in rev 0.2)
     P['F1'] = (44.0, 143.0, 90)
-    P['J3'] = (55.0, 152.3, 180)
-    P['JP1'] = (52.46, 145.0, 90)      # IAT source jumper: pins 1 (STOCK) .. 3 (EXT) left to right
+    # rev 0.10: microSD socket where the air-temperature connector was, card slot at the board edge
+    P['J6'] = (57.0, 146.6, 0)
+    P['C4'] = (67.8, 139.0, 0)
+    P['C5'] = (67.8, 141.6, 0)
+    P['R31'] = (67.8, 144.2, 0)
+    P['R32'] = (67.8, 146.8, 0)
     P['J4'] = (80.0, 157.6, 0)
     P['R2'] = (73.5, 151.0, 90)
     P['R3'] = (86.5, 151.0, 90)
@@ -218,10 +234,12 @@ def placement():
     P['J5'] = ('centre', W / 2, dy + dpl.BOARD_H + 11.0, -90)     # rev 0.9: 16 mm lower, with the daughterboard
     C.protection_place(P)
     # 1989-93 injector pairing links and clamps, under the daughterboard between JD1's injector pins
-    P['R23'] = (84.6, 49.0, 0)
-    P['R24'] = (84.6, 53.0, 0)
-    P['R25'] = (90.0, 57.5, 0)
-    P['R26'] = (96.0, 57.5, 0)
+    # year / option jumpers in the band between the harness header and the daughterboard, where they can be reached
+    # with the daughterboard fitted
+    for ref, x in (('JP3', 22.0), ('JP5', 36.0), ('JP6', 96.0), ('JP4', 110.0), ('JP1', 120.0), ('JP2', 132.0)):
+        if ref in C.SILK:
+            P[ref] = (x, 29.5, 90)
+    P['R37'] = (44.0, 36.5, 0)
     P['D3'] = (72.0, 64.0, 0)
     P['D4'] = (86.0, 64.0, 0)
     # 2L idle-switch pull-up option, above its JD2 pin (IN_AUX1 = J2 pin 9) like R20-R22

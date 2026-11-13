@@ -59,7 +59,7 @@ HARNESS = {
     '3H': '',
     '3I': 'V5_EXT',      # +5 V sensor reference (TPS, MAF)
     '3J': '',
-    '3K': 'HARN_IAT',    # intake air temperature sensor (IAT jumper JP1 on STOCK to use it)
+    '3K': 'IN_IAT',      # intake air temperature sensor (in the airflow meter)
     '3L': '',            # ground per one source only: left open
     '3M': 'OUT_VVT',     # front HO2S heater (PWM low side; no VVT on this engine)
     '3N': '',

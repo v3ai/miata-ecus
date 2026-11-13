@@ -72,6 +72,13 @@ pins.sort(key=lambda p: (p[0][0] != '1', p[0]))     # 1A first (origin)
 write('TE_178780-1_76P', 'TE 178780-1 Mazda 76-pin ECU header (OEM plugs 1=22, 2=12 unused, 3=16, 4=26), 1996-97 Miata',
       pins, pegs, lines)
 
+# Rev 0.10: the 1999-2000 board uses the same 76-position header (its three plugs are the same housings); same geometry
+# with that car's terminal names: plug 2 = the 16-position bay, plug 3 = the 26-position bay, XA-XL = the empty bay.
+_m = {'1': '1', '2': 'X', '3': '2', '4': '3'}
+write('TE_178780-1_76P_NB1', 'TE 178780-1 76-pin header with 1999-2000 Miata terminal names: plug 1 = 1A-1V (22), the '
+      '12-position bay (XA-XL) has no harness plug, plug 2 = 2A-2P (16), plug 3 = 3A-3Z (26)',
+      [(_m[nm[0]] + nm[1:], x, y) for nm, x, y in pins], pegs, lines)
+
 # ---- 176122-6 from rusefi_lib
 s = open(LIBS + '/rusefi_lib.pretty/176122-6_2nd.kicad_mod').read()
 pp = re.findall(r'\(pad "?([^" ]*)"? (\w+) (\w+) \(at ([-\d.]+) ([-\d.]+)', s)

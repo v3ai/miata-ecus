@@ -72,7 +72,7 @@ HARNESS = {
     '4J': '', '4K': '',
     '4L': 'V5_EXT',      # +5 V reference
     '4M': 'IN_KNOCK',    # knock sensor
-    '4N': 'HARN_IAT',    # intake air temperature (IAT jumper JP1 on STOCK to use it)
+    '4N': 'IN_IAT',      # intake air temperature sensor
     '4O': 'GND',         # analogue sensor ground
     '4P': 'IN_CLT',      # coolant temperature
     '4R': 'OUT_VVT',     # VVT oil control valve (low side, PWM)
