@@ -50,20 +50,18 @@ def choose(p):
         return 'Connector_Generic', 'Conn_01x40'
     if r in ('JW1', 'JW2'):
         return 'Connector_Generic', 'Conn_01x08'
-    if r == 'J2':
-        return 'Connector_Generic', 'Conn_02x03_Odd_Even'
+    if r == 'J2':            # rev 0.12 / 0.8: Micro-Fit 2x4 for the AEM X-Series sensor harness
+        return 'Connector_Generic', 'Conn_02x04_Odd_Even' if len(p['pads']) > 6 else 'Conn_02x03_Odd_Even'
     if r == 'J3':
         return 'Connector_Generic', 'Conn_01x02'
     if r == 'J4':
         return 'Connector', 'USB_C_Receptacle'
-    if r == 'J5':
-        return 'Connector_Generic', 'Conn_02x08_Odd_Even'
+    if r == 'J5':            # rev 0.12 / 0.8: 2x10 add-on header
+        return 'Connector_Generic', 'Conn_02x10_Odd_Even' if len(p['pads']) > 16 else 'Conn_02x08_Odd_Even'
     if r == 'J6':
         return 'Connector_Generic', 'Conn_01x04'
-    if r == 'JP1':
-        return 'Jumper', 'Jumper_3_Open'
-    if r.startswith('JP'):
-        return 'Jumper', 'SolderJumper_2_Open'
+    if r.startswith('JP'):   # 2.54 mm pin-header jumpers
+        return 'Jumper', 'Jumper_3_Open' if len(p['pads']) == 3 else 'Jumper_2_Open'
     if r.startswith('F'):
         return 'Device', 'Polyfuse'
     if r == 'U3':

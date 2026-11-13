@@ -443,9 +443,10 @@ def sheet_inputs(s):
     s.place('D35', 200.66, 170.18)
     # rev 0.8: AUX header UART, 10k in series and clamped at the MCU side
     s.text('AUX header UART (J2 24/25): 10k series, BAT54S clamps to GND / +3V3', 20.32, 172.72, 1.27)
-    for k, (r, d) in enumerate((('R139', 'D36'), ('R140', 'D37'))):
+    for k, (r, d, c) in enumerate((('R139', 'D36', 'C72'), ('R140', 'D37', 'C73'))):
         x = 40.64 + k * 45.72
         s.o2(r, x, 187.96, 'h'); s.place(d, x + 15.24, 203.2)
+        s.o2(c, x + 27.94, 195.58, 'v')            # rev 0.10: flex-fuel and nitrous-arm input filters
 
     # ---- knock amplifier
     s.text('Knock: AC-coupled, biased to 1.65 V, gain 5.7', 271.78, 22.86)
@@ -575,8 +576,11 @@ def sheet_outputs(s):
         CTL, OUT = n + '_IN', 'OUT_' + n      # driven at 5 V by U11
         s.place(q, x0 + 22.86, y0)
         pd = find(CTL, 'GND')
-        s.lab(CTL, (x0 - 2.54, y0), 'left')
-        s.wire((x0 - 2.54, y0), f'{q}.1')
+        # rev 0.10: 220 R between the level shifter and the driver input (ST: at least 150 R in series)
+        rin = find(n + '_DRV', CTL)
+        s.o2(rin, x0 - 6.35, y0, 'h' if PARTS[rin]['pads']['1'] == n + '_DRV' else 'h-')
+        s.stub(pin_of(rin, n + '_DRV'))
+        s.wire(pin_of(rin, CTL), f'{q}.1')
         s.o2(pd, x0 + 2.54, y0 + 6.35, 'v' if PARTS[pd]['pads']['1'] == CTL else 'v-')
         s.wire((x0 + 2.54, y0), pin_of(pd, CTL))
         s.stub(pin_of(pd, 'GND'))
@@ -584,6 +588,12 @@ def sheet_outputs(s):
         s.pwr('GND', (x0 + 12.7, y0 + 7.62), 'down')
         s.wire(f'{q}.2', (x0 + 35.56, y0), (x0 + 40.64, y0))
         s.lab(OUT, (x0 + 40.64, y0), 'right')
+        if n.startswith('INJ'):       # rev 0.10 turn-off clamp: drain -|>|- INJn_CL -|<TVS|- VBAT_IN
+            dk, dz = find(OUT, n + '_CL'), find(n + '_CL', 'VBAT_IN')
+            s.o2(dk, x0 + 58.42, y0 + 12.7, 'h-')          # anode (pad 2, the drain) on the left
+            s.o2(dz, x0 + 73.66, y0 + 12.7, 'h')           # cathode (pad 1, the clamp node) on the left
+            s.wire(pin_of(dk, n + '_CL'), pin_of(dz, n + '_CL'))
+            s.stub(pin_of(dk, OUT)); s.stub(pin_of(dz, 'VBAT_IN'))
 
     for i, n in enumerate(design.HS_OUT):
         col, row = divmod(i, 4)
@@ -633,6 +643,8 @@ def sheet_outputs(s):
         s.place(f'Q{9 + i}', 266.7 + (i % 4) * 27.94, 172.72 + (i // 4) * 20.32)
     s.place('U12', 299.72, 238.76)
     s.place('RN2', 340.36, 215.9, 90); s.place('RN3', 340.36, 271.78, 90)
+    s.text('rev 0.10: CEL gate straight from the MCU (lights on a fatal error)', 363.22, 147.32, 1.27)
+    s.o2('R160', 381.0, 160.02, 'h' if PARTS['R160']['pads']['1'] == 'CEL_CTL' else 'h-')
     s.o2('C64', 342.9, 254.0, 'v'); s.o2('C65', 355.6, 254.0, 'v')
 
     s.text('3.3 V -> 5 V level shifter for the low-side inputs (DIR low: B -> A)', 254.0, 22.86)
@@ -673,6 +685,8 @@ def sheet_power(s):
     L = X - 13.97
     s.wire('L1.2', (91.44, Y0), (104.14, Y0), 'U2.2')
     s.wire((91.44, Y0), 'C17.1'); s.wire((104.14, Y0), 'C18.1'); s.stub('C17.2'); s.stub('C18.2')
+    s.o2('C71', 114.3, Y0 + 6.35, 'v' if PARTS['C71']['pads']['1'] == '+12V_F' else 'v-')      # rev 0.10: 100 nF at the VIN pins
+    s.wire((114.3, Y0), pin_of('C71', '+12V_F')); s.stub(pin_of('C71', 'GND'))
     s.wire('U2.3', (L - 3.81, Y0 + 2.54), (L - 3.81, Y0))
     s.o2('R8', 111.76, Y0 + 22.86, 'v'); s.o2('C20', 121.92, Y0 + 22.86, 'v')
     s.wire('U2.4', 'R8.1'); s.stub('R8.2')
@@ -794,6 +808,11 @@ def sheet_mcu(s):
     s.o2('R72', 76.2, 148.59, 'v')
     s.text('SWD (Tag-Connect TC2030-NL pads)', 20.32, 195.58)
     s.place('J3', 38.1, 218.44)
+    s.text('rev 0.10: microSD socket on SPI2 (hinged Molex 47219-2001); pull-ups on every card data line', 300.99, 205.74, 1.27)
+    s.place('J4', 350.52, 236.22)
+    for k, r in enumerate(('R150', 'R151', 'R161', 'R162', 'R163')):
+        s.o2(r, 314.96 + k * 10.16, 264.16, 'v' if PARTS[r]['pads']['1'] == '+3V3' else 'v-')
+    s.o2('C69', 381.0, 231.14, 'v'); s.o2('C70', 391.16, 231.14, 'v')
     s.text('Status LEDs', 330.2, 22.86)
     for i, (r, d, net) in enumerate([('R2', 'D1', 'LED_RUN'), ('R3', 'D2', 'LED_COMM'), ('R4', 'D3', 'LED_WARN'),
                                      ('R5', 'D4', 'LED_ERR'), ('R6', 'D5', '+3V3')]):

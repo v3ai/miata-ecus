@@ -90,8 +90,9 @@ import sim_report  # noqa: E402  (its EXPECTED cavity table is the independent r
 os.chdir(_cwd)
 
 YEARS = [  # (year, motherboard module, routed pcb, engine type, nb2Early)
-    ('1989-93', 'mb_na6', 'motherboards/1989-93/miata_mb_8993.kicad_pcb', 'MAZDA_MIATA_NA6', False),
-    ('1994-95', 'mb_na8', 'motherboards/1994-95/miata_mb_9495.kicad_pcb', 'MAZDA_MIATA_NA94', False),
+    # rev 0.12: one 1989-95 board; mb_y8993 / mb_y9495 are that board with the jumpers set for each range (0R links)
+    ('1989-93', 'mb_y8993', 'motherboards/1989-95/miata_mb_8995.kicad_pcb', 'MAZDA_MIATA_NA6', False),
+    ('1994-95', 'mb_y9495', 'motherboards/1989-95/miata_mb_8995.kicad_pcb', 'MAZDA_MIATA_NA94', False),
     ('1996-97', 'mb_na96', 'motherboards/1996-97/miata_mb_9697.kicad_pcb', 'MAZDA_MIATA_NA96', False),
     ('1999-2000', 'mb_nb1', 'motherboards/1999-2000/miata_mb_9900.kicad_pcb', 'MAZDA_MIATA_NB1', False),
     ('2001-02', 'mb_nb2', 'motherboards/2001-05/miata_mb_0105.kicad_pcb', 'MAZDA_MIATA_NB2', True),
@@ -310,8 +311,8 @@ def harness_notes(module):
     """cavity -> comment text from the year module's HARNESS dict (and its base module's)."""
     notes = {}
     mods = [module]
-    if module == 'mb_na8':
-        mods = ['mb_na6', 'mb_na8']
+    if module in ('mb_y8993', 'mb_y9495'):
+        mods = ['mb_na6']
     for mod in mods:
         src = open(os.path.join(SCRIPTS, mod + '.py')).read()
         m = re.search(r'^HARNESS(?: = \{|\.update\(\{)(.*?)^\}', src, re.S | re.M)
@@ -1521,7 +1522,7 @@ def car_models(dc, sysm, year, open_cav, sweep):
         elif b in ('IN_AUX1', 'IN_AUX2'):
             dc.fix('_O2', 0.45)
             dc.r(net, '_O2', 10e3)
-        elif b in ('IN_CLT', 'HARN_IAT'):
+        elif b in ('IN_CLT', 'IN_IAT', 'HARN_IAT'):
             dc.r(net, 'GND', 2500)
         elif b in V5_RAILS:
             dc.r(net, 'GND', 5000)
@@ -2014,7 +2015,7 @@ def faults(sysm, year, fw, board_fw, cav_list=None, section='fault', connector='
                 continue
             variants = [(sl, st, {}) for sl, st in driver_states(sysm, net)]
             if b in V5_RAILS:
-                cold = {c: ('open',) for c, n in sysm.cavity.items() if base_net(n) in ('IN_CLT', 'HARN_IAT')}
+                cold = {c: ('open',) for c, n in sysm.cavity.items() if base_net(n) in ('IN_CLT', 'IN_IAT', 'HARN_IAT')}
                 cold['J3'] = ('open',)
                 variants.append(('CLT/IAT cold or unplugged', {}, cold))
             for case in ('GND', 'BAT14', 'BAT24', 'OPEN'):

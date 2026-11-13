@@ -232,6 +232,8 @@ def choose(p):
         return 'Connector_Generic', 'Conn_01x40'
     if r == 'J3':
         return 'Connector', 'Conn_ARM_SWD_TagConnect_TC2030-NL'
+    if r == 'J4':            # rev 0.10 microSD socket: pins 1-8 as the card's contacts, 9 the shell
+        return 'Connector', 'Micro_SD_Card'
     if v == 'BAT54S':
         return 'Diode', 'BAT54S'
     if r.startswith('D'):
@@ -239,7 +241,7 @@ def choose(p):
             return 'Device', 'LED'
         if v.startswith(('SMCJ', 'SMAJ', 'MMSZ')):
             return 'Device', 'D_Zener'
-        if v.startswith('1N4148'):
+        if v.startswith(('1N4148', 'ES1')):
             return 'Device', 'D'
         return 'Device', 'D_Schottky'
     if r == 'J102':
@@ -392,9 +394,14 @@ for r in ['U2', 'U3', 'U4', 'L1', 'L2'] + [f'D{i}' for i in range(6, 11)] + [f'R
         [f'C{i}' for i in range(16, 30)] + ['F1', 'D12', 'C59', 'U14', 'C61', 'C62', 'U15', 'Q20', 'R141', 'R142', 'R143', 'C68',
                                             'C63', 'D38', 'D39']:
     SHEET_OF[r] = 'power'
+SHEET_OF['C71'] = 'power'                               # rev 0.10
 for r in ['U6', 'U7', 'RN1', 'C34', 'C35', 'U11', 'C57', 'C58', 'R71', 'U12', 'U13', 'RN2', 'RN3', 'C64', 'C65',
           'C66'] + [f'Q{i}' for i in range(1, 20)] + [f'R{i}' for i in range(15, 27)] + [f'D{i}' for i in range(31, 35)] + [f'R{i}' for i in range(144, 148)]:
     SHEET_OF[r] = 'outputs'
+for r in [f'R{i}' for i in range(152, 161)] + [f'D{i}' for i in range(42, 50)]:      # rev 0.10: input resistors, CEL gate, injector clamps
+    SHEET_OF[r] = 'outputs'
+for r in ['J4', 'C69', 'C70', 'R150', 'R151', 'R161', 'R162', 'R163']:                 # rev 0.10: microSD socket
+    SHEET_OF[r] = 'mcu'
 for r in ['J1', 'J2', 'U10', 'C56', 'C67', 'H1', 'H2', 'H3', 'H4']:
     SHEET_OF[r] = 'connectors'
 import wideband as _wb

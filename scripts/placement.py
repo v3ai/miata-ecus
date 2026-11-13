@@ -388,8 +388,15 @@ put('R160', 33.3, 17.9, 90)                # CEL gate resistor, between RN2 and 
 put('F1', 6.0, 26.5, 90)
 put('L1', 7.2, 35.4, 90)
 put('C71', 9.5, 40.4, 90)                  # 100 nF at the buck's VIN pins
-put('C72', 74.0, 53.6, 0)                  # flex input filter
-put('C73', 77.9, 45.45, 0)                 # nitrous arm input filter
+# The first six-layer route left nine nets open at the processor's right side: about fourteen signals leave it there
+# and the 1.1 mm between the escape lanes and D36/D37 held one column of vias. The debug footprint J3 (pads only, used
+# for recovery) moves to the free area below the 5 V supply, and the two input clamps with their parts move 5 mm right
+# into its place, which leaves a 5 mm wide field for vias.
+put('J3', 24.0, 54.3, 0)
+for _r in ('D36', 'D37', 'R139', 'R140'):
+    PLACE[_r] = (PLACE[_r][0] + 5.0,) + tuple(PLACE[_r][1:])
+put('C72', 79.0, 53.6, 0)                  # flex input filter
+put('C73', 82.9, 45.45, 0)                 # nitrous arm input filter
 
 for p in design.parts:
     if p['ref'] not in PLACE:
