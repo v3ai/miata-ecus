@@ -1,10 +1,11 @@
 # Verification report
 
-**Date:** 2026-10-30; full-firmware emulation, expanded circuit and board checks 2026-11-02; rev 0.7 and 0.8 fixes 2026-11-03; rev 0.9 layout 2026-11-03.
-**Boards:** daughterboard rev 0.9; motherboards 1989-93 and 1994-95 rev 0.9, 1996-97 / 1999-2000 / 2001-05 rev 0.7.
+**Date:** 2026-10-30; full-firmware emulation, expanded circuit and board checks 2026-11-02; rev 0.7 and 0.8 fixes 2026-11-03; rev 0.9 layout 2026-11-03; rev 0.10 2026-11-13.
+**Boards:** daughterboard rev 0.10; motherboards 1989-95 rev 0.12, 1996-97 / 1999-2000 / 2001-05 rev 0.8. The boards ordered in November 2026 are the earlier set (daughterboard rev 0.9), kept in `ordered-boards/2026-11/`; what this review means for them is under [Rev 0.10](#the-ordered-rev-09-boards).
 These revisions carry the fixes this review called for (see [Rev 0.5 changes](#rev-05-changes-and-re-verification),
-[Rev 0.6](#rev-06-stm32f103-wideband-controller), [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings) and
-[Rev 0.8](#rev-08-driver-temperature-and-protected-outputs)).
+[Rev 0.6](#rev-06-stm32f103-wideband-controller), [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings),
+[Rev 0.8](#rev-08-driver-temperature-and-protected-outputs) and
+[Rev 0.10](#rev-010-six-layers-injector-clamps-card-socket-two-more-inputs-2026-11-13)).
 The review itself was first run on daughterboard rev 0.4 and the previous motherboards.
 **Firmware:** `firmware/` on rusEFI `1374bd07`.
 
@@ -58,6 +59,12 @@ Nothing here has been built yet, so this is a desk and simulation review. It cov
   taking a battery short so the ICs don't. See [Rev 0.8](#rev-08-driver-temperature-and-protected-outputs).
 - **Review.** A second, independent pass checked this report against the sources. Its corrections are folded in below;
   it found the ignition-sense bug.
+- **Rev 0.10 (2026-11-13): the design's sources read again, six layers, a clamp per injector.** The re-reading
+  found that the low-side drivers need a series resistor at their input that no revision had (it applies to the
+  ordered rev 0.9 boards), and that the injector inductance every temperature rested on was a guess. A model of the
+  whole board's copper shows it running 23-43 °C above the air around it at sustained high rpm, which the per-part
+  estimates had missed; the tightest margin is the processor's on 1989-93 cars with high-inductance injectors. See
+  [Rev 0.10](#rev-010-six-layers-injector-clamps-card-socket-two-more-inputs-2026-11-13).
 - **External review (2026-11-12).** Found two faults the simulations couldn't see, both now fixed in firmware: 1989-95
   pin 1C is the starter signal, not ignition-on (the engine would have died when the key left START), and the fuel pump
   pin PC14 was held by the 32 kHz oscillator. Also corrected the NB alternator question (M5) and the socket plating. See
@@ -699,6 +706,180 @@ ignition tables, with an empty VVT target table: rusEFI compiles its NB tables o
 the 1994-97 years run a fuel table made on a 1.6, and nothing is tuned above about 100 kPa. See
 [firmware/README.md, Base tune](firmware/README.md#base-tune).
 
+## Rev 0.10: six layers, injector clamps, card socket, two more inputs (2026-11-13)
+
+Daughterboard rev 0.10 keeps the 125 × 76 mm outline and the J1/J2 pinout and goes from four copper layers to six.
+Motherboards: 1989-95 rev 0.12 (one board for 1989-93 and 1994-95, set by jumpers), 1996-97, 1999-2000 and 2001-05
+rev 0.8. Nothing has been built; everything below is reading, calculation and simulation.
+
+What is new on the daughterboard:
+- **Injector turn-off clamp, one per injector:** a fast diode (ES1D) from the driver's drain to a 16 V TVS that
+  returns to the battery input. The injector's energy no longer goes through the driver's own clamp.
+- **220 Ω in series with each of the eight low-side driver inputs** (ST's rating, see A1 below).
+- **microSD socket** (Molex 47219-2001, hinged) on SPI2, for rusEFI's logging.
+- **Two more inputs** on J2-24 / J2-25, the pins of the spare UART: flex-fuel sensor frequency (PC6) and nitrous arm
+  switch (PC7), each 10 kΩ in series, filtered and clamped to 3.3 V.
+- Check-engine lamp driven from its processor pin directly, not through the shared driver enable; battery voltage
+  sensed at the battery input; logic-supply fuse 1.1 A and a matching inductor; 100 nF at the buck converter's input.
+
+### The design's sources, read again
+Before the layout, every figure the board relies on was checked against the maker's own document, and what could not be
+checked is listed as such: [`research/rev0.10_design_audit.md`](research/rev0.10_design_audit.md). Findings that
+changed the design:
+
+| # | Finding | Action |
+|---|---|---|
+| A1 | The VND7NV04 drivers need at least 150 Ω in series with their input (ST, absolute maximum ratings); the board had none. **This applies to the ordered rev 0.9 boards** | 220 Ω per input. Rev 0.9 boards: see [below](#the-ordered-rev-09-boards) |
+| A2 | The drivers' clamp starts to conduct at 36 V, not 40 V | The new clamp is sized against 36 V |
+| A3 | Injector inductance is not known. 8 mH was assumed; a published fit for a similar injector gives 20 mH | Everything is sized for 20 mH. Measure an injector |
+| A4 | A TVS to ground under 36 V conducts whenever the supply is above it (load dump), through the injectors | The clamp returns to the battery input: no DC path at any supply voltage, and 40 % less heat |
+| A5 | The card socket first chosen was a push-pull type (friction only) | Hinged socket |
+| A6 | SD cards want pull-ups on every line but the clock, in SPI mode too | 47 kΩ on all five |
+| A7 | Logic fuse and inductor too small (0.5 A), as the external review said | 1.1 A fuse, 7 A inductor |
+| A8 | Two parts first named could not be ordered reliably | Parts with stock named |
+| A9 | The card socket is rated -20 to +85 °C | Stated as a limit; the engine does not depend on the card |
+| A10 | Inner layers have less than half the copper of the outer ones | Current-carrying nets stay on the outer layers; new check, see [below](#track-width-against-current-layer-by-layer) |
+
+Checked and found right: all 79 connected processor pads against ST's own pin data file (`firmware/tools/check_mcu_pins.py`,
+with one EXTI line per interrupt input), the wideband processor's pins, and the datasheet figures of the drivers, the
+regulators and the level shifters. The audit lists each with its source.
+
+### Injector clamp
+`firmware/tools/sim_inj_clamp.py` (ngspice) compares the driver's own clamp, a TVS to ground and the new clamp, from
+5 to 20 mH. At 20 mH and 14.4 V:
+
+| | Driver's own clamp (rev 0.9) | New clamp (rev 0.10) |
+|---|---|---|
+| Heat in the ECU per shot | 15.3 mJ | 8.8 mJ |
+| Peak at the driver | 42.7 V | 31.9 V |
+| Current down to 35 % | 0.41 ms | 0.57 ms |
+| At 7200 rpm, sequential | 0.92 W in each driver | 0.50 W in each TVS |
+
+- **The injector closes later:** the current takes about 0.16 ms longer to fall. The tune's injector dead time needs
+  checking on the car.
+- **Worst case** (TVS at the top of its range and hot, driver clamp at its 36 V minimum, 15.5 V supply): peak 35.5 V,
+  nothing in the driver.
+- **Faults:** TVS or diode open, the driver's own clamp takes over as in rev 0.9. TVS shorted, the injector closes
+  slowly (1.6 ms). Diode shorted, the driver goes into current limit and that injector stays shut.
+- **Supply held at 40-45 V** (an unsuppressed load dump): the drivers' own clamps conduct through the injectors for
+  as long as it lasts, as in rev 0.9. The design still assumes the car limits a dump to about 35 V.
+- **1989-93 (two injectors per wire):** two drivers and two clamps sit in parallel on each wire. Each injector fires
+  once per revolution, so each TVS takes 1.0 W at 7200 rpm if the two share. They need not: with one TVS at the
+  bottom of its breakdown range and the other at the top, the low one takes all of it, 2.0 W, and does not hand any
+  over until it runs about 100 °C hotter than the other. That is why the fitted TVS is the Vishay TPSMC16A, rated to a
+  185 °C junction, and not the 150 °C SMCJ14A first chosen (same footprint).
+
+### Board temperature
+Up to rev 0.9 each hot part was estimated on its own, from its copper area and a single-sided datasheet curve. That
+leaves out the planes, the other layers and the neighbours. `firmware/tools/board_thermal.py` now models the board:
+every copper layer rasterised from the board file, the laminate and every via between them, each part's loss fed in
+at its pads, both faces cooled at 10 W/m²K. Two variants bracket the answer: without the 80 header pins as a heat
+path (pessimistic), and with them leading into the motherboard (an estimate). Its self-test gives 54 °C/W for a DPAK-size
+source on one square inch of copper, where datasheets quote 40-50 °C/W, so the model errs warm.
+
+Rise above the air around the board, sustained 7200 rpm, 20 mH injectors (without pins / with pins):
+
+| | Board, mean | Injector drivers | Clamp TVSs | Processor |
+|---|---|---|---|---|
+| Sequential (1994-2005), 5.9 W | 31 / 23 °C | 41 / 30 °C | 52 / 43 °C | 40 / 32 °C |
+| 1989-93, clamps sharing, 8.0 W | 43 / 31 °C | 58 / 43 °C | 84 / 72 °C | 52 / 42 °C |
+| 1989-93, one clamp of each pair taking all | 43 / 31 °C | 60 / 44 °C | 111 / 99 °C | 54 / 43 °C |
+
+What that means:
+- **The board as a whole warms by 23-43 °C at sustained high rpm.** The earlier, per-part estimates missed this. It
+  matters most for the processor: the STM32F407VGT6 is the 85 °C grade (105 °C junction, as recalled from ST's
+  datasheet). It is inside that up to about 65-73 °C air in sequential years and 51-63 °C on a 1989-93 car. The
+  VGT7 grade (125 °C junction) fits the same pads and was in stock at LCSC on 2026-11-13 at about five times the price;
+  it is not fitted.
+- **Clamp TVSs** (185 °C): inside their rating to above 100 °C air when sharing, and to about 74-86 °C in the worst
+  pairing on a 1989-93 car. With the 150 °C alternate part the worst pairing is only covered to about 39-51 °C.
+- **Drivers** (150 °C shutdown): 90 °C air or more in every case.
+- **With 8 mH injectors** the clamps take 0.8 W in total instead of 2.0 W (sequential). The processor is then 26-32 °C
+  above the air in sequential years and 30-38 °C on a 1989-93 car, and the hottest clamp 47-57 °C in the worst pairing.
+- "Air around the board" is the air inside the ECU case, which is warmer than the cabin.
+
+Not done, and why: moving the 1989-93 clamp heat to the motherboard (a diode and two TVSs per injector wire there)
+would take about 4 W off the daughterboard on those cars. It costs six parts and a re-route of that motherboard, and
+whether it is needed depends on the injector inductance. It is the next step if a measured injector is near 20 mH.
+
+`circuit_sim_full.py` takes its driver and clamp temperatures from this model (the pessimistic variant).
+
+### Track width against current, layer by layer
+JLCPCB's standard six-layer board has 35 µm copper outside and 15.2 µm inside (read from its help pages), so a width
+that was right on the four-layer board's outer layers is not right inside. The first six-layer routing put the 1.1 A
+logic supply through 0.8 mm of inner track: 47 °C rise by IPC-2221. Since then:
+- the router keeps the injector, valve, logic-supply and USB-supply nets on the outer layers, and routes the trunks
+  of the battery input and of +5 V first, on the outer layers;
+- `scripts/track_current.py` solves each such net as a resistor network (segments, vias, pads, pours) with its real
+  loads and judges every piece of track against its own layer's thickness. It runs in the release script.
+
+Released board: 34 nets, 41 load cases, 0 FAIL, 0 CHECK, worst rise 7.2 °C. The most an inner layer carries is 0.57 A:
+the clamp return on the battery-input net, in 1.0 mm (`daughterboard/fab/track_current.txt`).
+
+### Layout
+- **Stack:** F.Cu signal, In1 ground plane, In2 and In3 signal (crossing directions), In4 +3V3 plane, B.Cu signal.
+  0.2 mm tracks, 0.15 mm clearance, 0.6 / 0.3 mm through vias, as before.
+- **Every rev 0.9 part keeps its place** except the parts the new ones displaced (U14, F1, L1, the LED column, the debug
+  pads J3 and the two input clamps D36/D37 with their resistors). The room came from the two extra signal layers, not from a new floor plan.
+- **Routed from scratch** by `scripts/daughter_make.sh`: `route.py` in its six-layer mode, then a new finisher,
+  `scripts/finish_route.py`. The grid router gives up on a pad it cannot reach on its 0.25 mm grid; the finisher works
+  on the exact copper on a 0.05 mm grid, on all four signal layers, and joined every connection the router left
+  (four on this board: HALL1, LED_RUN, SD_MISO and WB_PROG_TX). It also removes tracks the grid router left closer than the clearance (one: AN_AUX3 beside two diode pads, the spot that needed a hand fix in every revision since 0.5) and gives every ground
+  and 3.3 V pad that nothing ties to its plane a via (none was needed on the released board: the router's own repair had placed them).
+- **A bug found on the way:** the router's reserved area under the processor had been 16 mm too high since rev 0.8.
+  Revisions 0.8 and 0.9 were routed as changes to older copper, which hid it; a from-scratch run could not reach
+  the processor's supply pins until it was fixed.
+- **Checks on the released board:** DRC 0 unconnected, 0 clearance errors; schematic against board 1024 pads, 0
+  differences; 0 part pairs under JLCPCB's spacing; fabrication limits met; `board_checks.py` 1606 OK / 263 CHECK / 4 FAIL (the four FAILs
+  are the known LSU-wire shorts, unchanged since rev 0.8); `circuit_sim_full.py` 93 OK / 11 CHECK / 1 REF / 0 FAIL.
+
+### Firmware
+One firmware serves rev 0.9 and rev 0.10 boards: the new pins are simply not connected on a rev 0.9 board.
+- microSD on SPI2 (PB10, PB14, PB15, chip select PD13), logging on in a fresh tune.
+- Flex sensor input PC6 and nitrous arm PC7 are defined and left unassigned / disabled until set up in TunerStudio.
+- The check-engine lamp now lights on a fatal error (it sits outside the driver enable on rev 0.10).
+- 1989-95: no tach output by default (the tach cavity question, see [Pinouts](#pinouts-findings)).
+- Board tests: 18 pass in rusEFI's unit-test build; the firmware and bootloader compile and link;
+  `check_pins.py` 41 defines / 39 connector entries; `sim_report.py` 115 firmware functions across six model-year
+  settings reach the right harness cavities.
+
+Not re-run for this revision: the Renode full-firmware emulation. The firmware it ran did not have the card, flex and
+nitrous settings; the pins it exercises are unchanged.
+
+### Motherboards rev 0.12 / 0.8
+- **Wideband plug:** an 8-way header for AEM's X-Series sensor harness 30-3427. The pin functions are from AEM's
+  instructions (read again 2026-11-13: 1 trim, 2 heater −, 3 common, 5 pump current, 6 sense, 8 heater +). **The plug
+  family (Molex Micro-Fit 3.0, 2 × 4) is assumed**, not confirmed: check it against a harness before ordering.
+- **Add-on header:** 2 × 10, for a ribbon cable: spare outputs, flex-fuel input with its 12 V and ground, nitrous arm,
+  CAN, boost valve with a fused 12 V and a freewheel diode.
+- **1989-95:** one board; jumpers select batch or sequential injection, the tach direction, and the pins that differ
+  between 1989-93 and 1994-95. D3/D4 (the rev 0.9 injector clamps to ground) are not fitted with a rev 0.10
+  daughterboard.
+- **Ground:** on the 2001-05 board the injector and PCM ground pins 3A/3B had ended up joined to the ground pours only
+  through the daughterboard; `scripts/mb_gnd_islands.py` now ties any such island on the board itself, and runs in
+  the release. The 2001-05 board still has 12 pads on single thermal spokes (DRC warnings, connected).
+- All four: schematic against board 0 differences; DRC at the earlier baseline (the USB-C holes, thermal spokes).
+
+### The ordered rev 0.9 boards
+- **A1 applies.** They will switch injectors as designed; what ST does not guarantee without the series resistance is
+  the drivers' behaviour when they clamp or protect themselves. To bring a board inside the rating by hand: lift the
+  input lead (pin 1, left) of each of Q1-Q8 and bridge it to its pad with a 220 Ω 0603.
+- **A3 applies.** With 20 mH injectors each injector driver takes about 1.06 W at sustained 7200 rpm instead of the
+  documented 0.5 W. The board model puts its junction 60-86 °C above the air around the board (35-50 °C with 8 mH),
+  and on the 1989-93 motherboard D3/D4 would take about 3.9 W each instead of 1.55 W. Measure an injector before
+  trusting the temperatures published for rev 0.9, and keep sustained high rpm for after that.
+
+### Not verified
+- **Injector inductance**, on which every clamp and temperature figure here depends.
+- **All temperatures:** a model, with the heat transfer to the air assumed.
+- **Stock at JLCPCB** of the Vishay TPSMC16A (it is in JLCPCB's parts library; the page shows no stock figure). The
+  alternate, Diodes Inc. SMCJ14A-13-F, had 2,707 at LCSC on 2026-11-13.
+- **The AEM plug family**, the card socket's rotation in JLCPCB's placement preview, and the land pattern of the
+  input inductor against its maker's drawing.
+- **Load dump level** of a Miata alternator; **the consequence of A1** (the rule is ST's, what happens below 150 Ω is
+  not stated).
+- The full list is in the audit.
+
 ## Open items
 The 2026-11-02 findings N1-N13 are listed in [New hardware findings](#new-hardware-findings-2026-11-02); what rev 0.7
 fixed is in [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings) and what rev 0.8 fixed in
@@ -707,6 +888,10 @@ IP or RT short (N3, the ICs are protected), N11 (1994-95 2L on a car; 1989-93 no
 
 | # | Issue | What to do |
 |---|---|---|
+| A3 | **Injector inductance is not known** (rev 0.10 audit). Every clamp energy and board temperature scales with it; 8 mH and 20 mH are both plausible | Measure one injector with an LCR meter, unplugged, before sustained high rpm. Near 8 mH: nothing to do. Near 20 mH on a 1989-93 car: see the next row |
+| Heat | **Board temperature at sustained high rpm** (rev 0.10 model): the processor's 105 °C junction is reached at 65-73 °C air around the board (sequential years) or 51-63 °C (1989-93, 20 mH injectors) | If the injectors measure high: fit the STM32F407VGT7 (125 °C), or move the 1989-93 clamp heat to that motherboard (not designed yet). Measure a board's temperature at full load on the first car either way |
+| A1 | **Ordered rev 0.9 daughterboards have no series resistor at the driver inputs** (ST asks for 150 Ω minimum) | Rework by hand, or accept it knowingly: [The ordered rev 0.9 boards](#the-ordered-rev-09-boards) |
+| J2 | **The AEM harness plug family is assumed** (Micro-Fit 3.0, 2 × 4) on motherboards rev 0.12 / 0.8 | Check a harness 30-3427 against the header before ordering |
 | M5 | **NB alternator control wire: may need a pull-up.** Corrected 2026-11-12: 1O (NB1) / 3M (NB2) is a logic-level PWM input to the regulator inside the alternator, not the field coil (stock 1999 ECU scoped at 250 Hz; working MS3 and ECUMaster set-ups use a low side with a 1k pull-up to 5 V, about 5 mA). The old worry, 3-5 A of field current, doesn't apply: the VND7NV04 drives it easily. What isn't known is whether the alternator pulls the wire up itself. Firmware ships control off, at 250 Hz | Key on, ECU unplugged: measure 1O / 3M to ground. About 5 or 12 V: turn on "Alternator control". Near 0 V: fit 1k + 1N4148 from AUX J5-14 (5 V, anode) to J5-4 (OUT_ALT), then turn it on. First run: if the battery goes past about 15 V, switch it off and invert the output. Next motherboard revision: a pull-up footprint on the NB boards |
 | M6 | ~~ULN2003 at full load~~ **Resolved in rev 0.8:** the relay, lamp and tach outputs are seven ZXMS6004FF protected low sides (hottest, the NB1 VICS solenoid: Tj 102 °C at 85 °C ambient) | — |
 | Tach | 1989-95 tach cavity 2I: our board drives it as an output (as Hellen does); the wiki tables call it an input | Kept as an output. Check the wiring diagram; if the igniter feeds 2I, set the tach output to none |

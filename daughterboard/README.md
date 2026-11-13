@@ -1,9 +1,41 @@
-# Miata ECU — daughterboard rev 0.9 (routed, unverified)
+# Miata ECU — daughterboard rev 0.10 (routed, unverified)
 
-125 × 76 mm, **4 layers**. All SMD parts are on top; the two 1×40 2.54 mm male headers are mounted on the
+125 × 76 mm, **6 layers**. All SMD parts are on top; the two 1×40 2.54 mm male headers are mounted on the
 **bottom side** (plastic under the board, pins pointing down) so the board plugs straight into female
 headers on the year-specific motherboard. J1 on the top edge carries power and outputs, J2 on the
 bottom edge carries inputs, comms and the LSU 4.9 wideband sensor.
+
+## What changed in rev 0.10
+Same outline, same J1/J2 pinout except J2-24 / J2-25; **six layers** instead of four. A rev 0.10 daughterboard goes
+with motherboard rev 0.12 (1989-95) or 0.8 (1996-2005); it also fits the earlier motherboards, without the new
+inputs. Background and numbers: `VERIFICATION.md`, [Rev 0.10](../VERIFICATION.md#rev-010-six-layers-injector-clamps-card-socket-two-more-inputs-2026-11-13),
+and the audit in `research/rev0.10_design_audit.md`.
+- **Injector clamp per injector** (D42-D45 ES1D, D46-D49 TPSMC16A): a fast diode from each injector driver's drain to
+  a 16 V TVS that returns to the battery input. The turn-off energy goes there instead of through the driver's own
+  clamp: 8.8 mJ per shot instead of 15.3 mJ with 20 mH injectors, peak 32 V instead of 43 V. The injector current
+  takes about 0.16 ms longer to fall, so **check the injector dead time in the tune**.
+- **220 Ω in series with each low-side driver input** (R152-R159): ST's VND7NV04 rating asks for at least 150 Ω.
+- **microSD socket** J4 (Molex 47219-2001, hinged lid) on SPI2 with 47 kΩ pull-ups on every line but the clock.
+  Rated -20 to +85 °C.
+- **Two more inputs on J2-24 and J2-25** (a spare UART up to rev 0.9): flex-fuel sensor frequency (PC6, 10 µs filter)
+  and nitrous arm (PC7, 100 µs filter), each through 10 kΩ and clamped to 3.3 V. The motherboard adds the sensor's
+  pull-up and the switch's pull-down.
+- **Check-engine lamp** driven from its processor pin directly (R160), outside the shared driver enable, so the
+  firmware can light it on a fatal error.
+- **Battery voltage** sensed at the battery input itself (was after the reverse diode and fuse, 0.3-0.4 V low).
+- **Logic supply:** fuse F1 1.1 A hold (was 0.5 A), inductor L1 2.2 µH 7 A moulded, 100 nF (C71) at the buck
+  converter's input pins.
+- **Six layers:** F.Cu, ground plane, two inner signal layers, +3V3 plane, B.Cu. Every rev 0.9 part keeps its place
+  except U14, F1, L1, the LED column (1.5 mm lower), the debug pads J3 and the two input clamps D36/D37 with their
+  resistors. Inner copper is 15 µm against 35 µm outside, so the injector, valve, logic-supply and USB-supply nets
+  stay on the outer layers; `scripts/track_current.py` checks every current-carrying track against its layer.
+- **Heat:** each clamp TVS stands under its driver on its own copper column on all four signal layers (about
+  176-196 mm² effective). A model of the whole board (`firmware/tools/board_thermal.py`) puts the board 23-31 °C
+  above the air around it at sustained 7200 rpm with 20 mH injectors, the injector drivers 30-41 °C, the clamp TVSs
+  43-52 °C and the processor 32-40 °C (sequential; 1989-93 cars run warmer, see `VERIFICATION.md`).
+- **Routed from scratch** (`scripts/daughter_make.sh`): `route.py` in six-layer mode, then the new exact-geometry
+  finisher `scripts/finish_route.py` for the connections and plane vias the grid router left. DRC: 0 unconnected,
+  0 clearance errors.
 
 ## What changed in rev 0.9
 Layout only; the circuit is rev 0.8's.
@@ -230,14 +262,15 @@ new parts have new numbers.
 | `miata_ecu_daughter.kicad_pro / .kicad_sch / .kicad_pcb` | KiCad 7.0.11 project: root schematic, board (opens in 8/9) |
 | `mcu / power / outputs / inputs / connectors / wideband .kicad_sch` | Schematic sub-sheets, one per functional block |
 | `miata_ecu_daughter_schematic.pdf` | All schematic pages as a PDF |
-| `fab/miata-ecu-daughterboard-rev0.9_jlcpcb_gerbers.zip` | Gerbers + drill files for JLCPCB (4-layer) |
-| `fab/miata-ecu-daughterboard-rev0.9_jlcpcb_bom.csv`, `fab/miata-ecu-daughterboard-rev0.9_jlcpcb_cpl.csv` | JLC assembly BOM and placement file: every part except the two bottom-side 1×40 headers |
-| `fab/miata-ecu-daughterboard-rev0.9_self_order_bom.csv` | What you order and fit yourself: the J1/J2 1×40 pin headers |
+| `fab/miata-ecu-daughterboard-rev0.10_jlcpcb_gerbers.zip` | Gerbers + drill files for JLCPCB (6-layer) |
+| `fab/miata-ecu-daughterboard-rev0.10_jlcpcb_bom.csv`, `fab/miata-ecu-daughterboard-rev0.10_jlcpcb_cpl.csv` | JLC assembly BOM and placement file: every part except the two bottom-side 1×40 headers |
+| `fab/miata-ecu-daughterboard-rev0.10_self_order_bom.csv` | What you order and fit yourself: the J1/J2 1×40 pin headers |
+| `fab/drc_report.txt`, `fab/track_current.txt` | KiCad DRC; track width against current, layer by layer (`scripts/track_current.py`) |
 | `miata_ecu_daughterboard_parts.xlsx` | Parts list by function, J1/J2 pinout, MCU pin map |
 | `../scripts/` (repo top level) | The design source: `design.py` (parts + netlist), `placement.py`, `build_pcb.py`, `route.py`, `wideband.py` (the wideband circuit, mapped from the FOME module in `wideband_ref/` under its MIT licence), `wb_clean.py` (its rev 0.3 placement and heater copper; `wb_preview.py` draws a placement preview), `wb_build.py` (the rev 0.2 transplant, kept for reference), `daughter_finish.py`, `tab_copper.py` (the drivers' drain copper), `hand_route.py` / `hand_route_all.py` / `clean_dangling.py` (the rev 0.8 hand routes and cleanup) |
 
 The schematic and the board are both generated from `scripts/design.py`. The schematic's exported
-netlist was checked pad-by-pad against the board's netlist (958 pads, 0 differences), and every
+netlist was checked pad-by-pad against the board's netlist (1024 pads, 0 differences), and every
 footprint on the board is linked to its schematic symbol, so Update PCB from Schematic and
 cross-probing work.
 
@@ -249,9 +282,12 @@ pins, header pins and signals going to another sheet. Global labels (flag shape)
 labels stay within one sheet. Board nets carry the same names (sheet-local nets show up as e.g.
 `/Power/BUCK_FB`), so Update PCB from Schematic changes nothing.
 
-Rebuild: `scripts/daughter_make.sh <workdir>` (build, route, header flip, finishing, DRC), then
+Rebuild: `LAYERS=6 scripts/daughter_make.sh <workdir>` (build, route, the exact-geometry finisher, header flip,
+finishing, DRC; about an hour), then
 `scripts/daughter_release.sh <workdir>/finished.kicad_pcb <outdir>` (wired schematic, schematic-vs-design netlist
 check, board relinked to the schematic, DRC, JLC files, PDF, parts workbook, renders).
+Rev 0.10 was routed from scratch by that script, with no hand work: `route.py` in its six-layer mode leaves a few
+connections, and `finish_route.py` joins them on the real copper. The released board is that run's output.
 Rev 0.9 was routed from the finished rev 0.8 copper (`route_eco.py` against the rev 0.8 placement, keeping every net
 whose parts didn't move), then finished the same way. Rev 0.8 was not routed from scratch: `route_eco.py` (with `DY=16`) carried the rev 0.7 copper over, `route.py` finished
 it, then `flip_headers.py`, `daughter_finish.py`, the hand routes (`hand_route_all.py` with the open connections DRC
@@ -259,38 +295,46 @@ lists), `clean_dangling.py` and `daughter_patch.py`. A from-scratch `daughter_ma
 that needs the same hand finishing.
 
 ## Stack-up and rules
-- **Layers:** F.Cu signal / In1.Cu solid GND / In2.Cu solid +3V3 / B.Cu signal. GND pours are on both outer layers.
-- **Tracks:** 0.2 mm signal track with 0.15 mm clearance. Power tracks are 0.4–1.0 mm (injector and solenoid outputs 0.8 mm).
-- **Vias:** 0.6 mm with a 0.3 mm drill. All of this is standard JLC 4-layer capability.
+- **Layers:** F.Cu signal / In1.Cu solid GND / In2.Cu signal / In3.Cu signal / In4.Cu solid +3V3 / B.Cu signal, 1.6 mm,
+  JLCPCB's standard six-layer stack. GND pours fill the free area of the four signal layers. The two inner signal
+  layers prefer crossing directions (In2 along the board, In3 across).
+- **Copper:** 1 oz outside, 0.5 oz inside (JLCPCB's default, 15 µm finished). The track-current check assumes that:
+  don't order thinner, and thicker inner copper only helps.
+- **Tracks:** 0.2 mm signal track with 0.15 mm clearance. Power tracks are 0.4–1.0 mm (injector and solenoid outputs
+  0.8 mm). The injector, valve, logic-supply and USB-supply nets run on the outer layers only.
+- **Vias:** 0.6 mm with a 0.3 mm drill, all through vias. JLCPCB fills and caps the vias of a six-layer board, which the
+  vias in the DPAK tabs and in the clamp TVS pads rely on.
 - **Ground and 3.3 V connections:** every GND and +3V3 SMD pad drops to its plane through its own via.
   - The MCU supply pins go inward to vias under the package.
-  - About 330 GND stitching vias sit on a 3 mm grid.
+  - About 360 GND stitching vias sit on a 3 mm grid.
 - **DRC (KiCad 7):** 0 clearance errors, 0 unconnected items. Warnings remaining:
-  - Silkscreen overlaps (72) and silkscreen clipped by a pad opening (55): cosmetic.
-  - Courtyard overlaps (97) on tightly packed passives. The copper clearances still pass, and with every courtyard
-    shrunk by 0.2 mm (about the part body) nothing overlaps.
+  - Silkscreen overlaps (125) and silkscreen clipped by a pad opening (70): cosmetic.
+  - Courtyard overlaps (101) on tightly packed parts. The copper clearances pass and no pair of parts is under
+    JLCPCB's recommended spacing (`scripts/jlc_spacing.py`).
   - "Library not in configuration" notes from running headless.
 
 ## Circuit summary (topologies follow rusEFI hellen-one modules)
 | Block | Parts |
 |---|---|
 | MCU | STM32F407VGT6 (1 MB flash, rusEFI F4 target), 8 MHz crystal, 4 status LEDs (PD12, PC8, PC9, PD15), BOOT/RESET buttons, Tag-Connect TC2030 SWD pads |
-| Power | SMCJ30A load-dump TVS → SS34 reverse diode (and B5819W ignition wake) → 0.5 A PTC → SMAJ33A TVS → LMR14020 5 V buck. Two TLS115 protected 5 V supplies (MAP sensor; harness sensors on V5_EXT). LDL1117 3.3 V (low dropout), TL431 + BCP53 shunt clamp on +3V3. USB VBUS can power it on the bench. |
-| Injectors / IACV / VVT / boost / alternator | 8× VND7NV04 protected low sides (DPAK, 60 mΩ) on drain copper columns with thermal vias, driven at 5 V by an SN74LVC4245A. Its output enable (PA8) is pulled off until the firmware runs; pull-downs on both sides |
-| Relays, CEL, tach, spare | 7× ZXMS6004FF protected low sides (current limit, thermal shutdown, 60 V clamp) driven at 5 V by a second SN74LVC4245A on the same enable |
+| Power | SMCJ30A load-dump TVS → SS34 reverse diode (and B5819W ignition wake) → 1.1 A PTC → SMAJ33A TVS → 2.2 µH → LMR14020 5 V buck. Two TLS115 protected 5 V supplies (MAP sensor; harness sensors on V5_EXT). LDL1117 3.3 V (low dropout), TL431 + BCP53 shunt clamp on +3V3. USB VBUS can power it on the bench. |
+| Injectors / IACV / VVT / boost / alternator | 8× VND7NV04 protected low sides (DPAK, 60 mΩ) on drain copper columns with thermal vias, driven at 5 V by an SN74LVC4245A through 220 Ω each. Its output enable (PA8) is pulled off until the firmware runs; pull-downs on both sides. Each injector driver has a turn-off clamp: ES1D to a TPSMC16A that returns to the battery input |
+| Relays, CEL, tach, spare | 7× ZXMS6004FF protected low sides (current limit, thermal shutdown, 60 V clamp) driven at 5 V by a second SN74LVC4245A on the same enable; the check-engine lamp's switch takes its gate from the processor pin directly |
 | Ignition (COP / smart coils) | 2× TC4427 sourcing through 100 Ω and a B5819W Schottky per channel; a ZXMS6004FF per channel (gates from a 74HCT04) pulls low, 3.3k to ground. Pulled down at the inputs |
 | Crank / cam | LM2903 dual comparator for VR sensors (two 5.1k resistors per leg, 1 nF differential, BAT54S clamps, 1.65 V bias, 1M hysteresis). Spare: Miatas use hall/optical sensors on the hall inputs |
 | Sensors | 8× 0–5 V inputs with a 5.6k/10k divider, 10 nF and a Schottky clamp to 3.3 V. CLT and IAT have 2.7k pull-ups to sensor 5 V. |
 | Knock | 2.2k series, then an LMV321 AC-coupled gain stage (≈5.7×), biased at 1.65 V |
-| Digital inputs | 2 hall (1k pull-up from V5_EXT through a Schottky, 4.7k series, clamped to 3.3 V), 3 switch inputs (12 V → 22k/10k, clamped to 3.3 V) |
-| Comms | TCAN1042V-Q1 CAN, USB FS, USART6 (10k series, clamped) |
+| Digital inputs | 2 hall (1k pull-up from V5_EXT through a Schottky, 4.7k series, clamped to 3.3 V), 3 switch inputs (12 V → 22k/10k, clamped to 3.3 V), flex-fuel frequency and nitrous arm (10k series, 1 nF / 10 nF, clamped to 3.3 V) |
+| Comms | TCAN1042V-Q1 CAN, USB FS |
+| Logging | microSD socket (Molex 47219-2001) on SPI2, 47k pull-ups, 10 µF + 100 nF at the socket |
 | Wideband (LSU 4.9) | FOME/rusEFI controller circuit with an STM32F103C8 (8 MHz crystal) running rusEFI's wideband firmware (board port in `firmware/wideband`), MCP6004 (virtual ground, pump driver, Nernst sense and buffer), AD8628 pump-current sense, REF3033 reference, VND14NV04 protected heater low side, TCAN1042V-Q1 on the shared CAN bus. Rev 0.8: PTC in the VM wire, Schottky clamps on the pump and virtual-ground drive |
 
 ## rusEFI board-config notes
 - **Analog inputs:** divider ratio 1.56 on the eight sensor inputs. The battery and ignition dividers are (33k + 6.8k)/6.8k = 5.85.
 - **Knock:** PA3 (ADC3_IN3).
 - **CAN:** CAN2 on PB12 (RX) and PB13 (TX).
-- **UART:** USART6 on PC6 and PC7.
+- **Flex fuel / nitrous:** PC6 (J2-24) takes a flex sensor's frequency, PC7 (J2-25) the nitrous arm switch. Up to rev 0.9 these pins were USART6.
+- **microSD:** SPI2 on PB10 (SCK), PB14 (MISO), PB15 (MOSI), chip select PD13.
 - **USB:** PA11 / PA12.
 - **Crank/cam:** VR1 (crank) on PE13, VR2 (cam) on PE12. The comparator output is high while the harness − leg is above the + leg, which is why the legs are swapped on J2. Wire VR sensors with both legs to the ECU (not one grounded at the engine).
 - **Low-side enable:** PA8, open drain, low = enabled (the board firmware handles it).
@@ -302,11 +346,11 @@ that needs the same hand finishing.
     J102 Tag-Connect pads on the bottom side.
 
 ## Before ordering
-1. **LCSC numbers.** Every number was looked up against LCSC/JLCPCB in rev 0.2, and three wrong ones were fixed. Still check stock for the extended parts when you order.
-2. **Part rotations.** Check every rotation in JLC's assembly preview. JLC's footprint orientation differs from KiCad's for some packages (SOT-223, SOIC, QSOP).
+1. **LCSC numbers.** Every number was looked up against LCSC/JLCPCB in rev 0.2, and three wrong ones were fixed; the rev 0.10 parts were looked up on 2026-11-13 (`research/rev0.10_design_audit.md`). Still check stock for the extended parts when you order. **The clamp TVS D46-D49 (Vishay TPSMC16AHE3_B/H, C1982018) is in JLCPCB's library but its stock is not confirmed.** If it is out: Diodes Inc. SMCJ14A-13-F (C135134) fits the same pads; it is rated to 150 °C instead of 185 °C, which is enough on 1994-2005 cars and on 1989-93 cars with low-inductance injectors (`VERIFICATION.md`, Rev 0.10).
+2. **Part rotations.** Check every rotation in JLC's assembly preview. JLC's footprint orientation differs from KiCad's for some packages (SOT-223, SOIC, QSOP). New in rev 0.10 and never checked there: the card socket J4, the clamp TVSs and diodes.
 3. **Ignition outputs.** The 10 nF caps from the hellen ignition outputs were left off to keep the column tidy. If you want them back, add them on the motherboard next to the coil connector.
 4. **Headers on the bottom.** J1/J2 are not in the JLC BOM or CPL (they'd need bottom-side assembly). They're in
-   `fab/miata-ecu-daughterboard-rev0.9_self_order_bom.csv`: hand-solder them, squared up against a motherboard's female sockets while the solder
+   `fab/miata-ecu-daughterboard-rev0.10_self_order_bom.csv`: hand-solder them, squared up against a motherboard's female sockets while the solder
    sets.
 5. **Schematic and layout review.** No person has reviewed the schematic yet. The wideband *circuit* is the proven FOME design, but since rev 0.3 its *layout* is new to this board, so it no longer inherits the module's proven layout. Bring up the wideband on the first boards before relying on it (heater control, pump current, and lambda reading against a known sensor).
 6. **Wideband first flash.** It goes through the main MCU (rev 0.4), so no extra cable is needed: the board's rusEFI firmware has the programming feature (`wbo_uart_flash`). A Tag-Connect TC2030-NL cable on J102 is the fallback.
@@ -314,9 +358,10 @@ that needs the same hand finishing.
    (`scripts/jlc_spacing.py`; no two parts' pads closer than 0.25 mm) and its published PCB capabilities
    (`scripts/jlc_fab_check.py`: track width, via and hole sizes, PTH rings, 0.45 mm from a pad hole to any other hole,
    copper 0.2 mm from the edge, silkscreen lines 0.15 mm and text 1.0 mm, applied by `scripts/silk_jlc.py`). Both run
-   in the release scripts. KiCad still reports courtyard overlaps (91) where small parts sit closer than their
+   in the release scripts. KiCad still reports courtyard overlaps (101) where small parts sit closer than their
    courtyards allow; the bodies clear and the pad spacing meets JLC's table. When ordering assembly, let JLC add the
    edge rails and fiducials (the boards have none of their own), and look at their DFM report and 3D preview.
-8. **Injector drivers at full load.** Rev 0.8's DPAK drivers estimate 110 °C at 90 % duty, 7200 rpm and 85 °C ambient (VERIFICATION.md, Rev 0.8). The estimate rests on a copper-area model; measure a driver's temperature at full load before track use.
-9. **Filled vias in the DPAK tabs.** Order the board with via-in-pad (epoxy-filled and capped vias); open vias in the tab pads would wick solder away from Q1-Q8.
+8. **Temperature at full load.** A model of the whole board puts the injector drivers 30-41 °C, the clamp TVSs 43-52 °C and the processor 32-40 °C above the air around the board at sustained 7200 rpm with 20 mH injectors (sequential; more on 1989-93 cars: `VERIFICATION.md`, Rev 0.10). It is a model: measure a board at full load before track use. **Measure one injector's inductance** (LCR meter, injector unplugged): the clamp heat scales with it, and it is not known for Miata injectors.
+9. **Filled vias.** The board has vias in the DPAK tab pads and in the clamp TVS pads. JLCPCB fills and caps the vias of a six-layer board by default; check that the order says so (epoxy filled and capped). Open vias in those pads would wick solder away.
 10. **After an LSU wire short to battery,** check R108-R110 (1206): they take the fault so U101 doesn't, and R108 can open.
+11. **Six-layer order:** 1.6 mm, JLCPCB's standard six-layer stack, 1 oz outer and 0.5 oz inner copper.
