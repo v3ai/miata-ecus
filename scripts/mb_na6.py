@@ -228,12 +228,13 @@ def placement():
     P['J5'] = ('centre', W / 2, dy + dpl.BOARD_H + 11.0, -90)     # rev 0.9: 16 mm lower, with the daughterboard
     C.protection_place(P)
     # 1989-93 injector pairing links and clamps, under the daughterboard between JD1's injector pins
-    # year / option jumpers in the band between the harness header and the daughterboard, where they can be reached
-    # with the daughterboard fitted
-    for ref, x in (('JP3', 22.0), ('JP5', 36.0), ('JP6', 96.0), ('JP4', 110.0), ('JP1', 120.0), ('JP2', 132.0)):
+    # year / option jumpers in the margins beside the daughterboard, where they can be reached with it fitted (the
+    # band between the harness header and the daughterboard is the router's bus: nothing through-hole goes there)
+    for ref, x, y in (('JP3', 6.5, 50.0), ('JP5', 6.5, 63.0), ('JP4', 6.5, 74.0),
+                      ('JP6', 147.5, 50.0), ('JP1', 147.5, 63.0), ('JP2', 147.5, 76.0)):
         if ref in C.SILK:
-            P[ref] = (x, 29.5, 90)
-    P['R37'] = (44.0, 36.5, 0)
+            P[ref] = (x, y, 0)
+    P['R37'] = (6.5, 82.0, 90)
     P['D3'] = (72.0, 64.0, 0)
     P['D4'] = (86.0, 64.0, 0)
     # 2L idle-switch pull-up option, above its JD2 pin (IN_AUX1 = J2 pin 9) like R20-R22

@@ -122,8 +122,11 @@ def build(modname, out):
             continue
         pads = {p.GetNumber(): p.GetPosition() for p in jp.Pads()}
         cx = sum(p.x for p in pads.values()) // len(pads); cy = sum(p.y for p in pads.values()) // len(pads)
-        items = [(pads[str(k)].x + FromMM(-1.2 if k == 1 else 1.2), pads[str(k)].y + FromMM(-2.3), v) for k, v in labels.items()]
-        items.append((cx, cy + FromMM(2.3), name))
+        # the jumpers stand in the side margins, pins top to bottom: position names beside the end pins on the
+        # board's inner side, the jumper's name above pin 1
+        side = 1 if ToMM(cx) - OX < M.W / 2 else -1
+        items = [(pads[str(k)].x + FromMM(4.2 * side), pads[str(k)].y, v) for k, v in labels.items()]
+        items.append((cx + FromMM(1.5 * side), min(p.y for p in pads.values()) - FromMM(2.4), name))
         for x, y, label in items:
             t = pcbnew.PCB_TEXT(board); t.SetText(label); t.SetLayer(pcbnew.F_SilkS)
             t.SetPosition(VECTOR2I(int(x), int(y)))

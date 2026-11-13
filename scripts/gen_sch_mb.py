@@ -128,9 +128,9 @@ def sheet_daughter(s):
 def sheet_io(s):
     s.paper = 'A3'
     # ---- LSU 4.9 connector (controller is on the daughterboard) + CAN termination
-    s.text('LSU 4.9 wideband sensor (controller on the daughterboard)', 20.32, 22.86)
+    s.text('Wideband sensor harness AEM 30-3427 (controller on the daughterboard)', 20.32, 22.86)
     s.place('J2', 60.96, 55.88)
-    s.text('LSU 4.9: 1 IP  2 VM  3 H-  4 H+  5 RT  6 UN', 45.72, 43.18, 1.27)
+    s.text('AEM pin: 1 trim (RT)  2 H-  3 common (VM)  5 pump (IP)  6 sense (UN)  8 H+.  Micro-Fit 2x4 ASSUMED', 30.48, 43.18, 1.27)
     s.text('IP/VM/RT/UN and H- run to daughterboard J2 33-38; the heater current returns on J2 39/40', 20.32, 96.52, 1.27)
     # heater fuse from VBAT
     s.o2('F1', 40.64, 78.74, 'h')
@@ -158,14 +158,12 @@ def sheet_io(s):
     s.wire('U2.1', (MX + 17.78, MY - 2.54), (MX + 25.4, MY - 2.54)); s.wire((MX + 17.78, MY - 2.54), 'C3.1')
     s.stub('C3.2'); s.lab('IN_MAP', (MX + 25.4, MY - 2.54), 'right')
 
-    # ---- IAT
-    s.text('IAT source jumper JP1: 2-3 EXT = onboard connector J3 (default), 1-2 STOCK = stock harness sensor', 193.04, 86.36)
-    s.place('J3', 203.2, 104.14, 180)
-    s.place('JP1', 226.06, 104.14, 0)
-    jx, jy = s.P('JP1.2')
-    s.wire('JP1.2', (jx, jy + 7.62)); s.wire((jx, jy + 7.62), (jx + 12.7, jy + 7.62))
-    s.lab('IN_IAT', (jx + 12.7, jy + 7.62), 'right')
-    s.text('shunt LCSC C5305, fitted by hand', 213.36, 119.38, 1.27)
+    # ---- flex fuel / nitrous inputs (rev 0.10)
+    s.text('Flex-fuel sensor pull-up (5 V) and nitrous arming pull-down; both inputs are on the AUX header', 193.04, 86.36)
+    for k, r in enumerate(('R35', 'R36', 'D5')):
+        if r in S.PARTS:
+            s.o2(r, 203.2 + k * 17.78, 106.68, 'v')
+    s.text('D5: boost valve freewheel diode to the AUX +12 V pin', 193.04, 121.92, 1.27)
 
     # ---- USB
     s.text('USB-C (device): tuning, logs, DFU firmware update', 279.4, 22.86)
@@ -201,15 +199,17 @@ def sheet_io(s):
     elif 'R27' in S.PARTS:
         s.text('2L idle switch pull-up (NOT fitted)', 355.6, 187.96, 1.27)
         s.o2('R27', 360.68, 203.2, 'v')
-    if 'R23' in S.PARTS:
-        s.text('1989-93 batch harness: two drivers per injector wire, TVS clamp per wire', 279.4, 226.06)
-        s.text('Sequential conversion: remove R23/R24, fit R25/R26 (never R26 on an automatic)', 279.4, 231.14, 1.27)
-        for k, r in enumerate(('R23', 'R24', 'R25', 'R26', 'D3', 'D4')):
-            s.o2(r, 294.64 + k * 17.78, 254.0, 'v')
+    jps = sorted(r for r in S.PARTS if r.startswith('JP'))
+    if jps:
+        s.text('1989-95 year / option jumpers, injector clamps (1989-93 paired wires), tachometer pull-up (JP5)', 20.32, 226.06)
+        for k, r in enumerate(jps):
+            s.place(r, 35.56 + k * 27.94, 248.92)
+        for k, r in enumerate(x for x in ('D3', 'D4', 'R37') if x in S.PARTS):
+            s.o2(r, 220.98 + k * 17.78, 248.92, 'v')
 
 
 BUILD = [('harness', 'Harness', sheet_harness), ('daughter', 'Daughterboard', sheet_daughter),
-         ('io', 'LSU, MAP, IAT, USB, AUX', sheet_io)]
+         ('io', 'Wideband, MAP, USB, AUX', sheet_io)]
 
 
 def main():
