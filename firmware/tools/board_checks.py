@@ -944,7 +944,9 @@ NC_OK = {
     'STM32F103C8T6': 'unused GPIO (F103 resets to floating input; ST AN4899 recommends analog/pull, not required)',
     'TC4427': {'1': 'NC per datasheet', '8': 'NC per datasheet'},
     'SN65HVD230DR': {'5': 'Vref output, may be left open'},
-    'SN74LVC4245APWR': {'3': 'A8 output of an unused channel (its B8 input is tied to GND): may float'},
+    'SN74LVC4245APWR': {'3': 'A8 output of an unused channel (its B8 input is tied to GND): may float',
+                        # rev 0.10: U12's CEL channel is unused too (the lamp driver's gate comes straight from the MCU)
+                        '6': 'A output of an unused channel (its B input is tied to GND): may float'},
     '74HCT04PW': {'10': 'output of an unused inverter (input tied to GND)',
                   '12': 'output of an unused inverter (input tied to GND)'},
     'TLS115B0EJ': {'2': 'N.C. (leave unconnected)', '4': 'N.C. (leave unconnected)', '6': 'N.C. (leave unconnected)'},
@@ -2132,16 +2134,36 @@ def main():
         row('CHECK', 'copper', 'daughter', f'{DAUGHTER_PCB} does not match the design (routing not updated): the '
             'sections below use the design netlist for the daughterboard, not the copper')
     mb_cache, pcbs, systems = {}, {}, {}
+    copper_done = {}
     for year, module, pcb, etype, early in years:
         if module not in mb_cache:
             M, mparts = mb_parts(module)
             lab = year if module != 'mb_nb2' else '2001-05'
-            cu, mnames, mbad = check_copper(lab, pcb, mparts)
-            if mbad:
+            phys = getattr(M, 'base', None)
+            if phys is not None:
+                # a per-year view of the jumpered 1989-95 board (mb_y8993 / mb_y9495): the copper is compared once,
+                # with the physical board's parts (its jumper headers); the view's 0R links stand for the shunts and
+                # join nets of that same board, so the view takes the board's net names
+                if pcb not in copper_done:
+                    os.chdir(SCRIPTS)
+                    try:
+                        pparts = [dict(q, pads=dict(q['pads'])) for q in phys.build_parts()]
+                    finally:
+                        os.chdir(_cwd)
+                    copper_done[pcb] = check_copper('1989-95', pcb, pparts)[2]
+                    check_mating(DAUGHTER_PCB, pcb, '1989-95', pcbs)
+                mbad = copper_done[pcb]
                 mnames = design_names(mparts)
-                row('CHECK', 'copper', lab, f'{pcb} does not match the design (routing not updated): the sections '
-                    'below use the design netlist for this motherboard, not the copper')
-            check_mating(DAUGHTER_PCB, pcb, year if module != 'mb_nb2' else '2001-05', pcbs)
+                if mbad:
+                    row('CHECK', 'copper', lab, f'{pcb} does not match the design (routing not updated): the sections '
+                        'below use the design netlist for this motherboard, not the copper')
+            else:
+                cu, mnames, mbad = check_copper(lab, pcb, mparts)
+                if mbad:
+                    mnames = design_names(mparts)
+                    row('CHECK', 'copper', lab, f'{pcb} does not match the design (routing not updated): the sections '
+                        'below use the design netlist for this motherboard, not the copper')
+                check_mating(DAUGHTER_PCB, pcb, year if module != 'mb_nb2' else '2001-05', pcbs)
             mb_cache[module] = (mparts, mnames)
         mparts, mnames = mb_cache[module]
         systems[year] = System(year, dparts, dnames, mparts, mnames)

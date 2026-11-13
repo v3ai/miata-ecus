@@ -161,7 +161,8 @@ SHUNTS = {'1989-93': {'JP1': (1, 2), 'JP2': (1, 2), 'JP3': (1, 2), 'JP6': (1, 2)
 
 def year_parts(year):
     """The board as one range of years is fitted, for the simulation and checking tools: each jumper is replaced by
-    0R links, one per shunt position ("JP1A" = pins 1-2, "JP1B" = 2-3; a two-pin jumper keeps its name), fitted where
+    0R links, one per shunt position ("R_JP1A" = pins 1-2, "R_JP1B" = 2-3, "R_JP4" for a two-pin jumper; the R makes
+    the tools treat them as the links they are), fitted where
     that year's shunt sits and not fitted elsewhere. The tools already follow fitted 0R links between nets."""
     out = []
     for p in [dict(q, pads=dict(q['pads'])) for q in build_parts()]:
@@ -173,8 +174,8 @@ def year_parts(year):
         pos = SHUNTS[year].get(ref)
         for k, (a, b_) in enumerate([(1, 2)] if n == 2 else [(1, 2), (2, 3)]):
             fit = pos == (a, b_)
-            out.append(dict(ref=ref + ('' if n == 2 else 'AB'[k]), value='0R', fp=p['fp'], lcsc='C5305' if fit else '',
-                            pads={1: pads[a], 2: pads[b_]},
+            out.append(dict(ref='R_' + ref + ('' if n == 2 else 'AB'[k]), value='0R', fp=p['fp'], lcsc='C5305' if fit else '',
+                            pads={'1': pads[a], '2': pads[b_]},
                             desc=('' if fit else 'NOT FITTED: ') + f'{ref} shunt on pins {a}-{b_} ({j[3]}), as fitted for {year}'))
     return out
 

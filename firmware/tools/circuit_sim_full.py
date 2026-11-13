@@ -899,7 +899,7 @@ for y, _ in YEARS:
     tvs_t = lambda p: f'{60 + p * TVS_RTH_DB:.0f} / {85 + p * TVS_RTH_DB:.0f} C at 60 / 85 C ambient'
     if 'inj_pair' in L.values():
         # 1989-93: jumpers JP1 / JP2 on PAIR put two drivers, each with its own clamp, on each two-injector wire
-        on('JP2A', 'OUT_INJ1', 'OUT_INJ4', parts=MB[y]); on('JP1A', 'OUT_INJ2', 'OUT_INJ3', parts=MB[y])
+        on('R_JP2A', 'OUT_INJ1', 'OUT_INJ4', parts=MB[y]); on('R_JP1A', 'OUT_INJ2', 'OUT_INJ3', parts=MB[y])
         assert not MB[y]['D3']['lcsc'] and not MB[y]['D4']['lcsc'], 'motherboard D3/D4 are not fitted with a rev 0.10 daughterboard'
         pr = inj_pair[20e-3]
         tj = tj2(pr['i0'] / 2 * math.sqrt(0.9))
