@@ -7,7 +7,7 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 REL=$ROOT/mb/release_$S
 cd $ROOT/scripts
 MBREV=$REV python3 mb_readme.py $M $REL/README.md
-if [ -f $ROOT/research/pinouts_9605.md ] && [ "$S" != 8993 ] && [ "$S" != 9495 ]; then
+if [ -f $ROOT/research/pinouts_9605.md ] && [ "$S" != 8993 ] && [ "$S" != 9495 ] && [ "$S" != 8995 ]; then
   mkdir -p $REL/research && cp $ROOT/research/pinouts_9605.md $REL/research/
 fi
 NAME=miata_mb_${S}_rev${REV}

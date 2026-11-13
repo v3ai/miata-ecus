@@ -1,0 +1,49 @@
+Ref,Value,Footprint,LCSC,Assembly,Description
+J1,TE 174917-6,ecu_mb:TE_174917-6_48P,,hand-fit / not fitted,"Stock harness header, 48 pins (22 + 26). Hand-solder"
+H1,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
+H2,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
+H3,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
+H4,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
+H5,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
+H6,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
+JD1,Socket 1x40 (daughter J1),Connector_PinSocket_2.54mm:PinSocket_1x40_P2.54mm_Vertical,C124412,hand-fit,"2.54 mm 1x40 female, 8.5 mm. Mates with the daughterboard J1 (power + outputs)"
+JD2,Socket 1x40 (daughter J2),Connector_PinSocket_2.54mm:PinSocket_1x40_P2.54mm_Vertical,C124412,hand-fit,"2.54 mm 1x40 female, 8.5 mm. Mates with the daughterboard J2 (inputs + comms)"
+HD1,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
+HD2,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
+HD3,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
+HD4,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
+R1,120,Resistor_SMD:R_0603_1608Metric,C22787,JLC,CAN termination
+R6,0R,Resistor_SMD:R_0603_1608Metric,C21189,JLC,CAN termination link: fitted = 120R terminator active; remove if the bus is terminated elsewhere
+F1,3A hold,Fuse:Fuse_2920_7451Metric,C22446884,JLC,"Resettable fuse for the LSU heater supply (LUTE 2920L300/30GR: 3 A hold, 5 A trip, 30 V)"
+J2,AEM 30-3427,Connector_Molex:Molex_Micro-Fit_3.0_43045-0800_2x04_P3.00mm_Horizontal,,hand-fit / not fitted,"Wideband sensor harness AEM 30-3427 (to a Bosch LSU 4.9). AEM pin: 1 trim (RT), 2 heater -, 3 common (VM), 5 pump (IP), 6 sense (UN), 8 heater +. Molex 43045-0800 ASSUMED: check against the harness"
+R35,4.7k,Resistor_SMD:R_0603_1608Metric,C23162,JLC,Flex-fuel sensor signal pull-up to 5 V
+R36,10k,Resistor_SMD:R_0603_1608Metric,C25804,JLC,"Nitrous arming input pull-down: an open wire reads ""not armed"""
+D5,SS34,Diode_SMD:D_SMA,C8678,JLC,Boost valve freewheel diode to the AUX +12 V pin (feed the valve from J5-15)
+U2,MPX5700AP,ecu_mb:MPX5700AP_867B_Flat,C90152,hand-fit,"MAP sensor, 15-700 kPa absolute, single barbed port (case 867B). Lies flat, marking up, leads bent 90 deg, 2x M3 screws"
+C1,1u,Capacitor_SMD:C_0603_1608Metric,C15849,JLC,MAP supply
+C2,10n,Capacitor_SMD:C_0603_1608Metric,C57112,JLC,MAP supply
+C3,470p,Capacitor_SMD:C_0603_1608Metric,C1620,JLC,MAP output filter
+J4,USB-C,ecu_mb:USB_C_GCT_USB4105_16P,C3020560,JLC,USB-C for tuning and firmware (USB 2.0 FS)
+R2,5.1k,Resistor_SMD:R_0603_1608Metric,C23186,JLC,USB-C sink CC1
+R3,5.1k,Resistor_SMD:R_0603_1608Metric,C23186,JLC,USB-C sink CC2
+U4,USBLC6-2SC6,Package_TO_SOT_SMD:SOT-23-6,C7519,JLC,USB ESD protection
+J5,AUX 2x10,Connector_IDC:IDC-Header_2x10_P2.54mm_Vertical,,hand-fit / not fitted,"Add-on I/O: COP 3/4, boost, alternator, main relay, knock, VR crank/cam, external AFR, flex-fuel sensor, nitrous arming switch, CAN for gauges, 5 V, +12 V (fused, F4)"
+F4,1.1A hold,Fuse:Fuse_1812_4532Metric,,hand-fit / not fitted,"Resettable fuse for the AUX +12 V pin J5-15 (Littelfuse 1812L110/33: 1.1 A hold, 33 V; or equivalent 1812)"
+D1,SS34,Diode_SMD:D_SMA,C8678,JLC,"Idle valve freewheel diode (to its +12 V feed, VBAT_IN): keeps the PWM turn-off energy out of the driver"
+D2,SS34,Diode_SMD:D_SMA,C8678,JLC,"VVT-driver coil freewheel diode (to its +12 V feed, VBAT_IN)"
+R20,4.7k,Resistor_SMD:R_0603_1608Metric,,hand-fit / not fitted,"NOT FITTED: 12 V pull-up for the vehicle speed input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the switch closed) only if your car's signal switches to ground or is open collector; a switch that drives 12 V must not have it"
+R21,4.7k,Resistor_SMD:R_0603_1608Metric,,hand-fit / not fitted,"NOT FITTED: 12 V pull-up for the A/C switch input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the switch closed) only if your car's signal switches to ground or is open collector; a switch that drives 12 V must not have it"
+R22,4.7k,Resistor_SMD:R_0603_1608Metric,,hand-fit / not fitted,"NOT FITTED: 12 V pull-up for the clutch switch input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the switch closed) only if your car's signal switches to ground or is open collector; a switch that drives 12 V must not have it"
+JP1,INJ3,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,C49257,hand-fit,"Injector 3 driver: PAIR = in parallel with INJ2 on 2V (1989-93 stock harness, two injectors per wire); SEQ = its own wire 2Y (1994-95, or a 1989-93 sequential conversion). Shunt: 2.54 mm jumper cap (LCSC C5305), fitted by hand"
+JP2,INJ4,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,C49257,JLC,"Injector 4 driver: PAIR = in parallel with INJ1 on 2U (1989-93 stock); SEQ = its own wire 2Z (1994-95, or a 1989-93 sequential conversion). NEVER SEQ on a 1989-93 automatic: 2Z is the A/T control unit. Shunt: 2.54 mm jumper cap (LCSC C5305), fitted by hand"
+JP3,FAN2,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,C49257,JLC,"Second fan relay output: 1R on 1990-93 (the 1990-91 A/C fan), 2S on 1994-95 (condenser fan). Shunt: 2.54 mm jumper cap (LCSC C5305), fitted by hand"
+JP4,94-95 2R,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,,hand-fit / not fitted,"Fit on 1994-95: the pressure regulator control solenoid on 2R. Leave open on 1989-93. Shunt: 2.54 mm jumper cap (LCSC C5305), fitted by hand"
+JP5,TACH COP,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,,hand-fit / not fitted,"Leave OPEN with the stock igniter: it drives the tachometer and sends its signal to the ECU on 2I. Fit only after a coil-on-plug conversion with the igniter removed: the ECU then drives the tachometer through 2I (R37 is its 12 V pull-up; join the two tach wires at the old igniter plug). Shunt: 2.54 mm jumper cap (LCSC C5305), fitted by hand"
+JP6,2O,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,C49257,JLC,"Airflow meter signal wire 2O: AFM = to the spare analog input (stock); BOOST = boost valve output on that wire once the meter is removed (valve between the old meter plug's signal pin and 12 V). Shunt: 2.54 mm jumper cap (LCSC C5305), fitted by hand"
+D3,SMCJ30A,Diode_SMD:D_SMC,,hand-fit / not fitted,"NOT FITTED with a rev 0.10 daughterboard, which clamps the injectors itself. With a rev 0.9 daughterboard on a 1989-93 car: fit (SMCJ30A, SMC, LCSC C224048), clamp for the two injectors on 2U"
+D4,SMCJ30A,Diode_SMD:D_SMC,,hand-fit / not fitted,"NOT FITTED with a rev 0.10 daughterboard, which clamps the injectors itself. With a rev 0.9 daughterboard on a 1989-93 car: fit (SMCJ30A, SMC, LCSC C224048), clamp for the two injectors on 2V"
+R37,1k,Resistor_SMD:R_2512_6332Metric,,hand-fit / not fitted,"Tachometer pull-up to 12 V for the coil-on-plug case (JP5 fitted): the stock tachometer needs it once the igniter is gone. 2512, 1 W (0.2 W at 14.4 V)"
+R27,4.7k,Resistor_SMD:R_0603_1608Metric,,hand-fit / not fitted,"NOT FITTED: 5 V pull-up for the stock throttle switch contact on 2L (manual cars, R29 fitted). Fit (4.7k 0603, LCSC C23162; 1.1 mA with the switch closed) to read the stock switch; never with a sensor on 2L"
+R28,0R,Resistor_SMD:R_0805_2012Metric,,hand-fit / not fitted,NOT FITTED: TPS conversion only (manual cars): protected 5 V to 1N for a 0-5 V sensor on the stock plug. Never with the stock throttle switch: it shorts 1N to ground at idle
+R29,0R,Resistor_SMD:R_0805_2012Metric,C17477,JLC,Stock: 2L to the spare analog input AUX1 (remove for a TPS conversion)
+R30,0R,Resistor_SMD:R_0805_2012Metric,,hand-fit / not fitted,"NOT FITTED: TPS conversion only (manual cars): 2L to the TPS input, in place of R29. Never on an automatic: its sensor is on 2M"

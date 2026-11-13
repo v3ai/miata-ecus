@@ -103,8 +103,11 @@ for fp in b.GetFootprints():
 # 4. zones (rev 0.8: heat-spreading drain copper for the eight DPAK drivers first, see tab_copper.py)
 import tab_copper
 print('driver thermal vias:', tab_copper.add(b))
+import clamp_copper           # rev 0.10: copper and vias for the four injector clamp TVSs
+print('clamp TVS vias:', clamp_copper.add(b))
 pcbnew.ZONE_FILLER(b).Fill(b.Zones())
 print('driver drain copper per layer (mm^2):', tab_copper.area(b))
+print('clamp TVS copper per layer (mm^2):', clamp_copper.area(b))
 
 # 5. GND stitching vias (no track on them) whose hole crowds a header pin's hole: rev 0.8 moved the headers 16 mm on
 # the router's fixed stitching grid, which put a few of them 0.1-0.2 mm from J1/J2 holes (0.25 mm hole to hole needed)
