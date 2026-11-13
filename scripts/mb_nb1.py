@@ -12,10 +12,12 @@ CASE_HOLES = {k: v for k, v in L.CASE_HOLES.items() if k not in ('H1', 'H2')}
 
 NAME = 'miata_mb_9900'
 TITLE = 'Miata ECU motherboard 1999-2000 (NB1)'
-HDR_1A = (26.35, 18.13)
+HDR_1A = (16.0, 18.13)
 CASE_NOTE = L.CASE_NOTE_PROVISIONAL
-HEADER_DESC = ('TE **176122-6** (4-174518-7), 64 positions: plug 1 = 1A-1V (22), plug 2 = 2A-2P (16), plug 3 = 3A-3Z (26). '
-               'Fitted by hand.')
+HEADER_DESC = ('TE **178780-1**, 76 positions, the same header as the 1996-97 board (rev 0.8; the car\'s own header is '
+               'the 64-position 176122-6, whose three plugs are the same housings): plug 1 = 1A-1V (22), plug 2 = 2A-2P '
+               '(16), plug 3 = 3A-3Z (26). The 12-position bay between plugs 1 and 2 has no harness plug and is not '
+               'connected. Fitted by hand.')
 CHANGES = ["Rev 0.7, for daughterboard rev 0.9: the daughterboard sits 16 mm lower, centred on the board (42 mm from the top, as up to rev 0.7), with its J1 on its top edge again: JD1 and the upper standoffs HD1/HD2 are back at their rev 0.7 places, JD2, the lower standoffs HD3/HD4, the AUX header J5 (with F4 beside it) and the parts placed against JD2 (CAN termination R1/R6, pull-up options) are 16 mm lower, and the board is routed again. Not compatible with a rev 0.8 daughterboard.", "Rev 0.6, for daughterboard rev 0.8: the harness's sensor 5 V (2I) and the AUX header pin J5-14 now come from the daughterboard's protected 5 V (V5_EXT, JD1 pin 13, which was a ground pin): a sensor 5 V wire shorted to the battery no longer back-feeds the MAP sensor and the ECU's own 5 V. The MAP sensor keeps its own supply (V5_SENS). The daughterboard outline on the silkscreen is 16 mm taller (125 x 76 mm): its new strip of output drivers overhangs the free area above JD1.",
            "Rev 0.5: LSU heater fuse F1 is a 3 A hold PTC (LUTE 2920L300/30GR, 30 V, 2920 size) instead of the 2 A 1812 part. A cold LSU 4.9 heater draws 1.6-2.3 A rms at the start of the wideband's warm-up, more than the old fuse holds once warm, so it could trip and the controller time out. No 1812 PTC holds 3 A above 8 V.",
            'Rev 0.4: freewheel diode D1 on the idle valve to its +12 V feed (the PWM turn-off energy no longer goes into the daughterboard driver); F4 resettable fuse on the AUX +12 V pin J5-15; not-fitted 12 V pull-up options R20-R22 for the VSS / A/C / clutch inputs.',
@@ -49,7 +51,7 @@ HARNESS = {
     '1U': 'OUT_VVT',     # front HO2S heater (PWM low side; no VVT on NB1)
     '1V': '',            # neutral switch (not read)
     '2A': '',            # fuel tank pressure sensor (not read)
-    '2B': 'HARN_IAT',    # intake air temperature (IAT jumper JP1 on STOCK to use it)
+    '2B': 'IN_IAT',      # intake air temperature sensor (in the air filter box)
     '2C': 'IN_AUX2',     # front HO2S
     '2D': 'IN_SW1',      # vehicle speed sensor
     '2E': 'IN_CLT',      # coolant temperature
@@ -82,8 +84,9 @@ FUSES = [('F2', 'IAC_12V', 'idle valve +12 V feed (3O)')]
 
 
 def build_parts():
-    parts = L.build('ecu_mb:TE_176122-6_64P', 'TE 176122-6', 'Stock harness header, 64 positions. Hand-solder; salvage '
-                    'from a stock ECU or use a clone', HARNESS, FUSES, holes=CASE_HOLES)
+    parts = L.build('ecu_mb:TE_178780-1_76P_NB1', 'TE 178780-1', 'Harness header, 76 positions (the 22-, 16- and 26-position '
+                    'bays take the car\'s three plugs; the 12-position bay stays empty). Hand-solder',
+                    dict(HARNESS, **{'X' + k: '' for k in 'ABCDEFGHIJKL'}), FUSES, holes=CASE_HOLES)
     L.C.protection_parts('IAC_12V')
     return parts
 

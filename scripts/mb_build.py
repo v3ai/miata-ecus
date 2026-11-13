@@ -56,6 +56,7 @@ def load_fp(spec):
 
 
 def build(modname, out):
+    C.SILK.clear()
     M = importlib.import_module(modname)
     parts = M.build_parts()
     place = M.placement()
@@ -114,14 +115,19 @@ def build(modname, out):
     # the daughterboard outline (125 x 76 mm since rev 0.8; J1 on its top edge again since rev 0.9)
     import placement as dpl
     rect(M.DAUGHTER[0], M.DAUGHTER[1], dpl.BOARD_W, dpl.BOARD_H, 'DAUGHTERBOARD')
-    # IAT source jumper: position names over its end pins, the function under the middle one
-    jp = board.FindFootprintByReference('JP1')
-    if jp:
+    # jumpers: position labels above the end pins, the jumper's name below the middle
+    for jref, (name, labels) in C.SILK.items():
+        jp = board.FindFootprintByReference(jref)
+        if not jp:
+            continue
         pads = {p.GetNumber(): p.GetPosition() for p in jp.Pads()}
-        for num, label, dy in (('1', 'STOCK', -2.3), ('3', 'EXT', -2.3), ('2', 'IAT', 2.3)):
+        cx = sum(p.x for p in pads.values()) // len(pads); cy = sum(p.y for p in pads.values()) // len(pads)
+        items = [(pads[str(k)].x + FromMM(-1.2 if k == 1 else 1.2), pads[str(k)].y + FromMM(-2.3), v) for k, v in labels.items()]
+        items.append((cx, cy + FromMM(2.3), name))
+        for x, y, label in items:
             t = pcbnew.PCB_TEXT(board); t.SetText(label); t.SetLayer(pcbnew.F_SilkS)
-            t.SetPosition(VECTOR2I(pads[num].x, pads[num].y + FromMM(dy)))
-            t.SetTextSize(VECTOR2I(FromMM(1.0), FromMM(1.0))); t.SetTextThickness(FromMM(0.15)); board.Add(t)
+            t.SetPosition(VECTOR2I(int(x), int(y)))
+            t.SetTextSize(VECTOR2I(FromMM(0.9), FromMM(0.9))); t.SetTextThickness(FromMM(0.14)); board.Add(t)
         jp.Reference().SetVisible(False)
     t = pcbnew.PCB_TEXT(board); t.SetText(M.TITLE + '  rev ' + os.environ.get('MBREV', '0.3')); t.SetLayer(pcbnew.F_SilkS)
     # rev 0.9: the title goes in the free band between the harness header and the daughterboard
@@ -137,6 +143,12 @@ def build(modname, out):
             ex, ey = dx + 13.0 + (k - 1) * 2.54, dy + yy
             gx, gy = ToMM(pad.GetPosition().x) - OX, ToMM(pad.GetPosition().y) - OY
             assert abs(gx - ex) < 0.01 and abs(gy - ey) < 0.01, (ref, k, gx, gy, ex, ey)
+    # the third socket: every pad under the daughterboard J4 pad of the same net
+    fp = board.FindFootprintByReference('JD3')
+    want = {(round(dx + x, 2), round(dy + y, 2)): daughter.J4[int(n)] for n, (x, y) in C.jd3_geometry().items()}
+    for pad in fp.Pads():
+        k = (round(ToMM(pad.GetPosition().x) - OX, 2), round(ToMM(pad.GetPosition().y) - OY, 2))
+        assert want.get(k) == pad.GetNetname(), ('JD3', pad.GetNumber(), k, pad.GetNetname(), want.get(k))
     board.Save(out)
     print('built', out, len(parts), 'parts', len(nets), 'nets')
     return board
