@@ -297,6 +297,14 @@
   "mpn": "BAT54SLT1G",
   "note": ""
  },
+ "C1982018": {
+  "correct_lcsc": null,
+  "desc": "TVS 13.6V stand-off, 15.2-16.8V breakdown, 22.5V clamp, 1.5kW, SMC, 185C junction, AEC-Q101",
+  "match": true,
+  "mfr": "Vishay",
+  "mpn": "TPSMC16AHE3_B/H",
+  "note": "In JLCPCB's parts library (page read 2026-11-13); stock is not shown there and not confirmed. Alternate with confirmed stock, same footprint: Diodes Inc. SMCJ14A-13-F, LCSC C135134 (150 C junction)"
+ },
  "C20551": {
   "correct_lcsc": null,
   "desc": "Dual 1.5A non-inverting MOSFET driver, 4.5-18V, SOIC-8",

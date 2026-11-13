@@ -356,13 +356,17 @@ for i, n in enumerate(HS_OUT):
 # battery input (drain -|>|- INJn_CL -|<TVS|- VBAT_IN). The injector's energy no longer goes through the driver's own
 # clamp (which starts at 36 V): the drain peaks at about battery + 18 V. Returned to the battery, not to ground, so
 # nothing conducts when the supply itself is high (jump start, load dump) and the supply adds no energy to the decay.
-# SMCJ14A: 15.6-17.2 V; the highest part that still clamps before a minimum-clamp driver at 15.5 V with the TVS hot.
-# See firmware/tools/sim_inj_clamp.py.
+# SMCJ14A (15.6-17.2 V) is the highest part that still clamps before a minimum-clamp driver at 15.5 V with the TVS
+# hot. Fitted: Vishay TPSMC16A, 15.2-16.8 V and rated to a 185 C junction instead of 150 C. On 1989-93 cars two
+# injectors share a wire and two of these clamps sit in parallel; the one with the lower breakdown can take both
+# injectors' energy, which the 150 C part does not cover with high-inductance injectors at sustained high rpm
+# (firmware/tools/sim_inj_clamp.py section I, firmware/tools/board_thermal.py).
 for i in range(4):
     n = f'INJ{i + 1}'
     add(f'D{42 + i}', 'ES1D', 'SMA', 'C116492', {'1': n + '_CL', '2': 'OUT_' + n}, f'{n} clamp diode (200 V 1 A ultrafast)')
-    add(f'D{46 + i}', 'SMCJ14A', 'SMC', 'C135134', {'1': n + '_CL', '2': 'VBAT_IN'},
-        f'{n} clamp TVS, returns to the battery input (Diodes Inc. SMCJ14A-13-F)')
+    add(f'D{46 + i}', 'TPSMC16A', 'SMC', 'C1982018', {'1': n + '_CL', '2': 'VBAT_IN'},
+        f'{n} clamp TVS, returns to the battery input (Vishay TPSMC16AHE3_B/H: 15.2-16.8 V, 185 C junction. '
+        'Alternate, same footprint: SMCJ14A-13-F, LCSC C135134, 15.6-17.2 V, 150 C: see the board notes)')
 
 # ---------------------------------------------------------------------------
 # Inputs

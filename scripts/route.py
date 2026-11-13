@@ -53,6 +53,16 @@ else:
     INNER_DIR = {}
 INNER_PREF = 1.5                       # cost factor for running against an inner layer's direction
 VIA_COST = float(_os.environ.get('VCOST', '10.0'))     # cost of a layer change, in grid steps
+# Six layers: JLCPCB's standard inner copper is half the thickness of the outer layers (0.5 oz against 1 oz). Nets that
+# carry an injector's or a valve's current, or the logic supply's input current, stay on the outer layers; everything
+# else may use the inner ones (scripts/track_current.py checks the result, layer by layer)
+OUTER_ONLY = {'OUT_INJ1', 'OUT_INJ2', 'OUT_INJ3', 'OUT_INJ4', 'OUT_IACV', 'OUT_VVT', 'OUT_BOOST',
+              '+12V_IN', '+12V', '+12V_F', 'BUCK_SW', 'USB_VBUS'} if SIX else set()
+# On two nets only the trunk carries the current: the battery pins to the reverse diode (the clamp returns and the
+# sense taps on VBAT_IN carry little), and the buck inductor and USB diode to the 3.3 V regulator on +5V. These pads
+# are joined first, on the outer layers; the net's other pads may reach the trunk through the inner layers
+OUTER_PADS = {('J1', '1'), ('J1', '2'), ('D6', '1'), ('D7', '2'),
+              ('L2', '2'), ('U4', '3'), ('D10', '1')} if SIX else set()
 NL = len(ROUTE_LAYERS)
 BOT = NL - 1                           # index of B.Cu
 ALL = tuple(range(NL))
@@ -68,6 +78,7 @@ WIDTH = {
     'OUT_IGN1': 0.4, 'OUT_IGN2': 0.4, 'OUT_IGN3': 0.4, 'OUT_IGN4': 0.4,
     'IGN1_DRV': 0.4, 'IGN2_DRV': 0.4, 'IGN3_DRV': 0.4, 'IGN4_DRV': 0.4,
     'IGN1_SRC': 0.4, 'IGN2_SRC': 0.4, 'IGN3_SRC': 0.4, 'IGN4_SRC': 0.4,
+    'INJ1_CL': 0.8, 'INJ2_CL': 0.8, 'INJ3_CL': 0.8, 'INJ4_CL': 0.8,     # rev 0.10: clamp diode to clamp TVS
 }
 SKIP = {'GND', '+3V3'}           # plane nets: every pad gets a via instead
 ST4 = ndimage.generate_binary_structure(2, 1)
@@ -372,7 +383,7 @@ class Router:
 
     # ------------------------------------------------------------------ search
     def astar(self, net, sources, targets, width, soft=False, via_ok=True, mask=None,
-              bottom_cost=None, via_cost=VIA_COST, penalty=25.0, limit=1500000):
+              bottom_cost=None, via_cost=VIA_COST, penalty=25.0, limit=1500000, outer_only=False):
         g = self.grid
         P, T = [], []
         for L in ALL:
@@ -384,6 +395,9 @@ class Router:
             V = g.via_ok(net, soft)
             for L in ALL:
                 V = V & P[L]
+        if outer_only:                      # a via still passes the inner layers (checked above); no track runs there
+            for L in INNER_DIR:
+                P[L] = np.zeros_like(P[L])
         nx, ny = g.nx, g.ny
         tset = set(targets)
         tj = np.array([t[1] for t in targets]); ti = np.array([t[2] for t in targets])
@@ -585,7 +599,9 @@ class Router:
         """returns set of nets ripped (to be re-queued); records failures"""
         if name in self.prerouted:
             return set()
-        mypads = sorted((p for p in self.pads if p['net'] == name), key=lambda p: 'w' in p)   # thin taps last
+        trunk = lambda p: (p['fp'], p['num']) in OUTER_PADS
+        # trunk pads first, thin taps last
+        mypads = sorted((p for p in self.pads if p['net'] == name), key=lambda p: (not trunk(p), 'w' in p))
         ripped = set()
         if len(mypads) < 2:
             return ripped
@@ -593,8 +609,9 @@ class Router:
         remaining = mypads[1:]
         src = set(mypads[0]['cells'])
         while remaining:
-            pool = [p for p in remaining if 'w' not in p] or remaining
+            pool = [p for p in remaining if trunk(p)] or [p for p in remaining if 'w' not in p] or remaining
             best = min(pool, key=lambda p: min(math.dist(p['c'], q['c']) for q in connected))
+            oo = name in OUTER_ONLY or trunk(best)
             remaining.remove(best)
             tgt = set(best['cells'])
             if src & tgt:
@@ -604,12 +621,13 @@ class Router:
             if 'w' in best:
                 widths = [best['w'], SIG_W]
             for w in dict.fromkeys(widths):
-                path = self.astar(self.grid.nid(name), src | self.netcells.get(name, set()), tgt, w)
+                path = self.astar(self.grid.nid(name), src | self.netcells.get(name, set()), tgt, w, outer_only=oo)
                 if path:
                     used_w = w; break
             if not path and allow_rip:
                 for w in dict.fromkeys(widths[-2:]):
-                    sp = self.astar(self.grid.nid(name), src | self.netcells.get(name, set()), tgt, w, soft=True)
+                    sp = self.astar(self.grid.nid(name), src | self.netcells.get(name, set()), tgt, w, soft=True,
+                                    outer_only=oo)
                     if not sp:
                         continue
                     vic = {v for v in self.victims(name, sp, w) if ripcount.get(v, 0) < 8} - {name}
@@ -619,7 +637,7 @@ class Router:
                         ripcount[v] = ripcount.get(v, 0) + 1
                     self.rip(vic)
                     ripped |= vic
-                    path = self.astar(self.grid.nid(name), src | self.netcells.get(name, set()), tgt, w)
+                    path = self.astar(self.grid.nid(name), src | self.netcells.get(name, set()), tgt, w, outer_only=oo)
                     if path:
                         used_w = w
                         break
@@ -945,7 +963,8 @@ def main(inp, out):
         fails = [f for f in r.failed if 'stitch' not in f[0]]
     else:
         # fine-pitch IC pins and the boxed-in sense divider get their plane vias first
-        ic = lambda p: p['fp'].startswith('U') or p['fp'] in ('R12', 'R14', 'C28', 'C29')
+        # (rev 0.10: and the debug pads J3, whose six pads leave no room for a via once tracks pass beside them)
+        ic = lambda p: p['fp'].startswith('U') or p['fp'] in ('R12', 'R14', 'C28', 'C29', 'J3')
         r.gnd_stitch('+3V3', 3.0, ic)
         r.gnd_stitch('GND', 3.0, ic)
         stitch_fail = list(r.failed)
