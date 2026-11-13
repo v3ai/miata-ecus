@@ -237,9 +237,10 @@ static void setMiataNbCommon() {
 	engineConfiguration->alternatorControlPin = MIATA_ALT;
 	engineConfiguration->alternatorPwmFrequency = 250;   // as the stock ECU
 	engineConfiguration->isAlternatorControlEnabled = false;
-	// VBATT is measured on the board's +12V rail, after the reverse diode D7 and the PTC F1, so it reads about
-	// 0.3-0.4 V below the battery. A 14.0 V target therefore holds the battery near 14.3-14.4 V, inside the stock NB
-	// regulator's range; lower the table if a voltmeter at the battery says otherwise.
+	// A rev 0.10 board measures VBATT at the battery input itself, so a 14.0 V target holds the ECU's battery pin at
+	// 14.0 V. A rev 0.9 board measures after the reverse diode D7 and the PTC F1 and reads 0.3-0.4 V low: there the
+	// same target holds the battery near 14.3-14.4 V. Both are inside the stock NB regulator's range, so one table
+	// serves both boards; raise it to 14.3 V on a rev 0.10 board to match, or follow a voltmeter at the battery.
 	setTable(config->alternatorVoltageTargetTable, 14.0f);
 	engineConfiguration->alternatorControl.offset = 20;
 	engineConfiguration->alternatorControl.pFactor = 16;

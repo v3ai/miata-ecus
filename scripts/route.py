@@ -42,13 +42,17 @@ if SIX:
     # rev 0.10: F.Cu / In1 GND plane / In2 signal / In3 signal / In4 +3V3 plane / B.Cu. The two inner signal layers
     # are 0.11 mm apart in JLCPCB's standard stack, so they prefer crossing directions (In2 along x, In3 along y).
     ROUTE_LAYERS = [_p.F_Cu, _p.In2_Cu, _p.In3_Cu, _p.B_Cu]
-    LAYER_COST = [1.0, 1.1, 1.1, 1.25]
+    # LCOST=f,in2,in3,b overrides the cost per layer (per grid step). With the outer layers dearer than the inner
+    # ones, long runs dive to the inner layers and the top stays free for the escapes around the fine-pitch parts
+    LAYER_COST = [float(x) for x in _os.environ.get('LCOST', '1.0,1.1,1.1,1.25').split(',')]
+    assert len(LAYER_COST) == 4
     INNER_DIR = {1: 'h', 2: 'v'}
 else:
     ROUTE_LAYERS = [_p.F_Cu, _p.B_Cu]      # In1.Cu = GND plane, In2.Cu = +3V3 plane
     LAYER_COST = [1.0, 1.25]
     INNER_DIR = {}
 INNER_PREF = 1.5                       # cost factor for running against an inner layer's direction
+VIA_COST = float(_os.environ.get('VCOST', '10.0'))     # cost of a layer change, in grid steps
 NL = len(ROUTE_LAYERS)
 BOT = NL - 1                           # index of B.Cu
 ALL = tuple(range(NL))
@@ -368,7 +372,7 @@ class Router:
 
     # ------------------------------------------------------------------ search
     def astar(self, net, sources, targets, width, soft=False, via_ok=True, mask=None,
-              bottom_cost=None, via_cost=10.0, penalty=25.0, limit=1500000):
+              bottom_cost=None, via_cost=VIA_COST, penalty=25.0, limit=1500000):
         g = self.grid
         P, T = [], []
         for L in ALL:

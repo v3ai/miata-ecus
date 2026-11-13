@@ -212,9 +212,10 @@ Read this before the engine runs for the first time.
    and clutch signals actually drive the line high. A signal that only pulls to ground needs the motherboard's
    pull-up for that input fitted (R20-R22, 4.7k 0603, not fitted by default). Don't fit one on a line the car
    drives to 12 V.
-6. **Battery voltage reads low.** VBATT is measured after the board's reverse diode and fuse, so it reads about
-   0.3-0.4 V below the battery. Compare it with a voltmeter on the first start; it shifts the NB charging voltage
-   by the same amount.
+6. **Battery voltage.** A rev 0.10 daughterboard measures VBATT at the battery input and should agree with a
+   voltmeter on the ECU's supply pin. A rev 0.9 board measures after its reverse diode and fuse and reads about
+   0.3-0.4 V low. Compare it with a voltmeter on the first start; on a rev 0.9 board the NB charging voltage sits
+   that much above the target, on a rev 0.10 board at the target.
 7. **NB alternator: control ships off.** On NB cars the engine computer sets the charging voltage. Harness pin 1O
    (1999-2000) or 3M (2001-05) is a logic-level PWM input to the regulator inside the alternator (about 5 mA), not
    the field coil, so the ALT driver can run it. Check the wire once per car type before switching it on
