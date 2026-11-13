@@ -248,7 +248,8 @@ C12_EFF, C5_EFF, C33_EFF = 7e-6, 6 * 6e-6 + 2e-6 + 0.5e-6, 7e-6 + 3 * 3e-6 + 1.5
 
 
 # +3V3 load: about 0.15 A for the two processors, LEDs and pull-ups (F407 at 168 MHz about 90-110 mA, F103 about 30 mA;
-# ST datasheet figures, recalled), plus 0.10 A while a microSD card writes (SD default-speed maximum, recalled) on
+# ST datasheet figures, recalled), plus 0.10 A while a microSD card writes (SD default-speed maximum over one second:
+# Swissbit AN2111, read 2026-11-13) on
 # boards that have the socket. F1 and L1 resistance by part: the 0.5 A 1206 fuse about 0.5 ohm and the 1210 inductor
 # 0.3 ohm (rev 0.9); the 1.1 A 1812 fuse about 0.2 ohm and the moulded inductor about 0.03 ohm (rev 0.10; typical
 # catalogue values, not read from the makers' sheets).
@@ -1974,6 +1975,35 @@ record('Power', 'microSD card pushed in while running (5 uF uncharged in the car
        f'+3V3 dips to {_vb:.2f} V at the bulk capacitors (the processors) and {_vs:.2f} V at the socket',
        'OK' if _vb > F4_VMIN_168 else 'CHECK',
        f'above the {F4_VMIN_168:.1f} V the F407 needs at 168 MHz and its {F4_BOR_FALL:.1f} V brown-out reset')
+
+# A card's supply current is 100 mA at most averaged over a second in default speed, with peaks of "several hundred
+# mA" for up to about 1 ms while its controller and flash work (Swissbit AN2111, read 2026-11-13). Case: 0.4 A for 1 ms
+# on top of the running load, with the same slow regulator model as above (its real load-step response is not modelled).
+net = f"""* microSD write peak
+Cb bulk 0 {2 * 45e-6 + C33_EFF} ic=3.3
+Rb bulk b1 0.01
+Lb b1 sock 5n
+Cs sock s1 6.1u ic=3.3
+Rse s1 0 0.005
+Ipk sock 0 PULSE(0 0.4 0.1m 1u 1u 1m 20m)
+Il bulk 0 {I33 - 0.10}
+Vreg r0 0 {3.3 + (I33 - 0.10) * 0.2}
+Rreg r0 r1 0.2
+Lreg r1 bulk 1u ic={I33 - 0.10}
+.tran 0.2u 1.6m 0 0.2u uic
+.control
+run
+wrdata @DAT@ @VEC@
+.endc
+.end
+"""
+d = spice('sd_peak', net, ['v(bulk)', 'v(sock)'])
+_vb, _vs = float(np.min(d['v(bulk)'])), float(np.min(d['v(sock)']))
+record('Power', 'microSD write peak: 0.4 A for 1 ms at the socket (Swissbit: "several hundred mA", up to 1 ms)',
+       f'+3V3 dips to {_vb:.2f} V at the processors and {_vs:.2f} V at the socket',
+       'OK' if _vb > F4_VMIN_168 and _vs > 2.7 else 'CHECK',
+       'above 2.7 V, the minimum for a card; the regulator is modelled as 0.2 ohm behind 1 uH, its own load-step '
+       'response is not')
 
 # ---- report -----------------------------------------------------------------------------------------------------
 w = max(len(r[1]) for r in results)

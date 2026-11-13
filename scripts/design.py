@@ -217,8 +217,10 @@ R('R7', '1', '+12V', 'DAMP')
 C('C16', '10u/50V', 'DAMP', 'GND', '1206')   # rev 0.5: 50 V part (was 4.7u 16 V)
 # rev 0.5b: FH CMI322513U2R2KT (500 mA, 0.3 ohm; the buck draws about 0.15 A at 12 V). The Taiyo Yuden
 # LBC3225T2R2MR ran out at JLC.
-# rev 0.10: Sunlord MWSA0503S-2R2MT (moulded, several amps) instead of the 500 mA 1210 part, to match the new fuse
-add('L1', '2.2uH', 'L5050', 'C408408', {'1': '+12V', '2': '+12V_F'}, 'input filter (Sunlord MWSA0503S-2R2MT)')
+# rev 0.10: a moulded 5.4 x 5.2 mm part of several amps instead of the 500 mA 1210 part, to match the new fuse. First
+# choice was Sunlord MWSA0503S-2R2MT (C408408); LCSC's page for it answered "part not found" on 2026-11-13, so the
+# cjiang FXL0530-2R2-M (48,725 in stock that day) is named instead. Same outline; the footprint is the Sunlord one.
+add('L1', '2.2uH', 'L5050', 'C177247', {'1': '+12V', '2': '+12V_F'}, 'input filter (cjiang FXL0530-2R2-M, 7 A, 29 mOhm)')
 C('C17', '10u/50V', '+12V_F', 'GND', '1206')
 C('C18', '10u/50V', '+12V_F', 'GND', '1206')
 C('C71', '100n', '+12V_F', 'GND')            # rev 0.10: 100 nF 50 V at the buck's VIN pins (C17/C18 sit a few mm away)
@@ -359,7 +361,8 @@ for i, n in enumerate(HS_OUT):
 for i in range(4):
     n = f'INJ{i + 1}'
     add(f'D{42 + i}', 'ES1D', 'SMA', 'C116492', {'1': n + '_CL', '2': 'OUT_' + n}, f'{n} clamp diode (200 V 1 A ultrafast)')
-    add(f'D{46 + i}', 'SMCJ14A', 'SMC', 'C310012', {'1': n + '_CL', '2': 'VBAT_IN'}, f'{n} clamp TVS, returns to the battery input')
+    add(f'D{46 + i}', 'SMCJ14A', 'SMC', 'C135134', {'1': n + '_CL', '2': 'VBAT_IN'},
+        f'{n} clamp TVS, returns to the battery input (Diodes Inc. SMCJ14A-13-F)')
 
 # ---------------------------------------------------------------------------
 # Inputs

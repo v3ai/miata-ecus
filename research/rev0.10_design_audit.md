@@ -18,6 +18,8 @@ No board has been built. Nothing here is a bench measurement.
 | A5 | **The microSD socket named in the WIP design was push-pull, not push-push.** Molex 104031-0811 holds the card by friction only | KiCad library description of the Molex drawing; element14 listing (read) | A card can walk out under vibration | Molex 47219-2001, hinged lid (LCSC C164170), the socket rusEFI's boards use |
 | A6 | **SD cards want pull-ups on every data line, also in SPI mode.** DAT1 and DAT2 were left open | Espressif's summary of the SD specification (read); the specification itself was not read | A floating input on the card: extra supply current, in the worst case erratic behaviour | 47 kΩ on CS, DI, DO, DAT1 and DAT2 |
 | A7 | **Logic supply fuse and filter (F1 0.5 A, L1 0.5 A) are too small**, as the external review said; the card adds up to 0.1 A at 3.3 V | Review note in VERIFICATION.md; SD current recalled (100 mA default speed) | A hot ECU with a weak crank could trip F1 | F1 1.1 A hold, 33 V, 1812; L1 to match |
+| A8 | **Two of the parts first named for this revision could not be relied on for an order.** LCSC had 115 of the Brightking SMCJ14A (C310012), and its page for the Sunlord inductor MWSA0503S-2R2MT (C408408) answered "part not found" | LCSC listings (read 2026-11-13) | An assembly order could stall on either part | D46-D49: Diodes Inc. SMCJ14A-13-F (C135134, 2,707 in stock, same 15.6-17.2 V breakdown and 23.2 V clamp). L1: cjiang FXL0530-2R2-M (C177247, 48,725 in stock; 2.2 µH, 7 A, 29 mΩ, the same 5.4 × 5.2 mm moulded outline) |
+| A9 | **The card socket is rated -20 to +85 °C**, narrower than the rest of the board | LCSC listing for Molex 47219-2001 (read; Molex's own specification not read) | Logging is not assured in a cabin below -20 °C or a parked car above 85 °C. The engine does not depend on the card | Stated as a limit in the board notes. Cards themselves are usually rated -25 to +85 °C |
 
 ## Checked and found correct
 
@@ -32,22 +34,34 @@ No board has been built. Nothing here is a bench measurement.
 | SN74LVC4245A pins, A port is the 5 V side, DIR low sends B to A, DIR and OE referenced to the 5 V supply, either supply may come up first | TI datasheet SCAS375 (read) | Matches the wiring of U11 and U12 |
 | Flex-fuel sensor: 12 V supply, the ECU pulls the signal up to 5 V, the sensor pulls it low, 50-150 Hz, 1-5 ms pulses | A reproduction of GM's workshop manual (read; not GM's own site) | Matches the 4.7 kΩ pull-up to the sensor 5 V on the motherboards and the 12 V pin on the add-on header |
 | JLCPCB six-layer limits: 0.09 mm track and gap, 0.15 mm hole / 0.25 mm via minimum (0.2 mm hole preferred), 0.2 mm hole to track, via-in-pad filled and capped by default | JLCPCB capabilities page (read) | The design rules in use (0.15-0.2 mm tracks, 0.6 / 0.3 mm vias) are well inside them |
+| ZXMS6004FF pins and land pattern (second pass) | Two independent open designs' KiCad symbols for the part (Hackuarium pH meter, bocaj88 gpsspeed; fetched from GitHub); package table of the Diodes datasheet (read) | Both give 1 gate/input, 2 source, 3 drain on a SOT-23 footprint, as here. Leads: 2.3-2.5 mm tip to tip, 0.35-0.5 mm wide, foot 0.3-0.65 mm. The KiCad SOT-23 pads in use are 0.6 mm wide and reach from 0.2 to 1.675 mm from the centre line, so the flat leads land wholly on them. The maker's own pin drawing still did not extract |
+| SMCJ14A thermal figures | Vishay SMCJ datasheet (read) | 75 °C/W junction to ambient on the minimum pads (typical), 15 °C/W junction to lead, 150 °C maximum junction. The simulations' bare-pad figure is this one |
+| TVS breakdown against temperature | Vishay 1.5KE datasheet 88301 (read): a 1500 W family with the coefficient tabulated | 0.086 %/°C maximum for the 16 V type (15.2-16.8 V), 0.084-0.089 for its neighbours. The 0.1 %/°C used for the SMCJ14A is on the safe side (it puts the hot clamp higher, nearer the driver's 36 V) |
+| SD card supply and pull-ups | Swissbit application note AN2111 (read) | "All signals except the clock" need pull-ups of 10-100 kΩ (47 kΩ fitted on all five); a card takes at most 100 mA averaged over a second at default speed, with peaks of several hundred mA for up to about 1 ms; minimum 2.7 V. The whole-board simulation now has a 0.4 A, 1 ms case |
+| F1 (BSMD1812-110-33V) | LCSC listing (read) | 1.1 A hold, 2.2 A trip, 33 V, 40 A, 45 mΩ initial, 250 mΩ maximum after a trip, -40 to +85 °C. The simulation's 0.2 Ω is on the high side of that |
 
 ## Not verified
 
 - **Injector inductance** (A3) and the injector's real closing time against clamp voltage. Simulated current decay is
   a stand-in for closing time.
 - **What happens to a VND7NV04 driven without the 150 Ω** (A1). The rule is ST's; the consequence is my reading.
-- **The TVS temperature coefficient**: Littelfuse gives the formula without the number; 0.1 %/°C is assumed.
+- **The SMCJ14A's own temperature coefficient**: neither Littelfuse nor Vishay tabulates it for the SMCJ family. 0.1 %/°C
+  is assumed; Vishay's 1.5KE family of the same power gives 0.086 %/°C for the same voltage (see above).
 - **Load dump level.** The design assumes a suppressed dump of about 35 V. Above 36-40 V the drivers' own clamps conduct
   through their loads for as long as the dump lasts (0.5-0.7 A and about 25 W per injector driver at 45 V, simulated).
   Whether a Miata alternator limits the dump is not known. This is unchanged from rev 0.9.
-- **Stock at JLCPCB/LCSC** for the new parts. Numbers were found by search on 2026-11-13; stock was not checked.
+- **Stock at JLCPCB.** LCSC's stock was read on 2026-11-13 for the clamp TVS (2,707), the card socket (387), the fuse
+  (41,170) and the inductor (48,725); for the ES1D and the 220 Ω resistors only the order numbers were found. JLCPCB's
+  assembly stock is a separate figure and its part pages showed none. The parts workbook says which is which.
+- **The FXL0530 inductor's land pattern** against the footprint in use (drawn for the Sunlord part of the same outline):
+  the maker's drawing did not load.
+- **F1 in a load dump while tripped**: it is rated 33 V; a suppressed dump is taken as 35 V. Only matters with a short
+  on the logic supply during a dump.
 - **Thermal figures** are copper-area estimates, as before, until the layout exists; then they are estimates from the
   real copper. Eight drivers in a row heat each other.
 - **The SD specification's own text** on pull-ups, and the GM flex-sensor document from GM itself.
-- **ZXMS6004FF pin drawing and the SOT23F land pattern** against the SOT-23 footprint in use (geometry worked out from
-  recalled package dimensions: the flat leads land fully on the pads).
+- **ZXMS6004FF pin drawing from the maker.** Pins and land pattern now rest on two independent designs and the read
+  package table (see above), not on Diodes' own top-view drawing.
 
 ## Ordered boards (rev 0.9)
 

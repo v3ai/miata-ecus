@@ -290,6 +290,8 @@ def firmware_from_simlog(path):
                       'o2heater', 'vvt', 'boost', 'vss', 'acSwitch', 'clutch'):
                 fw[k] = kv.get(k, '-')
             fw = {k: ('P' + v if not v.startswith('P') else v) for k, v in fw.items() if v not in ('-', '')}
+            if kv.get('ignKey', '-') not in ('-', ''):      # the dump names the ADC channel ("VIGN"), which is PA2
+                fw['ignKey'] = 'PA2'
             out[parts[1]] = fw
     return out
 
