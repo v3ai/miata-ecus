@@ -85,8 +85,9 @@ def common_parts():
         'arming switch, CAN for gauges, 5 V, +12 V (fused, F4)')
     # The AUX +12 V pin leaves the board, so it has its own resettable fuse. Rev 0.10: 1.1 A hold (0.5 A before): a
     # boost valve (about 0.45 A), a flex sensor and a nitrous relay coil together stay under it.
-    add('F4', '1.1A hold', 'Fuse:Fuse_1812_4532Metric', '', {1: 'VBAT_IN', 2: 'AUX_VBAT'},
-        'Resettable fuse for the AUX +12 V pin J5-15 (Littelfuse 1812L110/33: 1.1 A hold, 33 V; or equivalent 1812)')
+    add('F4', '1.1A hold', 'Fuse:Fuse_1812_4532Metric', 'C883150', {1: 'VBAT_IN', 2: 'AUX_VBAT'},
+        'Resettable fuse for the AUX +12 V pin J5-15 (BHFUSE BSMD1812-110-33V: 1.1 A hold, 2.2 A trip, 33 V, 1812; the '
+        'daughterboard\'s F1 is the same part)')
 
 
 AUX = {1: 'OUT_IGN3', 2: 'OUT_IGN4', 3: 'OUT_BOOST', 4: 'OUT_ALT', 5: 'OUT_MAINRLY', 6: 'IN_KNOCK',

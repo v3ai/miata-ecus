@@ -5,7 +5,7 @@ A plug-in [rusEFI](https://rusefi.com) engine computer for the 1989–2005 Mazda
 - **One universal daughterboard.** It does all the engine control: an STM32F407 running rusEFI, plus an on-board
   LSU 4.9 wideband controller (the open-source FOME/rusEFI design).
 - **A motherboard for each model year.** Each one fits the stock ECU case, takes the stock harness connector and
-  carries the year-specific wiring, the MAP sensor, the LSU/IAT connectors and USB-C.
+  carries the year-specific wiring, the MAP sensor, the wideband sensor plug, the add-on header and USB-C.
 
 The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 standoffs.
 
@@ -39,17 +39,19 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
 - **Fuel from manifold pressure** (speed-density), with the MAP sensor on the board. The stock airflow meter is not
   used and can come out of the intake.
 - **MAP sensor good for boost:** 15–700 kPa absolute, so a turbo or supercharger needs no sensor change.
-- **Wideband oxygen sensor controller on the board** for a Bosch LSU 4.9. No separate gauge or controller box.
+- **Wideband oxygen sensor controller on the board** for a Bosch LSU 4.9. No separate gauge or controller box. The
+  board's plug is meant for AEM's ready-made X-Series sensor harness (30-3427).
 - **Closed-loop fuel from the wideband**, switched on from the first start: ±10 % at idle and cruise, +10 / −5 %
   under load.
 - **A base tune for each year**, loaded by the year button in TunerStudio ([what is in it](firmware/README.md#base-tune)).
 - **Four injector outputs** for high-impedance injectors. Sequential on 1994–2005; in pairs on 1989–93, as the
-  stock harness is wired.
+  stock harness is wired (a jumper pair on that board is for a sequential conversion).
 - **Four ignition outputs** (5 V logic): two on the harness for the stock coils, two more on the AUX header for one
   coil per cylinder.
 - **Closed-loop idle** (on cars with a throttle position sensor), radiator fan, second fan, A/C clutch, fuel pump,
   check-engine light and tachometer, on the stock wires.
 - **One USB-C port** for tuning (TunerStudio) and firmware updates, including the wideband's firmware.
+- **Logging to a microSD card** in a socket on the daughterboard (rusEFI's own logger).
 - **Protected outputs.** Every driver limits its current and shuts down when it overheats. In simulation every
   harness pin was shorted to ground, 14.4 V and 24 V; what still fails is listed in
   [VERIFICATION.md](VERIFICATION.md#rev-08-driver-temperature-and-protected-outputs).
@@ -66,12 +68,14 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
 | Stock oxygen-sensor heater | – | – | driven | driven | not driven |
 | Throttle position | switch only on manual cars | sensor | sensor | sensor | sensor |
 
-**For a turbo and other add-ons** (the 16-pin AUX header, [pin map](INSTALL.md#header-pin-maps))
-- Boost-control valve output, already assigned in the firmware.
+**For a turbo and other add-ons** (the 20-pin add-on header, [pin map](INSTALL.md#header-pin-maps))
+- Boost-control valve output, already assigned in the firmware, with a fused 12 V for the valve.
+- **Flex-fuel sensor input** (GM / Continental type).
+- **Nitrous arming input** for rusEFI's nitrous control.
+- **CAN bus** for a dash or gauges: the bus the on-board wideband reports on.
 - Knock sensor input for the cars that have none.
 - Coil 3 and coil 4 outputs.
-- A spare 0–5 V analog input, two inputs for magnetic (VR) crank and cam sensors, a 3.3 V serial port, 5 V and a
-  fused 12 V.
+- A spare 0–5 V analog input, two inputs for magnetic (VR) crank and cam sensors, 5 V and a fused 12 V.
 - rusEFI's own functions are all in the firmware (launch control, boost by table or closed loop, knock retard,
   general-purpose PWM tables, Lua scripts). None of them is set up or tested on this board.
 
@@ -80,18 +84,16 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
 - **It is untested.** No board has been assembled, powered or run in a car.
 - **The base tune is a starting point.** The tables came from other people's cars. Nobody has tuned them under
   boost, and the 1989–97 fuel table stops at 128 kPa.
-- **No logging on the board.** There is no SD card: a log needs a laptop on the USB port.
-- **No CAN on any connector.** The CAN bus only links the main processor to the wideband. No CAN dash, no CAN
-  expansion.
 - **No drive-by-wire throttle.** Every supported car has a cable throttle; this only matters for an engine swap.
-- **No flex-fuel input** of its own.
 - **High-impedance injectors only**, and the ignition outputs need coils with built-in igniters or the stock
   igniter. They can't drive a bare coil.
 - **One wideband**, four cylinders.
-- **The stock case has to be cut** for the wideband plug, the air-temperature plug, USB-C and the MAP hose. The
+- **The stock case has to be cut** for the wideband plug, USB-C, the MAP hose and the add-on ribbon cable. The
   1996–2005 boards still have the 1990–95 outline and mounting holes.
-- **The AUX header is a ribbon-cable header inside the case**, not a sealed plug, and its 12 V pin is limited to
-  0.5 A.
+- **The add-on header is a ribbon-cable header inside the case**, not a sealed plug, and its 12 V pin is fused at
+  1.1 A.
+- **Sustained high rpm in a hot cabin is the thermal limit**, most of all on 1989–93 cars: see
+  [Things to know before ordering](#things-to-know-before-ordering).
 - **1990–93:** the fuel pump is switched by the airflow meter, so removing the meter needs one added wire
   ([INSTALL.md](INSTALL.md#199093)). Manual cars have no throttle position sensor until one is
   [fitted](#throttle-position-sensor-198993-manual-cars).
@@ -138,23 +140,34 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
 > **1989–93 motherboard rev 0.11:** the manual cars' throttle position sensor conversion uses the stock throttle switch
 > plug, through three 0 Ω links. Pin 1N is no longer wired straight to the sensor 5 V, which the stock switch would have
 > shorted at every idle. See [Throttle position sensor (1989–93 manual cars)](#throttle-position-sensor-198993-manual-cars).
+>
+> **Rev 0.10 (2026-11-13):** the daughterboard is now six layers in the same outline, with a turn-off clamp per
+> injector, a microSD socket and flex-fuel and nitrous inputs; the motherboards take AEM's wideband harness and have a
+> 20-pin add-on header with CAN, and 1989–93 and 1994–95 share one board set by jumpers. Before the layout every
+> figure the design rests on was read again from its maker's document. That found a series resistor the injector
+> drivers' inputs should always have had, and showed that the injector inductance behind every temperature estimate
+> was a guess. A model of the whole board's copper now gives those temperatures. See
+> [Rev 0.10](VERIFICATION.md#rev-010-six-layers-injector-clamps-card-socket-two-more-inputs-2026-11-13).
+>
+> **The boards ordered in November 2026** are the set before this (daughterboard rev 0.9). Their files are kept in
+> [`ordered-boards/2026-11/`](ordered-boards/2026-11/); what the rev 0.10 review means for them is in
+> [VERIFICATION.md](VERIFICATION.md#the-ordered-rev-09-boards).
 
 | Board | Folder | Rev | Harness header | Case fit |
 |---|---|---|---|---|
-| Daughterboard (all years) | [`daughterboard/`](daughterboard/) | 0.9 | 2 × 1×40 to the motherboard | 125 × 76 mm, 4 layers |
-| 1989–93 (NA6) | [`motherboards/1989-93/`](motherboards/1989-93/) | 0.11 | TE 174917-6, 48 pins | stock NA case outline |
-| 1994–95 (NA8) | [`motherboards/1994-95/`](motherboards/1994-95/) | 0.9 | TE 174917-6, 48 pins | stock NA case outline |
-| 1996–97 (NA8, OBD-II) | [`motherboards/1996-97/`](motherboards/1996-97/) | 0.7 | TE 178780-1, 76 positions | **provisional** (NA outline) |
-| 1999–2000 (NB1) | [`motherboards/1999-2000/`](motherboards/1999-2000/) | 0.7 | TE 176122-6, 64 positions | **provisional** (NA outline) |
-| 2001–05 (NB2, VVT) | [`motherboards/2001-05/`](motherboards/2001-05/) | 0.7 | TE 353830-5, 72 positions | **provisional** (NA outline) |
+| Daughterboard (all years) | [`daughterboard/`](daughterboard/) | 0.10 | 2 × 1×40 to the motherboard | 125 × 76 mm, 6 layers |
+| 1989–95 (NA6 and NA8; jumpers set 1989–93 or 1994–95) | [`motherboards/1989-95/`](motherboards/1989-95/) | 0.12 | TE 174917-6, 48 pins | stock NA case outline |
+| 1996–97 (NA8, OBD-II) | [`motherboards/1996-97/`](motherboards/1996-97/) | 0.8 | TE 178780-1, 76 positions | **provisional** (NA outline) |
+| 1999–2000 (NB1) | [`motherboards/1999-2000/`](motherboards/1999-2000/) | 0.8 | TE 178780-1, as 1996–97 (the car's own is the 64-position 176122-6; its plugs are the same housings) | **provisional** (NA outline) |
+| 2001–05 (NB2, VVT) | [`motherboards/2001-05/`](motherboards/2001-05/) | 0.8 | TE 353830-5, 72 positions | **provisional** (NA outline) |
 
 Each board folder contains:
 - the KiCad 7 project (schematic and board);
 - a schematic PDF;
 - JLCPCB gerbers, BOM and placement files in `fab/`, with the DRC report, named for the board and revision (for example
-  `miata-ecu-motherboard-1989-93-rev0.11_jlcpcb_gerbers.zip`). The JLC BOM is the SMD parts (and USB-C);
+  `miata-ecu-motherboard-1989-95-rev0.12_jlcpcb_gerbers.zip`). The JLC BOM is the SMD parts (and USB-C);
   `…_self_order_bom.csv` is everything you order and solder yourself, and
-  [`additional-parts/order_all_boards.csv`](additional-parts/order_all_boards.csv) adds up all five motherboards, five daughterboards and the in-car parts
+  [`additional-parts/order_all_boards.csv`](additional-parts/order_all_boards.csv) adds up every motherboard, a daughterboard for each and the in-car parts
   (the same list as a page with quantities and tick boxes: [`additional-parts/shopping_list.html`](additional-parts/shopping_list.html));
 - renders;
 - a README with the pinout, assembly notes and open questions.
@@ -176,12 +189,11 @@ See [`firmware/README.md`](firmware/README.md). It compiles, but hasn't run on h
   - The SWD Tag-Connect pads on the bottom of the daughterboard (J102) are a fallback.
 
 ## Air temperature sensor
-Each motherboard has an IAT jumper (JP1, a 3-pin header with a removable shunt) next to the IAT connector:
-- **EXT (default):** the aftermarket M12 thermistor on the IAT connector.
-- **STOCK:** the stock sensor through the harness. It sits inside the airflow meter on 1989–97 and in the air filter
-  box on 1999–2005, so it's only available while the stock intake stays on the car.
-
-Pick the matching sensor curve in TunerStudio. The firmware already accounts for the board's 2.7 kΩ pull-up and divider.
+The stock sensor's harness wire goes straight to the ECU's air-temperature input: inside the airflow meter on 1989–97,
+in the air filter box on 1999–2005. There is no separate connector for it on the board since motherboard rev 0.12 / 0.8.
+With the airflow meter or airbox removed, put an open-element sensor on the stock sensor's plug
+([INSTALL.md](INSTALL.md#7-air-temperature)) and pick its curve in TunerStudio. The firmware already accounts for the
+board's 2.7 kΩ pull-up and divider.
 
 ## Throttle position sensor (1989–93 manual cars)
 The 1989–93 manual cars have no throttle position sensor: the part on the throttle body is a switch with an idle
@@ -191,7 +203,7 @@ failed: no closed-loop idle, no throttle-based acceleration fuel and no overrun 
 
 The switch's plug has three wires: idle contact (1N), ground (2D) and full-throttle contact (2L). A sensor needs
 three: 5 V, ground and signal. So, as on rusEFI's Hellen NA6 and MRE boards, a sensor plugs into the stock plug and the
-1989–93 motherboard (rev 0.11) sets those pins with 0 Ω links: **fit R28** (5 V on 1N) and **move R29 to R30** (2L to
+1989–95 motherboard sets those pins with 0 Ω links: **fit R28** (5 V on 1N) and **move R29 to R30** (2L to
 the throttle input). The kit, in the board's self-order BOM as "Manual cars":
 - **Sensor:** a Kia sensor with the same 3-pin Mazda plug (Kia 0K01118911, or the others the
   [rusEFI wiki](https://wiki.rusefi.com/Legacy-Miata-NA-48-pin-board-for-MRE) lists).
@@ -199,9 +211,20 @@ the throttle input). The kit, in the board's self-order BOM as "Manual cars":
 - **Or instead:** [Flyin' Miata's TPS upgrade kit](https://flyinmiata.com/products/tps-upgrade) with its sensor.
 
 Check the plug's wiring and the sensor's pins on your car before fitting R28: see the
-[1989–93 README](motherboards/1989-93/README.md). Automatics leave R28 and R30 off.
+[1989–95 README](motherboards/1989-95/README.md). Automatics leave R28 and R30 off.
 
 ## Things to know before ordering
+- **Measure one injector's inductance first** (LCR meter, injector unplugged). The heat the injector clamps put into
+  the board scales with it, and it is not known for Miata injectors: the design is sized for 20 mH, earlier revisions
+  assumed 8 mH. At sustained 7200 rpm with 20 mH injectors the board model puts the processor 32–40 °C above the air
+  around the board on 1994–2005 cars and 42–54 °C on 1989–93 cars, against a 105 °C junction rating. The 125 °C grade
+  of the processor (STM32F407VGT7) fits the same pads and costs about five times as much. Numbers and options:
+  [VERIFICATION.md](VERIFICATION.md#board-temperature).
+- **The wideband plug's family is assumed.** The motherboards carry a Molex Micro-Fit 3.0 2×4 header for AEM's
+  X-Series sensor harness 30-3427. AEM publishes the pin functions, not the connector: check a harness against the
+  header before ordering boards.
+- **Clamp TVS stock.** The daughterboard's injector clamp TVS (Vishay TPSMC16A) is in JLCPCB's library, but its stock
+  could not be confirmed; the [daughterboard README](daughterboard/README.md#before-ordering) names the alternate.
 - **1996–2005 case geometry is a placeholder.** These motherboards use the NA board outline and mounting holes until a
   stock 96–97 / NB case is measured. The 76-pin 96–97 header is 130 mm wide and must clear the real case.
 - **2001–05 Mazdaspeed:** pin 4R is the second intake-air-temperature sensor on the turbo cars, not the VVT valve.
@@ -217,7 +240,8 @@ Check the plug's wiring and the sensor's pins on your car before fitting R28: se
 | `daughterboard/`, `motherboards/<years>/` | The released boards (see above) |
 | `scripts/` | The design source. Every board is generated from Python: parts, netlist, placement, a grid router, schematic generation, release packaging |
 | `mb/ecu_mb.pretty/` | Project footprints (harness headers named by OEM terminal, the flat MPX5700AP, USB-C, M4 case hole) |
-| `research/` | Pinout research for 1996–2005 (sources compared per pin) |
+| `research/` | Pinout research for 1996–2005 (sources compared per pin); the rev 0.10 design audit (every figure the board relies on, its source, and what could not be checked); ST's pin data files |
+| `ordered-boards/2026-11/` | The board set ordered in November 2026 (daughterboard rev 0.9), as ordered |
 | `viewer/` | Interactive 3D viewer: the daughterboard alone, or assembled on any year's motherboard. Click a part for its details and shop links |
 | `firmware/` | The rusEFI board definition, the wideband flasher, the simulation tests and the verification tools. rusEFI itself is a submodule in `firmware/ext/rusefi` |
 | `website/` | A black-and-white Shopify theme for selling the boards, draft product listings and product photos ([website/README.md](website/README.md)) |
@@ -229,19 +253,19 @@ Check the plug's wiring and the sensor's pins on your car before fitting R28: se
 ## Rebuilding
 You need:
 - **KiCad 7.0** with its Python `pcbnew` module, and `kicad-cli`;
-- **Python 3** with `shapely`, `numpy`, `scipy`, `openpyxl` and `matplotlib`;
+- **Python 3** with `shapely` 2, `numpy`, `scipy`, `Pillow`, `openpyxl` and `matplotlib`;
 - **`rsvg-convert`**, for the renders.
 
 ```sh
 # daughterboard: build, route, finish, then the release folder
-scripts/daughter_make.sh work/daughter
+LAYERS=6 scripts/daughter_make.sh work/daughter
 scripts/daughter_release.sh work/daughter/finished.kicad_pcb out/daughterboard
 
 # a motherboard: <year module> <short name> <rev>, e.g. 1999-2000
-scripts/mb_make.sh mb_nb1 9900 0.2      # writes mb/release_9900
+scripts/mb_make.sh mb_nb1 9900 0.8      # writes mb/release_9900
 ```
 
-Routing takes 10–40 minutes per board.
+Routing takes 10–40 minutes per motherboard and about an hour for the daughterboard.
 
 `mk_hdr_fp.py` reads the harness-header geometry from the rusEFI hellen-one boards and KiCad library. Point it at them
 with `MIATA_REF` and `RUSEFI_LIBS`. The generated footprints are already in `mb/ecu_mb.pretty/`.

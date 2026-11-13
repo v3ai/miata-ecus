@@ -64,18 +64,18 @@ gets no fuel or spark with the key on, check that you didn't pick 2003-05 on a 2
 
 - **NA years** use rusEFI's own Miata presets (`setMazdaMiataNA6`, `setMazdaMiataNA94`, `setMazdaMiata96`), which
   include base fuel and ignition tables.
-- **1989-93:** the stock harness has two injectors on each of its two injector wires (2U, 2V). The 1989-93
-  motherboard (rev 0.6) wires INJ1 + INJ4 to 2U and INJ2 + INJ3 to 2V, and the preset assigns all four in batch
-  mode. rusEFI fires each cylinder's output together with the cylinder 360° away (1 with 4, 3 with 2), so the two
-  drivers on a wire switch together and each carries one injector. 2Y and 2Z (2Z is the A/T control unit on
-  automatics) are not connected. For a sequential conversion, move the motherboard links (R23/R24 out, R25/R26 in)
-  and set the injection mode to sequential.
-  - **Needs the rev 0.6 1989-93 motherboard.** On an older 1989-93 motherboard INJ3/INJ4 go to the unused 2Y/2Z
-    pins, so with this preset 2Z (the A/T control unit's pin on automatics) would be pulsed. On an older board set
-    injection pins 3 and 4 to "none" until it is replaced.
-  - The 47 V injector clamps (D3/D4, SMCJ40A) close the injectors a little more slowly than the drivers' own 65 V
-    clamp would. Check the injector dead time on the car. At high rpm and duty they dissipate about 1 W each,
-    which the SMC package handles.
+- **1989-93:** the stock harness has two injectors on each of its two injector wires (2U, 2V). With jumpers JP1 and
+  JP2 on PAIR, the 1989-95 motherboard (rev 0.12) puts INJ1 + INJ4 on 2U and INJ2 + INJ3 on 2V, and the preset assigns
+  all four in batch mode. rusEFI fires each cylinder's output together with the cylinder 360° away (1 with 4, 3 with
+  2), so the two drivers on a wire switch together and each carries one injector. Each injector fires once per
+  revolution in this mode. For a sequential conversion (new wires to 2Y and 2Z) move JP1 and JP2 to SEQ and set the
+  injection mode to sequential; never on an automatic, where 2Z is the A/T control unit.
+  - **Injector clamps.** A rev 0.10 daughterboard clamps each injector itself (a diode and a 16 V TVS back to the
+    battery input). The injector current takes about 0.16 ms longer to fall than with the drivers' own clamp: check
+    the injector dead time on the car. Two clamps share each wire on these cars and need not share evenly; what that
+    means for temperature is in `VERIFICATION.md`, Rev 0.10.
+  - **Earlier 1989-93 motherboards** (rev 0.6 to 0.11) pair the injectors with 0 Ω links R23/R24 instead of jumpers
+    and carry their own clamps D3/D4 for a rev 0.9 daughterboard.
 - **1994-95:** four injector wires (2U/2V/2Y/2Z), sequential, as in rusEFI's own 1994 preset.
 - **NB years:** rusEFI builds its NB presets for its Hellen boards only, so the engine facts are repeated here
   (displacement, trigger, injector flow, idle and alternator PID, VVT PID), and rusEFI's NB fuel, ignition and VVT
@@ -108,7 +108,7 @@ on this board, and the tables were made on other people's cars, so treat it as a
 - **Always:** check base timing with a timing light before the first drive (step 11 below).
 
 ### Same on every year
-- **Outputs:** fuel pump, A/C relay, radiator fan, second fan (LS7), check engine lamp, tach, idle valve, INJ1-4,
+- **Outputs:** fuel pump, A/C relay, radiator fan, second fan (LS7), check engine lamp, tach (1996-2005), idle valve, INJ1-4,
   IGN1 (coil 1&4) and IGN2 (coil 2&3) in wasted spark.
 - **COP conversion:** IGN3/IGN4 are assigned too (cylinder 2 on IGN3, cylinder 4 on IGN4), ready for coil-on-plug.
 - **Inputs:** SW1 = vehicle speed, SW2 = A/C switch, SW3 = clutch.
@@ -116,7 +116,7 @@ on this board, and the tables were made on other people's cars, so treat it as a
   only if the CAN wideband is switched off.
   - **1989-93 manual cars have no TPS**, only a throttle switch: the TPS input reads 0 V and rusEFI reports the sensor
     failed (open-loop idle, no TPS acceleration fuel, no overrun cut). For a sensor on the stock plug, fit R28 and move
-    R29 to R30 on the 1989-93 motherboard (rev 0.11; see `motherboards/1989-93/README.md`), then calibrate closed and
+    R29 to R30 on the 1989-95 motherboard (see `motherboards/1989-95/README.md`), then calibrate closed and
     wide-open throttle in TunerStudio. No firmware setting changes: the sensor arrives on the usual TPS input.
 - **Wideband:** the on-board unit, over CAN.
 
@@ -191,19 +191,27 @@ board; use **Flash on-board wideband** instead.
 | KNOCK | PA3 (ADC3) | J2-3 | software knock (on for NB) |
 | VBATT / VIGN | PA1 / PA2 | on board (VIGN from J1-3) | battery / ignition key sense (1989-95, 2003-05) |
 | CAN2 RX / TX | PB12 / PB13 | J2-27, 28 (bus) | CAN2 |
+| FLEX / N2O arm (rev 0.10) | PC6 / PC7 | J2-24, 25 | "Flex input (J2-24)" / "Nitrous arm (J2-25)": defined, not assigned until you set them up |
+| microSD (rev 0.10) | PB10 SCK / PB14 MISO / PB15 MOSI / PD13 CS | on board | SPI2, SD logging on in a fresh tune |
 | LEDs run / comms / warning / error | PD12 / PC8 / PC9 / PD15 (rev 0.8; PD12-PD15 before) | on board | fixed |
 | Wideband link TX / RX / BOOT0 / NRST | PD8 / PD9 / PD10 / PD11 | on board | fixed |
 
 Which harness pin each signal reaches is in each motherboard's README.
+
+One firmware serves rev 0.9 and rev 0.10 daughterboards. On a rev 0.9 board the flex, nitrous and card pins are not
+connected (rusEFI finds no card and carries on), and the check-engine lamp stays behind the driver enable, so it
+cannot show a fatal error there.
 
 ## First start
 Read this before the engine runs for the first time.
 1. **Year button and ignition.** Press your year in Popular Vehicles (2001-02 and 2003-05 are separate). With the key
    on, crank briefly with the injectors unplugged and check that the injector and spark outputs are active (trigger and
    output logs). If they stay silent, rusEFI thinks the ignition is off: check you picked the right NB2 button.
-2. **Tach wire (1989-95).** Our board drives the tach cavity 2I as an output, as rusEFI's Hellen NA6 does, but the
-   rusEFI wiki lists it as an input. Check your car's wiring diagram before the first start: if 2I is fed by the
-   igniter rather than the ECU, set the tachometer output to none in TunerStudio.
+2. **Tach wire (1989-95).** Cavity 2I is the igniter's signal into the ECU, and the igniter drives the tachometer
+   itself, so the 1989-93 and 1994-95 buttons set no tach output. Only after a coil-on-plug conversion with the igniter
+   removed: fit JP5 on the 1989-95 motherboard and set the tachometer output (PE3) in TunerStudio. On the earlier
+   1989-93 / 1994-95 motherboards (rev 0.11 / 0.9), which wire 2I to the tach driver without a jumper, leave the
+   output unset while the stock igniter is fitted.
 3. **Wideband first.** Power the board on the bench, flash the wideband and check `wbo_uart_status`. Then check that
    TunerStudio shows the wideband on CAN before you fit the sensor in the exhaust.
 4. **Trigger.** Crank with the injectors unplugged and look at the trigger log. If rusEFI won't sync, the hall

@@ -1,7 +1,7 @@
 ** Drc report for /home/claude/miata-ecus/scripts/../mb/release_0105/miata_mb_0105.kicad_pcb **
-** Created on 2026-11-13 11:21:04 **
+** Created on 2026-11-13 13:42:47 **
 
-** Found 66 DRC violations **
+** Found 67 DRC violations **
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(235.0000 mm, 92.3000 mm): Reference 'HD2'
@@ -45,6 +45,22 @@
     @(213.0500 mm, 42.6000 mm): Line on F.Silkscreen
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
     Local override; Severity: error
+    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu
+    @(175.7600 mm, 94.7500 mm): PTH pad 20 [GND] of JD1
+[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
+    Local override; Severity: error
+    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu
+    @(178.3000 mm, 94.7500 mm): PTH pad 21 [GND] of JD1
+[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
+    Local override; Severity: error
+    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu
+    @(191.0000 mm, 94.7500 mm): PTH pad 26 [GND] of JD1
+[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
+    Local override; Severity: error
+    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu
+    @(193.5400 mm, 94.7500 mm): PTH pad 27 [GND] of JD1
+[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
+    Local override; Severity: error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu
     @(221.4800 mm, 94.7500 mm): PTH pad 38 [GND] of JD1
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
@@ -62,27 +78,15 @@
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
     Local override; Severity: error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu
-    @(175.7600 mm, 94.7500 mm): PTH pad 20 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu
-    @(178.3000 mm, 94.7500 mm): PTH pad 21 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu
-    @(191.0000 mm, 94.7500 mm): PTH pad 26 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu
-    @(193.5400 mm, 94.7500 mm): PTH pad 27 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu
     @(185.5500 mm, 66.6000 mm): PTH pad 4A [GND] of J1
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
     Local override; Severity: error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu
     @(197.4000 mm, 66.6000 mm): PTH pad 4O [GND] of J1
+[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
+    Local override; Severity: error
+    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu
+    @(159.3500 mm, 66.6000 mm): PTH pad 3A [GND] of J1
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
     Local override; Severity: error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu

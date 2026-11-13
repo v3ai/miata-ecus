@@ -1,5 +1,5 @@
 ** Drc report for /home/claude/miata-ecus/scripts/../mb/release_9697/miata_mb_9697.kicad_pcb **
-** Created on 2026-11-13 11:20:04 **
+** Created on 2026-11-13 13:41:50 **
 
 ** Found 54 DRC violations **
 [silk_overlap]: Silkscreen overlap

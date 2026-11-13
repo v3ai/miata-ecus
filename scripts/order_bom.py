@@ -14,7 +14,17 @@ MPN = json.load(open(os.path.join(HERE, 'mpn.json')))
 # parts that have an LCSC number but that you fit yourself (left out of the JLC BOM and CPL)
 HAND = {
     'daughter': {'J1', 'J2'},                                   # 1x40 pin headers, bottom side
-    'mb': {'JD1', 'JD2', 'J2', 'J3', 'J5', 'JP1', 'U2'},        # sockets, Micro-Fit, AUX, IAT jumper header, MAP
+    'mb': {'JD1', 'JD2', 'J2', 'J3', 'J5', 'U2'},               # sockets, Micro-Fit, add-on header, MAP (and every JPn)
+}
+# hand-fitted parts the board's parts list names without an LCSC number: value or footprint fragment ->
+# (item, manufacturer, part number, required)
+NAMED = {
+    'AEM 30-3427': ('Wideband sensor header, Micro-Fit 3.0, 2x4, right angle (assumed to take AEM harness 30-3427)',
+                    'Molex', '0430450800', 'Yes'),
+    'AUX 2x10': ('Box header, 2x10, 2.54 mm, vertical (add-on header; takes a 20-way ribbon cable plug)',
+                 'On Shore Technology', '302-S201', 'Optional'),
+    'PinHeader_1x02': ('Pin header, male, 1x2, 2.54mm, through-hole, vertical', 'Sullins', 'PRPC002SAAN-RC', 'Optional'),
+    'R_2512': ('Resistor 1k, 2512, 1 W', 'Yageo', 'RC2512JK-071KL', 'Optional'),
 }
 # footprints with nothing to fit (Tag-Connect SWD pads: the cable presses on)
 PADS_ONLY = {'daughter': {'J3', 'J102'}, 'mb': set()}
@@ -24,9 +34,7 @@ WHY = {
 }
 # parts that aren't on the board's parts list at all, per motherboard
 MB_EXTRA = [
-    # item, qty, mfr, mpn, lcsc, notes
-    ('Jumper shunt, 2.54 mm', 1, 'BOOMELE', '2.54 shunt, open top', 'C5305',
-     'For JP1 (IAT source): EXT = board IAT connector J3, STOCK = harness sensor'),
+    # item, qty, mfr, mpn, lcsc, notes     (jumper shunts are added per board, one for each jumper header it has)
     ('Screw, M3 x 6, pan head', 8, '', 'M3 x 6 pan head', '', 'Two per daughterboard standoff (HD1-HD4)'),
     ('Screw, M3 x 10, pan head', 2, '', 'M3 x 10 pan head', '', 'MAP sensor (U2) hold-down'),
     ('Nut, M3', 2, '', 'M3 hex nut', '', 'MAP sensor (U2) hold-down'),
@@ -57,6 +65,7 @@ YEAR_CAR = {'mb_na6': [
      'harness. Check that it comes with the lead for the stock plug. Not with an NB intake manifold'),
 ]}
 URLS = {
+    '30-3427': 'https://www.aemelectronics.com/products/dashes_and_gauges/aem_performance_gauges/gauge_accessories/parts/30-3427',
     '0K01118911': 'https://wiki.rusefi.com/Legacy-Miata-NA-48-pin-board-for-MRE',
     'Thingiverse 3414132': 'https://www.thingiverse.com/thing:3414132',
     'TPS upgrade kit 07-360XX, with TPS': 'https://flyinmiata.com/products/tps-upgrade',
@@ -66,7 +75,8 @@ COLS = ['Line', 'Item', 'Quantity', 'Designator', 'Manufacturer', 'Manufacture P
 
 
 def is_jlc(kind, p):
-    return bool(p['lcsc']) and p['ref'] not in HAND[kind] and not p.get('dnp')
+    hand = p['ref'] in HAND[kind] or (kind == 'mb' and p['ref'].startswith('JP'))
+    return bool(p['lcsc']) and not hand and not p.get('dnp')
 
 
 def find_url(lcsc, mpn, mfr=''):
@@ -109,6 +119,11 @@ def self_rows(kind, parts):
             mfr, mpn, note = HARNESS[p['value']]
             agg[(p['value'],)] = dict(item=f'Harness header {p["value"]}', refs=[r], mfr=mfr, mpn=mpn, lcsc='',
                                       req='Yes', notes=note)
+        elif p['value'] in NAMED or any(k in p['fp'] for k in NAMED):
+            item, mfr, mpn, req = NAMED.get(p['value']) or next(v for k, v in NAMED.items() if k in p['fp'])
+            a = agg.setdefault(('named', item), dict(item=item, refs=[], mfr=mfr, mpn=mpn, lcsc='', req=req, notes=''))
+            a['refs'].append(r)
+            a['notes'] = (a['notes'] + '; ' if a['notes'] else '') + f"{r}: {p['desc'].replace('NOT FITTED: ', '')}"
         else:                                                   # not-fitted options
             lc = 'C23162' if p['value'] == '4.7k' else ('C17477' if p['value'] == '0R' else '')
             m = MPN.get(lc, {})
@@ -121,6 +136,11 @@ def self_rows(kind, parts):
     for v in agg.values():
         rows.append((v['item'], len(v['refs']), ','.join(v['refs']), v['mfr'], v['mpn'], v['lcsc'], v['req'], v['notes']))
     if kind == 'mb':
+        n_jp = sum(1 for p in parts if p['ref'].startswith('JP'))
+        if n_jp:
+            m = MPN.get('C5305', {})
+            rows.append(('Jumper shunt, 2.54 mm', n_jp, '', m.get('mfr', 'BOOMELE'), m.get('mpn', '2.54 shunt, open top'),
+                         'C5305', 'Yes', 'One per jumper header; which position each goes on is in the README\'s jumper table'))
         for item, q, mfr, mpn, lcsc, notes in MB_EXTRA:
             m = MPN.get(lcsc, {})
             rows.append((item, q, '', m.get('mfr', mfr), m.get('mpn', mpn), lcsc, 'Yes', notes))
@@ -146,13 +166,16 @@ def write_self_bom(kind, parts, path, module=None):
 CAR = [
     ('Wideband sensor, Bosch LSU 4.9', 1, 'Bosch', '0 258 017 025', '', 'Yes', 'The board runs it directly'),
     ('O2 sensor weld bung, M18 x 1.5', 1, '', 'M18 x 1.5 weld bung', '', 'Optional', 'Only to keep the stock oxygen sensor as well: the LSU 4.9 screws into the stock front sensor\'s hole (same M18 x 1.5 thread)'),
-    ('Micro-Fit 3.0 receptacle, 2x3', 1, 'Molex', '43025-0600', '', 'Yes', 'Mates with J2 (LSU 4.9)'),
-    ('Micro-Fit 3.0 female crimp terminal, 20-24 AWG', 8, 'Molex', '43030-0007', '', 'Yes', '6 for the LSU lead, 2 for the IAT lead; buy spares'),
-    ('LSU 4.9 extension lead or sensor-side connector', 1, '', 'LSU 4.9 pigtail', '', 'Yes', 'Wire it to the 43025-0600 at the board end'),
+    ('Wideband sensor harness, AEM X-Series', 1, 'AEM', '30-3427', '', 'Yes',
+     'From the sensor to J2. That its plug fits J2 (Micro-Fit 3.0, 2x4) is assumed: check before the first use'),
     ('Silicone vacuum hose, 3-4 mm (1/8-5/32 in) inside diameter, 3 m', 1, '', '4 mm ID silicone vacuum hose', '', 'Yes', 'MAP sensor barb to the intake manifold. 1994-97 need most of it (ECU behind the seat). See INSTALL.md, MAP hose'),
     ('Barbed vacuum tee, 4 mm (5/32 in)', 1, '', '4 mm barbed tee', '', 'Optional', 'Needed when the manifold port already has a hose on it: cars with cruise control (1990-95) and every 1996-97. Not needed on a free capped nipple'),
-    ('Micro-Fit 3.0 receptacle, 1x2', 1, 'Molex', '43645-0200', '', 'Optional', 'Mates with J3, only with an external IAT (JP1 on EXT)'),
-    ('IAT sensor, M12 x 1.5 open element', 1, '', 'open-element air temperature sensor', '', 'Optional', 'Only with JP1 on EXT; on STOCK the car\'s own sensor is used'),
+    ('Air temperature sensor, open element (GM type), with an adapter for the stock sensor plug', 1, '',
+     'open-element air temperature sensor', '', 'Optional',
+     'Only once the airflow meter or the stock airbox is gone: it goes on the stock sensor\'s plug (INSTALL.md, Air temperature)'),
+    ('Ribbon cable with a 2x10 IDC socket, 2.54 mm', 1, '', '20-way IDC ribbon cable', '', 'Optional',
+     'For the add-on header J5 (boost valve, flex fuel, nitrous, CAN, coil 3 and 4, knock)'),
+    ('microSD card', 1, '', 'microSD card, FAT32 formatted', '', 'Optional', 'For rusEFI\'s on-board logging (rev 0.10 daughterboard)'),
 ]
 
 
