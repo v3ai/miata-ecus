@@ -12,11 +12,16 @@ How to fit the ECU to a 1990–2005 Miata and start the engine for the first tim
 [2. Remove the stock ECU](#2-remove-the-stock-ecu) · [3. Fit the board in the case](#3-fit-the-board-in-the-case) ·
 [4. Year-specific steps](#4-year-specific-steps) · [5. MAP hose](#5-map-hose) ·
 [6. Wideband sensor](#6-wideband-sensor) · [7. Air temperature](#7-air-temperature) ·
-[8. First start](#8-first-start) · [9. Add-ons](#9-add-ons-on-the-aux-header) · [If something's wrong](#if-somethings-wrong)
+[8. First start](#8-first-start) · [9. Add-ons](#9-add-ons-on-the-add-on-header) · [If something's wrong](#if-somethings-wrong)
 
 ## What's what
 
 ![The assembled 1989–93 ECU from above, with every connector labelled](images/annotated_1989-93.jpg)
+
+> **The pictures show the previous board set** (daughterboard rev 0.9, motherboards rev 0.11 / 0.9 / 0.7). On the
+> current boards the wideband plug is an 8-way one for AEM's harness, the separate air-temperature plug and its jumper
+> are gone, the add-on header has 20 pins, the daughterboard carries a microSD socket, and 1989–93 and 1994–95 share one
+> motherboard with six jumpers along its side edges. The tables below describe the current boards.
 
 The layout below the harness plug is the same on every year: only the harness plug and a few option links change.
 The pictures show green solder mask; yours is whatever colour you ordered.
@@ -30,54 +35,67 @@ The pictures show green solder mask; yours is whatever colour you ordered.
 | 2001–05 | [picture](images/annotated_2001-05.jpg) | [picture](images/annotated_motherboard_2001-05.jpg) |
 
 Which harness pin carries which signal is in each motherboard's README
-([1989–93](motherboards/1989-93/README.md), [1994–95](motherboards/1994-95/README.md),
-[1996–97](motherboards/1996-97/README.md), [1999–2000](motherboards/1999-2000/README.md),
-[2001–05](motherboards/2001-05/README.md)).
+([1989–95](motherboards/1989-95/README.md), [1996–97](motherboards/1996-97/README.md),
+[1999–2000](motherboards/1999-2000/README.md), [2001–05](motherboards/2001-05/README.md)).
 
 ### Header pin maps
 
-![Pin 1 and the signal on every pin of J5, J2, J3 and JP1](images/header_pinouts.png)
+Looking down on the board with the connector edge toward you. The same on all four motherboards.
 
-Looking down on the board with the connector edge toward you. The same on all five motherboards.
-
-**J5, AUX header** (2×8, 2.54 mm). Pin 1 is at the right; odd pins are the row nearer the daughterboard.
+**J5, add-on header** (2×10 box header, 2.54 mm; a 20-way ribbon cable plugs in). Pin 1 is at the right; odd pins are
+the row nearer the daughterboard.
 
 | Pin | Signal | What it is |
 |---|---|---|
 | 1 | IGN3 | Coil 3 signal, 5 V logic (coil-on-plug: cylinder 2) |
 | 2 | IGN4 | Coil 4 signal, 5 V logic (coil-on-plug: cylinder 4) |
-| 3 | BOOST | Boost valve output: switches to ground |
+| 3 | BOOST | Boost valve output: switches to ground. A freewheel diode to pin 15 is on the board |
 | 4 | ALT | Output to ground. In use on 1994–95 (pressure-regulator solenoid wire) and 1999–2005 (alternator) |
 | 5 | RELAY | Output to ground. In use on 1999–2000 (VICS) and 2003–05 (main relay) |
 | 6 | KNOCK | Knock sensor input. On 1999–2005 the stock sensor is already on it |
 | 7, 8 | VR1+, VR1− | Magnetic (VR) sensor input 1 |
 | 9, 10 | VR2+, VR2− | Magnetic (VR) sensor input 2 |
 | 11 | AFR | Spare 0–5 V analog input |
-| 12, 13 | TX, RX | Serial port, 3.3 V |
+| 12 | FLEX | Flex-fuel sensor signal. The 4.7 kΩ pull-up to 5 V is on the board |
+| 13 | N2O | Nitrous arming switch: 12 V = armed. The pull-down is on the board |
 | 14 | +5 V | Protected sensor supply |
-| 15 | +12 V | Switched with the ECU, self-resetting 0.5 A fuse |
-| 16 | GND | Ground |
+| 15 | +12 V | Switched with the ECU, self-resetting 1.1 A fuse |
+| 16, 17, 18 | GND | Ground |
+| 19 | CAN H | CAN bus, 500 kbit/s: the bus the on-board wideband reports on |
+| 20 | CAN L | |
 
-**J2, wideband sensor** (Molex Micro-Fit 2×3; mating plug 43025-0600). Board pin *n* goes to Bosch LSU 4.9 plug
-pin *n*. Pins 1–3 are the pad row nearer the board edge, pin 1 at the right.
+Pins 12 and 13 need a rev 0.10 daughterboard.
 
-| Pin | LSU 4.9 signal | Sensor wire colour |
-|---|---|---|
-| 1 | IP, pump current | red |
-| 2 | VM, reference | yellow |
-| 3 | H−, heater | white |
-| 4 | H+, heater +12 V | grey |
-| 5 | RT, trim resistor | none: the resistor is inside the sensor's plug |
-| 6 | UN, sense cell | black |
+**J2, wideband sensor** (Molex Micro-Fit 3.0, 2×4), for **AEM's X-Series sensor harness 30-3427**, which has the Bosch
+LSU 4.9 plug on its other end. Pins 1–4 are the pad row nearer the board edge, pin 1 at the right; pin 5 is behind
+pin 1.
 
-**J3, air-temperature sensor** (Micro-Fit 1×2; mating plug 43645-0200): pin 1 signal, pin 2 ground. A thermistor
-has no polarity.
+| Pin | AEM's name | AEM harness wire | LSU 4.9 signal |
+|---|---|---|---|
+| 1 | Trim resistor | green | RT |
+| 2 | Heater − | white | H− |
+| 3 | COM | orange | VM, reference |
+| 5 | Pump current | red | IP |
+| 6 | Sense | black | UN, sense cell |
+| 8 | Heater + | brown | H+, 12 V through the board's 3 A fuse |
+| 4, 7 | not used | | |
 
-**JP1, air-temperature source:** shunt on the left two pins (STOCK) reads the car's own sensor through the harness;
-on the right two (EXT) it reads the sensor on J3.
+The pin functions and wire colours are from AEM's instructions for the 30-0300 gauge. **That the harness's plug is a
+Micro-Fit 2×4 is an assumption**: nobody has tried one on a board. Check the plug, and each wire with a meter, before
+plugging a sensor in.
 
-When you make a lead, check it end to end with a meter before plugging a sensor in: the pin maps are drawn from the
-board files, and nobody has built a lead from them yet.
+**1989–95 motherboard jumpers** (three-pin and two-pin headers with shunts, along the side edges). Set them for the
+car before the first start:
+
+| Jumper | 1989–93 | 1994–95 | What it does |
+|---|---|---|---|
+| JP1, JP2 (INJ3, INJ4) | PAIR | SEQ | PAIR: two injector drivers share each of the two injector wires. SEQ: one wire per injector. **Never SEQ on a 1989–93 automatic** |
+| JP3 (FAN2) | 90-93 | 94-95 | Which harness pin the second fan relay is on |
+| JP4 (94-95 2R) | open | fitted | The 1994–95 pressure-regulator solenoid |
+| JP5 (TACH COP) | open | open | Fit only after a coil-on-plug conversion with the igniter removed |
+| JP6 (2O) | AFM | AFM | BOOST: the boost valve output on the airflow meter's old signal wire, once the meter is gone |
+
+The full table is in the [1989–95 README](motherboards/1989-95/README.md).
 
 ## What you need
 
@@ -85,7 +103,8 @@ Everything is on the [parts page](additional-parts/shopping_list.html), with qua
 
 - The ECU: a daughterboard on your year's motherboard, with firmware loaded ([firmware/README.md](firmware/README.md)).
 - **Your stock ECU's case.** The board goes in it (1990–95; the 1996–2005 fit is unchecked).
-- A **Bosch LSU 4.9** wideband sensor (0 258 017 025), genuine, and a 6-wire lead from it to J2.
+- A **Bosch LSU 4.9** wideband sensor (0 258 017 025), genuine, and **AEM's X-Series sensor harness 30-3427** from it
+  to J2.
 - **Vacuum hose**, 3–4 mm inside diameter, about 3 m, and a **4 mm barbed tee**.
 - A USB-C cable and a laptop with [TunerStudio](https://www.tunerstudio.com/).
 - A multimeter and a timing light.
@@ -99,8 +118,9 @@ Do this on the desk, before the car.
 2. Open TunerStudio, connect, and press **your year** under Popular Vehicles. 2001–02 and 2003–05 are separate
    buttons. This loads that year's settings and its [base tune](firmware/README.md#base-tune).
 3. Press **Flash on-board wideband** once ([how](firmware/README.md#flashing-the-on-board-wideband)).
-4. Set **JP1**: STOCK if the car keeps its stock airbox and airflow meter (the stock air-temperature sensor is in
-   them), EXT if you are adding a sensor on J3.
+4. **1989–95 board:** set the six jumpers for your car ([table](#header-pin-maps)).
+5. Optional: put a microSD card in the daughterboard's socket (lift the lid, lay the card in, close and slide it
+   shut). rusEFI logs to it; a card is not needed to run.
 
 ## 2. Remove the stock ECU
 
@@ -119,14 +139,14 @@ Unplug the harness plugs and keep the ECU: its case is the new ECU's case, and i
 **Unchecked: nobody has fitted a board to a case yet.**
 
 1. Open the stock case and lift the stock board out. Keep its screws.
-2. The four things on the board's bottom edge need openings in the case edge they face. Mark them from the board
+2. The things on the board's bottom edge need openings in the case edge they face. Mark them from the board
    itself. Their centres, measured from the board's left edge (board width 154 mm):
 
    | Opening | Centre from the left edge |
    |---|---|
-   | Wideband plug (J2) | 26 mm |
-   | Air-temperature plug (J3) | 54 mm |
+   | Wideband plug (J2) | 24.5 mm |
    | USB-C (J4) | 80 mm |
+   | Add-on ribbon cable, if used | anywhere it can leave flat: the header is 33 mm in from the bottom edge |
    | MAP hose | wherever the hose leaves: the barb points sideways, toward the middle of the board |
 
 3. Deburr the cut edges and fit a grommet or edge trim where the hose and leads pass.
@@ -151,17 +171,22 @@ carpet up again.
     cars. **Unchecked on this board.**
   - Bridging F/P to GND in the diagnosis box also runs the pump, but it then runs whenever the key is on, even with
     the engine stopped. Use it for testing only.
-- **Air temperature:** the stock sensor is inside the airflow meter. With the meter in place, JP1 on STOCK reads it.
-  With the meter removed, see [Air temperature](#7-air-temperature).
+- **Air temperature:** the stock sensor is inside the airflow meter, and the ECU reads it through the harness. With
+  the meter removed, see [Air temperature](#7-air-temperature).
 - **Manual cars have no throttle position sensor**, only a switch. The engine runs without one, but there is no
   closed-loop idle, no throttle-based acceleration fuel and no overrun fuel cut until you fit one: see
   [Throttle position sensor](README.md#throttle-position-sensor-198993-manual-cars).
-- **Automatics:** never fit R26, and leave R28 and R30 off.
+- **Jumpers:** JP1 and JP2 on PAIR, JP3 on 90-93, JP4 and JP5 open, JP6 on AFM.
+- **Automatics:** never put JP2 on SEQ, and leave R28 and R30 off.
+- **Sustained high rpm:** on these cars each injector fires once per revolution, which doubles the heat the injector
+  clamps put into the ECU. Measure one injector's inductance before track use
+  ([why](README.md#things-to-know-before-ordering)).
 
 ### 1994–95 and 1996–97
 
+- **1994–95 jumpers:** JP1 and JP2 on SEQ, JP3 on 94-95, JP4 fitted, JP5 open, JP6 on AFM.
 - The stock airflow meter can stay plugged in: the ECU ignores its signal, and the stock air-temperature sensor
-  inside it keeps working with JP1 on STOCK.
+  inside it keeps working.
 - The ECU is behind the passenger seat, so the MAP hose and the wideband lead are long: run them from the firewall
   along the passenger sill, under the trim.
 
@@ -169,8 +194,8 @@ carpet up again.
 
 - **Pick the right year button.** A 2001–02 car on the 2003–05 button gets no fuel or spark.
 - The stock airflow meter can stay plugged in: the ECU ignores its signal. The stock air-temperature sensor is in
-  the air filter box (a separate two-wire sensor on 1999–2000), and keeps working with JP1 on STOCK for as long as
-  the stock airbox stays.
+  the air filter box (a separate two-wire sensor on 1999–2000), and keeps working for as long as the stock airbox
+  stays.
 - **Charging:** alternator control ships switched off. Check the wire and switch it on:
   [firmware/README.md, First start, step 7](firmware/README.md#first-start). Until then, watch battery voltage.
 - **2001–05 Mazdaspeed:** not supported. Its pin 4R is a second air-temperature sensor, not the VVT valve.
@@ -205,8 +230,9 @@ manifold. The engine will not run properly without it.
 1. **Fit the sensor in place of the stock front oxygen sensor**, the one nearest the engine, before the catalytic
    converter. The LSU 4.9 has the same M18 × 1.5 thread. A weld-in bung is only needed to keep the stock sensor too.
 2. **Use a genuine Bosch sensor.** Copies read wrongly.
-3. **Make or buy the lead:** six wires from the sensor's plug to J2, board pin *n* to sensor pin *n*
-   ([pin map](#header-pin-maps)). Twist the three signal wires together and sleeve the lead.
+3. **The lead is AEM's X-Series sensor harness 30-3427**: sensor plug on one end, J2 on the other
+   ([pin map](#header-pin-maps)). **Unchecked: the plug family is assumed.** Before the first use, check with a meter
+   that each J2 pin reaches the sensor-plug pin the table gives.
 4. Route it through the firewall with the MAP hose, clear of the exhaust, and tie it up.
 5. Leave the stock oxygen sensor's plug unconnected and tie it back.
 6. **Check:** engine running and warm, TunerStudio shows a lambda reading that moves when you blip the throttle.
@@ -219,11 +245,13 @@ The ECU needs the temperature of the air entering the engine.
 
 | Situation | Do this |
 |---|---|
-| Stock airbox and airflow meter still fitted and plugged in | JP1 on **STOCK**. Nothing else |
-| Airflow meter removed, 1990–93 | A GM open-element sensor on an adapter that plugs into the airflow meter's plug (MiataSource and Speedy EFI sell them), JP1 on **STOCK**. Or run your own lead to J3, JP1 on **EXT** |
-| Airflow meter removed, 1994–97 | The same sensor wired to the two air-temperature wires at the meter's plug (AMP: the third and fourth wires on 1994–95), JP1 on **STOCK**; or a lead to J3, JP1 on **EXT**. Confirm the two wires with a meter on your car |
-| Stock airbox removed, 1999–2005 | The same sensor on the stock air-temperature sensor's plug, JP1 on **STOCK**; or a lead to J3, JP1 on **EXT** |
-| Turbo or supercharger | Put the sensor after the intercooler, close to the throttle body, not in the airbox |
+| Stock airbox and airflow meter still fitted and plugged in | Nothing: the ECU reads the stock sensor through the harness |
+| Airflow meter removed, 1990–93 | A GM open-element sensor on an adapter that plugs into the airflow meter's plug (MiataSource and Speedy EFI sell them) |
+| Airflow meter removed, 1994–97 | The same sensor wired to the two air-temperature wires at the meter's plug (AMP: the third and fourth wires on 1994–95). Confirm the two wires with a meter on your car |
+| Stock airbox removed, 1999–2005 | The same sensor on the stock air-temperature sensor's plug |
+| Turbo or supercharger | Put the sensor after the intercooler, close to the throttle body, not in the airbox, and extend the same two wires to it |
+
+The board has no separate air-temperature plug (it had one up to motherboard rev 0.11 / 0.7).
 
 After changing the sensor type, enter its resistance curve in TunerStudio's air-temperature sensor settings. The
 year buttons are set for the stock Mazda sensor.
@@ -244,20 +272,25 @@ Reconnect the battery and plug the harness in. Then follow
 6. **First drives:** light throttle only. The [base tune](firmware/README.md#base-tune) was made on other cars, and
    nobody has tuned it under boost.
 
-## 9. Add-ons on the AUX header
+## 9. Add-ons on the add-on header
 
-**Unchecked.** The AUX header takes a 2×8 ribbon-cable (IDC) plug.
+**Unchecked.** The add-on header J5 takes a 2×10 ribbon-cable (IDC) plug ([pin map](#header-pin-maps)).
 
 | Add-on | Wiring | In TunerStudio |
 |---|---|---|
-| Boost control valve (3-port) | One wire to pin 3. Take the valve's 12 V from a fused, key-switched supply in the car, not from pin 15: a common MAC valve draws about 0.45 A, right at that pin's 0.5 A fuse | Boost control, output already assigned |
+| Boost control valve (3-port) | Between pin 15 (+12 V, 1.1 A fuse) and pin 3. A common MAC valve draws about 0.45 A | Boost control, output already assigned |
+| Flex-fuel sensor (GM / Continental) | Signal to pin 12, the sensor's +12 V from pin 15, ground to pin 16 | Flex sensor input: "Flex input (J2-24)" |
+| Nitrous | Arming switch from +12 V to pin 13. The solenoid relay's coil on a spare output (boost on pin 3, or the second fan output) | Enable nitrous control, trigger "Nitrous arm (J2-25)", and pick that output |
+| CAN dash or gauges | CAN H to pin 19, CAN L to pin 20, ground to pin 17. 500 kbit/s. The board terminates its end of the bus | CAN settings for your dash |
 | Knock sensor (1990–97, which have none) | Signal to pin 6, the other wire or the shield to pin 16 | Knock settings |
 | Coil-on-plug, one coil per cylinder | Cylinder 1 on the stock coil 1&4 signal wire, cylinder 3 on the stock coil 2&3 wire, cylinder 2 on pin 1, cylinder 4 on pin 2. Coils with built-in igniters only (5 V logic) | Ignition mode: sequential; set the dwell for your coils first |
 | Coil-on-plug, wasted spark | No ECU wiring: the conversion harness uses the two stock signals | Set the dwell for your coils first |
 
-**1990 to early 1995 with coil-on-plug:** the tachometer was fed by the stock igniter. With the igniter gone, the
-ECU's tach output feeds it. With the stock igniter still fitted, check
-[First start, step 2](firmware/README.md#first-start) before driving.
+Flex fuel and nitrous need a rev 0.10 daughterboard.
+
+**1990 to early 1995 with coil-on-plug:** the tachometer was fed by the stock igniter. With the igniter gone, fit JP5
+on the 1989–95 board, set the tach output in TunerStudio and join the two tach wires at the old igniter plug. With the
+stock igniter fitted, leave JP5 open: the firmware has no tach output on these years.
 
 ## If something's wrong
 
@@ -269,7 +302,7 @@ ECU's tach output feeds it. With the stock igniter still fitted, check
 | No fuel or spark at all, 2001–05 | The wrong year button (2001–02 against 2003–05) |
 | RPM stays at zero while cranking | The trigger input: see [First start, step 4](firmware/README.md#first-start) |
 | MAP stuck near 100 kPa | The hose: off, kinked, or taken from before the throttle |
-| No lambda reading | Wideband not flashed, lead miswired, or the sensor still warming up |
+| No lambda reading | Wideband not flashed, the harness plug not matching J2's pins, or the sensor still warming up |
 | Battery voltage falling while driving, 1999–2005 | Alternator control is still off |
 
 ## Sources
@@ -287,7 +320,8 @@ Where this guide's car-specific facts come from:
   the [Speeduino MX5 manual](https://speeduino.com/Speeduino_mx5.pdf) and the FOME quick start.
 - Hose size for the MAP sensor: NXP application note
   [AN1513](https://www.nxp.jp/docs/en/application-note/AN1513.pdf).
-- Wideband wire colours: [Tech Edge, LSU connectors and wiring](https://www.wbo2.com/cable/lsuconns.htm).
+- Wideband harness pins and wire colours: AEM's
+  [X-Series wideband gauge instructions](https://www.jegs.com/InstallationInstructions/0/017/017-30-0300-acc.pdf).
 - Coil-on-plug: the [FOME Miata COP conversion page](https://wiki.fome.tech/Vehicle-Specific/Mazda-MX5-Miata/Miata-COP-Conversion/).
 - Where the stock air-temperature sensor is: the AMP 1994–95 guide above (inside the airflow meter) and Haltech's
   [1999–2000](https://support.haltech.com/portal/en/kb/articles/99-00-nb1-1-8l-bp-4w) and

@@ -23,7 +23,7 @@ rm -f $OUT/${P}_in.kicad_pcb $OUT/${P}_in.kicad_pro $OUT/$P.kicad_pcb.kicad_pro 
 /usr/bin/python3 $S/via_hole_gap.py $OUT/$P.kicad_pcb $OUT/$P.kicad_pcb | grep -v leak | tail -1   # 0.45 mm via to pad hole
 /usr/bin/python3 $S/mb_gnd_islands.py $OUT/$P.kicad_pcb | grep -v leak        # ground pads the pours could not reach
 /usr/bin/python3 $S/drc.py $OUT/$P.kicad_pcb $OUT/fab/drc_report.txt | tail -1
-/usr/bin/python3 $S/jlc_spacing.py $OUT/$P.kicad_pcb | head -1
+/usr/bin/python3 $S/jlc_spacing.py $OUT/$P.kicad_pcb 2>/dev/null | head -1
 /usr/bin/python3 $S/jlc_fab_check.py $OUT/$P.kicad_pcb | head -6
 /usr/bin/python3 $S/mb_export.py $MOD $OUT/$P.kicad_pcb $OUT/fab
 ( cd $OUT && kicad-cli sch export pdf -o ${P}_schematic.pdf $P.kicad_sch >/dev/null 2>&1 )

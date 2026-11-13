@@ -70,14 +70,13 @@ td.item b a{color:var(--accent);text-underline-offset:2px}
 <main>
   <header>
     <h1>Miata ECU: parts JLCPCB won't fit</h1>
-    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.9 and the five motherboards (1989-93 rev 0.11, 1994-95 rev 0.9, 1996-97 / 1999-2000 / 2001-05 rev 0.7), plus the parts that go in the car. Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
+    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.10 and the four motherboards (1989-95 rev 0.12; 1996-97, 1999-2000 and 2001-05 rev 0.8), plus the parts that go in the car. Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
   </header>
 
   <div class="counts" role="group" aria-label="Build counts">
-    <div class="count"><label for="n-d">Daughterboards</label><input id="n-d" type="number" min="0" value="5"></div>
+    <div class="count"><label for="n-d">Daughterboards</label><input id="n-d" type="number" min="0" value="4"></div>
     <div class="sep"></div>
-    <div class="count"><label for="n-8993">89–93</label><input id="n-8993" type="number" min="0" value="1"></div>
-    <div class="count"><label for="n-9495">94–95</label><input id="n-9495" type="number" min="0" value="1"></div>
+    <div class="count"><label for="n-8995">89–95</label><input id="n-8995" type="number" min="0" value="1"></div>
     <div class="count"><label for="n-9697">96–97</label><input id="n-9697" type="number" min="0" value="1"></div>
     <div class="count"><label for="n-9900">99–00</label><input id="n-9900" type="number" min="0" value="1"></div>
     <div class="count"><label for="n-0105">01–05</label><input id="n-0105" type="number" min="0" value="1"></div>
@@ -94,7 +93,7 @@ td.item b a{color:var(--accent);text-underline-offset:2px}
 
 <script>
 // who: must = you buy and fit it; jlc = in the JLCPCB list, Standard PCBA or hand; opt = only if you need it
-// per: 'd' daughterboard, 'mb' every motherboard, a year key for one year, 'na' 1989-95 boards, 'car', 'once'
+// per: 'd' daughterboard, 'mb' every motherboard, a year key for one board, 'car', 'once'
 const DK = m => `https://www.digikey.com/en/products/result?keywords=${encodeURIComponent(m)}`;
 const MC = m => `https://www.mcmaster.com/${encodeURIComponent(m)}/`;
 const GROUPS = [
@@ -103,18 +102,16 @@ const GROUPS = [
    note:'J1 and J2, on the bottom side. Cheaper to hand-solder than to pay for bottom-side assembly: plug them into a motherboard’s sockets while the solder sets so they come out straight.'},
  ]},
  {id:'harness', title:'Harness connectors', sub:'Not in any parts list. The one part you have to source yourself for each motherboard.', rows:[
-  {item:'TE 174917-6, 48 pins', pn:'TE 174917-6', per:'na', q:1, who:'must', warn:'Not available from TE',
-   note:'1989-93 and 1994-95. Desolder one from a stock NA ECU (junkyard) or buy a clone.'},
+  {item:'TE 174917-6, 48 pins', pn:'TE 174917-6', per:'8995', q:1, who:'must', warn:'Not available from TE',
+   note:'1989-95. Desolder one from a stock NA ECU (junkyard) or buy a clone.'},
   {item:'TE 178780-1, 76 positions', pn:'TE 178780-1', per:'9697', q:1, who:'must',
    note:'1996-97. Alternates: 174915-6, 3-178780-6.'},
-  {item:'TE 176122-6, 64 positions', pn:'TE 176122-6', per:'9900', q:1, who:'must',
-   note:'1999-2000. Alternate: 4-174518-7.'},
+  {item:'TE 178780-1, 76 positions', pn:'TE 178780-1', per:'9900', q:1, who:'must',
+   note:'1999-2000, the same header as 1996-97 since rev 0.8 (the car’s own is the 64-position 176122-6, whose three plugs are the same housings).'},
   {item:'TE 353830-5, 72 positions in 3 rows', pn:'TE 353830-5', per:'0105', q:1, who:'must',
    note:'2001-05. Alternate: 1123038-2.'},
  ]},
  {id:'mb', title:'Every motherboard', sub:'One set per motherboard, any year.', rows:[
-  {item:'Jumper shunt, 2.54 mm', pn:'Sullins QPC02SXGN-RC', dk:'QPC02SXGN-RC', per:'mb', q:1, who:'must',
-   note:'For JP1 (IAT source). Not in the BOM. EXT reads the board’s IAT connector, STOCK the harness sensor.'},
   {item:'MAP sensor MPX5700AP (absolute, case 867B)', pn:'NXP MPX5700AP', dk:'MPX5700AP', per:'mb', q:1, who:'must',
    note:'Lies flat, marking side up, leads bent 90° down, barb toward the board centre. JLCPCB won’t bend and bolt it.'},
   {item:'M3 × 10 mm pan head screw (MAP sensor)', pn:'McMaster 92000A120', mc:'92000A120', per:'mb', q:2, who:'must',
@@ -125,32 +122,35 @@ const GROUPS = [
    note:'Holds the daughterboard above the motherboard (8.5 mm sockets + headers). Steel, 5.5 mm hex. Any M3 × 11 mm female-female hex standoff does.'},
   {item:'M3 × 6 mm pan head screw (standoffs)', pn:'McMaster 92000A116', mc:'92000A116', per:'mb', q:8, who:'must', note:'Two per standoff, one through each board. 18-8 stainless, Phillips; pack of 100.'},
   {item:'Socket, 1×40, 2.54 mm, female, 8.5 mm, gold', pn:'Würth 61304011821', dk:'61304011821', per:'mb', q:2, who:'must', note:'JD1 and JD2 for the daughterboard, one piece per row (straighter than two 1×20s end to end). Gold contacts, to match the gold-flash header pins: avoid tin sockets, which corrode against gold under vibration (crank, cam and injector signals go through these). 0.335″ (8.50 mm) insulation height: the 11 mm standoffs depend on it. Same-size alternatives: Samtec SSQ-140-01-G-S, or two Sullins PPPC201LFBN-RC end to end.'},
-  {item:'Micro-Fit 3.0 header, 2×3, right angle', pn:'Molex 0430450600', dk:'0430450600', per:'mb', q:1, who:'must', note:'J2, LSU 4.9 wideband.'},
-  {item:'Micro-Fit 3.0 header, 1×2, right angle', pn:'Molex 0436500200', dk:'0436500200', per:'mb', q:1, who:'must', note:'J3, IAT sensor.'},
-  {item:'Box header, 2×8, 2.54 mm', pn:'On Shore 302-S161', dk:'302-S161', per:'mb', q:1, who:'must', note:'J5, AUX.'},
-  {item:'Pin header, 1×3, 2.54 mm', pn:'Sullins PRPC003SAAN-RC', dk:'PRPC003SAAN-RC', per:'mb', q:1, who:'must', note:'JP1, holds the shunt above.'},
+  {item:'Micro-Fit 3.0 header, 2×4, right angle', pn:'Molex 0430450800', dk:'0430450800', per:'mb', q:1, who:'must', warn:'Plug family assumed',
+   note:'J2, wideband sensor, for AEM’s X-Series harness 30-3427. AEM gives the pin functions, not the connector: check a harness against this header before ordering.'},
+  {item:'Box header, 2×10, 2.54 mm', pn:'On Shore 302-S201', dk:'302-S201', per:'mb', q:1, who:'opt', note:'J5, add-on header: boost valve, flex fuel, nitrous, CAN, coils 3 and 4, knock. Leave it off if you use none of them.'},
+ ]},
+ {id:'na', title:'1989-95 motherboard: jumpers', sub:'One board covers 1989-93 and 1994-95; six jumpers set it for the car.', rows:[
+  {item:'Pin header, 1×3, 2.54 mm', pn:'Sullins PRPC003SAAN-RC', dk:'PRPC003SAAN-RC', per:'8995', q:4, who:'must', note:'JP1, JP2, JP3 and JP6.'},
+  {item:'Pin header, 1×2, 2.54 mm', pn:'Sullins PRPC002SAAN-RC', dk:'PRPC002SAAN-RC', per:'8995', q:2, who:'must', note:'JP4 (fitted on 1994-95) and JP5 (only after a coil-on-plug conversion).'},
+  {item:'Jumper shunt, 2.54 mm', pn:'Sullins QPC02SXGN-RC', dk:'QPC02SXGN-RC', per:'8995', q:6, who:'must', note:'One per jumper. Positions for your year: the jumper table in the 1989-95 README and in INSTALL.md.'},
+  {item:'Resistor 1 kΩ, 2512, 1 W', pn:'Yageo RC2512JK-071KL', dk:'RC2512JK-071KL', per:'8995', q:1, who:'opt', note:'R37: the tachometer’s 12 V pull-up, only with JP5 fitted (coil-on-plug, igniter removed).'},
  ]},
  {id:'optional', title:'Optional parts on the motherboard', sub:'Not fitted by default. Buy only if your car needs them.', rows:[
   {item:'Resistor 4.7 kΩ, 0603', pn:'Yageo RC0603FR-074K7L', dk:'RC0603FR-074K7L', per:'mb', q:3, who:'opt',
    note:'R20-R22: pull-ups for VSS, A/C and clutch. Fit one only where that signal switches to ground. Never on a line the car drives to 12 V.'},
-  {item:'Resistor 0 Ω, 0805', pn:'Yageo RC0805JR-070RL', dk:'RC0805JR-070RL', per:'8993', q:2, who:'opt', warn:'Never on an automatic',
-   note:'R25/R26 on the 1989-93 board: only for a sequential injection conversion (with R23/R24 removed). 2Z is the A/T unit on automatics.'},
   {item:'Resistor 0 Ω, 0805 (TPS links)', pn:'Yageo RC0805JR-070RL', dk:'RC0805JR-070RL', per:'mt', q:2, who:'opt', warn:'Manual cars only',
-   note:'R28 (5 V on 1N) and R30 (2L to the TPS input, after removing R29) on the 1989-93 board, for a sensor on the stock throttle plug. Never with the stock switch still fitted.'},
+   note:'R28 (5 V on 1N) and R30 (2L to the TPS input, after removing R29) on the 1989-95 board, for a sensor on the stock throttle plug. Never with the stock switch still fitted.'},
  ]},
  {id:'car', title:'In the car', sub:'One set per car you install in.', rows:[
   {item:'Bosch LSU 4.9 wideband sensor', pn:'Bosch 0 258 017 025', per:'car', q:1, who:'must', note:'The board runs it directly; no separate wideband controller.'},
   {item:'O2 sensor weld bung, M18 × 1.5', pn:'M18 × 1.5 bung', per:'car', q:1, who:'opt', note:'Only to keep the stock oxygen sensor as well. The LSU 4.9 screws into the stock front sensor’s hole (same M18 × 1.5 thread).'},
-  {item:'Micro-Fit 3.0 receptacle, 2×3', pn:'Molex 0430250600', dk:'0430250600', per:'car', q:1, who:'must', note:'Mates with J2 (LSU 4.9).'},
-  {item:'Micro-Fit 3.0 female crimp terminal, 20-24 AWG', pn:'Molex 0430300007', dk:'0430300007', per:'car', q:8, who:'must', note:'6 for the LSU lead, 2 for the IAT lead.'},
-  {item:'LSU 4.9 extension lead or sensor-side connector', pn:'LSU 4.9 pigtail', per:'car', q:1, who:'must', note:'Saves crimping the sensor-side Bosch plug. Wire it to the 43025-0600 at the board end.'},
-  {item:'IAT sensor, M12 × 1.5 open element', pn:'open-element thermistor', per:'car', q:1, who:'opt', note:'Only with JP1 on EXT. On STOCK the board reads the car’s own air-temp sensor.'},
-  {item:'Micro-Fit 3.0 receptacle, 1×2', pn:'Molex 0436450200', dk:'0436450200', per:'car', q:1, who:'opt', note:'Mates with J3, for the IAT sensor above.'},
+  {item:'AEM X-Series wideband sensor harness', pn:'AEM 30-3427', per:'car', q:1, who:'must', warn:'Fit unchecked', link:'https://www.aemelectronics.com/products/dashes_and_gauges/aem_performance_gauges/gauge_accessories/parts/30-3427',
+   note:'From the sensor’s plug to J2. That its board-end plug is a Micro-Fit 2×4 is assumed; check it, and each wire with a meter, before plugging a sensor in (INSTALL.md, header pin maps).'},
+  {item:'Air temperature sensor, open element (GM type), on an adapter for the stock sensor’s plug', pn:'open-element thermistor', per:'car', q:1, who:'opt', note:'Only once the airflow meter or the stock airbox is gone. The board reads the car’s own air-temperature wire; there is no separate plug for it.'},
+  {item:'Ribbon cable with a 2×10 IDC socket, 2.54 mm', pn:'20-way IDC ribbon cable', per:'car', q:1, who:'opt', note:'To the add-on header J5.'},
+  {item:'microSD card', pn:'any microSD, FAT32', per:'car', q:1, who:'opt', note:'For rusEFI’s logging, in the daughterboard’s socket. Not needed to run.'},
   {item:'Silicone vacuum hose, 3-4 mm (1/8-5/32 in) inside diameter, 3 m', pn:'4 mm ID silicone vacuum hose', per:'car', q:1, who:'must', note:'From the MAP sensor’s barb to the intake manifold. 1994-97 cars need most of it: the ECU is behind the seat. Where to connect it on each year: INSTALL.md, MAP hose.'},
   {item:'Barbed vacuum tee, 4 mm (5/32 in)', pn:'4 mm barbed tee', per:'car', q:1, who:'opt', note:'Needed when the manifold port already has a hose on it: 1990-95 cars with cruise control and every 1996-97. Not needed if your manifold has a free, capped nipple.'},
-  {item:'Case', pn:'stock ECU case', per:'car', q:1, who:'must', note:'1989-95 boards fit the stock NA case: reuse yours. The 1996-2005 outlines are provisional until those cases are measured.'},
+  {item:'Case', pn:'stock ECU case', per:'car', q:1, who:'must', note:'The 1989-95 board fits the stock NA case: reuse yours. The 1996-2005 outlines are provisional until those cases are measured.'},
  ]},
- {id:'tps', title:'1989-93 manual cars: throttle position sensor', sub:'These cars have only a throttle switch. A real 0-5 V sensor plugs into the stock switch plug and gives closed-loop idle, acceleration fuel and overrun cut. On the board, fit R28 and move R29 to R30 (0 Ω 0805, in the optional parts above). Automatics already have one: skip this group.', rows:[
+ {id:'tps', title:'1989-93 manual cars: throttle position sensor', sub:'These cars have only a throttle switch. A real 0-5 V sensor plugs into the stock switch plug and gives closed-loop idle, acceleration fuel and overrun cut. On the 1989-95 board, fit R28 and move R29 to R30 (0 Ω 0805, in the optional parts above). Automatics already have one: skip this group.', rows:[
   {item:'Throttle position sensor, Kia, Mazda-style 3-pin plug', pn:'Kia 0K01118911', per:'mt', q:1, who:'must', link:'https://wiki.rusefi.com/Legacy-Miata-NA-48-pin-board-for-MRE',
    note:'Also 0K24718911, 0K30A18911 or aftermarket TH291 / 5S5504 / TPS4185. Plugs into the stock plug. Before fitting R28, check which sensor pins are the track ends (constant resistance between them) and that they meet the 1N and 2D wires; the wiper must meet 2L.'},
   {item:'TPS mount for the NA6 throttle body (3D print)', pn:'Thingiverse 3414132', per:'mt', q:1, who:'must', link:'https://www.thingiverse.com/thing:3414132',
@@ -165,7 +165,7 @@ const GROUPS = [
  ]},
 ];
 
-const YEARS = ['8993','9495','9697','9900','0105'];
+const YEARS = ['8995','9697','9900','0105'];
 const $ = id => document.getElementById(id);
 const num = id => Math.max(0, parseInt($(id).value, 10) || 0);
 function mult(per){
@@ -174,11 +174,10 @@ function mult(per){
   if (per === 'mt') return num('n-mt');
   if (per === 'once') return 1;
   if (per === 'mb') return YEARS.reduce((s, y) => s + num('n-' + y), 0);
-  if (per === 'na') return num('n-8993') + num('n-9495');
   return num('n-' + per);
 }
-const PER_LABEL = {d:'per daughterboard', mb:'per motherboard', na:'per 1989-95 board', car:'per car', mt:'per 1989-93 manual car', once:'once',
-  '8993':'per 1989-93 board', '9495':'per 1994-95 board', '9697':'per 1996-97 board','9900':'per 1999-2000 board','0105':'per 2001-05 board'};
+const PER_LABEL = {d:'per daughterboard', mb:'per motherboard', car:'per car', mt:'per 1989-93 manual car', once:'once',
+  '8995':'per 1989-95 board', '9697':'per 1996-97 board','9900':'per 1999-2000 board','0105':'per 2001-05 board'};
 const WHO = {must:['p-must','You fit it'], jlc:['p-jlc','JLC or you'], opt:['p-opt','Optional']};
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
