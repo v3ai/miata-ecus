@@ -1,0 +1,37 @@
+// The miata-ecus ECU's world outside the STM32F407: the ADC (Renode has none for the F4), the crank/cam signal
+// generator on the hall inputs, and their wiring. Load after stm32f407_ecu.repl, with models/STM32F4ADC.cs and
+// models/TriggerWheel.cs included first.
+
+// ADC1/2/3 + common. DMA requests go to the DMA2 streams ChibiOS uses (mcuconf_common_f4_f7.h: ADC1 2.4, ADC2 2.2,
+// ADC3 2.1); ADC global interrupt is IRQ 18.
+adc: Miata.STM32F4ADC @ sysbus 0x40012000
+    pclk2Frequency: 84000000
+    IRQ -> nvic@18
+    DMA1 -> dma2@4
+    DMA2 -> dma2@2
+    DMA3 -> dma2@1
+
+// HALL1 (crank / NA SGT) on PE7, HALL2 (cam / NA SGC) on PE8 (firmware/board/miata_pins.h)
+wheel: Miata.TriggerWheel @ sysbus
+    Ch0 -> gpioPortE@7
+    Ch1 -> gpioPortE@8
+
+// Output pins recorded with their virtual time (input number = port * 16 + pin, PA0 = 0): ignition PE1/PE0/PB9/PB8,
+// injectors PB7-PB4, IACV PB3, VVT/BOOST/ALT PD7/PD6/PD5, FP PC14, MAINRLY PC13, AC/FAN/CEL/TACH/LS7 PE6-PE2,
+// driver enable PA8.
+rec: Miata.PinRecorder @ sysbus
+
+gpioPortA:
+    8 -> rec@8
+
+gpioPortB:
+    [3-9] -> rec@[19-25]
+
+gpioPortC:
+    [13-14] -> rec@[45-46]
+
+gpioPortD:
+    [5-7] -> rec@[53-55]
+
+gpioPortE:
+    [0-6] -> rec@[64-70]
