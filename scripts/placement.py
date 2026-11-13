@@ -358,18 +358,12 @@ for _r, (_dx, _dy) in NUDGE.items():
     _v = PLACE[_r]
     PLACE[_r] = (round(_v[0] + _dx, 4), round(_v[1] + _dy, 4)) + tuple(_v[2:])
 
-# rev 0.10 (final frame): third board-to-board connector and the parts behind it, in the free area right of Q20
-put('J4', 108.0, 24.94, 90)       # 2x5, rows at y 22.4 and 24.94, pins 1/2 at the left
-put('U16', 113.0, 29.6, 0)        # gauge CAN transceiver
-put('C69', 109.6, 29.0, 90)
-put('C70', 116.4, 30.6, 90)
-put('Q21', 120.6, 27.6, 0)        # nitrous relay driver
-put('R154', 118.2, 29.6, 90)
-put('R155', 120.6, 30.4, 0)
-put('R150', 105.4, 27.2, 0)
-put('R151', 105.4, 28.4, 0)
-put('R152', 105.4, 29.6, 0)
-put('R153', 105.4, 30.8, 0)
+# rev 0.10 (final frame): microSD socket in the free area right of Q20, card slot toward the right board edge
+put('J4', 113.0, 28.0, 270)
+put('C69', 103.4, 26.0, 90)
+put('C70', 103.4, 30.0, 90)
+put('R150', 103.4, 33.0, 0)
+put('R151', 107.0, 35.6, 0)
 
 for p in design.parts:
     if p['ref'] not in PLACE:

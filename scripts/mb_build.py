@@ -143,12 +143,6 @@ def build(modname, out):
             ex, ey = dx + 13.0 + (k - 1) * 2.54, dy + yy
             gx, gy = ToMM(pad.GetPosition().x) - OX, ToMM(pad.GetPosition().y) - OY
             assert abs(gx - ex) < 0.01 and abs(gy - ey) < 0.01, (ref, k, gx, gy, ex, ey)
-    # the third socket: every pad under the daughterboard J4 pad of the same net
-    fp = board.FindFootprintByReference('JD3')
-    want = {(round(dx + x, 2), round(dy + y, 2)): daughter.J4[int(n)] for n, (x, y) in C.jd3_geometry().items()}
-    for pad in fp.Pads():
-        k = (round(ToMM(pad.GetPosition().x) - OX, 2), round(ToMM(pad.GetPosition().y) - OY, 2))
-        assert want.get(k) == pad.GetNetname(), ('JD3', pad.GetNumber(), k, pad.GetNetname(), want.get(k))
     board.Save(out)
     print('built', out, len(parts), 'parts', len(nets), 'nets')
     return board

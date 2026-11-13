@@ -214,12 +214,6 @@ def placement():
     # bottom edge, left to right: LSU, IAT, USB-C, MAP. Connector mouths at the edge.
     P['J2'] = (29.0, 152.3, 180)       # LSU 4.9 (moved 6 mm right in rev 0.2)
     P['F1'] = (44.0, 143.0, 90)
-    # rev 0.10: microSD socket where the air-temperature connector was, card slot at the board edge
-    P['J6'] = (57.0, 146.6, 0)
-    P['C4'] = (67.8, 139.0, 0)
-    P['C5'] = (67.8, 141.6, 0)
-    P['R31'] = (67.8, 144.2, 0)
-    P['R32'] = (67.8, 146.8, 0)
     P['J4'] = (80.0, 157.6, 0)
     P['R2'] = (73.5, 151.0, 90)
     P['R3'] = (86.5, 151.0, 90)

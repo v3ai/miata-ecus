@@ -23,11 +23,6 @@ def common_parts():
         daughter.J1, '2.54 mm 1x40 female, 8.5 mm. Mates with the daughterboard J1 (power + outputs)')
     add('JD2', 'Socket 1x40 (daughter J2)', 'Connector_PinSocket_2.54mm:PinSocket_1x40_P2.54mm_Vertical', 'C124412',
         {k: ('GND' if v == 'HTR_GND' else v) for k, v in daughter.J2.items()}, '2.54 mm 1x40 female, 8.5 mm. Mates with the daughterboard J2 (inputs + comms)')
-    # rev 0.10 daughterboard: third connector (2x5) with the microSD lines, the gauge CAN bus and the nitrous output.
-    # The daughterboard's header is on its bottom side with its pads where the design puts them, so each socket pad
-    # takes the net of the header pad straight above it (a 2-row socket's own numbering is the mirror image).
-    add('JD3', 'Socket 2x5 (daughter J4)', 'Connector_PinSocket_2.54mm:PinSocket_2x05_P2.54mm_Vertical', '',
-        jd3_pads(), '2.54 mm 2x5 female, 8.5 mm. Mates with the daughterboard J4 (microSD, gauge CAN, nitrous output)')
     for i in range(4):
         add(f'HD{i + 1}', 'M3 standoff', 'MountingHole:MountingHole_3.2mm_M3', '', {},
             'Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)')
@@ -54,18 +49,8 @@ def common_parts():
     # Rev 0.10: no air-temperature connector or jumper any more: the stock sensor wire goes straight to the input
     # (year modules map their air-temperature cavity to IN_IAT).
 
-    # microSD for logging (SPI from the daughterboard's J4). Push-push socket, card slot at the board edge.
-    add('J6', 'microSD', 'Connector_Card:microSD_HC_Hirose_DM3AT-SF-PEJM5', 'C114218',
-        {1: '', 2: 'SD_CS', 3: 'SD_MOSI', 4: '+3V3', 5: 'SD_SCK', 6: 'GND', 7: 'SD_MISO', 8: '', 9: '', 10: '', 11: 'GND'},
-        'microSD socket (Hirose DM3AT-SF-PEJM5), SPI mode: 2 CS, 3 DI, 4 VDD, 5 CLK, 6 VSS, 7 DO')
-    add('C4', '10u', 'Capacitor_SMD:C_0805_2012Metric', 'C15850', {1: '+3V3', 2: 'GND'}, 'microSD supply')
-    add('C5', '100n', 'Capacitor_SMD:C_0603_1608Metric', 'C14663', {1: '+3V3', 2: 'GND'}, 'microSD supply')
-    add('R31', '47k', 'Resistor_SMD:R_0603_1608Metric', 'C25819', {1: '+3V3', 2: 'SD_CS'}, 'microSD CS pull-up (card deselected until the firmware drives it)')
-    add('R32', '47k', 'Resistor_SMD:R_0603_1608Metric', 'C25819', {1: '+3V3', 2: 'SD_MISO'}, 'microSD data-out pull-up')
-    # gauge CAN bus termination (its own bus, separate from the wideband's)
-    add('R33', '120', 'Resistor_SMD:R_0603_1608Metric', 'C22787', {1: 'GCAN_H', 2: 'GCAN_T'}, 'Gauge CAN termination')
-    add('R34', '0R', 'Resistor_SMD:R_0603_1608Metric', 'C21189', {1: 'GCAN_T', 2: 'GCAN_L'},
-        'Gauge CAN termination link: fitted = 120R terminator active; remove if this ECU is not at an end of the bus')
+    # Rev 0.10: the CAN bus (shared with the on-board wideband, 500 kbit/s) now leaves the board on J5-19/20 for gauges;
+    # R1 / R6 above are its terminator.
     # flex-fuel sensor (open-collector 50-150 Hz output) and nitrous arming switch (12 V or 5 V = armed)
     add('R35', '4.7k', 'Resistor_SMD:R_0603_1608Metric', 'C23162', {1: 'V5_EXT', 2: 'IN_FLEX'}, 'Flex-fuel sensor signal pull-up to 5 V')
     add('R36', '10k', 'Resistor_SMD:R_0603_1608Metric', 'C25804', {1: 'IN_N2O', 2: 'GND'},
@@ -94,10 +79,10 @@ def common_parts():
 
     # AUX: everything the stock harness has no pin for
     # Rev 0.10: 20 pins. 1-11 and 14-16 as before; 12/13 were a spare UART and are now the flex-fuel and nitrous
-    # arming inputs; 17-20 are new.
+    # arming inputs; 17/18 ground, 19/20 CAN. The nitrous relay coil goes on any free driver (J5-5 on most years).
     add('J5', 'AUX 2x10', 'Connector_IDC:IDC-Header_2x10_P2.54mm_Vertical', '', AUX,
-        'Add-on I/O: COP 3/4, boost, alternator, main relay, knock, VR crank/cam, external AFR, flex fuel, nitrous '
-        '(arm in, relay out), gauge CAN, 5 V, +12 V (fused, F4)')
+        'Add-on I/O: COP 3/4, boost, alternator, main relay, knock, VR crank/cam, external AFR, flex-fuel sensor, nitrous '
+        'arming switch, CAN for gauges, 5 V, +12 V (fused, F4)')
     # The AUX +12 V pin leaves the board, so it has its own resettable fuse. Rev 0.10: 1.1 A hold (0.5 A before): a
     # boost valve (about 0.45 A), a flex sensor and a nitrous relay coil together stay under it.
     add('F4', '1.1A hold', 'Fuse:Fuse_1812_4532Metric', '', {1: 'VBAT_IN', 2: 'AUX_VBAT'},
@@ -106,43 +91,7 @@ def common_parts():
 
 AUX = {1: 'OUT_IGN3', 2: 'OUT_IGN4', 3: 'OUT_BOOST', 4: 'OUT_ALT', 5: 'OUT_MAINRLY', 6: 'IN_KNOCK',
        7: 'VR1_P', 8: 'VR1_N', 9: 'VR2_P', 10: 'VR2_N', 11: 'IN_AFR', 12: 'IN_FLEX', 13: 'IN_N2O',
-       14: 'V5_EXT', 15: 'AUX_VBAT', 16: 'GND', 17: 'OUT_N2O', 18: 'GND', 19: 'GCAN_H', 20: 'GCAN_L'}
-
-
-def jd3_geometry():
-    """Daughterboard J4 pads in daughterboard coordinates: {pad number: (x, y)}."""
-    import pcbnew
-    import placement as dpl
-    fp = pcbnew.FootprintLoad('/usr/share/kicad/footprints/Connector_PinHeader_2.54mm.pretty', 'PinHeader_2x05_P2.54mm_Vertical')
-    x, y, rot = dpl.PLACE['J4'][:3]
-    fp.SetOrientationDegrees(rot); fp.SetPosition(pcbnew.VECTOR2I(pcbnew.FromMM(x), pcbnew.FromMM(y)))
-    return {p.GetNumber(): (pcbnew.ToMM(p.GetPosition().x), pcbnew.ToMM(p.GetPosition().y)) for p in fp.Pads()}
-
-
-JD3_ROT = 90
-
-
-def jd3_origin():
-    """Socket position (its pad 1) in daughterboard coordinates, and its pad -> net map by position."""
-    import pcbnew
-    hdr = jd3_geometry()
-    fp = pcbnew.FootprintLoad('/usr/share/kicad/footprints/Connector_PinSocket_2.54mm.pretty', 'PinSocket_2x05_P2.54mm_Vertical')
-    fp.SetOrientationDegrees(JD3_ROT); fp.SetPosition(pcbnew.VECTOR2I(0, 0))
-    sock = {p.GetNumber(): (pcbnew.ToMM(p.GetPosition().x), pcbnew.ToMM(p.GetPosition().y)) for p in fp.Pads()}
-    # shift so the two pad sets coincide
-    hx0, hy0 = min(v[0] for v in hdr.values()), min(v[1] for v in hdr.values())
-    sx0, sy0 = min(v[0] for v in sock.values()), min(v[1] for v in sock.values())
-    ox, oy = hx0 - sx0, hy0 - sy0
-    pads = {}
-    for sn, (sx, sy) in sock.items():
-        hit = [hn for hn, (hx, hy) in hdr.items() if abs(hx - sx - ox) < 0.01 and abs(hy - sy - oy) < 0.01]
-        assert len(hit) == 1, (sn, hit)
-        pads[sn] = daughter.J4[int(hit[0])]
-    return (ox, oy), pads
-
-
-def jd3_pads():
-    return jd3_origin()[1]
+       14: 'V5_EXT', 15: 'AUX_VBAT', 16: 'GND', 17: 'GND', 18: 'GND', 19: 'CAN_H', 20: 'CAN_L'}
 
 
 def protection_parts(iac_supply, vvt_supply=None):
@@ -174,11 +123,7 @@ def protection_place(P, vvt=True):
         P[ref] = (pin(k), dy + dpl.J2_Y - 5.25, 90)
     P['F4'] = (100.0, dy + dpl.BOARD_H + 11.0, 0)          # beside J5
     P['D5'] = (101.0, dy + dpl.BOARD_H + 5.0, 0)           # boost valve freewheel diode, above F4
-    (ox, oy), _ = jd3_origin()
-    P['JD3'] = (dx + ox, dy + oy, JD3_ROT)
-    # gauge CAN termination, flex pull-up and arming pull-down: between JD2 and the AUX header
-    P['R33'] = (60.0, dy + dpl.BOARD_H + 4.0, 0)
-    P['R34'] = (64.0, dy + dpl.BOARD_H + 4.0, 0)
+    # flex pull-up and arming pull-down: between JD2 and the AUX header
     P['R35'] = (70.0, dy + dpl.BOARD_H + 4.0, 0)
     P['R36'] = (76.0, dy + dpl.BOARD_H + 4.0, 0)
     return P
