@@ -30,6 +30,7 @@ jobs:
         run: |
           python3 -c 'import yaml' 2>/dev/null || pip install --break-system-packages pyyaml
           python3 firmware/tools/check_pins.py
+          python3 firmware/tools/check_mcu_pins.py      # the processor's pin map against ST's own pin data (research/st)
 
       - name: Build firmware
         uses: ./firmware/ext/rusefi/.github/workflows/custom-board-build
