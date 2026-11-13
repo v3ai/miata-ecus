@@ -775,7 +775,8 @@ leaves out the planes, the other layers and the neighbours. `firmware/tools/boar
 every copper layer rasterised from the board file, the laminate and every via between them, each part's loss fed in
 at its pads, both faces cooled at 10 W/m²K. Two variants bracket the answer: without the 80 header pins as a heat
 path (pessimistic), and with them leading into the motherboard (an estimate). Its self-test gives 54 °C/W for a DPAK-size
-source on one square inch of copper, where datasheets quote 40-50 °C/W, so the model errs warm.
+source on one square inch of copper, where datasheets quote 40-50 °C/W (as recalled, not re-read), so the model
+errs warm if anything.
 
 Rise above the air around the board, sustained 7200 rpm, 20 mH injectors (without pins / with pins):
 

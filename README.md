@@ -22,7 +22,7 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 </tr>
 </table>
 
-<sub>Renders from the 3D viewer in <a href="viewer/"><code>viewer/</code></a>, with black solder mask (<code>MASK=black</code> in <code>viewer/pcb3d.py</code>). The harness header, the LSU and IAT connectors, the MAP sensor and the heater fuse F1 are simplified stand-in models.</sub>
+<sub>The pictures and the 3D viewer still show the previous board set (daughterboard rev 0.9); the current boards differ as listed under <a href="#features-and-limitations">Features</a> and in <a href="INSTALL.md#whats-what">INSTALL.md</a>. Renders from the 3D viewer in <a href="viewer/"><code>viewer/</code></a>, with black solder mask (<code>MASK=black</code> in <code>viewer/pcb3d.py</code>). The harness header, the LSU and IAT connectors, the MAP sensor and the heater fuse F1 are simplified stand-in models.</sub>
 
 **Fitting one to a car:** [INSTALL.md](INSTALL.md) has labelled pictures of every connector, the header pin maps, the
 MAP hose and wideband for each year, and the first start.
@@ -242,7 +242,7 @@ Check the plug's wiring and the sensor's pins on your car before fitting R28: se
 | `mb/ecu_mb.pretty/` | Project footprints (harness headers named by OEM terminal, the flat MPX5700AP, USB-C, M4 case hole) |
 | `research/` | Pinout research for 1996–2005 (sources compared per pin); the rev 0.10 design audit (every figure the board relies on, its source, and what could not be checked); ST's pin data files |
 | `ordered-boards/2026-11/` | The board set ordered in November 2026 (daughterboard rev 0.9), as ordered |
-| `viewer/` | Interactive 3D viewer: the daughterboard alone, or assembled on any year's motherboard. Click a part for its details and shop links |
+| `viewer/` | Interactive 3D viewer: the daughterboard alone, or assembled on any year's motherboard. Click a part for its details and shop links. Not yet rebuilt for rev 0.10: it shows the rev 0.9 board set |
 | `firmware/` | The rusEFI board definition, the wideband flasher, the simulation tests and the verification tools. rusEFI itself is a submodule in `firmware/ext/rusefi` |
 | `website/` | A black-and-white Shopify theme for selling the boards, draft product listings and product photos ([website/README.md](website/README.md)) |
 | `INSTALL.md` | Fitting the ECU to a car: labelled pictures, header pin maps, the MAP hose and wideband per year, first start |
