@@ -1,0 +1,21 @@
+// The ECU's links to the on-board wideband controller, for a two-machine run (machine "ecu" with this file, machine
+// "wbo" with stm32f103_wbo.repl):
+//  - the F103's ROM bootloader (models/F103RomBootloader.cs) on the ECU's USART3 (PD8/PD9), with BOOT0 on PD10 and
+//    NRST on PD11 as on the daughterboard,
+//  - a CAN sniffer for the shared bus (connected to the CAN hub by the run script).
+// the two models are registered at unused addresses only so that Renode creates them
+wboBootloader: Miata.F103RomBootloader @ sysbus 0xD0000000
+    host: usart3
+    targetMachine: "wbo"
+    hostApb1: 42000000
+    hostUsartBase: 0x40004800
+
+gpioPortD:
+    10 -> wboBootloader@0
+    11 -> wboBootloader@1
+
+sniffer: Miata.CanSniffer @ sysbus 0xD0001000
+
+// progress / stall diagnostic: logs both machines' virtual time and PCs every 10 s of host time (models/HostProbe.cs)
+probe: Miata.HostProbe @ sysbus 0xD0002000
+    periodMs: 10000
