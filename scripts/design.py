@@ -5,7 +5,7 @@ Every part: ref, value, footprint (lib:name), LCSC number, {pad: net}.
 Placement lives in place.py, routing in route.py.
 """
 
-REV = '0.9'                    # daughterboard revision (names the fab files)
+REV = '0.10'                   # daughterboard revision (names the fab files)
 
 FP = {
     'R0603': 'Resistor_SMD:R_0603_1608Metric',
@@ -22,6 +22,7 @@ FP = {
     'SOD323': 'Diode_SMD:D_SOD-323',
     'TSSOP24': 'Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm',
     'F1206': 'Fuse:Fuse_1206_3216Metric',
+    'F1812': 'Fuse:Fuse_1812_4532Metric',
     'SMA':   'Diode_SMD:D_SMA',
     'SMC':   'Diode_SMD:D_SMC',
     'SOT223': 'Package_TO_SOT_SMD:SOT-223',
@@ -43,19 +44,19 @@ FP = {
     'L7066': 'Inductor_SMD:L_Sunlord_MWSA0603S',
     'BTN':   'Button_Switch_SMD:SW_Push_1P1T_XKB_TS-1187A',
     'HDR40': 'Connector_PinHeader_2.54mm:PinHeader_1x40_P2.54mm_Vertical',
-    'SDCARD': 'Connector_Card:microSD_HC_Molex_104031-0811',
+    'SDCARD': 'Connector_Card:microSD_HC_Molex_47219-2001',
     'TAG':   'Connector:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical',
     'MH':    'MountingHole:MountingHole_3.2mm_M3',
 }
 
 # value -> LCSC for passives (all JLC parts proven in rusEFI hellen-one BOMs
 # unless marked otherwise in the BOM notes)
-LCSC_R0603 = {'0': 'C21189', '1': 'C22936', '47': 'C23182', '100': 'C22775', '330': 'C23138',
+LCSC_R0603 = {'220': 'C22962', '0': 'C21189', '1': 'C22936', '47': 'C23182', '100': 'C22775', '330': 'C23138',
               '1k': 'C21190', '2.2k': 'C4190', '2.7k': 'C13167', '4.7k': 'C23162',
               '5.1k': 'C23186', '5.6k': 'C23189', '6.8k': 'C23212', '10k': 'C25804',
               '12k': 'C22790', '33k': 'C4216', '47k': 'C25819', '68k': 'C23231',
               '100k': 'C25803'}
-LCSC_R0402 = {'6.8k': 'C25917', '1k': 'C11702', '2.2k': 'C25879', '2.7k': 'C25885', '4.7k': 'C25900', '22k': 'C25768',
+LCSC_R0402 = {'220': 'C25091', '47k': 'C25792', '6.8k': 'C25917', '1k': 'C11702', '2.2k': 'C25879', '2.7k': 'C25885', '4.7k': 'C25900', '22k': 'C25768',
               '5.6k': 'C25908', '10k': 'C25744', '33k': 'C25779', '100k': 'C25741', '1M': 'C26083'}
 LCSC_C0402 = {'1u': 'C52923', '1n': 'C1523', '10n': 'C15195', '100n': 'C1525'}
 LCSC_R0805 = {'5.1k': 'C27834', '100': 'C17408'}
@@ -207,16 +208,20 @@ add('D8', 'B5819W', 'SOD123', 'C8598', {'1': '+12V_IN', '2': 'VIGN_IN'}, 'wake o
 # soak up a 400 ms dump through F1 (D6 on the input does that, as in Hellen's design).
 # rev 0.5b: TECHFUSE nSMD050-33V (same 0.5 A hold / 1 A trip / 100 A, 1206; rated 33 V instead of 24 V, so a
 # tripped fuse during an overvoltage stays inside its rating). The SMD1206P050TF/24 ran out at JLC.
-add('F1', 'nSMD050-33V', 'F1206', 'C70077', {'1': '+12V_IN', '2': '+12V'},
-    'PTC 0.5 A hold / 1 A trip, 33 V: logic supply fuse')
+# rev 0.10: 1.1 A hold (BHFUSE BSMD1812-110-33V, 1812, 33 V) instead of the 0.5 A 1206 part. The buck draws about
+# 0.45 A at 8 V while cranking and more with a card writing, and a polymer fuse holds roughly half its rating at 85 C.
+add('F1', 'BSMD1812-110-33V', 'F1812', 'C883150', {'1': '+12V_IN', '2': '+12V'},
+    'PTC 1.1 A hold / 2.2 A trip, 33 V: logic supply fuse')
 add('D12', 'SMAJ33A', 'SMA', 'C223988', {'1': '+12V', '2': 'GND'}, 'TVS on the fused logic supply (Littelfuse)')
 R('R7', '1', '+12V', 'DAMP')
 C('C16', '10u/50V', 'DAMP', 'GND', '1206')   # rev 0.5: 50 V part (was 4.7u 16 V)
 # rev 0.5b: FH CMI322513U2R2KT (500 mA, 0.3 ohm; the buck draws about 0.15 A at 12 V). The Taiyo Yuden
 # LBC3225T2R2MR ran out at JLC.
-add('L1', '2.2uH', 'L1210', 'C70960', {'1': '+12V', '2': '+12V_F'}, 'input filter (FH CMI322513U2R2KT, 500 mA, 0.3 ohm)')
+# rev 0.10: Sunlord MWSA0503S-2R2MT (moulded, several amps) instead of the 500 mA 1210 part, to match the new fuse
+add('L1', '2.2uH', 'L5050', 'C408408', {'1': '+12V', '2': '+12V_F'}, 'input filter (Sunlord MWSA0503S-2R2MT)')
 C('C17', '10u/50V', '+12V_F', 'GND', '1206')
 C('C18', '10u/50V', '+12V_F', 'GND', '1206')
+C('C71', '100n', '+12V_F', 'GND')            # rev 0.10: 100 nF 50 V at the buck's VIN pins (C17/C18 sit a few mm away)
 add('U2', 'LMR14020', 'SOIC8EP', 'C187824',
     {'1': 'BUCK_BOOT', '2': '+12V_F', '3': '+12V_F', '4': 'BUCK_RT', '5': 'BUCK_FB',
      '6': 'BUCK_SS', '7': 'GND', '8': 'BUCK_SW', '9': 'GND'}, '40V 2A buck -> 5V')
@@ -247,7 +252,8 @@ add('U4', 'LDL1117S33R', 'SOT223T2', 'C435835', {'1': 'GND', '2': '+3V3', '3': '
 C('C26', '10u', '+5V', 'GND', '0805')
 C('C27', '10u', '+3V3', 'GND', '0805')
 # supply sensing
-R('R11', '33k', '+12V', 'AN_VBATT', '0402')
+# rev 0.10: battery sense from the battery input itself (it was after D7 and F1, and read 0.4-0.6 V low)
+R('R11', '33k', 'VBAT_IN', 'AN_VBATT', '0402')
 R('R12', '6.8k', 'AN_VBATT', 'GND', '0402')
 C('C28', '100n', 'AN_VBATT', 'GND', '0402')
 R('R13', '33k', 'VIGN_IN', 'AN_VIGN', '0402')
@@ -269,6 +275,10 @@ for i, n in enumerate(RELAYS):
 lvc2 = {'1': '+5V', '2': 'GND', '11': 'GND', '12': 'GND', '13': 'GND', '22': 'DRV_EN_N', '23': '+3V3', '24': '+3V3',
         '3': '', '21': 'GND'}           # channel 1 unused (A1 pin 3 open): its B input (pin 21) tied low
 for i, n in enumerate(RELAYS):
+    if n == 'CEL':      # rev 0.10: not through the shifter (see below); this channel's A pin open, its B input low
+        lvc2[str(10 - i)] = ''
+        lvc2[str(14 + i)] = 'GND'
+        continue
     lvc2[str(10 - i)] = n + '_G'
     lvc2[str(14 + i)] = n + '_CTL'
 add('U12', 'SN74LVC4245APWR', 'TSSOP24', 'C7859', lvc2, '3.3 V -> 5 V level shifter for the relay drivers')
@@ -276,6 +286,11 @@ add('RN2', '4x10k', 'RN4', 'C29718', {'1': 'FP_G', '2': 'MAINRLY_G', '3': 'AC_G'
                                       '5': 'GND', '6': 'GND', '7': 'GND', '8': 'GND'}, 'relay driver pull-downs')
 add('RN3', '4x10k', 'RN4', 'C29718', {'1': 'CEL_G', '2': 'TACH_G', '3': 'LS7_G', '4': 'GND',
                                       '5': 'GND', '6': 'GND', '7': 'GND', '8': 'GND'}, 'relay driver pull-downs')
+
+# rev 0.10: the check-engine lamp driver takes its gate straight from the processor pin (1k in series), not through
+# U12: behind the shared driver enable it could not light while the drivers were off, so not on a fatal error. The
+# ZXMS6004FF switches fully from 3 V (600 mOhm maximum); RN3's 10k keeps it off while the pin floats in reset.
+R('R160', '1k', 'CEL_CTL', 'CEL_G', '0402')
 
 # 4x ignition logic outputs (smart coils / COP / igniters): TC4427 at 5 V sources through 100 R and a Schottky;
 # rev 0.8: a ZXMS6004FF per output pulls it low (gate = the inverted control line, 74HCT04 U13). A coil wire shorted
@@ -324,12 +339,27 @@ for i, n in enumerate(HS_OUT):
         'protected low side (ST OMNIFET II), 40-55 V clamp')
 lvc = {'1': '+5V', '2': 'GND', '11': 'GND', '12': 'GND', '13': 'GND', '22': 'DRV_EN_N', '23': '+3V3', '24': '+3V3'}
 for i, n in enumerate(HS_OUT):           # DIR low: B (3.3 V, MCU) -> A (5 V, drivers); A8/B8 = INJ1 ... A1/B1 = ALT (TI numbers the channels 1-8)
-    lvc[str(10 - i)] = n + '_IN'
+    lvc[str(10 - i)] = n + '_DRV'
     lvc[str(14 + i)] = n + '_CTL'
 add('U11', 'SN74LVC4245APWR', 'TSSOP24', 'C7859', lvc, '8-bit 3.3 V -> 5 V level shifter for the low-side inputs')
 # driver-side pull-downs keep the outputs off while the shifter is disabled
 for i, n in enumerate(HS_OUT):
     R(f'R{rn}', '10k', n + '_IN', 'GND'); rn += 1
+# rev 0.10: 220 ohm between the shifter and each driver input. ST's absolute maximum ratings for the VND7NV04 list a
+# minimum input series impedance of 150 ohm (the input pin is the MOSFET's gate; the internal clamp and protections
+# work against whatever drives it), and the shifter's output is about 20 ohm. Up to rev 0.9 there was none.
+for i, n in enumerate(HS_OUT):
+    R(f'R{152 + i}', '220', n + '_DRV', n + '_IN', '0402')
+# rev 0.10: injector turn-off clamp, one per injector: a fast diode from the drain to a 14 V TVS that returns to the
+# battery input (drain -|>|- INJn_CL -|<TVS|- VBAT_IN). The injector's energy no longer goes through the driver's own
+# clamp (which starts at 36 V): the drain peaks at about battery + 18 V. Returned to the battery, not to ground, so
+# nothing conducts when the supply itself is high (jump start, load dump) and the supply adds no energy to the decay.
+# SMCJ14A: 15.6-17.2 V; the highest part that still clamps before a minimum-clamp driver at 15.5 V with the TVS hot.
+# See firmware/tools/sim_inj_clamp.py.
+for i in range(4):
+    n = f'INJ{i + 1}'
+    add(f'D{42 + i}', 'ES1D', 'SMA', 'C116492', {'1': n + '_CL', '2': 'OUT_' + n}, f'{n} clamp diode (200 V 1 A ultrafast)')
+    add(f'D{46 + i}', 'SMCJ14A', 'SMC', 'C310012', {'1': n + '_CL', '2': 'VBAT_IN'}, f'{n} clamp TVS, returns to the battery input')
 
 # ---------------------------------------------------------------------------
 # Inputs
@@ -462,18 +492,25 @@ R('R139', '10k', 'FLEX_M', 'IN_FLEX')
 R('R140', '10k', 'N2O_ARM_M', 'IN_N2O')
 add('D36', 'BAT54S', 'SOT23', 'C19726', {'1': 'GND', '2': '+3V3', '3': 'FLEX_M'}, 'flex input clamp')
 add('D37', 'BAT54S', 'SOT23', 'C19726', {'1': 'GND', '2': '+3V3', '3': 'N2O_ARM_M'}, 'nitrous arm input clamp')
+C('C72', '1n', 'FLEX_M', 'GND', '0402')       # 10k x 1n = 10 us: the sensor's shortest pulse is 1 ms
+C('C73', '10n', 'N2O_ARM_M', 'GND', '0402')   # 100 us on the arming switch
 
 # ---- rev 0.10: microSD socket for logging, on SPI2. On this board because nothing else is needed for it: both
 # board-to-board connectors are full, and the long way to a third one did not route. Logs are read over USB (rusEFI shows
 # the card as a drive), so the card rarely has to come out.
-add('J4', 'microSD', 'SDCARD', '',
-    {'1': '', '2': 'SD_CS', '3': 'SD_MOSI', '4': '+3V3', '5': 'SD_SCK', '6': 'GND', '7': 'SD_MISO', '8': '',
-     '9': '', '10': '', '11': 'GND'},
-    'microSD socket, push-push (Molex 104031-0811), SPI mode: 2 CS, 3 DI, 4 VDD, 5 CLK, 6 VSS, 7 DO')
+# Molex 47219-2001: hinged lid, so the card cannot walk out under vibration (the socket rusEFI's own boards use).
+# Pull-ups on every card data line, also the two SPI mode does not use (the SD specification asks for them).
+add('J4', 'microSD', 'SDCARD', 'C164170',
+    {'1': 'SD_DAT2', '2': 'SD_CS', '3': 'SD_MOSI', '4': '+3V3', '5': 'SD_SCK', '6': 'GND', '7': 'SD_MISO',
+     '8': 'SD_DAT1', '9': 'GND'},
+    'microSD socket, hinged (Molex 47219-2001), SPI mode: 1 DAT2, 2 CS, 3 DI, 4 VDD, 5 CLK, 6 VSS, 7 DO, 8 DAT1')
 C('C69', '100n', '+3V3', 'GND', '0402')
 C('C70', '10u', '+3V3', 'GND', '0805')
-R('R150', '47k', '+3V3', 'SD_CS')       # card deselected until the firmware drives CS
-R('R151', '47k', '+3V3', 'SD_MISO')
+R('R150', '47k', '+3V3', 'SD_CS', '0402')       # card deselected until the firmware drives CS
+R('R151', '47k', '+3V3', 'SD_MISO', '0402')
+R('R161', '47k', '+3V3', 'SD_MOSI', '0402')
+R('R162', '47k', '+3V3', 'SD_DAT1', '0402')
+R('R163', '47k', '+3V3', 'SD_DAT2', '0402')
 # battery / ignition sense clamps: in a 24 V jump start the divider put 4.0 V on PA1 (analog mode, VDDA + 0.3 V max)
 add('D38', 'BAT54WS', 'SOD323', 'C124205', {'1': '+3V3', '2': 'AN_VBATT'}, 'AN_VBATT clamp to +3V3')
 add('D39', 'BAT54WS', 'SOD323', 'C124205', {'1': '+3V3', '2': 'AN_VIGN'}, 'AN_VIGN clamp to +3V3')

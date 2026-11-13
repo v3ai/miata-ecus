@@ -230,17 +230,19 @@ def placement():
     # 1989-93 injector pairing links and clamps, under the daughterboard between JD1's injector pins
     # year / option jumpers in the margins beside the daughterboard, where they can be reached with it fitted (the
     # band between the harness header and the daughterboard is the router's bus: nothing through-hole goes there)
+    # (clear of the case bosses H3 / H4 at y = 84: their 7 mm pads reach y = 80.5)
     for ref, x, y in (('JP3', 6.5, 50.0), ('JP5', 6.5, 63.0), ('JP4', 6.5, 74.0),
-                      ('JP6', 147.5, 50.0), ('JP1', 147.5, 63.0), ('JP2', 147.5, 76.0)):
+                      ('JP6', 147.5, 46.0), ('JP1', 147.5, 57.0), ('JP2', 147.5, 68.0)):
         if ref in C.SILK:
             P[ref] = (x, y, 0)
-    P['R37'] = (6.5, 82.0, 90)
+    P['R37'] = (6.5, 94.0, 90)       # below H3
     P['D3'] = (72.0, 64.0, 0)
     P['D4'] = (86.0, 64.0, 0)
     # 2L idle-switch pull-up option, above its JD2 pin (IN_AUX1 = J2 pin 9) like R20-R22
     P['R27'] = (DAUGHTER[0] + 13.0 + 8 * 2.54, DAUGHTER[1] + dpl.J2_Y - 5.25, 90)
     # rev 0.11 TPS links (positions set against the routed rev 0.9 copper; see VERIFICATION.md)
-    P['R28'] = (58.2, 22.75, 0)      # just below the harness header, under 1N
+    P['R28'] = (57.2, 22.75, 0)      # just below the harness header, under 1N, between two bus lanes and 0.3 mm clear of the
+                                     # crank lane's via at x = 59.25 (the bus planner does not see parts in its band)
     P['R29'] = (49.09, 102.5, 270)   # in a gap cut into the old 2L-AUX1 run
     P['R30'] = (42.5, 102.5, 180)    # between the 2L run and the TPS run
     return P
