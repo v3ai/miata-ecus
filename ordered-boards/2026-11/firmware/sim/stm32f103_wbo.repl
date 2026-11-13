@@ -1,0 +1,136 @@
+// STM32F103C8 as wired on the miata-ecus daughterboard (wideband controller U2), for Renode 1.15.
+// Built from Renode's platforms/cpus/stm32f103.repl with what that file lacks for this firmware: flash at its real
+// size with the boot alias at 0 (so a reset re-reads the vector table), RCC, flash controller, ADC1, DMA1, timers
+// TIM2/3/4, bxCAN, AFIO, the unique-ID and DBGMCU registers. Load models/STM32F1ADC.cs and models/STM32F1Flash.cs
+// first. Clocks as the wideband's mcuconf.h sets them: HSE 8 MHz x6 = 48 MHz, APB1 24 MHz (timers 48 MHz),
+// APB2 48 MHz.
+
+flash: Memory.MappedMemory @ {
+        sysbus 0x08000000;
+        sysbus 0x00000000
+    }
+    size: 0x10000
+    // erased flash reads 0xFF, as on a new part
+    ResetByte: 0xFF
+
+sram: Memory.MappedMemory @ sysbus 0x20000000
+    size: 0x5000
+
+// system memory (ROM bootloader area, flash-size and unique-ID words written by the run script); the ROM bootloader itself is modelled on the ECU side
+// (models/F103RomBootloader.cs) because ST's code is not available
+sysmem: Memory.MappedMemory @ sysbus 0x1FFFF000
+    size: 0x1000
+
+// The NVIC is reached by the CPU and the interrupt lines directly; on the bus it sits behind models/NvicRettobase.cs,
+// which supplies ICSR.RETTOBASE (Renode never sets it; ChibiOS needs it to switch threads after an interrupt).
+nvicBus: Miata.NvicRettobase @ sysbus 0xE000E000
+    nvic: nvic
+
+nvic: IRQControllers.NVIC @ none
+    priorityMask: 0xF0
+    systickFrequency: 48000000
+    IRQ -> cpu@0
+
+cpu: CPU.CortexM @ sysbus
+    cpuType: "cortex-m3"
+    nvic: nvic
+    PerformanceInMips: 48
+
+rcc: Python.PythonPeripheral @ sysbus 0x40021000
+    size: 0x400
+    initable: true
+    filename: "@SIM@/models/rcc_f1.py"
+
+flashCtrl: Miata.STM32F1Flash @ sysbus 0x40022000
+    flashBase: 0x08000000
+    flashSize: 0x10000
+    pageSize: 0x400
+
+afio: Memory.MappedMemory @ sysbus 0x40010000
+    size: 0x400
+
+exti: IRQControllers.STM32F4_EXTI @ sysbus 0x40010400
+    numberOfOutputLines: 19
+    [0-4] -> nvic@[6-10]
+    [5-9] -> nvicInput23@[0-4]
+    [10-15] -> nvicInput40@[0-5]
+
+nvicInput23: Miscellaneous.CombinedInput @ none
+    numberOfInputs: 5
+    -> nvic@23
+
+nvicInput40: Miscellaneous.CombinedInput @ none
+    numberOfInputs: 6
+    -> nvic@40
+
+gpioPortA: GPIOPort.STM32F1GPIOPort @ sysbus <0x40010800, +0x400>
+    [0-15] -> exti@[0-15]
+
+gpioPortB: GPIOPort.STM32F1GPIOPort @ sysbus <0x40010C00, +0x400>
+    [0-15] -> exti@[0-15]
+
+gpioPortC: GPIOPort.STM32F1GPIOPort @ sysbus <0x40011000, +0x400>
+    [0-15] -> exti@[0-15]
+
+gpioPortD: GPIOPort.STM32F1GPIOPort @ sysbus <0x40011400, +0x400>
+    [0-15] -> exti@[0-15]
+
+gpioPortE: GPIOPort.STM32F1GPIOPort @ sysbus <0x40011800, +0x400>
+    [0-15] -> exti@[0-15]
+
+// power control: ChibiOS only sets DBP; nothing to model beyond holding the value
+pwr: Memory.MappedMemory @ sysbus 0x40007000
+    size: 0x400
+
+// Cortex-M DWT cycle counter (ChibiOS time measurement), at the 48 MHz core clock
+dwt: Miata.CortexMDwt @ sysbus 0xE0001000
+    coreClock: 48000000
+
+usart1: UART.STM32_UART @ sysbus <0x40013800, +0x100>
+    -> nvic@37
+
+usart2: UART.STM32_UART @ sysbus <0x40004400, +0x100>
+    -> nvic@38
+
+usart3: UART.STM32_UART @ sysbus <0x40004800, +0x100>
+    -> nvic@39
+
+// DMA1, seven channels (channel-style DMA, same registers as the G0 model); channel 1 serves ADC1
+dma1: DMA.STM32G0DMA @ sysbus 0x40020000
+    numberOfChannels: 7
+    [0-6] -> nvic@[11-17]
+
+adc1: Miata.STM32F1ADC @ sysbus 0x40012400
+    pclk2Frequency: 48000000
+    IRQ -> nvic@18
+    DMA -> dma1@1
+
+// timer input clock 48 MHz (APB1 24 MHz with prescaler 2 doubles the timer clock)
+timer2: Timers.STM32_Timer @ sysbus 0x40000000
+    -> nvic@28
+    frequency: 48000000
+    initialLimit: 0xFFFF
+
+timer3: Timers.STM32_Timer @ sysbus 0x40000400
+    -> nvic@29
+    frequency: 48000000
+    initialLimit: 0xFFFF
+
+// TIM4 is ChibiOS's system timer (tickless, 16 bit, 2 kHz). On the bus it sits behind models/TimerCcrZero.cs: Renode's
+// timer never matches a compare value of 0, which ChibiOS's alarm hits at the counter wrap
+timer4Bus: Miata.TimerCcrZero @ sysbus 0x40000800
+    timer: timer4
+
+timer4: Timers.STM32_Timer @ none
+    -> nvic@30
+    frequency: 48000000
+    initialLimit: 0xFFFF
+
+// bxCAN: TX 19 (USB_HP_CAN_TX), RX0 20, RX1 21, SCE 22
+can1: CAN.STMCAN @ sysbus <0x40006400, +0x400>
+    [0-3] -> nvic@[19-22]
+
+sysbus:
+    init:
+        Tag <0xE0042000, 0xE0042003> "DBGMCU_IDCODE" 0x20036410
+        Tag <0xE0042004, 0xE0042007> "DBGMCU_CR" 0x00000000
