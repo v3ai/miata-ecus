@@ -30,7 +30,7 @@ import tempfile
 
 import numpy as np
 
-OUT = sys.argv[1] if len(sys.argv) > 1 else tempfile.mkdtemp()
+OUT = sys.argv[1] if len(sys.argv) > 1 and __name__ == '__main__' else tempfile.mkdtemp()
 os.makedirs(OUT, exist_ok=True)
 R_MB, R_HARN, R_FEED = 0.03, 0.05, 0.05      # motherboard track, injector feed wire, ECU feed wire (as circuit_sim_full)
 ALPHA = 0.001                                 # TVS breakdown temperature coefficient, 1/C (assumed, see above)
@@ -146,78 +146,83 @@ def rec(group, case, text, verdict='OK'):
 
 mJ = lambda e: f'{e * 1e3:.2f} mJ'
 
-# ---- A. the three clamps, typical parts, 14.4 V, 12 ohm, over the inductance range ------------------------------
-base = {}
-for L in (5e-3, 8e-3, 12e-3, 20e-3):
-    for mode in ('DRV', 'BAT', 'GND'):
-        r = bench(f'A_{mode}_{int(L * 1e3)}', mode, L=L, mb_tvs='30A' if mode == 'GND' else None)
-        base[(mode, L)] = r
-        heat = {'DRV': r['e_drv'], 'BAT': r['e_tvs'] + r['e_dio'] + r['e_drv'], 'GND': r['e_mb'] + r['e_drv']}[mode]
-        rec('A typical', f'{mode} {L * 1e3:.0f} mH',
-            f'peak {r["vpk"]:.1f} V; in the ECU {mJ(heat)} per shot (driver {mJ(r["e_drv"])}, TVS {mJ(r["e_tvs"] + r["e_mb"])}, '
-            f'diode {mJ(r["e_dio"])}); stored 1/2 L I^2 = {mJ(0.5 * L * r["i0"] ** 2)}; current to 35 % in '
-            f'{r["t35"] * 1e6:.0f} us, to 5 % in {r["t05"] * 1e6:.0f} us')
+def main():
+    base = {}
+    # ---- A. the three clamps, typical parts, 14.4 V, 12 ohm, over the inductance range ------------------------------
+    for L in (5e-3, 8e-3, 12e-3, 20e-3):
+        for mode in ('DRV', 'BAT', 'GND'):
+            r = bench(f'A_{mode}_{int(L * 1e3)}', mode, L=L, mb_tvs='30A' if mode == 'GND' else None)
+            base[(mode, L)] = r
+            heat = {'DRV': r['e_drv'], 'BAT': r['e_tvs'] + r['e_dio'] + r['e_drv'], 'GND': r['e_mb'] + r['e_drv']}[mode]
+            rec('A typical', f'{mode} {L * 1e3:.0f} mH',
+                f'peak {r["vpk"]:.1f} V; in the ECU {mJ(heat)} per shot (driver {mJ(r["e_drv"])}, TVS {mJ(r["e_tvs"] + r["e_mb"])}, '
+                f'diode {mJ(r["e_dio"])}); stored 1/2 L I^2 = {mJ(0.5 * L * r["i0"] ** 2)}; current to 35 % in '
+                f'{r["t35"] * 1e6:.0f} us, to 5 % in {r["t05"] * 1e6:.0f} us')
 
-# ---- B. choice of TVS: clamp level against the driver's own clamp, and reverse battery ------------------------------
-for part in ('14A', '15A', '16A', '18A'):
-    lo, hi, vc, ipp = TVS[part]
-    worst = bench(f'B_{part}_w', 'BAT', L=20e-3, vb=15.5, drv='min', tvs=part, tvs_corner='max', tvs_tj=150)
-    typ = bench(f'B_{part}_t', 'BAT', L=20e-3, vb=14.4, drv='typ', tvs=part)
-    share = worst['e_drv'] / max(1e-12, worst['e_drv'] + worst['e_tvs'] + worst['e_dio'])
-    rev_ok = lo > 16.0 - 1.4        # reverse battery at -16 V: TVS sees 16 V less two diode drops
-    rec('B TVS', f'SMCJ{part}',
-        f'typical: peak {typ["vpk"]:.1f} V, 35 % in {typ["t35"] * 1e6:.0f} us; worst case (TVS at its maximum and 150 C, '
-        f'driver clamp at its minimum, 15.5 V): peak {worst["vpk"]:.1f} V, driver takes {share * 100:.0f} % of the heat; '
-        f'reverse battery -16 V: {"blocks" if rev_ok else "CONDUCTS"} (VBR min {lo} V)',
-        'OK' if rev_ok and typ['e_drv'] < 1e-5 else 'CHECK')
+    # ---- B. choice of TVS: clamp level against the driver's own clamp, and reverse battery ------------------------------
+    for part in ('14A', '15A', '16A', '18A'):
+        lo, hi, vc, ipp = TVS[part]
+        worst = bench(f'B_{part}_w', 'BAT', L=20e-3, vb=15.5, drv='min', tvs=part, tvs_corner='max', tvs_tj=150)
+        typ = bench(f'B_{part}_t', 'BAT', L=20e-3, vb=14.4, drv='typ', tvs=part)
+        share = worst['e_drv'] / max(1e-12, worst['e_drv'] + worst['e_tvs'] + worst['e_dio'])
+        rev_ok = lo > 16.0 - 1.4        # reverse battery at -16 V: TVS sees 16 V less two diode drops
+        rec('B TVS', f'SMCJ{part}',
+            f'typical: peak {typ["vpk"]:.1f} V, 35 % in {typ["t35"] * 1e6:.0f} us; worst case (TVS at its maximum and 150 C, '
+            f'driver clamp at its minimum, 15.5 V): peak {worst["vpk"]:.1f} V, driver takes {share * 100:.0f} % of the heat; '
+            f'reverse battery -16 V: {"blocks" if rev_ok else "CONDUCTS"} (VBR min {lo} V)',
+            'OK' if rev_ok and typ['e_drv'] < 1e-5 else 'CHECK')
 
-# ---- C. battery voltage: decay time and energy ----------------------------------------------------------------------
-for vb in (9.0, 12.0, 14.4, 16.0):
-    b = bench(f'C_BAT_{vb}', 'BAT', L=12e-3, vb=vb)
-    g = bench(f'C_DRV_{vb}', 'DRV', L=12e-3, vb=vb)
-    rec('C battery', f'{vb} V, 12 mH',
-        f'BAT: peak {b["vpk"]:.1f} V, to 35 % in {b["t35"] * 1e6:.0f} us, TVS {mJ(b["e_tvs"])}; '
-        f'DRV: peak {g["vpk"]:.1f} V, to 35 % in {g["t35"] * 1e6:.0f} us, driver {mJ(g["e_drv"])}')
+    # ---- C. battery voltage: decay time and energy ----------------------------------------------------------------------
+    for vb in (9.0, 12.0, 14.4, 16.0):
+        b = bench(f'C_BAT_{vb}', 'BAT', L=12e-3, vb=vb)
+        g = bench(f'C_DRV_{vb}', 'DRV', L=12e-3, vb=vb)
+        rec('C battery', f'{vb} V, 12 mH',
+            f'BAT: peak {b["vpk"]:.1f} V, to 35 % in {b["t35"] * 1e6:.0f} us, TVS {mJ(b["e_tvs"])}; '
+            f'DRV: peak {g["vpk"]:.1f} V, to 35 % in {g["t35"] * 1e6:.0f} us, driver {mJ(g["e_drv"])}')
 
-# ---- D. average power at 7200 rpm: sequential (one shot per 720 deg) and batch (one per revolution) -------------
-RPM = 7200
-for L in (8e-3, 12e-3, 20e-3):
-    b = base[('BAT', L)] if ('BAT', L) in base else bench(f'D_{L}', 'BAT', L=L)
-    g = base[('DRV', L)]
-    seq, bat = RPM / 120, RPM / 60
-    rec('D power', f'{L * 1e3:.0f} mH, {RPM} rpm',
-        f'BAT: TVS {b["e_tvs"] * seq:.2f} W sequential / {b["e_tvs"] * bat:.2f} W batch per injector, diode '
-        f'{b["e_dio"] * seq * 1e3:.0f} / {b["e_dio"] * bat * 1e3:.0f} mW; DRV: driver clamp {g["e_drv"] * seq:.2f} / '
-        f'{g["e_drv"] * bat:.2f} W', 'OK' if b['e_tvs'] * bat < 1.5 else 'CHECK')
+    # ---- D. average power at 7200 rpm: sequential (one shot per 720 deg) and batch (one per revolution) -------------
+    RPM = 7200
+    for L in (8e-3, 12e-3, 20e-3):
+        b = base[('BAT', L)] if ('BAT', L) in base else bench(f'D_{L}', 'BAT', L=L)
+        g = base[('DRV', L)]
+        seq, bat = RPM / 120, RPM / 60
+        rec('D power', f'{L * 1e3:.0f} mH, {RPM} rpm',
+            f'BAT: TVS {b["e_tvs"] * seq:.2f} W sequential / {b["e_tvs"] * bat:.2f} W batch per injector, diode '
+            f'{b["e_dio"] * seq * 1e3:.0f} / {b["e_dio"] * bat * 1e3:.0f} mW; DRV: driver clamp {g["e_drv"] * seq:.2f} / '
+            f'{g["e_drv"] * bat:.2f} W', 'OK' if b['e_tvs'] * bat < 1.5 else 'CHECK')
 
-# ---- E. faults -----------------------------------------------------------------------------------------------------------
-for fault, what in (('tvs_open', 'TVS or diode open'), ('tvs_short', 'TVS shorted'), ('diode_short', 'diode shorted')):
-    r = bench(f'E_{fault}', 'BAT', L=20e-3, fault=fault)
-    ion = r.get('ik_on0', 0.0)
-    rec('E fault', what,
-        f'peak {r["vpk"]:.1f} V; driver clamp {mJ(r["e_drv"])}'
-        + (f'; the driver is in current limit while on: {-ion:.1f} A from the battery input through the TVS (forward) '
-           f'and the shorted diode, the injector gets no voltage' if abs(ion) > 0.01 else
-           f'; to 35 % in {r["t35"] * 1e6:.0f} us'),
-        'CHECK')
+    # ---- E. faults -----------------------------------------------------------------------------------------------------------
+    for fault, what in (('tvs_open', 'TVS or diode open'), ('tvs_short', 'TVS shorted'), ('diode_short', 'diode shorted')):
+        r = bench(f'E_{fault}', 'BAT', L=20e-3, fault=fault)
+        ion = r.get('ik_on0', 0.0)
+        rec('E fault', what,
+            f'peak {r["vpk"]:.1f} V; driver clamp {mJ(r["e_drv"])}'
+            + (f'; the driver is in current limit while on: {-ion:.1f} A from the battery input through the TVS (forward) '
+               f'and the shorted diode, the injector gets no voltage' if abs(ion) > 0.01 else
+               f'; to 35 % in {r["t35"] * 1e6:.0f} us'),
+            'CHECK')
 
-# ---- F. overvoltage: 24 V jump start, and the supply held at 40-45 V (load dump, clamped by D6) --------------
-for vb in (24.0, 40.0, 45.0):
-    r = bench(f'F_{vb}', 'BAT', L=20e-3, vb=vb, drv='min')
-    g = bench(f'F_GND_{vb}', 'GND', L=20e-3, vb=vb, drv='min', mb_tvs='30A', ton=1e-3)
-    rec('F overvolt', f'supply {vb:.0f} V',
-        f'BAT: peak {r["vpk"]:.1f} V, driver clamp {mJ(r["e_drv"])} per shot, TVS {mJ(r["e_tvs"])}; '
-        f'GND reference: TVS to ground {mJ(g["e_mb"])} in 8 ms (continuous conduction above its breakdown)',
-        'CHECK' if vb > 30 else 'OK')
+    # ---- F. overvoltage: 24 V jump start, and the supply held at 40-45 V (load dump, clamped by D6) --------------
+    for vb in (24.0, 40.0, 45.0):
+        r = bench(f'F_{vb}', 'BAT', L=20e-3, vb=vb, drv='min')
+        g = bench(f'F_GND_{vb}', 'GND', L=20e-3, vb=vb, drv='min', mb_tvs='30A', ton=1e-3)
+        rec('F overvolt', f'supply {vb:.0f} V',
+            f'BAT: peak {r["vpk"]:.1f} V, driver clamp {mJ(r["e_drv"])} per shot, TVS {mJ(r["e_tvs"])}; '
+            f'GND reference: TVS to ground {mJ(g["e_mb"])} in 8 ms (continuous conduction above its breakdown)',
+            'CHECK' if vb > 30 else 'OK')
 
-# ---- H. 1989-95 with the jumpers on PAIR: two injectors and two drivers on one wire -----------------------------
-for mb in (None, '30A'):
-    r = bench(f'H_pair_{mb}', 'BAT', L=20e-3, n_inj=2, n_drv=2, mb_tvs=mb)
-    rec('H pair', '2 injectors, 2 drivers' + (' + motherboard SMCJ30A' if mb else ''),
-        f'peak {r["vpk"]:.1f} V; daughterboard TVSs {mJ(r["e_tvs"])} together, motherboard TVS {mJ(r["e_mb"])}, '
-        f'drivers {mJ(r["e_drv"])}; to 35 % in {r["t35"] * 1e6:.0f} us')
+    # ---- H. 1989-95 with the jumpers on PAIR: two injectors and two drivers on one wire -----------------------------
+    for mb in (None, '30A'):
+        r = bench(f'H_pair_{mb}', 'BAT', L=20e-3, n_inj=2, n_drv=2, mb_tvs=mb)
+        rec('H pair', '2 injectors, 2 drivers' + (' + motherboard SMCJ30A' if mb else ''),
+            f'peak {r["vpk"]:.1f} V; daughterboard TVSs {mJ(r["e_tvs"])} together, motherboard TVS {mJ(r["e_mb"])}, '
+            f'drivers {mJ(r["e_drv"])}; to 35 % in {r["t35"] * 1e6:.0f} us')
 
-with open(os.path.join(OUT, 'inj_clamp_report.txt'), 'w') as f:
-    for g, c, tx, v in rows:
-        f.write(f'{v}\t{g}\t{c}\t{tx}\n')
-print('report:', os.path.join(OUT, 'inj_clamp_report.txt'))
+    with open(os.path.join(OUT, 'inj_clamp_report.txt'), 'w') as f:
+        for g, c, tx, v in rows:
+            f.write(f'{v}\t{g}\t{c}\t{tx}\n')
+    print('report:', os.path.join(OUT, 'inj_clamp_report.txt'))
+
+
+if __name__ == '__main__':
+    main()

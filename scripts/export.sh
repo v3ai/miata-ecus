@@ -4,7 +4,9 @@ set -e
 B=$1; O=$2
 mkdir -p "$O/gerbers"
 rm -f "$O"/gerbers/*
-kicad-cli pcb export gerbers -l F.Cu,In1.Cu,In2.Cu,B.Cu,F.Paste,B.Paste,F.SilkS,B.SilkS,F.Mask,B.Mask,Edge.Cuts \
+# inner layers by the board's own copper layer count (4 up to rev 0.9, 6 from rev 0.10)
+INNER=$(/usr/bin/python3 -c "import pcbnew,sys; n=pcbnew.LoadBoard(sys.argv[1]).GetCopperLayerCount(); print(','.join(f'In{i}.Cu' for i in range(1, n - 1)))" "$B" 2>/dev/null | tail -1)
+kicad-cli pcb export gerbers -l F.Cu,$INNER,B.Cu,F.Paste,B.Paste,F.SilkS,B.SilkS,F.Mask,B.Mask,Edge.Cuts \
   --subtract-soldermask --no-x2 -o "$O/gerbers/" "$B" >/dev/null
 kicad-cli pcb export drill --format excellon --excellon-separate-th --generate-map --map-format gerberx2 \
   -o "$O/gerbers/" "$B" >/dev/null

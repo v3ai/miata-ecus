@@ -5,49 +5,49 @@ pins:
   - pin: J1-6
     id: C14
     class: outputs
-    function: "Fuel pump relay (ULN2003 low side)"
+    function: "Fuel pump relay (protected low side)"
     ts_name: "FP - fuel pump relay"
     type: ls
 
   - pin: J1-7
     id: C13
     class: outputs
-    function: "NB2 2003-05 main relay; NB1 VICS solenoid (ULN2003)"
+    function: "NB2 2003-05 main relay; NB1 VICS solenoid (protected low side)"
     ts_name: "MAINRLY - main relay / VICS"
     type: ls
 
   - pin: J1-8
     id: E6
     class: outputs
-    function: "A/C compressor relay (ULN2003)"
+    function: "A/C compressor relay (protected low side)"
     ts_name: "AC - A/C relay"
     type: ls
 
   - pin: J1-9
     id: E5
     class: outputs
-    function: "Radiator fan relay (ULN2003)"
+    function: "Radiator fan relay (protected low side)"
     ts_name: "FAN - radiator fan relay"
     type: ls
 
   - pin: J1-10
     id: E4
     class: outputs
-    function: "Check engine lamp (ULN2003)"
+    function: "Check engine lamp (protected low side)"
     ts_name: "CEL - check engine lamp"
     type: ls
 
   - pin: J1-11
     id: E3
     class: outputs
-    function: "Tachometer (ULN2003)"
+    function: "Tachometer (protected low side)"
     ts_name: "TACH - tachometer"
     type: ls
 
   - pin: J1-12
     id: E2
     class: outputs
-    function: "Condenser / second fan relay (ULN2003)"
+    function: "Condenser / second fan relay (protected low side)"
     ts_name: "LS7 - second fan relay"
     type: ls
 
@@ -236,14 +236,14 @@ pins:
   - pin: J2-21
     id: [E13, E13]
     class: [event_inputs, switch_inputs]
-    function: "Spare VR input 1 (MAX9926)"
+    function: "Spare VR input 1 (LM2903 conditioner)"
     ts_name: "VR1 - spare VR"
     type: vr
 
   - pin: J2-20
     id: [E12, E12]
     class: [event_inputs, switch_inputs]
-    function: "Spare VR input 2 (MAX9926)"
+    function: "Spare VR input 2 (LM2903 conditioner)"
     ts_name: "VR2 - spare VR"
     type: vr
 
@@ -257,7 +257,21 @@ pins:
     function: "Ignition switch voltage (33k/6.8k)"
     ts_name: "VIGN - ignition sense"
 
+  - pin: J2-24
+    id: [C6, C6]
+    class: [event_inputs, switch_inputs]
+    function: "Flex-fuel sensor (rev 0.10): 0-12 V digital input, pulled up to the sensor 5 V on the motherboard"
+    ts_name: "Flex input (J2-24)"
+    type: din
+
+  - pin: J2-25
+    id: [C7, C7]
+    class: [event_inputs, switch_inputs]
+    function: "Nitrous arming switch (rev 0.10): 0-12 V digital input, pulled down on the motherboard"
+    ts_name: "Nitrous arm (J2-25)"
+    type: din
+
 info:
   cid: daughterboard
-  title: miata-ecus daughterboard (rev 0.4)
+  title: miata-ecus daughterboard (rev 0.10)
   directory: miata-ecu

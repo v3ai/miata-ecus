@@ -358,12 +358,38 @@ for _r, (_dx, _dy) in NUDGE.items():
     _v = PLACE[_r]
     PLACE[_r] = (round(_v[0] + _dx, 4), round(_v[1] + _dy, 4)) + tuple(_v[2:])
 
-# rev 0.10 (final frame): microSD socket in the free area right of Q20, card slot toward the right board edge
-put('J4', 113.0, 28.0, 270)
-put('C69', 103.4, 26.0, 90)
-put('C70', 103.4, 30.0, 90)
-put('R150', 103.4, 33.0, 0)
-put('R151', 107.0, 35.6, 0)
+# ---- rev 0.10 (final frame). Every part that existed in rev 0.9 keeps its place except the few named here: the six-
+# layer board gets its routing room from two more signal layers, not from moving proven blocks.
+# microSD socket (Molex 47219-2001, hinged) in the free area right of Q20; the status LED column moves 1.5 mm down
+put('J4', 114.7, 28.3, 180)
+put('C69', 105.7, 26.6, 90)
+put('C70', 105.7, 30.9, 90)
+for _i, _r in enumerate(('R150', 'R151', 'R161')):          # card pull-ups: CS, DO, DI
+    put(_r, 89.3 + 1.95 * _i, 31.1, 0)
+for _i, _r in enumerate(('R162', 'R163')):                  # DAT1, DAT2
+    put(_r, 89.3 + 1.95 * _i, 32.4, 0)
+for _r in ('R2', 'R3', 'R4', 'R5', 'R6', 'D1', 'D2', 'D3', 'D4', 'D5'):
+    PLACE[_r] = (PLACE[_r][0], PLACE[_r][1] + 1.5) + tuple(PLACE[_r][2:])
+# injector clamps, one column under each injector driver: TVS (SMC, upright, battery-input pad at the top), then
+# the diode. The harness 5 V tracker U14 moves out of the way, to the 12 V rail's corner beside D8.
+for _i in range(4):
+    _x = PLACE[f'Q{1 + _i}'][0]
+    put(f'D{46 + _i}', _x, 25.5, 90)        # SMCJ14A: pad 1 (cathode, INJn_CL) at the bottom
+    put(f'D{42 + _i}', _x, 31.9, 0)         # ES1D: pad 1 (cathode, INJn_CL) left, pad 2 (drain) right
+put('U14', 28.4, 23.5, 180)               # pin 1 (output) bottom right, pins 7/8 (12 V in) bottom left
+put('C61', 30.4, 27.2, 0)                  # output capacitor at pin 1
+put('C62', 26.0, 27.2, 0)                  # input capacitor at pin 8
+# driver input resistors in a column right of the level shifter, INJ1 at the top like U11's pins
+for _i in range(8):
+    put(f'R{152 + _i}', 87.6, 33.4 + 1.1 * _i, 0)
+put('R160', 33.3, 17.9, 90)                # CEL gate resistor, between RN2 and RN3
+# logic supply: the 1812 fuse does not fit the old 1206 place between C16 and D12; it goes to the free left margin,
+# and the moulded filter inductor takes the old inductor's place
+put('F1', 6.0, 26.5, 90)
+put('L1', 7.2, 35.4, 90)
+put('C71', 9.5, 40.4, 90)                  # 100 nF at the buck's VIN pins
+put('C72', 74.0, 53.6, 0)                  # flex input filter
+put('C73', 77.9, 45.45, 0)                 # nitrous arm input filter
 
 for p in design.parts:
     if p['ref'] not in PLACE:

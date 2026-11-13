@@ -64,6 +64,9 @@ static void parkUnusedLowSideInputs() {
 		if (getPinFunction(pin) != nullptr) {
 			continue;
 		}
+		if (pin == MIATA_CEL && hasFirmwareError()) {
+			continue;                              // held on by lightCelOnFatalError()
+		}
 		ioportid_t port = getHwPort("low side", pin);
 		int bit = getHwPin("low side", pin);
 		uint32_t mode = (port->MODER >> (bit * 2)) & 3U;
@@ -75,6 +78,18 @@ static void parkUnusedLowSideInputs() {
 		palSetPadMode(port, bit, PAL_MODE_INPUT_PULLDOWN);
 		chSysUnlock();
 	}
+}
+
+// rev 0.10: the check-engine lamp driver takes its gate straight from the processor pin, outside the shared driver
+// enable, so the lamp can be lit when the drivers are held off after a fatal error. rusEFI switches every output off
+// in that state, so the pin is driven here directly. On a rev 0.9 board the lamp is behind the enable and stays dark.
+static void lightCelOnFatalError() {
+	ioportid_t port = getHwPort("CEL", MIATA_CEL);
+	int bit = getHwPin("CEL", MIATA_CEL);
+	chSysLock();
+	palSetPadMode(port, bit, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPad(port, bit);
+	chSysUnlock();
 }
 
 static void setDriversEnabled(bool enabled) {
@@ -127,6 +142,9 @@ static void miataBoardSlowCallback() {
 		return;
 	}
 	setDriversEnabled(!hasFirmwareError());
+	if (hasFirmwareError()) {
+		lightCelOnFatalError();
+	}
 }
 
 static void miataBoardTsCommand(uint16_t /*subsystem*/, uint16_t index) {

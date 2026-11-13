@@ -61,6 +61,9 @@ DEFINES = {
     'HALL1': 'HALL1', 'HALL2': 'HALL2', 'SW1': 'SW1', 'SW2': 'SW2', 'SW3': 'SW3',
     'IN_VBATT': 'AN_VBATT', 'IN_VIGN': 'AN_VIGN', 'IN_TPS': 'AN_TPS', 'IN_MAP': 'AN_MAP', 'IN_CLT': 'AN_CLT',
     'IN_IAT': 'AN_IAT', 'IN_AFR': 'AN_AFR', 'IN_AUX1': 'AN_AUX1', 'IN_AUX2': 'AN_AUX2', 'IN_AUX3': 'AN_AUX3',
+    # rev 0.10
+    'FLEX': 'FLEX_M', 'N2O_ARM': 'N2O_ARM_M',
+    'SD_SCK': 'SD_SCK', 'SD_MISO': 'SD_MISO', 'SD_MOSI': 'SD_MOSI', 'SD_CS': 'SD_CS',
 }
 cfg = open(os.path.join(BOARD, 'board_configuration.cpp')).read() + open(os.path.join(BOARD, 'miata_board.cpp')).read()
 found = dict(re.findall(r'^#define MIATA_(\w+)\s+(\S+)', open(os.path.join(BOARD, 'miata_pins.h')).read(), re.M))
@@ -96,7 +99,7 @@ expect('knock_config.h', re.search(r'KNOCK_PIN_CH1 (Gpio::\w+)', open(os.path.jo
 HEADER_NET = {  # header net -> MCU net it is conditioned into
     'OUT_IGN1': 'IGN1_CTL', 'OUT_IGN2': 'IGN2_CTL', 'OUT_IGN3': 'IGN3_CTL', 'OUT_IGN4': 'IGN4_CTL',
     'IN_KNOCK': 'AN_KNOCK', 'IN_HALL1': 'HALL1', 'IN_HALL2': 'HALL2', 'IN_SW1': 'SW1', 'IN_SW2': 'SW2', 'IN_SW3': 'SW3',
-    'VR1_P': 'VR1_OUT', 'VR2_P': 'VR2_OUT',
+    'VR1_P': 'VR1_OUT', 'VR2_P': 'VR2_OUT', 'IN_FLEX': 'FLEX_M', 'IN_N2O': 'N2O_ARM_M',
 }
 y = yaml.safe_load(open(os.path.join(BOARD, 'connectors', 'daughterboard.yaml')))
 for p in y['pins']:

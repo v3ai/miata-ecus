@@ -515,7 +515,11 @@ void runYear(engine_type_e year) {
 		if (rpm >= 500) { // above cranking, where spark/fuel follow the run tables
 			checkSparks(rec, cycles, rpm);
 			checkInjectors(rec, cycles, rpm);
-			EXPECT_EQ(4 * cycles, countEdges(rec.get("tach"), true)) << "tach: 2 pulses per revolution";
+			if (engineConfiguration->tachOutputPin != Gpio::Unassigned) {
+				EXPECT_EQ(4 * cycles, countEdges(rec.get("tach"), true)) << "tach: 2 pulses per revolution";
+			} else {      // 1989-95: the igniter drives the tachometer, the ECU output stays off
+				EXPECT_EQ(0, countEdges(rec.get("tach"), true)) << "no tach output on 1989-95";
+			}
 			EXPECT_EQ(1, rec.get("fuelPump").last) << "fuel pump on while running";
 			EXPECT_EQ(0, rec.get("cel").last) << "no check engine light on a clean run @" << rpm;
 			if (engineConfiguration->o2heaterPin != Gpio::Unassigned) {
@@ -565,7 +569,21 @@ void checkConfiguration(engine_type_e year) {
 	EXPECT_EQ(MIATA_LS7, engineConfiguration->fan2Pin);
 	EXPECT_EQ(MIATA_AC, engineConfiguration->acRelayPin);
 	EXPECT_EQ(MIATA_CEL, engineConfiguration->malfunctionIndicatorPin);
-	EXPECT_EQ(MIATA_TACH, engineConfiguration->tachOutputPin);
+	// 1989-95: harness 2I is the igniter's signal into the ECU (the igniter drives the tachometer), so no tach output
+	if (year == engine_type_e::MAZDA_MIATA_NA6 || year == engine_type_e::MAZDA_MIATA_NA94) {
+		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->tachOutputPin);
+	} else {
+		EXPECT_EQ(MIATA_TACH, engineConfiguration->tachOutputPin);
+	}
+	// rev 0.10: card logging on SPI2; flex and nitrous ship off with no pin assigned
+	EXPECT_TRUE(engineConfiguration->isSdCardEnabled);
+	EXPECT_EQ(SPI_DEVICE_2, engineConfiguration->sdCardSpiDevice);
+	EXPECT_EQ(MIATA_SD_CS, engineConfiguration->sdCardCsPin);
+	EXPECT_EQ(MIATA_SD_SCK, engineConfiguration->spi2sckPin);
+	EXPECT_EQ(MIATA_SD_MISO, engineConfiguration->spi2misoPin);
+	EXPECT_EQ(MIATA_SD_MOSI, engineConfiguration->spi2mosiPin);
+	EXPECT_EQ(Gpio::Unassigned, engineConfiguration->flexSensorPin);
+	EXPECT_FALSE(engineConfiguration->nitrousControlEnabled);
 	EXPECT_EQ(MIATA_IACV, engineConfiguration->idle.solenoidPin);
 	EXPECT_EQ(MIATA_SW1, engineConfiguration->vehicleSpeedSensorInputPin);
 	EXPECT_EQ(MIATA_SW2, engineConfiguration->acSwitch);

@@ -1,5 +1,7 @@
 """
-Small rip-up-and-reroute grid router for the daughterboard (2 layers).
+Small rip-up-and-reroute grid router for the daughterboard (2 signal layers; 4 with LAYERS=6 in the environment:
+the six-layer board routes on F.Cu, In2.Cu, In3.Cu and B.Cu, with In1.Cu a ground plane and In4.Cu the +3V3 plane).
+The motherboard router (mb_route.py) uses this module in its 2-layer form.
 
 - 0.25 mm grid aligned to the board origin (the MCU pins sit on it)
 - copper rasterised with exact shapely distances: a cell is usable by net N if it is
@@ -33,10 +35,22 @@ SIG_W = 0.2                    # default track width
 VIA_D, VIA_DRILL = 0.6, 0.3
 EDGE_CLR = 0.35
 HALO = CLR + SIG_W / 2
+import os as _os
 import pcbnew as _p
-ROUTE_LAYERS = [_p.F_Cu, _p.B_Cu]      # In1.Cu = GND plane, In2.Cu = +3V3 plane
+SIX = _os.environ.get('LAYERS') == '6'
+if SIX:
+    # rev 0.10: F.Cu / In1 GND plane / In2 signal / In3 signal / In4 +3V3 plane / B.Cu. The two inner signal layers
+    # are 0.11 mm apart in JLCPCB's standard stack, so they prefer crossing directions (In2 along x, In3 along y).
+    ROUTE_LAYERS = [_p.F_Cu, _p.In2_Cu, _p.In3_Cu, _p.B_Cu]
+    LAYER_COST = [1.0, 1.1, 1.1, 1.25]
+    INNER_DIR = {1: 'h', 2: 'v'}
+else:
+    ROUTE_LAYERS = [_p.F_Cu, _p.B_Cu]      # In1.Cu = GND plane, In2.Cu = +3V3 plane
+    LAYER_COST = [1.0, 1.25]
+    INNER_DIR = {}
+INNER_PREF = 1.5                       # cost factor for running against an inner layer's direction
 NL = len(ROUTE_LAYERS)
-LAYER_COST = [1.0, 1.25]
+BOT = NL - 1                           # index of B.Cu
 ALL = tuple(range(NL))
 DIRPREF = None     # e.g. 1.8: F.Cu prefers horizontal, B.Cu vertical (cost factor for the other directions)
 
@@ -182,7 +196,9 @@ class Router:
             p['cells'] = self.pad_cells(p)
         self.add_escape_stubs()
         # keep signals out from under the MCU body (reserved for GND stitching)
-        sl = (slice(int(round(25.0 / G)), int(round(39.0 / G)) + 1), slice(int(round(54.0 / G)), int(round(68.0 / G)) + 1))
+        # (rev 0.10: + _DY. The rows had stayed in the pre-rev-0.8 frame, 16 mm above the MCU, since the strip was added;
+        # rev 0.8 and 0.9 were routed as change orders from rev 0.7's saved state, which hid it.)
+        sl = (slice(int(round((25.0 + _DY) / G)), int(round((39.0 + _DY) / G)) + 1), slice(int(round(54.0 / G)), int(round(68.0 / G)) + 1))
         g.reserved[sl] = True
         g.reserved_ok = {g.nid('GND'), g.nid('+3V3')}
         # footprint keepout areas (Tag-Connect legs): no copper of any net, no vias
@@ -212,7 +228,7 @@ class Router:
         if not any(fp.GetReference() in block for fp in self.board.GetFootprints()):
             return                      # not the daughterboard (e.g. the motherboard router)
         g = self.grid
-        lay = {_p.F_Cu: 0, _p.B_Cu: 1}
+        lay = {lid: k for k, lid in enumerate(ROUTE_LAYERS)}
         n_t = n_v = 0
         for t in self.board.GetTracks():
             if t.GetClass() == 'PCB_VIA':
@@ -246,7 +262,7 @@ class Router:
         """rev 0.3 wideband block (wb_clean.py): placed parts are routed like the rest of the board;
         only the heater path is fixed, hand-planned copper. Thin taps on wide nets are marked."""
         for net, side, w, pts in wbc.HEATER:
-            self.add_locked(net, [(x, y + _DY) for x, y in pts], w, L=0 if side == 'F' else 1)
+            self.add_locked(net, [(x, y + _DY) for x, y in pts], w, L=0 if side == 'F' else BOT)
         for p in self.pads:
             if (p['fp'], p['num']) in wbc.TAPS:
                 p['w'] = wbc.TAPS[(p['fp'], p['num'])]
@@ -361,7 +377,9 @@ class Router:
                 okm = okm & mask
             P.append(okm); T.append(tf)
         if via_ok:
-            V = g.via_ok(net, soft) & P[0] & P[1]
+            V = g.via_ok(net, soft)
+            for L in ALL:
+                V = V & P[L]
         nx, ny = g.nx, g.ny
         tset = set(targets)
         tj = np.array([t[1] for t in targets]); ti = np.array([t[2] for t in targets])
@@ -403,8 +421,10 @@ class Router:
                 if di and dj and not (PL[j, ii] and PL[jj, i]):
                     continue
                 cost = (1.4142 if (di and dj) else 1.0) * lc
-                if DIRPREF and ((L == 0 and dj) or (L == 1 and di)):
+                if DIRPREF and ((L == 0 and dj) or (L == BOT and di)):
                     cost *= DIRPREF
+                if L in INNER_DIR and (dj if INNER_DIR[L] == 'h' else di):
+                    cost *= INNER_PREF
                 if d != 8 and d != nd:
                     cost += 0.6
                 if soft and not TL[jj, ii]:
@@ -774,7 +794,12 @@ class Router:
 
 def add_gnd_zones(board, W=125.0, H=60.0):
     nets = board.GetNetsByName()
-    for layer, nn in ((pcbnew.F_Cu, 'GND'), (pcbnew.In1_Cu, 'GND'), (pcbnew.In2_Cu, '+3V3'), (pcbnew.B_Cu, 'GND')):
+    if SIX:     # ground also fills what the two inner signal layers leave free
+        plan = ((pcbnew.F_Cu, 'GND'), (pcbnew.In1_Cu, 'GND'), (pcbnew.In2_Cu, 'GND'), (pcbnew.In3_Cu, 'GND'),
+                (pcbnew.In4_Cu, '+3V3'), (pcbnew.B_Cu, 'GND'))
+    else:
+        plan = ((pcbnew.F_Cu, 'GND'), (pcbnew.In1_Cu, 'GND'), (pcbnew.In2_Cu, '+3V3'), (pcbnew.B_Cu, 'GND'))
+    for layer, nn in plan:
         z = pcbnew.ZONE(board)
         z.SetLayer(layer)
         z.SetNet(nets[nn])

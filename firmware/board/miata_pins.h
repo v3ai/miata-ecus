@@ -1,6 +1,7 @@
 /**
  * @file miata_pins.h
- * @brief Pin map of the miata-ecus daughterboard (rev 0.8). Must match scripts/design.py ("mcu" dict);
+ * @brief Pin map of the miata-ecus daughterboard (rev 0.10; rev 0.9 boards run the same firmware: the pins added in
+ * rev 0.10 are not connected there). Must match scripts/design.py ("mcu" dict);
  * firmware/tools/check_pins.py cross-checks the two.
  */
 
@@ -45,8 +46,16 @@
 #define MIATA_SW1 Gpio::E9      // 12 V input through 22k/10k (rev 0.8; 33k/10k before): vehicle speed on every motherboard
 #define MIATA_SW2 Gpio::E10     // A/C switch
 #define MIATA_SW3 Gpio::E11     // clutch switch
+// rev 0.10: two more 0-12 V inputs on J2 pins 24/25 (10k in series, clamped to 3.3 V; a spare UART up to rev 0.9).
+#define MIATA_FLEX Gpio::C6     // flex-fuel sensor (50-150 Hz). The motherboard pulls the line up to the sensor 5 V (4.7k); 10 us filter
+#define MIATA_N2O_ARM Gpio::C7  // nitrous arming switch to 12 V. The motherboard pulls the line down (10k); 100 us filter
+// rev 0.10: microSD socket on SPI2 (microRusEFI's arrangement, with the clock on PB10 because PB13 is the CAN transmit pin).
+#define MIATA_SD_SCK Gpio::B10
+#define MIATA_SD_MISO Gpio::B14
+#define MIATA_SD_MOSI Gpio::B15
+#define MIATA_SD_CS Gpio::D13
 // Analog inputs (0-5 V through 5.6k/10k, so x1.56 at the ADC).
-#define MIATA_IN_VBATT EFI_ADC_1   // PA1, 33k/6.8k
+#define MIATA_IN_VBATT EFI_ADC_1   // PA1, 33k/6.8k; rev 0.10: from the battery input itself (up to rev 0.9 after D7 and the fuse, 0.3-0.6 V low)
 #define MIATA_IN_VIGN EFI_ADC_2    // PA2, 33k/6.8k
 #define MIATA_IN_TPS EFI_ADC_4     // PA4
 #define MIATA_IN_MAP EFI_ADC_5     // PA5, on-board MPX5700AP
