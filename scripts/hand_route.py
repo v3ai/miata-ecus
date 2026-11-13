@@ -1,7 +1,8 @@
 """Route one missing connection on a finished board with a two-layer grid A* over the real copper.
 usage: hand_route.py in.kicad_pcb out.kicad_pcb NET  x0 y0 x1 y1 (search window, mm)  srcpad(ref:num) dst pads(ref:num,...)
 A destination of COPPER means any existing track or via of NET inside the window (join the net's routed copper).
-Tracks 0.2 mm, vias 0.6/0.3, clearance 0.15 mm (+0.02 margin). GND/+3V3 zones are ignored as obstacles and refilled."""
+Tracks 0.2 mm (TW in the environment for another width), vias 0.6/0.3, clearance 0.15 mm (+0.02 margin; CL in the
+environment). GND/+3V3 zones are ignored as obstacles and refilled. Two-layer boards only: it does not look at inner layers."""
 import sys, heapq, math
 import pcbnew
 from shapely.geometry import LineString, Point, Polygon, box
@@ -13,7 +14,7 @@ X0, Y0, X1, Y1 = map(float, sys.argv[4:8])
 SRC = sys.argv[8].split(':')
 DSTS = [d.split(':') for d in sys.argv[9].split(',')]
 mm, IU = pcbnew.ToMM, pcbnew.FromMM
-TW, VD = 0.2, 0.6
+TW, VD = float(__import__('os').environ.get('TW', '0.2')), 0.6      # TW: track width (0.2; wider for a ground tie)
 CL = float(__import__('os').environ.get('CL', '0.17'))   # clearance + margin: 0.17 for the daughterboard's 0.15 rule, 0.22 for the motherboards' 0.2
 b = pcbnew.LoadBoard(src)
 win = box(X0 - 2, Y0 - 2, X1 + 2, Y1 + 2)
@@ -40,6 +41,16 @@ for t in b.GetTracks():
     g = LineString([(mm(s.x), mm(s.y)), (mm(e.x), mm(e.y))]).buffer(mm(t.GetWidth()) / 2, cap_style=1)
     if g.intersects(win) and t.GetLayerName() in obs:
         obs[t.GetLayerName()].append(g)
+# GOALS in the environment: a file of "layer|WKT polygon" lines (copper of NET already tied to the rest of the net, for
+# example the main ground pour); the route may end anywhere inside one, a track's half width plus 0.15 mm from its edge
+_gp = __import__('os').environ.get('GOALS')
+if _gp:
+    from shapely import wkt as _wkt
+    for _line in open(_gp):
+        _l, _w = _line.rstrip('\n').split('|', 1)
+        _g = _wkt.loads(_w).buffer(-(TW / 2 + 0.15)).intersection(box(X0, Y0, X1, Y1))
+        if not _g.is_empty:
+            copper.append(([_l], _g))
 targets = []
 for fp in b.GetFootprints():
     for pd in fp.Pads():
@@ -105,9 +116,10 @@ for layers, g in copper:            # every grid cell inside the net's own coppe
     if g.is_empty or not g.intersects(box(X0, Y0, X1, Y1)):
         continue
     x0_, y0_, x1_, y1_ = g.bounds
+    gprep = prepared.prep(g)
     for i in range(max(0, int((x0_ - X0) / G)), min(nx, int((x1_ - X0) / G) + 2)):
         for j in range(max(0, int((y0_ - Y0) / G)), min(ny, int((y1_ - Y0) / G) + 2)):
-            if g.contains(Point(*xy(i, j))):
+            if gprep.contains(Point(*xy(i, j))):
                 for l in layers:
                     goal_cells.add((l, i, j))
 gx = [(xy(i, j)) for (_, i, j) in goal_cells]

@@ -49,6 +49,15 @@ void miataBoardConfigOverrides() {
 	engineConfiguration->can2TxPin = Gpio::Unassigned;
 	engineConfiguration->can2RxPin = Gpio::Unassigned;
 	engineConfiguration->widebandOnSecondBus = false;
+
+	// microSD socket (rev 0.10) on SPI2. On a rev 0.9 board these four pins are not connected: rusEFI finds no card
+	// and carries on.
+	engineConfiguration->is_enabled_spi_2 = true;
+	engineConfiguration->spi2sckPin = MIATA_SD_SCK;
+	engineConfiguration->spi2misoPin = MIATA_SD_MISO;
+	engineConfiguration->spi2mosiPin = MIATA_SD_MOSI;
+	engineConfiguration->sdCardSpiDevice = SPI_DEVICE_2;
+	engineConfiguration->sdCardCsPin = MIATA_SD_CS;
 }
 
 /**
@@ -127,6 +136,14 @@ static void setIgnitionSense() {
 	engineConfiguration->ignKeyAdcChannel = MIATA_IN_VIGN;
 }
 
+// 1989-95: harness cavity 2I is the igniter's signal INTO the ECU; the igniter drives the tachometer itself (the 1990-93
+// coil-on-plug conversion notes and rusEFI's 1994 pinout both show 2I as an input). An ECU tach output on that wire
+// would fight the igniter, so the output is left unassigned. After a coil-on-plug conversion with the igniter removed,
+// fit JP5 on the rev 0.12 motherboard and set the tach output to "Tach (J1-11)" in TunerStudio.
+static void miataNoTachOutput() {
+	engineConfiguration->tachOutputPin = Gpio::Unassigned;
+}
+
 static bool nb2Early = false;
 
 void miataSelectNb2Early(bool early) {
@@ -159,6 +176,14 @@ void miataBoardDefaultConfiguration() {
 
 	engineConfiguration->cylindersCount = 4;
 	engineConfiguration->firingOrder = FO_1_3_4_2;
+
+	// Log to the microSD card when one is fitted (rev 0.10). A fresh tune only.
+	engineConfiguration->isSdCardEnabled = true;
+	// Flex fuel and nitrous ship off, with no pins assigned: an assigned flex input with no sensor on it reads as a
+	// failed sensor. To use them, pick "Flex input (J2-24)" as the flex sensor pin, or "Nitrous arm (J2-25)" as the
+	// nitrous trigger and a spare output (boost, second fan) as the nitrous relay, in TunerStudio.
+	engineConfiguration->flexSensorPin = Gpio::Unassigned;
+	engineConfiguration->nitrousControlEnabled = false;
 }
 
 // --- NB (1999-2005). rusEFI's own NB presets are built for Hellen boards only, so the engine facts are repeated
@@ -285,6 +310,7 @@ void miataApplyYearPreset(engine_type_e engineType) {
 		// This needs the rev 0.6 1989-93 motherboard: on an older one INJ3/INJ4 would drive the unused 2Y/2Z pins
 		// and each 2U/2V driver would carry two injectors on its own.
 		setMazdaMiataNA6();
+		miataNoTachOutput();
 		engineConfiguration->injectionMode = IM_BATCH;
 		engineConfiguration->injectionPins[0] = MIATA_INJ1;   // slot 1 -> 2U
 		engineConfiguration->injectionPins[1] = MIATA_INJ2;   // slot 2 -> 2V
@@ -294,6 +320,7 @@ void miataApplyYearPreset(engine_type_e engineType) {
 	case engine_type_e::MAZDA_MIATA_NA94:
 		// 1994-95: four injector wires (2U/2V/2Y/2Z), sequential like rusEFI's own 1994 preset.
 		setMazdaMiataNA94();
+		miataNoTachOutput();
 		break;
 	case engine_type_e::MAZDA_MIATA_NA96:
 		// 1996-97: sequential; the VVT driver runs the front O2 heater (harness pin 3M).

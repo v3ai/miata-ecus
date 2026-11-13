@@ -25,6 +25,11 @@ DRIVERS = {'Q1': 'OUT_INJ1', 'Q2': 'OUT_INJ2', 'Q3': 'OUT_INJ3', 'Q4': 'OUT_INJ4
 HALF_W = 3.45               # column half width (drivers are 7.62 mm apart; the IN line climbs the 0.72 mm gap)
 Y_TOP = 0.6                 # board edge clearance
 LAYERS = (pcbnew.F_Cu, pcbnew.In2_Cu, pcbnew.B_Cu)
+LAYERS6 = (pcbnew.F_Cu, pcbnew.In2_Cu, pcbnew.In3_Cu, pcbnew.B_Cu)   # six-layer board: every signal layer
+
+
+def _layers(board):
+    return LAYERS6 if board.GetCopperLayerCount() == 6 else LAYERS
 VIA_D, VIA_DRILL, VIA_PITCH, CLEAR = 0.6, 0.3, 1.0, 0.2
 
 
@@ -115,7 +120,7 @@ def add(board):
     out = {}
     for ref, nn, x0, y0, x1, y1 in columns(board):
         net = board.FindNet(nn)        # (GetNetsByName() can come back as a bare SWIG object after items are removed)
-        for layer in LAYERS:
+        for layer in _layers(board):
             _zone(board, net, layer, x0, y0, x1, y1)
         # thermal vias over the tab and the copper below it (not in the lead area at the top of the column)
         fp = board.FindFootprintByReference(ref)
@@ -151,7 +156,8 @@ def add(board):
 def area(board):
     """filled drain copper of each driver per layer (mm^2), after a zone fill"""
     res = {}
-    names = {pcbnew.F_Cu: 'F', pcbnew.In2_Cu: 'In2', pcbnew.B_Cu: 'B'}
+    names = {pcbnew.F_Cu: 'F', pcbnew.In2_Cu: 'In2', pcbnew.In3_Cu: 'In3', pcbnew.B_Cu: 'B'}
+    names = {k: v for k, v in names.items() if k in _layers(board)}
     for ref, nn in DRIVERS.items():
         a = {}
         for z in board.Zones():

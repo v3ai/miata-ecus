@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.join(ROOT, 'scripts'))
 cwd = os.getcwd()
 os.chdir(os.path.join(ROOT, 'scripts'))
 import design  # noqa: E402
-YEARS = [('1989-93', 'mb_na6'), ('1994-95', 'mb_na8'), ('1996-97', 'mb_na96'), ('1999-2000', 'mb_nb1'),
+YEARS = [('1989-93', 'mb_y8993'), ('1994-95', 'mb_y9495'), ('1996-97', 'mb_na96'), ('1999-2000', 'mb_nb1'),
          ('2001-02', 'mb_nb2'), ('2003-05', 'mb_nb2')]
 MB = {y: importlib.import_module(m).HARNESS for y, m in YEARS}
 # fitted 0R links on each motherboard join nets (e.g. 1989-93: INJ4 reaches harness 2U through R23)
@@ -46,14 +46,16 @@ PORT_NET = {PINS[int(p)]: net for p, net in design.mcu.items()}
 # ignKey is the ignition-switch sense input: rusEFI cuts fuel and spark while it reads "off", so it must be configured
 # exactly on the years whose harness has an ignition-on wire (4S on 2003-05) and nowhere else. 1C on 1989-95 is the
 # starter (START) signal, live only while cranking (Link's MX5 pinout: "Start Signal"), so it must not be used.
+# 1989-95 have no tach entry: cavity 2I is the igniter's signal into the ECU (the igniter drives the tachometer), so
+# the ECU must not drive it; the 1989-95 motherboard only joins the tach output to 2I through jumper JP5 (left open).
 EXPECTED = {
-    # 1989-93: two drivers per batch injector wire (the motherboard's R23 / R24 links)
+    # 1989-93: two drivers per batch injector wire (the motherboard's jumpers JP1 / JP2 on PAIR)
     '1989-93': {'ign1&4': '1G', 'ign2&3': '1H', 'inj1': '2U', 'inj2': '2V', 'inj3': '2V', 'inj4': '2U',
                 'fuelPump': '2T', 'fan': '1L',
-                'fan2': '1R', 'acRelay': '1J', 'cel': '1E', 'tach': '2I', 'idle': '2W', 'vss': '1M',
+                'fan2': '1R', 'acRelay': '1J', 'cel': '1E', 'idle': '2W', 'vss': '1M',
                 'acSwitch': '1Q', 'clutch': '1V', 'crank(SGT)': '2E', 'cam(SGC)': '2G'},
     '1994-95': {'ign1&4': '1G', 'ign2&3': '1H', 'inj1': '2U', 'inj2': '2V', 'inj3': '2Y', 'inj4': '2Z',
-                'fuelPump': '2T', 'fan': '1L', 'fan2': '2S', 'acRelay': '1J', 'cel': '1E', 'tach': '2I',
+                'fuelPump': '2T', 'fan': '1L', 'fan2': '2S', 'acRelay': '1J', 'cel': '1E',
                 'idle': '2W', 'vss': '1M', 'acSwitch': '1Q', 'clutch': '1V', 'crank(SGT)': '2E', 'cam(SGC)': '2G'},
     '1996-97': {'ign1&4': '4N', 'ign2&3': '4R', 'inj1': '4U', 'inj2': '4V', 'inj3': '4W', 'inj4': '4X',
                 'fuelPump': '1U', 'fan': '1A', 'fan2': '1B', 'acRelay': '1G', 'cel': '1E', 'tach': '4L',

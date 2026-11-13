@@ -152,6 +152,32 @@ JUMPERS = [
 ]
 
 
+# Where the shunts sit for each range of years (pin pairs; a jumper not named is left open). Used by the checking
+# tools (mb_y8993.py / mb_y9495.py) and the README.
+SHUNTS = {'1989-93': {'JP1': (1, 2), 'JP2': (1, 2), 'JP3': (1, 2), 'JP6': (1, 2)},
+          '1994-95': {'JP1': (2, 3), 'JP2': (2, 3), 'JP3': (2, 3), 'JP4': (1, 2), 'JP6': (1, 2)}}
+
+
+def year_parts(year):
+    """The board as one range of years is fitted, for the simulation and checking tools: each jumper is replaced by
+    0R links, one per shunt position ("JP1A" = pins 1-2, "JP1B" = 2-3; a two-pin jumper keeps its name), fitted where
+    that year's shunt sits and not fitted elsewhere. The tools already follow fitted 0R links between nets."""
+    out = []
+    for p in [dict(q, pads=dict(q['pads'])) for q in build_parts()]:
+        j = next((j for j in JUMPERS if j[0] == p['ref']), None)
+        if j is None:
+            out.append(p)
+            continue
+        ref, n, pads = j[0], j[1], j[2]
+        pos = SHUNTS[year].get(ref)
+        for k, (a, b_) in enumerate([(1, 2)] if n == 2 else [(1, 2), (2, 3)]):
+            fit = pos == (a, b_)
+            out.append(dict(ref=ref + ('' if n == 2 else 'AB'[k]), value='0R', fp=p['fp'], lcsc='C5305' if fit else '',
+                            pads={1: pads[a], 2: pads[b_]},
+                            desc=('' if fit else 'NOT FITTED: ') + f'{ref} shunt on pins {a}-{b_} ({j[3]}), as fitted for {year}'))
+    return out
+
+
 def build_parts(harness=None, idle_pullup=True, tps_links=True):
     C.parts.clear()
     C.add('J1', 'TE 174917-6', 'ecu_mb:TE_174917-6_48P', '', harness or HARNESS,
@@ -167,9 +193,13 @@ def build_parts(harness=None, idle_pullup=True, tps_links=True):
         C.SILK[ref] = (name, labels)
     # 1989-93 stock harness: two injectors on each of 2U and 2V. A TVS per wire takes their turn-off energy (about
     # 37.5 V at 1.8 A, below the VND7NV04 drivers' 40 V minimum clamp)
+    # Rev 0.12: not fitted. A rev 0.10 daughterboard clamps each injector itself (diode + TVS to the battery input, about
+    # 32 V), below these parts' 33.3 V minimum: they take nothing (firmware/tools/sim_inj_clamp.py). Fit them (SMCJ30A,
+    # LCSC C224048) only to run this board with a rev 0.9 daughterboard on a 1989-93 car.
     for ref, net, pin in (('D3', 'OUT_INJ1', '2U'), ('D4', 'OUT_INJ2', '2V')):
-        C.add(ref, 'SMCJ30A', 'Diode_SMD:D_SMC', 'C224048', {1: net, 2: 'GND'},
-              f'Injector clamp for the two injectors on {pin} (1989-93); same part as the daughterboard\'s load-dump TVS D6')
+        C.add(ref, 'SMCJ30A', 'Diode_SMD:D_SMC', '', {1: net, 2: 'GND'},
+              f'NOT FITTED with a rev 0.10 daughterboard, which clamps the injectors itself. With a rev 0.9 daughterboard '
+              f'on a 1989-93 car: fit (SMCJ30A, SMC, LCSC C224048), clamp for the two injectors on {pin}')
     C.add('R37', '1k', 'Resistor_SMD:R_2512_6332Metric', '', {1: 'VBAT_IN', 2: 'OUT_TACH'},
           'Tachometer pull-up to 12 V for the coil-on-plug case (JP5 fitted): the stock tachometer needs it once the '
           'igniter is gone. 2512, 1 W (0.2 W at 14.4 V)')
