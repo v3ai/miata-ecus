@@ -538,15 +538,36 @@ for i, n in enumerate(design.HS_OUT):
 R_MB, R_HARN = 0.03, 0.05
 
 
-def ncv_tj(irms, ta=85.0, rth=NCV_RTH, pextra=0.0, typ=False):
+# Board temperature model (board_thermal.py): every copper layer of the routed board, the vias, the losses of all the
+# other parts. Run without the header pins as a heat path (the pessimistic variant) at h = 10 W/m2K. The base load is
+# sustained 7200 rpm with 20 mH injectors: "seq" sequential, "batch" the 1989-93 wiring, "batch_hog" the same with one
+# TVS of each pair taking both injectors' energy. Temperatures are quoted for 60 and 85 C air around the board.
+import board_thermal as BT
+DB_BOARD = os.environ.get('DB_BOARD') or os.path.join(os.path.dirname(__file__), '../../daughterboard/miata_ecu_daughter.kicad_pcb')
+TM = BT.Model(DB_BOARD, h=10.0, pins=False)
+_therm = {}
+
+
+def thermal(ref, case='seq'):
+    """(rise at the part's heat pads from everything else on the board in this load case, C; C/W of its own loss,
+    junction to air)"""
+    if (ref, case) not in _therm:
+        others = dict(BT.losses(case))
+        others[ref] = 0.0
+        _therm[(ref, case)] = (TM.rise(others)[ref][1], TM.rise({ref: 1.0})[ref][2])
+    return _therm[(ref, case)]
+
+
+def ncv_tj(irms, ta=85.0, pextra=0.0, ref='Q1', case='seq', typ=False):
     """Junction temperature with Rds(on) rising linearly from its 25 C to its 150 C value (max; typ=True: 0.7 x max).
     Above 150 C the part is in (or near) thermal shutdown."""
     k = 0.7 if typ else 1.0
     r25, r150 = k * NCV_RDS25, k * NCV_RDS150
+    t0, kself = thermal(ref, case)
     tj = ta
     for _ in range(50):
         rds = r25 + (r150 - r25) * max(0.0, min(tj, 200) - 25) / 125
-        tj = ta + rth * (irms ** 2 * rds + pextra)
+        tj = ta + t0 + kself * (irms ** 2 * rds + pextra)
     return tj
 
 
@@ -554,41 +575,13 @@ def fmt_tj(t):
     return f'{t:.0f} C' if t < NCV_TSD else '>150 C (shutdown)'
 
 
-# Drain copper per driver, read from the routed board (scripts/tab_copper.py: a column of the output net on F.Cu,
-# In2.Cu and B.Cu with thermal vias). The DPAK curve (RthJA vs copper, single-sided FR4) runs from about 90 C/W at
-# 0.1 cm2 to 30 C/W at 6 cm2, about 14.5 C/W per e-fold of area; the inner and bottom layers count half (they are
-# reached through the vias). Without a board file the datasheet's 65 C/W is used.
-def tab_copper_area():
-    brd = os.path.join(os.path.dirname(__file__), '../../daughterboard/miata_ecu_daughter.kicad_pcb')
-    try:
-        import pcbnew
-        b = pcbnew.LoadBoard(brd)
-    except Exception:
-        return None
-    lay = {pcbnew.F_Cu: 'F', pcbnew.In2_Cu: 'In2', pcbnew.B_Cu: 'B'}
-    out = {}
-    for i, n in enumerate(design.HS_OUT):
-        a = {'F': 0.0, 'In2': 0.0, 'B': 0.0}
-        for z in b.Zones():
-            if z.GetNetname() == 'OUT_' + n and z.GetLayer() in lay:
-                a[lay[z.GetLayer()]] += z.GetFilledArea() / 1e12
-        # the inner and bottom copper only count as far as vias couple them to the tab: full credit from 20 vias
-        nv = sum(1 for t in b.GetTracks() if t.GetClass() == 'PCB_VIA' and t.GetNetname() == 'OUT_' + n)
-        out[f'Q{i + 1}'] = (a['F'], a['In2'], a['B'], a['F'] + 0.5 * (a['In2'] + a['B']) * min(1.0, nv / 20.0))
-    return out
-
-
-TAB = tab_copper_area()
-A_INJ = min(v[3] for v in TAB.values()) if TAB and min(v[3] for v in TAB.values()) > 0 else 0.0
-
-
+# Up to rev 0.9 each driver was judged on its own from its drain copper and a single-sided copper-area curve
+# (rth_board below, still used for the 1989-93 motherboard's D3/D4 with a rev 0.9 daughterboard). The board model above
+# replaces that for the daughterboard.
 def rth_board(area_mm2):
     if area_mm2 <= 0:
         return NCV_RTH
     return max(30.0, min(90.0, 90.0 - 14.5 * math.log(area_mm2 / 10.0)))
-
-
-NCV_RTH_BOARD = rth_board(A_INJ)     # every driver has its own column
 
 
 def tvs_copper_area():
@@ -616,19 +609,24 @@ def tvs_copper_area():
 A_TVS = tvs_copper_area()
 # SMC on its bare pads: 75 C/W (Littelfuse SMCJ); with a cathode island, the same spreading estimate as the drivers
 TVS_RTH = 75.0 if A_TVS <= 0 else min(75.0, rth_board(A_TVS))
-NCV_RTH_OTHER = NCV_RTH_BOARD
 
 
-def tj2(irms, pextra=0.0, rth=None):
-    """(Tj at 60 C, Tj at 85 C ambient) with the layout's estimated RthJA"""
-    rth = NCV_RTH_BOARD if rth is None else rth
-    return ncv_tj(irms, 60, rth, pextra), ncv_tj(irms, 85, rth, pextra)
+def tj2(irms, pextra=0.0, ref='Q1', case='seq'):
+    """(Tj at 60 C, Tj at 85 C air around the board) from the board model"""
+    return ncv_tj(irms, 60, pextra, ref, case), ncv_tj(irms, 85, pextra, ref, case)
 
 
-def tj_txt(t, rth=None):
-    rth = NCV_RTH_BOARD if rth is None else rth
-    cu = f'{A_INJ:.0f} mm2 effective drain copper' if A_INJ > 0 else 'datasheet pad'
-    return f'Tj {fmt_tj(t[0])} at 60 C / {fmt_tj(t[1])} at 85 C ambient ({rth:.0f} C/W, {cu})'
+def tj_txt(t, ref='Q1', case='seq'):
+    t0, kself = thermal(ref, case)
+    return (f'Tj {fmt_tj(t[0])} at 60 C / {fmt_tj(t[1])} at 85 C air (board model: +{t0:.0f} C from the rest of the '
+            f'board, {kself:.0f} C/W of its own)')
+
+
+def tvs_tj(case):
+    """hottest clamp TVS junction rise (C) and its loss (W) in a load case"""
+    res = TM.rise(BT.losses(case))
+    ref = max((f'D{46 + i}' for i in range(4)), key=lambda r: res[r][2])
+    return res[ref][2], res[ref][0]
 
 
 def ncv_block(node, gate, bv=NCV_CLAMP_MIN, rds=NCV_RDS25, ilim=NCV_ILIM25, tag=''):
@@ -844,18 +842,20 @@ for y, _ in YEARS:
 # injector gives 20 mH), so both ends are simulated and the verdicts use 20 mH.
 for _i in range(4):
     on(f'D{42 + _i}', f'OUT_INJ{_i + 1}', f'INJ{_i + 1}_CL'); on(f'D{46 + _i}', f'INJ{_i + 1}_CL', 'VBAT_IN')
-    assert DB[f'D{46 + _i}']['value'] == 'SMCJ14A' and DB[f'R{152 + _i}']['value'] == '220'
+    assert DB[f'D{46 + _i}']['value'] in IC.PART_KEY and DB[f'R{152 + _i}']['value'] == '220'
+TVS_PART = DB['D46']['value']
+TVS_KEY = IC.PART_KEY[TVS_PART]
+TVS_TJMAX = 185.0 if TVS_PART == 'TPSMC16A' else 150.0
 INJ_LS = (8e-3, 20e-3)
-inj_seq = {L: IC.bench(f'o_seq_{int(L * 1e3)}', 'BAT', L=L) for L in INJ_LS}
-inj_pair = {L: IC.bench(f'o_pair_{int(L * 1e3)}', 'BAT', L=L, n_inj=2, n_drv=2) for L in INJ_LS}
-inj_16 = IC.bench('o_seq_16V', 'BAT', L=8e-3, vb=16.0)
-inj_open = IC.bench('o_tvs_open', 'BAT', L=20e-3, fault='tvs_open')      # a clamp part open: the driver takes it all
+inj_seq = {L: IC.bench(f'o_seq_{int(L * 1e3)}', 'BAT', L=L, tvs=TVS_KEY) for L in INJ_LS}
+inj_pair = {L: IC.bench(f'o_pair_{int(L * 1e3)}', 'BAT', L=L, n_inj=2, n_drv=2, tvs=TVS_KEY) for L in INJ_LS}
+inj_16 = IC.bench('o_seq_16V', 'BAT', L=8e-3, vb=16.0, tvs=TVS_KEY)
+inj_open = IC.bench('o_tvs_open', 'BAT', L=20e-3, fault='tvs_open', tvs=TVS_KEY)   # a clamp part open: the driver takes it all
 RPM = 7200
 i1, i1_16, vpk1 = inj_seq[8e-3]['i0'], inj_16['i0'], inj_seq[20e-3]['vpk']
 p_tvs_seq = {L: inj_seq[L]['e_tvs'] * RPM / 120 for L in INJ_LS}           # sequential: one pulse per 720 deg
 p_tvs_bat = {L: inj_pair[L]['e_tvs'] / 2 * RPM / 60 for L in INJ_LS}       # batch: each wire once per revolution, two TVSs
 p_seq = 0.0                    # clamp power in an injector driver with the clamp parts working
-TVS_RTH_DB = 75.0              # SMCJ on its bare pads (Littelfuse RthJA); the board's copper only improves on it
 # idle valve (BAC/ISC): 11 ohm / 20 mH (typical published, as circuit_sim.py), 200 Hz (assumed), 60 % duty
 iac = {feed: pwm_coil(11, 20e-3, 200, 0.6, rfeed=R_HARN + (0.1 if feed != 'VBAT_IN' else 0), name='iac')
        for feed in ('VBAT_IN', 'IAC_12V')}
@@ -897,40 +897,44 @@ for y, _ in YEARS:
     cav = lambda n: '/'.join(hn[n])
     area = 'Out ' + y
     # injectors
-    tvs_t = lambda p: f'{60 + p * TVS_RTH_DB:.0f} / {85 + p * TVS_RTH_DB:.0f} C at 60 / 85 C ambient'
-    if 'inj_pair' in L.values():
+    case = 'batch' if 'inj_pair' in L.values() else 'seq'
+    tvs_txt = lambda r: f'{60 + r:.0f} / {85 + r:.0f} C at 60 / 85 C air'
+    if case == 'batch':
         # 1989-93: jumpers JP1 / JP2 on PAIR put two drivers, each with its own clamp, on each two-injector wire
         on('R_JP2A', 'OUT_INJ1', 'OUT_INJ4', parts=MB[y]); on('R_JP1A', 'OUT_INJ2', 'OUT_INJ3', parts=MB[y])
         assert not MB[y]['D3']['lcsc'] and not MB[y]['D4']['lcsc'], 'motherboard D3/D4 are not fitted with a rev 0.10 daughterboard'
         pr = inj_pair[20e-3]
-        tj = tj2(pr['i0'] / 2 * math.sqrt(0.9))
+        tj = tj2(pr['i0'] / 2 * math.sqrt(0.9), case='batch')
         pw = p_tvs_bat[20e-3]
+        (r_eq, _), (r_hog, p_hog) = tvs_tj('batch'), tvs_tj('batch_hog')
         record(area, f'injectors {cav("OUT_INJ1")}/{cav("OUT_INJ2")}: 2 x 12 ohm per wire, INJ1+INJ4 / INJ2+INJ3, batch',
                f'{pr["i0"] / 2:.2f} A per driver, peak {pr["vpk"]:.0f} V, nothing in the driver clamps ({pr["e_drv"] * 1e3:.2f} mJ); each '
-               f'clamp TVS {p_tvs_bat[8e-3]:.2f} W (8 mH) to {pw:.2f} W (20 mH) at {RPM} rpm; drivers at 90 % duty: {tj_txt(tj)}',
-               'OK' if pr['vpk'] < 36 and pr['e_drv'] < 1e-4 and tj[1] < NCV_TSD - 15 and 85 + pw * TVS_RTH_DB < 150 else 'CHECK',
-               f'clamp TVS (D46-D49) at 20 mH: Tj {tvs_t(pw)} on its bare pads ({TVS_RTH_DB:.0f} C/W, the datasheet figure; '
-               f'150 C rated), {tvs_t(p_tvs_bat[8e-3])} at 8 mH. Sustained {RPM} rpm in batch mode; the injector inductance is not known')
+               f'clamp TVS {p_tvs_bat[8e-3]:.2f} W (8 mH) to {pw:.2f} W (20 mH) at {RPM} rpm; drivers at 90 % duty: {tj_txt(tj, case="batch")}',
+               'OK' if pr['vpk'] < 36 and pr['e_drv'] < 1e-4 and tj[1] < NCV_TSD - 15 and 85 + r_hog < TVS_TJMAX else 'CHECK',
+               f'clamp TVSs ({TVS_PART}, {TVS_TJMAX:.0f} C rated) at 20 mH, sustained {RPM} rpm: {tvs_txt(r_eq)} if the two on a wire '
+               f'share equally; {tvs_txt(r_hog)} if one takes both injectors ({p_hog:.1f} W: its breakdown is the lower one, '
+               f'sim_inj_clamp.py section I). The injector inductance is not known')
     else:
         tj = tj2(i1 * math.sqrt(0.9))
         pins = '/'.join(cav(f'OUT_INJ{k}') for k in range(1, 5))
         pw = p_tvs_seq[20e-3]
+        r_seq, _ = tvs_tj('seq')
         record(area, f'injectors {pins}: 12 ohm each, sequential',
                f'{i1:.2f} A ({i1_16:.2f} A at 16 V; limit >= {NCV_ILIM150:.1f} A hot), clamp peak {vpk1:.0f} V (driver clamp from '
-               f'36 V), each clamp TVS {p_tvs_seq[8e-3]:.2f} W (8 mH) to {pw:.2f} W (20 mH) at {RPM} rpm: Tj {tvs_t(pw)} on bare pads; '
-               f'drivers, conduction only, 90 % duty, max Rds(on): {tj_txt(tj)}',
-               'OK' if vpk1 < 36 and tj[1] < NCV_TSD - 15 and i1_16 < NCV_ILIM150 and 85 + pw * TVS_RTH_DB < 150 else 'CHECK',
+               f'36 V), each clamp TVS {p_tvs_seq[8e-3]:.2f} W (8 mH) to {pw:.2f} W (20 mH) at {RPM} rpm: Tj {tvs_txt(r_seq)} '
+               f'({TVS_PART}, {TVS_TJMAX:.0f} C rated); drivers, conduction only, 90 % duty, max Rds(on): {tj_txt(tj)}',
+               'OK' if vpk1 < 36 and tj[1] < NCV_TSD - 15 and i1_16 < NCV_ILIM150 and 85 + r_seq < TVS_TJMAX else 'CHECK',
                f'a clamp part open: the driver takes {inj_open["e_drv"] * 1e3:.1f} mJ per pulse (20 mH) = '
                f'{inj_open["e_drv"] * RPM / 120:.2f} W at {RPM} rpm, {tj_txt(tj2(i1 * math.sqrt(0.9), pextra=inj_open["e_drv"] * RPM / 120))}')
     # idle valve
     feed = MB[y]['D1']['pads']['1']
     on('D1', 'OUT_IACV', parts=MB[y])
     irms, pcl, pd, ifeed, icoil, vpk = iac[feed]
-    tj = tj2(irms, pextra=pcl, rth=NCV_RTH_OTHER)
+    tj = tj2(irms, pextra=pcl, ref='Q5', case=case)
     fuse = f', feed {feed} through {next(r for r, p in MB[y].items() if r.startswith("F") and feed in p["pads"].values())} (2 A hold): {ifeed:.2f} A rms' \
         if feed != 'VBAT_IN' else ''
     record(area, f'idle valve {cav("OUT_IACV")}: 11 ohm / 20 mH, 200 Hz 60 %, D1 to {feed}',
-           f'driver {irms:.2f} A rms, clamp {pcl * 1000:.0f} mW, {tj_txt(tj, NCV_RTH_OTHER)}; D1 {pd:.2f} W{fuse}',
+           f'driver {irms:.2f} A rms, clamp {pcl * 1000:.0f} mW, {tj_txt(tj, "Q5", case)}; D1 {pd:.2f} W{fuse}',
            'OK' if pcl < 0.05 and tj[1] < NCV_TSD and ifeed < 2.0 else 'CHECK')
     # VVT driver: purge / O2 heater / OCV
     kind = L['OUT_VVT']
@@ -944,20 +948,20 @@ for y, _ in YEARS:
         assert 'D2' not in MB[y], 'O2 heater years have no D2'
         icold, lim = o2_heater(3.0)
         ihot, _ = o2_heater(12.0)
-        tj = tj2(ihot, rth=NCV_RTH_OTHER)
+        tj = tj2(ihot, ref='Q6', case=case)
         lim_txt = (f'cold inrush {icold:.1f} A exceeds the {lim[0]:.1f} A minimum current limit at Tj {lim[1]} C: '
                    'the driver limits, heats and may cycle through thermal shutdown until the heater warms') if lim else \
             f'cold inrush {icold:.1f} A, under the {NCV_ILIM25:.1f} A minimum limit (25 C)'
         record(area, f'front O2 heater {cav("OUT_VVT")} (VVT driver), DC on: 3 ohm cold / 12 ohm hot (assumed)',
-               f'hot {ihot:.2f} A continuous: {tj_txt(tj, NCV_RTH_OTHER)}; {lim_txt}',
+               f'hot {ihot:.2f} A continuous: {tj_txt(tj, "Q6", case)}; {lim_txt}',
                'OK' if tj[1] < NCV_TSD and not lim else 'CHECK',
                'heater resistance not published for the Mazda sensor: measure it' if tj[1] >= NCV_TSD or lim else '')
     else:
         irms, pcl, pd, ifeed, icoil, vpk = ocv
         on('D2', 'OUT_VVT', 'OCV_12V', parts=MB[y])
-        tj = tj2(irms, pextra=pcl, rth=NCV_RTH_OTHER)
+        tj = tj2(irms, pextra=pcl, ref='Q6', case=case)
         record(area, f'VVT oil control valve {cav("OUT_VVT")}: 7.5 ohm / 6 mH, 300 Hz 60 %, D2 to OCV_12V (F3)',
-               f'driver {irms:.2f} A rms, {tj_txt(tj, NCV_RTH_OTHER)}, clamp {pcl * 1000:.0f} mW; D2 {pd:.2f} W; F3 {ifeed:.2f} A rms (2 A hold)',
+               f'driver {irms:.2f} A rms, {tj_txt(tj, "Q6", case)}, clamp {pcl * 1000:.0f} mW; D2 {pd:.2f} W; F3 {ifeed:.2f} A rms (2 A hold)',
                'OK' if tj[1] < NCV_TSD and pcl < 0.05 and ifeed < 2 else 'CHECK')
     # ALT driver
     if L.get('OUT_ALT') == 'prc':
@@ -968,7 +972,7 @@ for y, _ in YEARS:
         f5, f9 = field[0.5], field[0.9]
         record(area, f'alternator field {cav("OUT_ALT")} (ALT driver, no freewheel): 3 ohm / 0.2 H assumed, 300 Hz',
                f'50 % duty: field {f5[4]:.2f} A, clamp {f5[1]:.1f} W; 90 % duty: field {f9[4]:.2f} A, clamp {f9[1]:.1f} W '
-               f'(this DPAK layout allows ~{(NCV_TSD - 85) / NCV_RTH_BOARD:.1f} W at 85 C)',
+               f'(the board model allows this driver ~{(NCV_TSD - 85 - thermal("Q8", case)[0]) / thermal("Q8", case)[1]:.1f} W at 85 C air)',
                'CHECK' if max(f5[1], f9[1]) > 0.5 else 'OK',
                'if the PCM drives the field coil directly, without a freewheel diode every PWM turn-off dumps the field '
                'current into the 40-55 V clamp: the field current collapses below ~80 % duty and the driver overheats. '

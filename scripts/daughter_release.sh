@@ -1,6 +1,7 @@
 #!/bin/bash
 # daughter_release.sh <finished board> <outdir>
 # Wired schematic, schematic <-> design netlist check, board linked to the schematic, DRC, JLC fab files,
+# track width against current (per layer),
 # schematic PDF, parts workbook, renders and a copy of the design scripts.
 set -e
 BRD=$(realpath $1); OUT=$(realpath -m $2)
@@ -22,6 +23,7 @@ rm -f $OUT/${P}_in.kicad_pcb $OUT/${P}_in.kicad_pro $OUT/*.kicad_prl
 /usr/bin/python3 $S/drc.py $OUT/$P.kicad_pcb $OUT/fab/drc_report.txt | tail -1
 /usr/bin/python3 $S/jlc_spacing.py $OUT/$P.kicad_pcb | head -1
 /usr/bin/python3 $S/jlc_fab_check.py $OUT/$P.kicad_pcb | head -6
+/usr/bin/python3 $S/track_current.py $OUT/$P.kicad_pcb | grep -v leak | tee $OUT/fab/track_current.txt | tail -1   # track width against current, per layer
 bash $S/export.sh $OUT/$P.kicad_pcb $OUT/fab > /dev/null
 rm -rf $OUT/fab/gerbers
 ( cd $OUT && kicad-cli sch export pdf -o ${P}_schematic.pdf $P.kicad_sch >/dev/null 2>&1 )
@@ -31,7 +33,7 @@ bash $S/render.sh $OUT/$P.kicad_pcb $OUT/renders/bottom_copper.png B.Cu,B.SilkS,
 mkdir -p $OUT/scripts
 for f in bom.py order_bom.py build_pcb.py check_sch_netlist.py daughter_finish.py daughter_make.sh daughter_release.sh design.py drc.py \
          export.sh flip_headers.py gen_sch.py gen_sch2.py link_board.py mpn.json parts_xlsx.py placement.py render.sh \
-         route.py route_eco.py hand_route.py hand_route_all.py clean_dangling.py nudge_part.py jlc_spacing.py jlc_fab_check.py silk_jlc.py via_hole_gap.py daughter_patch.py tab_copper.py sympins.py $P.kicad_pro stm32f407v_lqfp100_pins.txt wb_build.py wb_module.py wideband.py wb_clean.py wb_preview.py daughter_readme_v03.py daughter_readme_v04.py daughter_readme_v05.py; do
+         route.py route_eco.py hand_route.py hand_route_all.py clean_dangling.py nudge_part.py jlc_spacing.py jlc_fab_check.py silk_jlc.py via_hole_gap.py daughter_patch.py tab_copper.py clamp_copper.py track_current.py sympins.py $P.kicad_pro stm32f407v_lqfp100_pins.txt wb_build.py wb_module.py wideband.py wb_clean.py wb_preview.py daughter_readme_v03.py daughter_readme_v04.py daughter_readme_v05.py; do
   cp $S/$f $OUT/scripts/
 done
 cp -r $S/wideband_ref $OUT/scripts/

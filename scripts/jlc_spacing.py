@@ -10,7 +10,8 @@ def kind(fp):
     for pat, k in (('QFP', 'QFP'), ('QFN|DFN', 'QFN'), ('SOIC|SO-|TSSOP|SSOP|MSOP|DSO|HTSSOP', 'SOP'), ('SOT|TO-252|DPAK|SC-70|SOD-323|SOD-123', 'SOT'),
                    ('0201', '0201'), ('0402|1005Metric', '0402'), ('0603|1608Metric', '0603'), ('0805|2012Metric', '0805'),
                    ('1206|3216Metric|1210|2512|1812|2920|SMA|SMB|SMC|D_SMC|D_SMA|SOD-123F', '1206'), ('Crystal|SMD-4Pin|3225', 'SOT'),
-                   ('LED', '0603'), ('CP_Elec|L_', '1206'), ('Fuse', '1206'), ('SW_', 'SOP')):
+                   ('LED', '0603'), ('CP_Elec|L_', '1206'), ('Fuse', '1206'), ('SW_', 'SOP'),
+                   ('microSD', 'SOP')):      # card socket: judged like a leaded IC (its pads sit under and beside the shell)
         if re.search(pat, n): return k
     return 'OTHER:' + n
 T = {}

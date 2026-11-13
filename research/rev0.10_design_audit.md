@@ -20,6 +20,7 @@ No board has been built. Nothing here is a bench measurement.
 | A7 | **Logic supply fuse and filter (F1 0.5 A, L1 0.5 A) are too small**, as the external review said; the card adds up to 0.1 A at 3.3 V | Review note in VERIFICATION.md; SD current recalled (100 mA default speed) | A hot ECU with a weak crank could trip F1 | F1 1.1 A hold, 33 V, 1812; L1 to match |
 | A8 | **Two of the parts first named for this revision could not be relied on for an order.** LCSC had 115 of the Brightking SMCJ14A (C310012), and its page for the Sunlord inductor MWSA0503S-2R2MT (C408408) answered "part not found" | LCSC listings (read 2026-11-13) | An assembly order could stall on either part | D46-D49: Diodes Inc. SMCJ14A-13-F (C135134, 2,707 in stock, same 15.6-17.2 V breakdown and 23.2 V clamp). L1: cjiang FXL0530-2R2-M (C177247, 48,725 in stock; 2.2 µH, 7 A, 29 mΩ, the same 5.4 × 5.2 mm moulded outline) |
 | A9 | **The card socket is rated -20 to +85 °C**, narrower than the rest of the board | LCSC listing for Molex 47219-2001 (read; Molex's own specification not read) | Logging is not assured in a cabin below -20 °C or a parked car above 85 °C. The engine does not depend on the card | Stated as a limit in the board notes. Cards themselves are usually rated -25 to +85 °C |
+| A10 | **Inner layers have less than half the copper of the outer ones**, so a track width that was right on the two-layer board is not right inside the six-layer one. The first six-layer routing put 1.1 A of logic supply through 0.8 mm of inner track (47 °C rise by IPC-2221) and the USB supply through 0.4 mm (25 °C) | JLCPCB copper weights (read); `scripts/track_current.py` on the first routed board | Hot spots nobody would see in a drawing. IPC-2221 is conservative for short pieces between vias, but nothing here should rest on that | The router keeps the injector, valve, logic-supply and USB nets on the outer layers, and routes the trunks of the battery input and +5 V first, on the outer layers. `track_current.py` solves each net as a resistor network with its real loads and checks every piece of track against its layer's thickness; it runs on the released board |
 
 ## Checked and found correct
 
@@ -39,6 +40,7 @@ No board has been built. Nothing here is a bench measurement.
 | TVS breakdown against temperature | Vishay 1.5KE datasheet 88301 (read): a 1500 W family with the coefficient tabulated | 0.086 %/°C maximum for the 16 V type (15.2-16.8 V), 0.084-0.089 for its neighbours. The 0.1 %/°C used for the SMCJ14A is on the safe side (it puts the hot clamp higher, nearer the driver's 36 V) |
 | SD card supply and pull-ups | Swissbit application note AN2111 (read) | "All signals except the clock" need pull-ups of 10-100 kΩ (47 kΩ fitted on all five); a card takes at most 100 mA averaged over a second at default speed, with peaks of several hundred mA for up to about 1 ms; minimum 2.7 V. The whole-board simulation now has a 0.4 A, 1 ms case |
 | F1 (BSMD1812-110-33V) | LCSC listing (read) | 1.1 A hold, 2.2 A trip, 33 V, 40 A, 45 mΩ initial, 250 mΩ maximum after a trip, -40 to +85 °C. The simulation's 0.2 Ω is on the high side of that |
+| Copper thickness per layer | JLCPCB help pages on copper weight and laminate structures (read) | Inner layers are 0.5 oz by default (0.6 mil, 15.2 µm finished; 1 oz and 2 oz can be ordered), outer layers 1 oz (1.6 mil finished; 35 µm is used here). Minimum track and gap 0.09 mm at 0.5 or 1 oz. `scripts/track_current.py` uses these figures |
 
 ## Not verified
 
@@ -55,6 +57,9 @@ No board has been built. Nothing here is a bench measurement.
   assembly stock is a separate figure and its part pages showed none. The parts workbook says which is which.
 - **The FXL0530 inductor's land pattern** against the footprint in use (drawn for the Sunlord part of the same outline):
   the maker's drawing did not load.
+- **The six-layer stack's dielectric thicknesses** (0.1 mm outer prepreg, 0.55 mm cores, 0.11 mm between the two inner
+  signal layers): recalled from JLCPCB's impedance calculator, not read. Nothing on the board is impedance-controlled;
+  the two inner signal layers run in crossing directions because of the thin gap between them.
 - **F1 in a load dump while tripped**: it is rated 33 V; a suppressed dump is taken as 35 V. Only matters with a short
   on the logic supply during a dump.
 - **Thermal figures** are copper-area estimates, as before, until the layout exists; then they are estimates from the

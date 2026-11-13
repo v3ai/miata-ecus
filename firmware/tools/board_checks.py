@@ -99,7 +99,7 @@ YEARS = [  # (year, motherboard module, routed pcb, engine type, nb2Early)
     ('2003-05', 'mb_nb2', 'motherboards/2001-05/miata_mb_0105.kicad_pcb', 'MAZDA_MIATA_NB2', False),
 ]
 RESEARCH_YEAR = {'1996-97': '1996-1997', '1999-2000': '1999-2000', '2001-02': '2001-2005', '2003-05': '2001-2005'}
-DAUGHTER_PCB = 'daughterboard/miata_ecu_daughter.kicad_pcb'
+DAUGHTER_PCB = os.environ.get('DB_BOARD') or 'daughterboard/miata_ecu_daughter.kicad_pcb'      # DB_BOARD: a board not yet released
 
 # ------------------------------------------------------------------------------------------------------------------
 # report
