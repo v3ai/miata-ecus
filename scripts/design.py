@@ -43,7 +43,7 @@ FP = {
     'L7066': 'Inductor_SMD:L_Sunlord_MWSA0603S',
     'BTN':   'Button_Switch_SMD:SW_Push_1P1T_XKB_TS-1187A',
     'HDR40': 'Connector_PinHeader_2.54mm:PinHeader_1x40_P2.54mm_Vertical',
-    'HDR2x5': 'Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical',
+    'SDCARD': 'Connector_Card:microSD_HC_Molex_104031-0811',
     'TAG':   'Connector:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical',
     'MH':    'MountingHole:MountingHole_3.2mm_M3',
 }
@@ -55,7 +55,7 @@ LCSC_R0603 = {'0': 'C21189', '1': 'C22936', '47': 'C23182', '100': 'C22775', '33
               '5.1k': 'C23186', '5.6k': 'C23189', '6.8k': 'C23212', '10k': 'C25804',
               '12k': 'C22790', '33k': 'C4216', '47k': 'C25819', '68k': 'C23231',
               '100k': 'C25803'}
-LCSC_R0402 = {'33': 'C25105', '6.8k': 'C25917', '1k': 'C11702', '2.2k': 'C25879', '2.7k': 'C25885', '4.7k': 'C25900', '22k': 'C25768',
+LCSC_R0402 = {'6.8k': 'C25917', '1k': 'C11702', '2.2k': 'C25879', '2.7k': 'C25885', '4.7k': 'C25900', '22k': 'C25768',
               '5.6k': 'C25908', '10k': 'C25744', '33k': 'C25779', '100k': 'C25741', '1M': 'C26083'}
 LCSC_C0402 = {'1u': 'C52923', '1n': 'C1523', '10n': 'C15195', '100n': 'C1525'}
 LCSC_R0805 = {'5.1k': 'C27834', '100': 'C17408'}
@@ -155,11 +155,8 @@ mcu = {
     '51': 'CAN_RX', '52': 'CAN_TX',            # CAN2 PB12/PB13
     # rev 0.10: PC6 / PC7 are the flex-fuel sensor and nitrous arming inputs (they were a spare UART); same 10k + clamps
     '63': 'FLEX_M', '64': 'N2O_ARM_M',
-    # rev 0.10: microSD on SPI2 (PB10 SCK, PB14 MISO, PB15 MOSI; CS on PD13), gauge CAN on CAN1 (PD0 RX, PD1 TX),
-    # nitrous relay driver on PD14. (SPI3 on PC10-12 sits beside PD0/PD1 under the injector-control fan-out: seven
-    # lines don't fit out of there, two do.)
-    '47': 'SD_SCK_M', '53': 'SD_MISO_M', '54': 'SD_MOSI_M', '60': 'SD_CS_M',
-    '81': 'GCAN_RX', '82': 'GCAN_TX', '61': 'N2O_CTL',
+    # rev 0.10: microSD on SPI2 (PB10 SCK, PB14 MISO, PB15 MOSI; CS on PD13)
+    '47': 'SD_SCK', '53': 'SD_MISO', '54': 'SD_MOSI', '60': 'SD_CS',
     # LEDs: run PD12, error PD15; rev 0.8 moved comms and warning to PC8/PC9 (PD13/PD14 left no route to the LED column)
     '59': 'LED_RUN', '65': 'LED_COMM', '66': 'LED_WARN', '62': 'LED_ERR',
     # wideband MCU programming link (rev 0.4): USART3 on PD8/PD9 to the wideband MCU's ROM-bootloader USART1 (F103 since rev 0.6)
@@ -466,30 +463,17 @@ R('R140', '10k', 'N2O_ARM_M', 'IN_N2O')
 add('D36', 'BAT54S', 'SOT23', 'C19726', {'1': 'GND', '2': '+3V3', '3': 'FLEX_M'}, 'flex input clamp')
 add('D37', 'BAT54S', 'SOT23', 'C19726', {'1': 'GND', '2': '+3V3', '3': 'N2O_ARM_M'}, 'nitrous arm input clamp')
 
-# ---- rev 0.10: third board-to-board connector J4 (2x5) with everything new, so J1 / J2 keep their rev 0.9 pinout
-# and a rev 0.9 motherboard still takes this board (without the new functions).
-J4 = {1: '+3V3', 2: 'GND', 3: 'SD_SCK', 4: 'GND', 5: 'SD_MISO', 6: 'SD_MOSI', 7: 'SD_CS', 8: 'OUT_N2O',
-      9: 'GCAN_H', 10: 'GCAN_L'}
-add('J4', 'Mezz_Aux', 'HDR2x5', '', {str(k): v for k, v in J4.items()},
-    '2x5 2.54mm male, to motherboard: microSD SPI, gauge CAN, nitrous relay output')
-# microSD on SPI2; 33 R at the source of each line (about 60 mm of track and two connectors to the socket)
-R('R150', '33', 'SD_SCK_M', 'SD_SCK', '0402')
-R('R151', '33', 'SD_MOSI_M', 'SD_MOSI', '0402')
-R('R152', '33', 'SD_CS_M', 'SD_CS', '0402')
-R('R153', '33', 'SD_MISO_M', 'SD_MISO', '0402')
-# Gauge CAN: its own bus on CAN1 (PD0 / PD1) and its own TCAN1042V, so a dash at any bit rate, or a fault on its
-# wiring, never touches the wideband's bus (CAN2). Termination is on the motherboard.
-add('U16', 'TCAN1042VDRQ1', 'SOIC8', 'C485806',
-    {'1': 'GCAN_TX', '2': 'GND', '3': '+5V', '4': 'GCAN_RX', '5': '+3V3', '6': 'GCAN_L', '7': 'GCAN_H', '8': 'GND'},
-    'gauge CAN transceiver')
-C('C69', '100n', '+5V', 'GND', '0402')        # U16 VCC
-C('C70', '100n', '+3V3', 'GND', '0402')       # U16 VIO
-# Nitrous relay driver: an eighth ZXMS6004FF, driven straight from PD14 at 3.3 V (the part is specified at 3 V in)
-# through 1k, with a 4.7k pull-down that holds it off against the MCU's 40k reset pull-up (0.35 V at the gate).
-add('Q21', 'ZXMS6004FFTA', 'SOT23', 'C95063', {'1': 'N2O_G', '2': 'GND', '3': 'OUT_N2O'},
-    'protected low side, nitrous relay coil')
-R('R154', '1k', 'N2O_CTL', 'N2O_G', '0402')
-R('R155', '4.7k', 'N2O_G', 'GND', '0402')
+# ---- rev 0.10: microSD socket for logging, on SPI2. On this board because nothing else is needed for it: both
+# board-to-board connectors are full, and the long way to a third one did not route. Logs are read over USB (rusEFI shows
+# the card as a drive), so the card rarely has to come out.
+add('J4', 'microSD', 'SDCARD', '',
+    {'1': '', '2': 'SD_CS', '3': 'SD_MOSI', '4': '+3V3', '5': 'SD_SCK', '6': 'GND', '7': 'SD_MISO', '8': '',
+     '9': '', '10': '', '11': 'GND'},
+    'microSD socket, push-push (Molex 104031-0811), SPI mode: 2 CS, 3 DI, 4 VDD, 5 CLK, 6 VSS, 7 DO')
+C('C69', '100n', '+3V3', 'GND', '0402')
+C('C70', '10u', '+3V3', 'GND', '0805')
+R('R150', '47k', '+3V3', 'SD_CS')       # card deselected until the firmware drives CS
+R('R151', '47k', '+3V3', 'SD_MISO')
 # battery / ignition sense clamps: in a 24 V jump start the divider put 4.0 V on PA1 (analog mode, VDDA + 0.3 V max)
 add('D38', 'BAT54WS', 'SOD323', 'C124205', {'1': '+3V3', '2': 'AN_VBATT'}, 'AN_VBATT clamp to +3V3')
 add('D39', 'BAT54WS', 'SOD323', 'C124205', {'1': '+3V3', '2': 'AN_VIGN'}, 'AN_VIGN clamp to +3V3')
