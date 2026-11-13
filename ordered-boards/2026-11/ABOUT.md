@@ -1,7 +1,7 @@
 # Boards ordered in November 2026
 
 This folder is a frozen copy of the design as it was ordered, so it stays usable after the main design moves on.
-Nothing in here is edited again. The same state is the git tag `ordered-2026-11` (commit `4f34615`); the tag also has
+Nothing in here is edited again. The same state is commit `4f34615` on `main`; that commit also has
 the build scripts, the 3D viewer and the shop drafts, which are not copied here.
 
 | Board | Folder | Revision | Harness header |
@@ -21,7 +21,7 @@ the build scripts, the 3D viewer and the shop drafts, which are not copied here.
   copy was made.
 - `additional-parts/`: the parts to buy besides the boards.
 - `firmware/`: the rusEFI board files for these boards. Build this firmware for them, not a later one: later board
-  revisions change the pin map. (`git checkout ordered-2026-11` gives the complete tree to build from.)
+  revisions change the pin map. (`git checkout 4f34615` gives the complete tree to build from.)
 
 ## Known points on these boards
 
