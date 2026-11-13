@@ -1,235 +1,55 @@
-** Drc report for /home/claude/miata-ecus/daughterboard/miata_ecu_daughter.kicad_pcb **
-** Created on 2026-11-03 22:32:18 **
+** Drc report for /tmp/claude-0/-home-claude/34001fc3-bdb3-52f6-9aba-55223a384af1/scratchpad/d10six/rel8/miata_ecu_daughter.kicad_pcb **
+** Created on 2026-11-13 13:29:20 **
 
-** Found 474 DRC violations **
+** Found 495 DRC violations **
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(151.3500 mm, 121.5100 mm): Line on F.Silkscreen
-    @(151.3800 mm, 120.1536 mm): Line on F.Silkscreen
+    @(179.0000 mm, 99.0600 mm): Line on F.Silkscreen
+    @(179.0000 mm, 98.9400 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
-    @(156.6000 mm, 111.0000 mm): Reference 'D17'
+    @(179.0000 mm, 99.0600 mm): Line on F.Silkscreen
+    @(179.0000 mm, 98.9400 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(112.0000 mm, 108.6000 mm): Reference 'U8'
-    @(111.7627 mm, 108.1225 mm): Line on F.Silkscreen
+    @(179.0000 mm, 99.0600 mm): Line on F.Silkscreen
+    @(179.0000 mm, 98.9400 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(121.7500 mm, 89.9100 mm): Line on F.Silkscreen
-    @(121.8900 mm, 87.7400 mm): Line on F.Silkscreen
+    @(179.0000 mm, 99.0600 mm): Line on F.Silkscreen
+    @(179.0000 mm, 98.9400 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(121.7500 mm, 89.9100 mm): Line on F.Silkscreen
-    @(121.8900 mm, 87.7400 mm): Line on F.Silkscreen
+    @(179.5627 mm, 94.9275 mm): Line on F.Silkscreen
+    @(179.0000 mm, 95.1000 mm): Reference 'D37'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(118.4500 mm, 89.9100 mm): Line on F.Silkscreen
-    @(121.8900 mm, 87.7400 mm): Line on F.Silkscreen
+    @(179.5627 mm, 95.9725 mm): Line on F.Silkscreen
+    @(179.0000 mm, 95.9400 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(114.0594 mm, 86.9100 mm): Line on F.Silkscreen
-    @(114.2000 mm, 87.0000 mm): Reference 'U2'
+    @(178.0700 mm, 80.2500 mm): Line on F.Silkscreen
+    @(180.0000 mm, 83.5650 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(142.9775 mm, 120.2373 mm): Line on F.Silkscreen
-    @(142.9600 mm, 119.9000 mm): Line on F.Silkscreen
+    @(178.0700 mm, 80.2500 mm): Line on F.Silkscreen
+    @(178.3300 mm, 80.4100 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(142.9775 mm, 120.2373 mm): Line on F.Silkscreen
-    @(142.9600 mm, 119.9000 mm): Line on F.Silkscreen
+    @(180.0000 mm, 83.5650 mm): Line on F.Silkscreen
+    @(178.0700 mm, 83.5500 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(139.0000 mm, 119.9000 mm): Reference 'D35'
-    @(139.0225 mm, 120.0373 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
-    @(139.0000 mm, 119.9000 mm): Reference 'D35'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(145.3300 mm, 114.3000 mm): Reference 'D13'
-    @(145.1700 mm, 112.6900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(130.8500 mm, 114.9000 mm): Reference 'D22'
-    @(130.6500 mm, 113.2900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(128.1500 mm, 113.2900 mm): Line on F.Silkscreen
-    @(128.3500 mm, 114.9000 mm): Reference 'D21'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(134.5400 mm, 111.9000 mm): Line on F.Silkscreen
-    @(134.8500 mm, 113.2900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(123.9979 mm, 83.1100 mm): Line on F.Silkscreen
-    @(125.7000 mm, 82.6500 mm): Reference 'D12'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(109.6900 mm, 78.6500 mm): Line on F.Silkscreen
-    @(117.3100 mm, 82.0500 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(109.6900 mm, 78.6500 mm): Line on F.Silkscreen
-    @(117.3100 mm, 78.7500 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(123.1000 mm, 114.9000 mm): Reference 'D19'
-    @(123.1500 mm, 113.2900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(125.8500 mm, 114.9000 mm): Reference 'D20'
-    @(125.6500 mm, 113.2900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(147.8500 mm, 119.9000 mm): Reference 'D27'
-    @(147.7925 mm, 120.9627 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(147.8500 mm, 119.9000 mm): Reference 'D27'
-    @(148.1200 mm, 120.1536 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(150.6200 mm, 120.1536 mm): Line on F.Silkscreen
-    @(150.5500 mm, 121.5100 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(150.6200 mm, 120.1536 mm): Line on F.Silkscreen
-    @(150.3500 mm, 119.9000 mm): Reference 'D28'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(150.3500 mm, 119.9000 mm): Reference 'D28'
-    @(150.5500 mm, 121.5100 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(148.8500 mm, 121.5100 mm): Line on F.Silkscreen
-    @(148.8800 mm, 120.1536 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(152.6000 mm, 111.0000 mm): Reference 'D18'
-    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(129.2650 mm, 92.4613 mm): Line on F.Silkscreen
-    @(129.7500 mm, 91.5000 mm): Reference 'L2'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(133.3500 mm, 114.9000 mm): Reference 'D23'
-    @(133.1500 mm, 113.2900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(138.2000 mm, 114.9000 mm): Reference 'D25'
-    @(138.7500 mm, 113.2900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(134.8500 mm, 113.2900 mm): Line on F.Silkscreen
-    @(134.5400 mm, 113.6000 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(137.0500 mm, 113.2900 mm): Line on F.Silkscreen
-    @(137.2000 mm, 113.2900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(137.0500 mm, 113.2900 mm): Line on F.Silkscreen
-    @(134.5400 mm, 113.6000 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(137.2000 mm, 113.2900 mm): Line on F.Silkscreen
-    @(138.7500 mm, 113.2900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(137.2000 mm, 113.2900 mm): Line on F.Silkscreen
-    @(138.7500 mm, 113.2900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(137.2000 mm, 113.2900 mm): Line on F.Silkscreen
-    @(134.5400 mm, 113.6000 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(135.8500 mm, 114.9000 mm): Reference 'D24'
-    @(134.5400 mm, 113.6000 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(135.8500 mm, 114.9000 mm): Reference 'D24'
-    @(135.5000 mm, 113.2900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(134.5400 mm, 113.6000 mm): Line on F.Silkscreen
-    @(135.5000 mm, 113.2900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(167.0000 mm, 114.8600 mm): Line on F.Silkscreen
-    @(169.2500 mm, 114.4000 mm): Reference 'D15'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(167.0000 mm, 114.8600 mm): Line on F.Silkscreen
-    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(169.2500 mm, 114.4000 mm): Reference 'D15'
-    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(190.5078 mm, 104.8600 mm): Line on F.Silkscreen
-    @(190.4000 mm, 104.9000 mm): Reference 'U103'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(173.6922 mm, 102.0400 mm): Line on F.Silkscreen
-    @(174.0000 mm, 102.0600 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(173.6922 mm, 102.0400 mm): Line on F.Silkscreen
-    @(174.0000 mm, 102.0600 mm): Line on F.Silkscreen
+    @(180.0000 mm, 83.5650 mm): Line on F.Silkscreen
+    @(178.0700 mm, 83.5500 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
-    @(173.1500 mm, 114.4000 mm): Reference 'D16'
+    @(179.0000 mm, 98.1000 mm): Reference 'D36'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(196.9600 mm, 107.6922 mm): Line on F.Silkscreen
-    @(196.8000 mm, 106.6000 mm): Reference 'Y101'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(196.2400 mm, 107.6922 mm): Line on F.Silkscreen
-    @(196.8000 mm, 106.6000 mm): Reference 'Y101'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(201.8600 mm, 104.8922 mm): Line on F.Silkscreen
-    @(201.9500 mm, 104.1600 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(201.9100 mm, 106.6500 mm): Line on F.Silkscreen
-    @(201.9500 mm, 104.1600 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(196.9600 mm, 104.8922 mm): Line on F.Silkscreen
-    @(196.8000 mm, 106.6000 mm): Reference 'Y101'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(196.2400 mm, 104.8922 mm): Line on F.Silkscreen
-    @(196.8000 mm, 106.6000 mm): Reference 'Y101'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(192.2000 mm, 103.5500 mm): Line on F.Silkscreen
-    @(190.4000 mm, 104.9000 mm): Reference 'U103'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(191.3000 mm, 120.5600 mm): Line on F.Silkscreen
-    @(191.2400 mm, 117.1000 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(191.3000 mm, 120.5600 mm): Line on F.Silkscreen
-    @(191.2400 mm, 115.1000 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(191.2400 mm, 115.1000 mm): Line on F.Silkscreen
-    @(196.0000 mm, 115.2100 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(201.9100 mm, 108.6500 mm): Line on F.Silkscreen
-    @(201.9500 mm, 104.1600 mm): Line on F.Silkscreen
+    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
+    @(179.0000 mm, 95.1000 mm): Reference 'D37'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(204.6500 mm, 105.7700 mm): Reference 'D30'
@@ -240,31 +60,151 @@
     @(203.6400 mm, 105.3922 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(200.3100 mm, 118.1271 mm): Line on F.Silkscreen
-    @(200.2400 mm, 117.5078 mm): Line on F.Silkscreen
+    @(201.9500 mm, 104.1600 mm): Line on F.Silkscreen
+    @(201.8600 mm, 104.8922 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(201.9500 mm, 104.1600 mm): Line on F.Silkscreen
+    @(201.9100 mm, 108.6500 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(201.9500 mm, 104.1600 mm): Line on F.Silkscreen
+    @(201.9100 mm, 106.6500 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(201.9100 mm, 108.6500 mm): Line on F.Silkscreen
+    @(198.5078 mm, 108.5400 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(196.9600 mm, 104.8922 mm): Line on F.Silkscreen
+    @(196.8000 mm, 106.6000 mm): Reference 'Y101'
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(196.2400 mm, 104.8922 mm): Line on F.Silkscreen
+    @(196.8000 mm, 106.6000 mm): Reference 'Y101'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(198.5078 mm, 109.2600 mm): Line on F.Silkscreen
     @(199.5500 mm, 109.6500 mm): Reference 'D40'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
+    @(190.5078 mm, 104.8600 mm): Line on F.Silkscreen
+    @(190.4000 mm, 104.9000 mm): Reference 'U103'
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(207.5600 mm, 61.5000 mm): Reference 'Q8'
+    @(207.8900 mm, 58.3900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(199.9400 mm, 61.5000 mm): Reference 'Q7'
+    @(200.2700 mm, 58.3900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(192.3200 mm, 61.5000 mm): Reference 'Q6'
+    @(192.6500 mm, 58.3900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(177.0800 mm, 61.5000 mm): Reference 'Q4'
+    @(177.4100 mm, 58.3900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(184.7000 mm, 61.5000 mm): Reference 'Q5'
+    @(185.0300 mm, 58.3900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(196.8000 mm, 106.6000 mm): Reference 'Y101'
+    @(196.9600 mm, 107.6922 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
     @(196.0000 mm, 109.9900 mm): Line on F.Silkscreen
     @(199.5500 mm, 109.6500 mm): Reference 'D40'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(198.5078 mm, 108.5400 mm): Line on F.Silkscreen
-    @(201.9100 mm, 108.6500 mm): Line on F.Silkscreen
+    @(200.2400 mm, 117.5078 mm): Line on F.Silkscreen
+    @(200.3100 mm, 118.1271 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(191.2400 mm, 115.1000 mm): Line on F.Silkscreen
+    @(191.3000 mm, 120.5600 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(191.2400 mm, 115.1000 mm): Line on F.Silkscreen
+    @(196.0000 mm, 115.2100 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(191.2400 mm, 117.1000 mm): Line on F.Silkscreen
+    @(191.3000 mm, 120.5600 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(219.6000 mm, 88.9300 mm): Reference 'D1'
+    @(218.8000 mm, 88.2350 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(191.5225 mm, 74.2373 mm): Line on F.Silkscreen
+    @(192.0000 mm, 75.4000 mm): Reference 'U15'
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(192.0000 mm, 75.4000 mm): Reference 'U15'
+    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(195.8887 mm, 80.9900 mm): Line on F.Silkscreen
+    @(197.2887 mm, 80.9100 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(198.7500 mm, 79.0100 mm): Line on F.Silkscreen
+    @(197.2887 mm, 79.0900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(219.6000 mm, 91.9300 mm): Reference 'D2'
+    @(218.8000 mm, 91.2350 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(219.6000 mm, 94.9300 mm): Reference 'D3'
+    @(218.8000 mm, 94.2350 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(219.6000 mm, 100.9300 mm): Reference 'D5'
+    @(218.8000 mm, 100.2350 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(219.6000 mm, 100.9300 mm): Reference 'D5'
+    @(218.2000 mm, 100.8500 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(219.6000 mm, 97.9300 mm): Reference 'D4'
+    @(218.8000 mm, 97.2350 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(125.8400 mm, 62.9000 mm): Reference 'Q10'
     @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
+    @(130.9200 mm, 62.9000 mm): Reference 'Q12'
     @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
-    @(128.3800 mm, 58.5000 mm): Reference 'Q11'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(130.9200 mm, 62.9000 mm): Reference 'Q12'
+    @(128.3800 mm, 58.5000 mm): Reference 'Q11'
+    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(153.1000 mm, 58.9000 mm): Reference 'D33'
+    @(152.6400 mm, 56.5400 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(152.1000 mm, 56.5400 mm): Line on F.Silkscreen
+    @(149.4729 mm, 56.5600 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(152.6400 mm, 62.5729 mm): Line on F.Silkscreen
+    @(152.6600 mm, 64.1000 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(152.6400 mm, 62.5729 mm): Line on F.Silkscreen
+    @(152.6600 mm, 64.1000 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(148.7000 mm, 64.1000 mm): Reference 'Q18'
     @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
@@ -272,52 +212,176 @@
     @(150.1000 mm, 56.5400 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
+    @(149.5600 mm, 56.5400 mm): Line on F.Silkscreen
     @(149.4729 mm, 56.5600 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(149.5600 mm, 56.5400 mm): Line on F.Silkscreen
+    @(149.4729 mm, 56.5600 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(147.5600 mm, 56.5400 mm): Line on F.Silkscreen
+    @(148.0200 mm, 58.9000 mm): Reference 'D31'
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
     @(150.1000 mm, 56.5400 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
     @(149.4729 mm, 56.5600 mm): Line on F.Silkscreen
-    @(152.1000 mm, 56.5400 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(149.4729 mm, 56.5600 mm): Line on F.Silkscreen
-    @(149.5600 mm, 56.5400 mm): Line on F.Silkscreen
+    @(145.0200 mm, 56.5400 mm): Line on F.Silkscreen
+    @(146.5071 mm, 56.7100 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(149.4729 mm, 56.5600 mm): Line on F.Silkscreen
-    @(149.5600 mm, 56.5400 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(152.6400 mm, 56.5400 mm): Line on F.Silkscreen
-    @(153.1000 mm, 58.9000 mm): Reference 'D33'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(154.2200 mm, 61.5000 mm): Reference 'Q1'
+    @(155.3471 mm, 56.5600 mm): Line on F.Silkscreen
     @(154.6400 mm, 56.5400 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(155.2700 mm, 58.3900 mm): Line on F.Silkscreen
+    @(155.3471 mm, 56.5600 mm): Line on F.Silkscreen
+    @(154.6400 mm, 56.5400 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
     @(155.6400 mm, 58.9000 mm): Reference 'D34'
+    @(155.2700 mm, 58.3900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(154.6400 mm, 56.5400 mm): Line on F.Silkscreen
+    @(154.2200 mm, 61.5000 mm): Reference 'Q1'
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
+    @(143.6200 mm, 64.1000 mm): Reference 'Q16'
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(138.5400 mm, 58.5000 mm): Reference 'Q15'
+    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(133.4600 mm, 58.5000 mm): Reference 'Q13'
+    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(136.0000 mm, 62.9000 mm): Reference 'Q14'
+    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(162.2400 mm, 75.5000 mm): Reference 'D47'
+    @(161.9700 mm, 80.4100 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(161.8400 mm, 61.5000 mm): Reference 'Q2'
+    @(162.1700 mm, 58.3900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(146.1600 mm, 68.1000 mm): Reference 'Q17'
+    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(151.2400 mm, 68.1000 mm): Reference 'Q19'
     @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(152.6400 mm, 62.5729 mm): Line on F.Silkscreen
-    @(152.6600 mm, 64.1000 mm): Line on F.Silkscreen
+    @(150.6200 mm, 120.1536 mm): Line on F.Silkscreen
+    @(150.5500 mm, 121.5100 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(152.6400 mm, 62.5729 mm): Line on F.Silkscreen
-    @(152.6600 mm, 64.1000 mm): Line on F.Silkscreen
+    @(150.6200 mm, 120.1536 mm): Line on F.Silkscreen
+    @(150.3500 mm, 119.9000 mm): Reference 'D28'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(155.3471 mm, 56.5600 mm): Line on F.Silkscreen
-    @(154.6400 mm, 56.5400 mm): Line on F.Silkscreen
+    @(151.3800 mm, 120.1536 mm): Line on F.Silkscreen
+    @(151.3500 mm, 121.5100 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(155.3471 mm, 56.5600 mm): Line on F.Silkscreen
-    @(154.6400 mm, 56.5400 mm): Line on F.Silkscreen
+    @(152.6000 mm, 111.0000 mm): Reference 'D18'
+    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(138.7500 mm, 113.2900 mm): Line on F.Silkscreen
+    @(137.2000 mm, 113.2900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(138.7500 mm, 113.2900 mm): Line on F.Silkscreen
+    @(137.2000 mm, 113.2900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(138.7500 mm, 113.2900 mm): Line on F.Silkscreen
+    @(138.2000 mm, 114.9000 mm): Reference 'D25'
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(130.8500 mm, 114.9000 mm): Reference 'D22'
+    @(130.6500 mm, 113.2900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(133.3500 mm, 114.9000 mm): Reference 'D23'
+    @(133.1500 mm, 113.2900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(134.5400 mm, 111.9000 mm): Line on F.Silkscreen
+    @(134.8500 mm, 113.2900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(135.8500 mm, 114.9000 mm): Reference 'D24'
+    @(135.5000 mm, 113.2900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(135.8500 mm, 114.9000 mm): Reference 'D24'
+    @(134.5400 mm, 113.6000 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(134.5400 mm, 113.6000 mm): Line on F.Silkscreen
+    @(134.8500 mm, 113.2900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(134.5400 mm, 113.6000 mm): Line on F.Silkscreen
+    @(135.5000 mm, 113.2900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(134.5400 mm, 113.6000 mm): Line on F.Silkscreen
+    @(137.2000 mm, 113.2900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(134.5400 mm, 113.6000 mm): Line on F.Silkscreen
+    @(137.0500 mm, 113.2900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(137.2000 mm, 113.2900 mm): Line on F.Silkscreen
+    @(137.0500 mm, 113.2900 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(139.0000 mm, 119.9000 mm): Reference 'D35'
+    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(139.0000 mm, 119.9000 mm): Reference 'D35'
+    @(139.0225 mm, 120.0373 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(142.9600 mm, 119.9000 mm): Line on F.Silkscreen
+    @(142.9775 mm, 120.2373 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(142.9600 mm, 119.9000 mm): Line on F.Silkscreen
+    @(142.9775 mm, 120.2373 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(147.8500 mm, 119.9000 mm): Reference 'D27'
+    @(147.7925 mm, 120.9627 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(147.8500 mm, 119.9000 mm): Reference 'D27'
+    @(148.1200 mm, 120.1536 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(148.8500 mm, 121.5100 mm): Line on F.Silkscreen
+    @(148.8800 mm, 120.1536 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(150.5500 mm, 121.5100 mm): Line on F.Silkscreen
+    @(150.3500 mm, 119.9000 mm): Reference 'D28'
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(145.3300 mm, 114.3000 mm): Reference 'D13'
+    @(145.1700 mm, 112.6900 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(141.7600 mm, 84.3078 mm): Line on F.Silkscreen
@@ -332,147 +396,136 @@
     @(149.2150 mm, 80.6000 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
+    @(149.2150 mm, 80.6000 mm): Line on F.Silkscreen
+    @(149.1750 mm, 80.6000 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(149.1750 mm, 80.6000 mm): Line on F.Silkscreen
+    @(149.2150 mm, 80.6000 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
     @(142.8500 mm, 84.2000 mm): Reference 'U13'
     @(-2.7000 mm, -2.4650 mm): Polygon on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(149.1750 mm, 80.6000 mm): Line on F.Silkscreen
-    @(149.2150 mm, 80.6000 mm): Line on F.Silkscreen
+    @(196.8000 mm, 106.6000 mm): Reference 'Y101'
+    @(196.2400 mm, 107.6922 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(149.1750 mm, 80.6000 mm): Line on F.Silkscreen
-    @(149.2150 mm, 80.6000 mm): Line on F.Silkscreen
+    @(190.4000 mm, 104.9000 mm): Reference 'U103'
+    @(192.2000 mm, 103.5500 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(138.5400 mm, 58.5000 mm): Reference 'Q15'
+    @(173.1500 mm, 114.4000 mm): Reference 'D16'
     @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(146.5071 mm, 56.7100 mm): Line on F.Silkscreen
-    @(145.0200 mm, 56.5400 mm): Line on F.Silkscreen
+    @(163.0900 mm, 80.4100 mm): Line on F.Silkscreen
+    @(162.8300 mm, 80.2500 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(148.0200 mm, 58.9000 mm): Reference 'D31'
-    @(147.5600 mm, 56.5400 mm): Line on F.Silkscreen
+    @(169.5900 mm, 80.4100 mm): Line on F.Silkscreen
+    @(169.8600 mm, 75.5000 mm): Reference 'D48'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
-    @(133.4600 mm, 58.5000 mm): Reference 'Q13'
+    @(155.2100 mm, 80.2500 mm): Line on F.Silkscreen
+    @(155.4700 mm, 80.4100 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(146.1600 mm, 68.1000 mm): Reference 'Q17'
-    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
+    @(177.4800 mm, 75.5000 mm): Reference 'D49'
+    @(177.2100 mm, 80.4100 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(136.0000 mm, 62.9000 mm): Reference 'Q14'
-    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
+    @(170.7100 mm, 80.4100 mm): Line on F.Silkscreen
+    @(170.4500 mm, 80.2500 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(161.8400 mm, 61.5000 mm): Reference 'Q2'
-    @(162.1700 mm, 58.3900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(169.7900 mm, 58.3900 mm): Line on F.Silkscreen
     @(169.4600 mm, 61.5000 mm): Reference 'Q3'
+    @(169.7900 mm, 58.3900 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(177.0800 mm, 61.5000 mm): Reference 'Q4'
-    @(177.4100 mm, 58.3900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(148.7000 mm, 64.1000 mm): Reference 'Q18'
+    @(156.6000 mm, 111.0000 mm): Reference 'D17'
     @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(143.6200 mm, 64.1000 mm): Reference 'Q16'
+    @(169.2500 mm, 114.4000 mm): Reference 'D15'
+    @(167.0000 mm, 114.8600 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(169.2500 mm, 114.4000 mm): Reference 'D15'
     @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(198.7500 mm, 79.0100 mm): Line on F.Silkscreen
-    @(197.2887 mm, 79.0900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(195.8887 mm, 80.9900 mm): Line on F.Silkscreen
-    @(197.2887 mm, 80.9100 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(192.0000 mm, 75.4000 mm): Reference 'U15'
     @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
+    @(167.0000 mm, 114.8600 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(191.5225 mm, 74.2373 mm): Line on F.Silkscreen
-    @(192.0000 mm, 75.4000 mm): Reference 'U15'
+    @(128.3500 mm, 114.9000 mm): Reference 'D21'
+    @(128.1500 mm, 113.2900 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(184.7000 mm, 61.5000 mm): Reference 'Q5'
-    @(185.0300 mm, 58.3900 mm): Line on F.Silkscreen
+    @(125.8500 mm, 114.9000 mm): Reference 'D20'
+    @(125.6500 mm, 113.2900 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(174.0000 mm, 95.1000 mm): Reference 'D37'
-    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
+    @(123.1000 mm, 114.9000 mm): Reference 'D19'
+    @(123.1500 mm, 113.2900 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(174.0000 mm, 95.1000 mm): Reference 'D37'
-    @(174.5627 mm, 94.9275 mm): Line on F.Silkscreen
+    @(129.7500 mm, 91.5000 mm): Reference 'L2'
+    @(129.2650 mm, 92.4613 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(174.0000 mm, 98.1000 mm): Reference 'D36'
-    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
+    @(117.3100 mm, 82.0500 mm): Line on F.Silkscreen
+    @(109.6900 mm, 78.6500 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(174.0000 mm, 98.9400 mm): Line on F.Silkscreen
-    @(174.0000 mm, 99.0600 mm): Line on F.Silkscreen
+    @(117.3100 mm, 78.7500 mm): Line on F.Silkscreen
+    @(109.6900 mm, 78.6500 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(174.0000 mm, 98.9400 mm): Line on F.Silkscreen
-    @(174.0000 mm, 99.0600 mm): Line on F.Silkscreen
+    @(114.0594 mm, 86.9100 mm): Line on F.Silkscreen
+    @(114.2000 mm, 87.0000 mm): Reference 'U2'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(174.0000 mm, 98.9400 mm): Line on F.Silkscreen
-    @(174.0000 mm, 99.0600 mm): Line on F.Silkscreen
+    @(118.4500 mm, 89.9100 mm): Line on F.Silkscreen
+    @(121.8900 mm, 87.7400 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(174.0000 mm, 98.9400 mm): Line on F.Silkscreen
-    @(174.0000 mm, 99.0600 mm): Line on F.Silkscreen
+    @(121.7500 mm, 89.9100 mm): Line on F.Silkscreen
+    @(121.8900 mm, 87.7400 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(174.0000 mm, 95.9400 mm): Line on F.Silkscreen
-    @(174.5627 mm, 95.9725 mm): Line on F.Silkscreen
+    @(121.7500 mm, 89.9100 mm): Line on F.Silkscreen
+    @(121.8900 mm, 87.7400 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(199.9400 mm, 61.5000 mm): Reference 'Q7'
-    @(200.2700 mm, 58.3900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(207.5600 mm, 61.5000 mm): Reference 'Q8'
-    @(207.8900 mm, 58.3900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(192.3200 mm, 61.5000 mm): Reference 'Q6'
-    @(192.6500 mm, 58.3900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(219.6000 mm, 90.4300 mm): Reference 'D2'
-    @(218.8000 mm, 89.7350 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(219.6000 mm, 93.4300 mm): Reference 'D3'
-    @(218.8000 mm, 92.7350 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(219.6000 mm, 87.4300 mm): Reference 'D1'
-    @(218.8000 mm, 86.7350 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(219.6000 mm, 99.4300 mm): Reference 'D5'
-    @(218.8000 mm, 98.7350 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(219.6000 mm, 96.4300 mm): Reference 'D4'
-    @(218.8000 mm, 95.7350 mm): Line on F.Silkscreen
+    @(112.0000 mm, 108.6000 mm): Reference 'U8'
+    @(111.7627 mm, 108.1225 mm): Line on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(129.7500 mm, 91.5000 mm): Reference 'L2'
+    @(193.6000 mm, 114.1000 mm): Reference 'D41'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(179.0000 mm, 95.1000 mm): Reference 'D37'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(179.0000 mm, 95.9400 mm): Line on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(179.0000 mm, 95.9400 mm): Line on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(196.8000 mm, 106.6000 mm): Reference 'Y101'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(207.5600 mm, 61.5000 mm): Reference 'Q8'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(180.0000 mm, 92.4500 mm): Reference 'U11'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(-3.8600 mm, -3.5750 mm): Polygon on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
     @(150.5600 mm, 58.9000 mm): Reference 'D32'
@@ -484,112 +537,7 @@
     @(147.5600 mm, 56.5400 mm): Line on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(200.3100 mm, 118.1271 mm): Line on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(180.0000 mm, 92.4500 mm): Reference 'U11'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(-3.8600 mm, -3.5750 mm): Polygon on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(200.6000 mm, 71.1000 mm): Reference 'Q20'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(142.8500 mm, 84.2000 mm): Reference 'U13'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(142.8500 mm, 85.0400 mm): Line on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(199.9400 mm, 61.5000 mm): Reference 'Q7'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(112.0000 mm, 108.6000 mm): Reference 'U8'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
     @(154.2200 mm, 61.5000 mm): Reference 'Q1'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(156.0000 mm, 123.0500 mm): Reference 'D29'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(161.8400 mm, 61.5000 mm): Reference 'Q2'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(125.8500 mm, 114.9000 mm): Reference 'D20'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(169.4600 mm, 61.5000 mm): Reference 'Q3'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(145.3300 mm, 114.3000 mm): Reference 'D13'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(147.8500 mm, 119.9000 mm): Reference 'D27'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(148.8500 mm, 121.5100 mm): Line on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(152.6600 mm, 64.1000 mm): Line on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(192.0000 mm, 75.4000 mm): Reference 'U15'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(125.7000 mm, 82.6500 mm): Reference 'D12'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(174.0000 mm, 98.1000 mm): Reference 'D36'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(174.0000 mm, 102.0600 mm): Line on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(174.0000 mm, 102.0600 mm): Line on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(150.3500 mm, 119.9000 mm): Reference 'D28'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(151.3500 mm, 121.5100 mm): Line on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(207.5600 mm, 61.5000 mm): Reference 'Q8'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(169.2500 mm, 114.4000 mm): Reference 'D15'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(193.6000 mm, 114.1000 mm): Reference 'D41'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(192.3200 mm, 61.5000 mm): Reference 'Q6'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(130.8500 mm, 114.9000 mm): Reference 'D22'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(184.7000 mm, 61.5000 mm): Reference 'Q5'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(196.0000 mm, 116.0500 mm): Reference 'U101'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(-2.9000 mm, -2.4100 mm): Polygon on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(174.0000 mm, 95.1000 mm): Reference 'D37'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(174.0000 mm, 95.9400 mm): Line on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(174.0000 mm, 95.9400 mm): Line on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
     @(139.0000 mm, 119.9000 mm): Reference 'D35'
@@ -601,19 +549,40 @@
     @(142.9600 mm, 119.9000 mm): Line on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(148.0200 mm, 58.9000 mm): Reference 'D31'
+    @(204.6500 mm, 105.7700 mm): Reference 'D30'
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(147.0200 mm, 56.5400 mm): Line on F.Silkscreen
+    @(203.6500 mm, 104.1600 mm): Line on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(147.0200 mm, 56.5400 mm): Line on F.Silkscreen
+    @(130.8500 mm, 114.9000 mm): Reference 'D22'
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(196.8000 mm, 106.6000 mm): Reference 'Y101'
+    @(134.5400 mm, 113.6000 mm): Line on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(139.7500 mm, 114.9000 mm): Reference 'D26'
+    @(166.3400 mm, 79.4000 mm): Reference 'D43'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(199.9400 mm, 61.5000 mm): Reference 'Q7'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(181.5800 mm, 79.4000 mm): Reference 'D45'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(196.0000 mm, 116.0500 mm): Reference 'U101'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(-2.9000 mm, -2.4100 mm): Polygon on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(177.0800 mm, 61.5000 mm): Reference 'Q4'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(128.3500 mm, 114.9000 mm): Reference 'D21'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(173.1500 mm, 114.4000 mm): Reference 'D16'
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
     @(153.1000 mm, 58.9000 mm): Reference 'D33'
@@ -625,10 +594,82 @@
     @(152.1000 mm, 56.5400 mm): Line on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(204.6500 mm, 105.7700 mm): Reference 'D30'
+    @(158.7200 mm, 79.4000 mm): Reference 'D42'
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(203.6500 mm, 104.1600 mm): Line on F.Silkscreen
+    @(125.8500 mm, 114.9000 mm): Reference 'D20'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(142.8500 mm, 84.2000 mm): Reference 'U13'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(142.8500 mm, 85.0400 mm): Line on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(128.4000 mm, 76.9000 mm): Reference 'U14'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(190.4000 mm, 104.9000 mm): Reference 'U103'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(152.6600 mm, 64.1000 mm): Line on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(179.0000 mm, 98.1000 mm): Reference 'D36'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(-1.1625 mm, -1.5100 mm): Polygon on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(147.8500 mm, 119.9000 mm): Reference 'D27'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(148.8500 mm, 121.5100 mm): Line on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(156.0000 mm, 123.0500 mm): Reference 'D29'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(145.3300 mm, 114.3000 mm): Reference 'D13'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(154.6200 mm, 75.5000 mm): Reference 'D46'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(148.0200 mm, 58.9000 mm): Reference 'D31'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(147.0200 mm, 56.5400 mm): Line on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(147.0200 mm, 56.5400 mm): Line on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(184.7000 mm, 61.5000 mm): Reference 'Q5'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(135.8500 mm, 114.9000 mm): Reference 'D24'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(133.3500 mm, 114.9000 mm): Reference 'D23'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(150.3500 mm, 119.9000 mm): Reference 'D28'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(151.3500 mm, 121.5100 mm): Line on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(200.6000 mm, 71.1000 mm): Reference 'Q20'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(169.2500 mm, 114.4000 mm): Reference 'D15'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(161.8400 mm, 61.5000 mm): Reference 'Q2'
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(192.0000 mm, 75.4000 mm): Reference 'U15'
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
     @(199.5500 mm, 109.6500 mm): Reference 'D40'
@@ -637,22 +678,7 @@
     @(201.9100 mm, 108.6500 mm): Line on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(133.3500 mm, 114.9000 mm): Reference 'D23'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(114.2000 mm, 87.0000 mm): Reference 'U2'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(134.5400 mm, 113.6000 mm): Line on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(173.1500 mm, 114.4000 mm): Reference 'D16'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(138.2000 mm, 114.9000 mm): Reference 'D25'
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(205.2800 mm, 113.5000 mm): Reference 'Q101'
+    @(129.7500 mm, 91.5000 mm): Reference 'L2'
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
     @(155.6400 mm, 58.9000 mm): Reference 'D34'
@@ -661,645 +687,636 @@
     @(154.6400 mm, 56.5400 mm): Line on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(128.3500 mm, 114.9000 mm): Reference 'D21'
+    @(173.9600 mm, 79.4000 mm): Reference 'D44'
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(177.0800 mm, 61.5000 mm): Reference 'Q4'
+    @(192.3200 mm, 61.5000 mm): Reference 'Q6'
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(190.4000 mm, 104.9000 mm): Reference 'U103'
+    @(169.4600 mm, 61.5000 mm): Reference 'Q3'
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(135.8500 mm, 114.9000 mm): Reference 'D24'
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    @(138.2000 mm, 114.9000 mm): Reference 'D25'
+[silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(135.1500 mm, 117.6000 mm): Footprint R42
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    @(114.2000 mm, 87.0000 mm): Reference 'U2'
+[silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(173.8000 mm, 102.4000 mm): Footprint C4
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    @(112.0000 mm, 108.6000 mm): Reference 'U8'
+[silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(153.5500 mm, 63.3000 mm): Footprint R147
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    @(139.7500 mm, 114.9000 mm): Reference 'D26'
+[silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(133.2500 mm, 119.8000 mm): Footprint R39
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    @(200.3100 mm, 118.1271 mm): Line on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(115.6000 mm, 110.4000 mm): Footprint C46
-[lib_footprint_issues]: The current configuration does not include the library 'Package_SO'.
-    Local override; Severity: warning
-    @(167.0000 mm, 112.3000 mm): Footprint U9
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(120.5000 mm, 119.8000 mm): Footprint R27
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(148.3200 mm, 86.6000 mm): Footprint RN1
-[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(190.3000 mm, 118.2000 mm): Footprint D10
-[lib_footprint_issues]: The current configuration does not include the library 'Inductor_SMD'.
-    Local override; Severity: warning
-    @(125.4500 mm, 91.5000 mm): Footprint L2
-[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(148.5600 mm, 58.9000 mm): Footprint D32
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(199.4000 mm, 117.4000 mm): Footprint R109
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(108.0000 mm, 109.4000 mm): Footprint R47
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(120.3000 mm, 94.6000 mm): Footprint C21
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(193.6000 mm, 99.7000 mm): Footprint R106
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(216.6000 mm, 86.0000 mm): Footprint R2
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(170.5000 mm, 120.0000 mm): Footprint R77
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(171.4000 mm, 91.4000 mm): Footprint C10
-[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(121.2500 mm, 114.9000 mm): Footprint D19
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(126.3500 mm, 117.6000 mm): Footprint C38
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(201.4000 mm, 109.2000 mm): Footprint R103
-[lib_footprint_issues]: The current configuration does not include the library 'Package_SO'.
-    Local override; Severity: warning
-    @(113.0000 mm, 100.6000 mm): Footprint U3
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(131.0000 mm, 102.6000 mm): Footprint C26
-[lib_footprint_issues]: The current configuration does not include the library 'Package_SO'.
-    Local override; Severity: warning
-    @(180.0000 mm, 87.6000 mm): Footprint U11
-[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(120.1000 mm, 86.4000 mm): Footprint D9
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(140.2000 mm, 92.0000 mm): Footprint C27
-[lib_footprint_issues]: The current configuration does not include the library 'LED_SMD'.
-    Local override; Severity: warning
-    @(189.6000 mm, 96.4000 mm): Footprint D103
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(175.9000 mm, 93.2000 mm): Footprint C58
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(128.8500 mm, 117.6000 mm): Footprint C39
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(198.4000 mm, 108.9000 mm): Footprint C105
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(194.2800 mm, 119.4000 mm): Footprint C102
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(200.6000 mm, 75.6000 mm): Footprint Q20
-[lib_footprint_issues]: The current configuration does not include the library 'Package_SO'.
-    Local override; Severity: warning
-    @(142.8500 mm, 87.6500 mm): Footprint U13
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(115.6000 mm, 108.6000 mm): Footprint R50
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(125.7000 mm, 58.5000 mm): Footprint Q9
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(153.6400 mm, 68.1000 mm): Footprint Q19
-[lib_footprint_issues]: The current configuration does not include the library 'Inductor_SMD'.
-    Local override; Severity: warning
-    @(145.0000 mm, 102.3000 mm): Footprint FB1
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(201.4500 mm, 114.3300 mm): Footprint C103
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(190.4000 mm, 104.5000 mm): Footprint C107
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(153.6400 mm, 72.9000 mm): Footprint R18
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(196.6000 mm, 81.9000 mm): Footprint C68
-[lib_footprint_issues]: The current configuration does not include the library 'LED_SMD'.
-    Local override; Severity: warning
-    @(219.6000 mm, 89.0000 mm): Footprint D2
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(154.6200 mm, 55.6500 mm): Footprint R146
-[lib_footprint_issues]: The current configuration does not include the library 'Package_SO'.
-    Local override; Severity: warning
-    @(196.0000 mm, 88.5000 mm): Footprint U106
-[lib_footprint_issues]: The current configuration does not include the library 'LED_SMD'.
-    Local override; Severity: warning
-    @(210.1000 mm, 100.2000 mm): Footprint D101
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(196.7000 mm, 92.7500 mm): Footprint C122
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(145.6500 mm, 84.7700 mm): Footprint C66
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(204.4400 mm, 61.5000 mm): Footprint Q7
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(138.5000 mm, 119.8000 mm): Footprint R43
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(203.3000 mm, 91.9000 mm): Footprint C113
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(112.0000 mm, 114.6000 mm): Footprint C47
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(162.5300 mm, 69.4000 mm): Footprint R19
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(170.4000 mm, 105.1400 mm): Footprint C5
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(161.2600 mm, 120.4500 mm): Footprint R58
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(161.2600 mm, 117.4000 mm): Footprint R59
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(207.4000 mm, 99.0000 mm): Footprint R126
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(125.7500 mm, 119.8000 mm): Footprint R31
-[lib_footprint_issues]: The current configuration does not include the library 'LED_SMD'.
-    Local override; Severity: warning
-    @(189.6000 mm, 98.2000 mm): Footprint D102
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(112.0000 mm, 111.0000 mm): Footprint U8
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(205.2000 mm, 118.6000 mm): Footprint R125
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(158.7200 mm, 61.5000 mm): Footprint Q1
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(151.0000 mm, 120.0000 mm): Footprint R67
-[lib_footprint_issues]: The current configuration does not include the library 'Fuse'.
-    Local override; Severity: warning
-    @(124.6000 mm, 82.2000 mm): Footprint F1
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(204.0000 mm, 110.7500 mm): Footprint R104
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(199.4000 mm, 88.5000 mm): Footprint C118
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(158.7200 mm, 120.4500 mm): Footprint R56
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(207.4000 mm, 97.6000 mm): Footprint C106
-[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(156.0000 mm, 121.2000 mm): Footprint D29
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(204.0000 mm, 115.6500 mm): Footprint R131
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(200.6000 mm, 117.4000 mm): Footprint C104
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(144.7700 mm, 121.2000 mm): Footprint R62
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(204.0000 mm, 113.2500 mm): Footprint R132
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(193.6000 mm, 96.3000 mm): Footprint R116
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(161.2000 mm, 112.6000 mm): Footprint C49
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(191.0000 mm, 74.0000 mm): Footprint R142
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(171.6500 mm, 120.0000 mm): Footprint R79
-[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
-    Local override; Severity: warning
-    @(220.5000 mm, 54.5000 mm): Footprint H2
-[lib_footprint_issues]: The current configuration does not include the library 'Package_SO'.
-    Local override; Severity: warning
-    @(162.0000 mm, 75.0000 mm): Footprint U14
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(177.7700 mm, 69.4000 mm): Footprint R21
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(194.4000 mm, 94.6000 mm): Footprint C121
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(166.3400 mm, 117.4000 mm): Footprint R52
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(117.6000 mm, 95.2000 mm): Footprint C20
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(115.6000 mm, 113.6000 mm): Footprint R45
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(166.3400 mm, 61.5000 mm): Footprint Q2
-[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(124.0000 mm, 114.9000 mm): Footprint D20
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(212.0000 mm, 104.0500 mm): Footprint C114
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(118.0800 mm, 118.9000 mm): Footprint C44
-[lib_footprint_issues]: The current configuration does not include the library 'Button_Switch_SMD'.
-    Local override; Severity: warning
-    @(219.5000 mm, 103.6000 mm): Footprint SW1
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(173.9600 mm, 61.5000 mm): Footprint Q3
-[lib_footprint_issues]: The current configuration does not include the library 'Package_SO'.
-    Local override; Severity: warning
-    @(151.7350 mm, 80.6000 mm): Footprint U7
-[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(143.4800 mm, 114.3000 mm): Footprint D13
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(172.8000 mm, 120.0000 mm): Footprint R80
-[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(149.7000 mm, 119.9000 mm): Footprint D27
-[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
-    Local override; Severity: warning
-    @(220.5000 mm, 121.5000 mm): Footprint H4
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(143.5000 mm, 120.0000 mm): Footprint R61
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(137.9000 mm, 117.6000 mm): Footprint R44
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(151.1000 mm, 64.1000 mm): Footprint Q18
-[lib_footprint_issues]: The current configuration does not include the library 'Fuse'.
-    Local override; Severity: warning
-    @(203.8200 mm, 120.4500 mm): Footprint F2
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(179.7500 mm, 110.4400 mm): Footprint C67
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(196.6000 mm, 105.0000 mm): Footprint C119
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(107.4000 mm, 98.0000 mm): Footprint C24
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(176.2500 mm, 102.1000 mm): Footprint R139
-[lib_footprint_issues]: The current configuration does not include the library 'LED_SMD'.
-    Local override; Severity: warning
-    @(219.6000 mm, 95.0000 mm): Footprint D4
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(150.4000 mm, 117.6000 mm): Footprint R68
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(194.4000 mm, 75.4000 mm): Footprint U15
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(143.5000 mm, 117.6000 mm): Footprint C51
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(154.3500 mm, 117.6000 mm): Footprint C55
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(133.8500 mm, 117.6000 mm): Footprint C41
-[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(125.7000 mm, 85.1500 mm): Footprint D12
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(120.4000 mm, 79.4000 mm): Footprint R7
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(135.7500 mm, 119.8000 mm): Footprint R41
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(146.0200 mm, 72.9000 mm): Footprint R15
-[lib_footprint_issues]: The current configuration does not include the library 'Inductor_SMD'.
-    Local override; Severity: warning
-    @(107.2000 mm, 85.4000 mm): Footprint L1
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(145.7800 mm, 55.8000 mm): Footprint R144
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(147.2700 mm, 121.2000 mm): Footprint R64
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(203.6000 mm, 117.6000 mm): Footprint R112
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(209.0000 mm, 102.4000 mm): Footprint R117
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(146.0200 mm, 64.1000 mm): Footprint Q16
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(137.1000 mm, 67.9000 mm): Footprint RN3
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(185.3900 mm, 69.4000 mm): Footprint R22
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(186.9000 mm, 96.4000 mm): Footprint R113
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(129.7500 mm, 121.7500 mm): Footprint R36
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(127.6500 mm, 117.6000 mm): Footprint R35
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(149.1000 mm, 117.6000 mm): Footprint C53
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(133.2000 mm, 85.0000 mm): Footprint C59
-[lib_footprint_issues]: The current configuration does not include the library 'Connector'.
-    Local override; Severity: warning
-    @(179.4000 mm, 99.0000 mm): Footprint J3
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(207.4000 mm, 95.2000 mm): Footprint R120
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(170.6000 mm, 88.6000 mm): Footprint C6
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(141.9000 mm, 115.1000 mm): Footprint R14
-[lib_footprint_issues]: The current configuration does not include the library 'Package_SO'.
-    Local override; Severity: warning
-    @(180.3100 mm, 114.6000 mm): Footprint U10
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(174.0000 mm, 100.5000 mm): Footprint D36
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(149.8000 mm, 89.6000 mm): Footprint C8
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(166.3400 mm, 120.4500 mm): Footprint R51
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(207.4000 mm, 93.5000 mm): Footprint C116
-[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(152.2000 mm, 119.9000 mm): Footprint D28
+    @(205.2800 mm, 113.5000 mm): Reference 'Q101'
 [lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
     @(130.1500 mm, 117.6000 mm): Footprint R38
-[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(114.6000 mm, 75.4000 mm): Footprint D6
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(119.9000 mm, 117.6000 mm): Footprint R28
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(200.3500 mm, 110.8200 mm): Footprint R107
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(107.4000 mm, 91.0000 mm): Footprint C18
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(212.0600 mm, 61.5000 mm): Footprint Q8
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(152.6000 mm, 113.4000 mm): Footprint D18
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(204.0000 mm, 111.9500 mm): Footprint R105
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(131.3500 mm, 117.6000 mm): Footprint C40
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(124.4000 mm, 79.4000 mm): Footprint C16
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(147.2900 mm, 75.9700 mm): Footprint C34
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(169.2500 mm, 116.8000 mm): Footprint D15
-[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(193.6000 mm, 116.1000 mm): Footprint D41
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(152.3700 mm, 75.9700 mm): Footprint C35
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(173.9500 mm, 120.0000 mm): Footprint C60
 [lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
     Local override; Severity: warning
     @(121.1000 mm, 117.6000 mm): Footprint C36
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(207.4000 mm, 100.2000 mm): Footprint R127
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(200.3500 mm, 114.3300 mm): Footprint R133
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(114.2000 mm, 86.4000 mm): Footprint C19
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(196.8200 mm, 61.5000 mm): Footprint Q6
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(156.9000 mm, 116.6000 mm): Footprint R76
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(199.4000 mm, 121.0000 mm): Footprint R110
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(207.0000 mm, 107.6000 mm): Footprint R115
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(128.2400 mm, 62.9000 mm): Footprint Q10
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(205.6000 mm, 91.9000 mm): Footprint C110
-[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(129.0000 mm, 114.9000 mm): Footprint D22
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(174.4000 mm, 111.0000 mm): Footprint R60
 [lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
     Local override; Severity: warning
     @(146.0200 mm, 114.3000 mm): Footprint D14
 [lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
-    @(151.1000 mm, 72.9000 mm): Footprint R17
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(216.6000 mm, 92.0000 mm): Footprint R4
+    @(148.3200 mm, 86.6000 mm): Footprint RN1
 [lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
     Local override; Severity: warning
-    @(201.5000 mm, 105.0000 mm): Footprint C109
+    @(152.3700 mm, 75.9700 mm): Footprint C35
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(174.4000 mm, 111.0000 mm): Footprint R60
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(189.3000 mm, 82.4000 mm): Footprint R162
+[lib_footprint_issues]: The current configuration does not include the library 'LED_SMD'.
+    Local override; Severity: warning
+    @(219.6000 mm, 90.5000 mm): Footprint D2
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(108.0000 mm, 112.8000 mm): Footprint R49
 [lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
     Local override; Severity: warning
-    @(196.6000 mm, 107.8000 mm): Footprint C120
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(174.4000 mm, 109.4000 mm): Footprint R55
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(189.2000 mm, 61.5000 mm): Footprint Q5
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(123.2500 mm, 119.8000 mm): Footprint R29
+    @(107.4000 mm, 98.0000 mm): Footprint C24
 [lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
     Local override; Severity: warning
-    @(113.8000 mm, 80.4000 mm): Footprint D7
-[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    @(193.6000 mm, 116.1000 mm): Footprint D41
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
-    @(122.0000 mm, 74.6000 mm): Footprint D8
-[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
+    @(166.3400 mm, 120.4500 mm): Footprint R51
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
-    @(104.5000 mm, 121.5000 mm): Footprint H3
-[lib_footprint_issues]: The current configuration does not include the library 'Package_SO'.
-    Local override; Severity: warning
-    @(196.0000 mm, 112.6000 mm): Footprint U101
+    @(155.4000 mm, 116.6000 mm): Footprint R75
 [lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
     Local override; Severity: warning
-    @(141.2000 mm, 96.6000 mm): Footprint C13
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(127.0000 mm, 121.7500 mm): Footprint R33
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(146.0000 mm, 120.0000 mm): Footprint R63
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(194.4000 mm, 102.6000 mm): Footprint C112
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(191.0000 mm, 77.2000 mm): Footprint R143
+    @(126.0000 mm, 77.2000 mm): Footprint C62
 [lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
     Local override; Severity: warning
-    @(174.0000 mm, 97.5000 mm): Footprint D37
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(141.4000 mm, 119.9000 mm): Footprint D35
+    @(128.2400 mm, 62.9000 mm): Footprint Q10
 [lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
-    @(205.6000 mm, 104.3000 mm): Footprint R124
-[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
-    Local override; Severity: warning
-    @(135.8600 mm, 58.5000 mm): Footprint Q13
+    @(207.4000 mm, 99.0000 mm): Footprint R126
 [lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
-    @(215.8700 mm, 69.4000 mm): Footprint R26
+    @(110.6000 mm, 95.2000 mm): Footprint R8
 [lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
-    @(141.9000 mm, 113.2000 mm): Footprint R13
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(140.1000 mm, 115.1000 mm): Footprint R12
-[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
-    Local override; Severity: warning
-    @(104.5000 mm, 54.5000 mm): Footprint H1
+    @(122.6500 mm, 117.6000 mm): Footprint R30
 [lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
     Local override; Severity: warning
-    @(136.3500 mm, 117.6000 mm): Footprint C42
+    @(161.2000 mm, 112.6000 mm): Footprint C49
 [lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
     Local override; Severity: warning
-    @(162.0000 mm, 79.4000 mm): Footprint C61
+    @(126.3500 mm, 117.6000 mm): Footprint C38
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(125.7500 mm, 119.8000 mm): Footprint R31
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(152.6000 mm, 113.4000 mm): Footprint D18
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(145.0000 mm, 103.7000 mm): Footprint C12
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(146.0200 mm, 64.1000 mm): Footprint Q16
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(143.5000 mm, 117.6000 mm): Footprint C51
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(179.0000 mm, 97.5000 mm): Footprint D37
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(155.4000 mm, 119.3000 mm): Footprint R78
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(153.6400 mm, 72.9000 mm): Footprint R18
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(194.4000 mm, 94.6000 mm): Footprint C121
 [lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
     Local override; Severity: warning
     @(150.4000 mm, 101.2000 mm): Footprint C3
 [lib_footprint_issues]: The current configuration does not include the library 'Crystal'.
     Local override; Severity: warning
-    @(144.6000 mm, 98.4000 mm): Footprint Y1
+    @(194.0000 mm, 106.6000 mm): Footprint Y101
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(212.0600 mm, 61.5000 mm): Footprint Q8
+[lib_footprint_issues]: The current configuration does not include the library 'Package_SO'.
+    Local override; Severity: warning
+    @(180.0000 mm, 87.6000 mm): Footprint U11
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(148.5600 mm, 58.9000 mm): Footprint D32
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(158.7200 mm, 61.5000 mm): Footprint Q1
 [lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
-    @(155.4000 mm, 116.6000 mm): Footprint R75
-[lib_footprint_issues]: The current configuration does not include the library 'Package_QFP'.
+    @(190.6000 mm, 110.6000 mm): Footprint R137
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
     Local override; Severity: warning
-    @(200.5000 mm, 98.5000 mm): Footprint U102
+    @(141.4000 mm, 119.9000 mm): Footprint D35
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(120.3000 mm, 93.0000 mm): Footprint R9
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(132.6500 mm, 117.6000 mm): Footprint R40
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(181.2500 mm, 102.1000 mm): Footprint R139
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(120.4000 mm, 79.4000 mm): Footprint R7
+[lib_footprint_issues]: The current configuration does not include the library 'Fuse'.
+    Local override; Severity: warning
+    @(106.0000 mm, 76.5000 mm): Footprint F1
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(193.2000 mm, 81.1000 mm): Footprint R161
 [lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
     Local override; Severity: warning
-    @(123.8500 mm, 117.6000 mm): Footprint C37
+    @(141.9000 mm, 117.0000 mm): Footprint C29
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(202.8000 mm, 105.7700 mm): Footprint D30
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(143.5000 mm, 120.0000 mm): Footprint R61
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(204.0000 mm, 115.6500 mm): Footprint R131
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(199.4000 mm, 121.0000 mm): Footprint R110
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(129.0000 mm, 114.9000 mm): Footprint D22
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(187.6000 mm, 88.9000 mm): Footprint R157
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(141.8000 mm, 103.4000 mm): Footprint C15
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(193.6000 mm, 96.3000 mm): Footprint R116
+[lib_footprint_issues]: The current configuration does not include the library 'LED_SMD'.
+    Local override; Severity: warning
+    @(189.6000 mm, 98.2000 mm): Footprint D102
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(115.6000 mm, 110.4000 mm): Footprint C46
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(194.4000 mm, 79.0000 mm): Footprint R141
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(113.8000 mm, 80.4000 mm): Footprint D7
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(136.1500 mm, 112.7500 mm): Footprint D38
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(149.1000 mm, 117.6000 mm): Footprint C53
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(137.9000 mm, 117.6000 mm): Footprint R44
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(118.0800 mm, 118.9000 mm): Footprint C44
+[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
+    Local override; Severity: warning
+    @(220.5000 mm, 121.5000 mm): Footprint H4
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(134.6000 mm, 96.4000 mm): Footprint U4
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(131.3500 mm, 117.6000 mm): Footprint C40
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(191.0000 mm, 77.2000 mm): Footprint R143
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(166.3400 mm, 81.9000 mm): Footprint D43
 [lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
     @(163.8000 mm, 117.4000 mm): Footprint R54
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(120.3000 mm, 94.6000 mm): Footprint C21
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(196.6000 mm, 107.8000 mm): Footprint C120
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(191.0000 mm, 74.0000 mm): Footprint R142
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(204.4400 mm, 61.5000 mm): Footprint Q7
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(181.5800 mm, 81.9000 mm): Footprint D45
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(170.4000 mm, 105.1400 mm): Footprint C5
+[lib_footprint_issues]: The current configuration does not include the library 'LED_SMD'.
+    Local override; Severity: warning
+    @(189.6000 mm, 96.4000 mm): Footprint D103
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(112.0000 mm, 114.6000 mm): Footprint C47
+[lib_footprint_issues]: The current configuration does not include the library 'Package_SO'.
+    Local override; Severity: warning
+    @(196.0000 mm, 112.6000 mm): Footprint U101
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(141.4000 mm, 84.2000 mm): Footprint C65
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(204.0000 mm, 111.9500 mm): Footprint R105
+[lib_footprint_issues]: The current configuration does not include the library 'LED_SMD'.
+    Local override; Severity: warning
+    @(219.6000 mm, 87.5000 mm): Footprint D1
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(181.5800 mm, 61.5000 mm): Footprint Q4
+[lib_footprint_issues]: The current configuration does not include the library 'Fuse'.
+    Local override; Severity: warning
+    @(203.8200 mm, 120.4500 mm): Footprint F2
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(193.0100 mm, 69.4000 mm): Footprint R23
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(187.6000 mm, 87.8000 mm): Footprint R156
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(126.5000 mm, 114.9000 mm): Footprint D21
+[lib_footprint_issues]: The current configuration does not include the library 'Package_SO'.
+    Local override; Severity: warning
+    @(151.7350 mm, 80.6000 mm): Footprint U7
+[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
+    Local override; Severity: warning
+    @(220.5000 mm, 54.5000 mm): Footprint H2
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(192.7000 mm, 119.0000 mm): Footprint R114
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(166.3400 mm, 117.4000 mm): Footprint R52
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(212.0000 mm, 104.0500 mm): Footprint C114
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(214.0000 mm, 102.0000 mm): Footprint R1
+[lib_footprint_issues]: The current configuration does not include the library 'Inductor_SMD'.
+    Local override; Severity: warning
+    @(107.2000 mm, 85.4000 mm): Footprint L1
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(125.7000 mm, 58.5000 mm): Footprint Q9
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(173.1500 mm, 116.8000 mm): Footprint D16
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(162.5300 mm, 69.4000 mm): Footprint R19
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(209.0000 mm, 105.0000 mm): Footprint U105
+[lib_footprint_issues]: The current configuration does not include the library 'Package_SO'.
+    Local override; Severity: warning
+    @(136.5000 mm, 79.2000 mm): Footprint U12
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(151.1000 mm, 58.9000 mm): Footprint D33
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(156.9000 mm, 116.6000 mm): Footprint R76
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(207.0000 mm, 107.6000 mm): Footprint R115
+[lib_footprint_issues]: The current configuration does not include the library 'LED_SMD'.
+    Local override; Severity: warning
+    @(210.1000 mm, 100.2000 mm): Footprint D101
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(158.7200 mm, 81.9000 mm): Footprint D42
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(140.1000 mm, 117.0000 mm): Footprint C28
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(202.4000 mm, 117.6000 mm): Footprint R111
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(191.2500 mm, 81.1000 mm): Footprint R151
+[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
+    Local override; Severity: warning
+    @(104.5000 mm, 121.5000 mm): Footprint H3
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(124.0000 mm, 114.9000 mm): Footprint D20
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(188.2000 mm, 107.4000 mm): Footprint C108
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(133.8500 mm, 117.6000 mm): Footprint C41
+[lib_footprint_issues]: The current configuration does not include the library 'Package_SO'.
+    Local override; Severity: warning
+    @(146.6550 mm, 80.6000 mm): Footprint U6
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(197.0000 mm, 117.6000 mm): Footprint R108
+[lib_footprint_issues]: The current configuration does not include the library 'Package_SO'.
+    Local override; Severity: warning
+    @(142.8500 mm, 87.6500 mm): Footprint U13
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(170.6000 mm, 88.6000 mm): Footprint C6
+[lib_footprint_issues]: The current configuration does not include the library 'Package_SO'.
+    Local override; Severity: warning
+    @(128.4000 mm, 73.5000 mm): Footprint U14
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(190.6000 mm, 114.2000 mm): Footprint C101
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(200.6000 mm, 117.4000 mm): Footprint C104
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(151.0000 mm, 120.0000 mm): Footprint R67
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(187.6000 mm, 84.5000 mm): Footprint R153
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(181.5800 mm, 75.5000 mm): Footprint D49
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(173.4000 mm, 91.0000 mm): Footprint C7
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(140.1000 mm, 113.2000 mm): Footprint R11
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(115.6000 mm, 113.6000 mm): Footprint R45
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(148.5600 mm, 72.9000 mm): Footprint R16
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(190.4000 mm, 107.4000 mm): Footprint U103
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(200.3500 mm, 114.3300 mm): Footprint R133
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(120.1000 mm, 86.4000 mm): Footprint D9
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(204.0000 mm, 113.2500 mm): Footprint R132
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(141.9000 mm, 115.1000 mm): Footprint R14
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(153.5500 mm, 63.3000 mm): Footprint R147
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(121.2500 mm, 114.9000 mm): Footprint D19
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(179.8000 mm, 95.4500 mm): Footprint R140
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(151.1000 mm, 64.1000 mm): Footprint Q18
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(179.0000 mm, 100.5000 mm): Footprint D36
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(186.9000 mm, 98.2000 mm): Footprint R130
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(185.0000 mm, 91.6000 mm): Footprint C57
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(108.0000 mm, 109.4000 mm): Footprint R47
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(159.7000 mm, 110.6000 mm): Footprint R72
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(140.1000 mm, 115.1000 mm): Footprint R12
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(163.8000 mm, 120.4500 mm): Footprint R53
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(120.3000 mm, 96.2000 mm): Footprint R10
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(149.7000 mm, 119.9000 mm): Footprint D27
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(141.2000 mm, 96.6000 mm): Footprint C13
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(151.1000 mm, 72.9000 mm): Footprint R17
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(140.9400 mm, 58.5000 mm): Footprint Q15
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(145.0000 mm, 105.1000 mm): Footprint C11
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(201.4500 mm, 114.3300 mm): Footprint C103
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(129.5000 mm, 67.9000 mm): Footprint RN2
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(171.8000 mm, 113.0000 mm): Footprint C48
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(171.4000 mm, 91.4000 mm): Footprint C10
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(189.3000 mm, 81.1000 mm): Footprint R150
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(203.6000 mm, 117.6000 mm): Footprint R112
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(200.6300 mm, 69.4000 mm): Footprint R24
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(207.4000 mm, 100.2000 mm): Footprint R127
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(156.0000 mm, 121.2000 mm): Footprint D29
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(154.6200 mm, 55.6500 mm): Footprint R146
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(154.3500 mm, 117.6000 mm): Footprint C55
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(205.7000 mm, 76.6000 mm): Footprint C69
 [lib_footprint_issues]: The current configuration does not include the library 'Button_Switch_SMD'.
     Local override; Severity: warning
     @(219.5000 mm, 111.4000 mm): Footprint SW2
 [lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
-    @(155.4000 mm, 119.3000 mm): Footprint R78
+    @(187.6000 mm, 83.4000 mm): Footprint R152
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(143.4800 mm, 114.3000 mm): Footprint D13
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(194.2800 mm, 119.4000 mm): Footprint C102
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(135.8600 mm, 58.5000 mm): Footprint Q13
+[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
+    Local override; Severity: warning
+    @(104.5000 mm, 54.5000 mm): Footprint H1
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(193.6000 mm, 97.3000 mm): Footprint R119
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(179.7500 mm, 110.4400 mm): Footprint C67
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(158.7200 mm, 75.5000 mm): Footprint D46
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(127.6500 mm, 117.6000 mm): Footprint R35
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(146.0200 mm, 58.9000 mm): Footprint D31
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(130.0000 mm, 88.6000 mm): Footprint C22
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(173.9600 mm, 75.5000 mm): Footprint D48
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(187.6000 mm, 91.1000 mm): Footprint R159
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(153.1500 mm, 117.6000 mm): Footprint R70
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(175.9000 mm, 93.2000 mm): Footprint C58
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(189.2000 mm, 61.5000 mm): Footprint Q5
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(144.7700 mm, 121.2000 mm): Footprint R62
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(190.3000 mm, 118.2000 mm): Footprint D10
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(148.5600 mm, 68.1000 mm): Footprint Q17
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(153.6400 mm, 68.1000 mm): Footprint Q19
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(128.8500 mm, 117.6000 mm): Footprint C39
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(134.0000 mm, 114.9000 mm): Footprint D24
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(148.5000 mm, 120.0000 mm): Footprint R65
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(168.2000 mm, 120.0000 mm): Footprint R73
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(200.3500 mm, 110.8200 mm): Footprint R107
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(108.0000 mm, 107.8000 mm): Footprint R46
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(145.7800 mm, 55.8000 mm): Footprint R144
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(131.5000 mm, 114.9000 mm): Footprint D23
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(107.4000 mm, 103.0000 mm): Footprint C25
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(193.6000 mm, 101.0000 mm): Footprint R129
+[lib_footprint_issues]: The current configuration does not include the library 'Package_QFP'.
+    Local override; Severity: warning
+    @(161.0000 mm, 98.0000 mm): Footprint U1
 [lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
     Local override; Severity: warning
     @(153.2000 mm, 88.0000 mm): Footprint C1
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(171.8000 mm, 109.4000 mm): Footprint C50
+[lib_footprint_issues]: The current configuration does not include the library 'Package_QFP'.
+    Local override; Severity: warning
+    @(200.5000 mm, 98.5000 mm): Footprint U102
 [lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
-    @(174.8000 mm, 95.4500 mm): Footprint R140
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(135.1500 mm, 117.6000 mm): Footprint R42
-    @(135.7500 mm, 119.8000 mm): Footprint R41
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(173.8000 mm, 102.4000 mm): Footprint C4
-    @(174.0000 mm, 100.5000 mm): Footprint D36
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(153.5500 mm, 63.3000 mm): Footprint R147
-    @(151.1000 mm, 64.1000 mm): Footprint Q18
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(153.5500 mm, 63.3000 mm): Footprint R147
-    @(153.6400 mm, 58.9000 mm): Footprint D34
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
+    @(187.6000 mm, 85.6000 mm): Footprint R154
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(158.7200 mm, 117.4000 mm): Footprint R57
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(141.9000 mm, 113.2000 mm): Footprint R13
+[lib_footprint_issues]: The current configuration does not include the library 'LED_SMD'.
+    Local override; Severity: warning
+    @(219.6000 mm, 96.5000 mm): Footprint D4
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(104.4000 mm, 91.0000 mm): Footprint C17
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
     @(133.2500 mm, 119.8000 mm): Footprint R39
-    @(133.8500 mm, 117.6000 mm): Footprint C41
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(152.2000 mm, 119.9000 mm): Footprint D28
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(170.4000 mm, 106.6000 mm): Footprint C9
+[lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
+    Local override; Severity: warning
+    @(200.6000 mm, 75.6000 mm): Footprint Q20
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: error
-    @(133.2500 mm, 119.8000 mm): Footprint R39
-    @(132.6500 mm, 117.6000 mm): Footprint R40
+    @(130.1500 mm, 117.6000 mm): Footprint R38
+    @(130.7500 mm, 119.8000 mm): Footprint R37
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: error
-    @(120.5000 mm, 119.8000 mm): Footprint R27
-    @(119.9000 mm, 117.6000 mm): Footprint R28
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(120.5000 mm, 119.8000 mm): Footprint R27
     @(121.1000 mm, 117.6000 mm): Footprint C36
+    @(120.5000 mm, 119.8000 mm): Footprint R27
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: error
     @(148.3200 mm, 86.6000 mm): Footprint RN1
@@ -1310,308 +1327,100 @@
     @(145.6500 mm, 84.7700 mm): Footprint C66
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: error
-    @(190.3000 mm, 118.2000 mm): Footprint D10
+    @(152.3700 mm, 75.9700 mm): Footprint C35
+    @(153.6400 mm, 72.9000 mm): Footprint R18
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(152.3700 mm, 75.9700 mm): Footprint C35
+    @(151.1000 mm, 72.9000 mm): Footprint R17
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
     @(193.6000 mm, 116.1000 mm): Footprint D41
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(148.5600 mm, 58.9000 mm): Footprint D32
-    @(145.7800 mm, 55.8000 mm): Footprint R144
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(148.5600 mm, 58.9000 mm): Footprint D32
-    @(150.2000 mm, 55.6500 mm): Footprint R145
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(199.4000 mm, 117.4000 mm): Footprint R109
-    @(200.6000 mm, 117.4000 mm): Footprint C104
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(199.4000 mm, 117.4000 mm): Footprint R109
-    @(200.3500 mm, 114.3300 mm): Footprint R133
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(199.4000 mm, 117.4000 mm): Footprint R109
     @(196.0000 mm, 112.6000 mm): Footprint U101
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(193.6000 mm, 116.1000 mm): Footprint D41
+    @(197.0000 mm, 117.6000 mm): Footprint R108
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(193.6000 mm, 116.1000 mm): Footprint D41
+    @(190.3000 mm, 118.2000 mm): Footprint D10
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(166.3400 mm, 120.4500 mm): Footprint R51
+    @(166.3400 mm, 117.4000 mm): Footprint R52
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(122.6500 mm, 117.6000 mm): Footprint R30
+    @(123.2500 mm, 119.8000 mm): Footprint R29
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: error
     @(126.3500 mm, 117.6000 mm): Footprint C38
     @(125.7500 mm, 119.8000 mm): Footprint R31
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(201.4000 mm, 109.2000 mm): Footprint R103
-    @(199.5500 mm, 107.6500 mm): Footprint D40
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(140.2000 mm, 92.0000 mm): Footprint C27
-    @(142.8500 mm, 87.6500 mm): Footprint U13
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(128.8500 mm, 117.6000 mm): Footprint C39
-    @(128.2500 mm, 119.8000 mm): Footprint R34
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(198.4000 mm, 108.9000 mm): Footprint C105
-    @(199.5500 mm, 107.6500 mm): Footprint D40
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(200.6000 mm, 75.6000 mm): Footprint Q20
-    @(198.0000 mm, 80.0000 mm): Footprint C63
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(142.8500 mm, 87.6500 mm): Footprint U13
-    @(145.6500 mm, 84.7700 mm): Footprint C66
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(142.8500 mm, 87.6500 mm): Footprint U13
-    @(141.4000 mm, 84.2000 mm): Footprint C65
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(153.6400 mm, 68.1000 mm): Footprint Q19
-    @(158.7200 mm, 61.5000 mm): Footprint Q1
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(145.0000 mm, 102.3000 mm): Footprint FB1
-    @(145.0000 mm, 103.7000 mm): Footprint C12
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(153.6400 mm, 72.9000 mm): Footprint R18
-    @(152.3700 mm, 75.9700 mm): Footprint C35
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(196.6000 mm, 81.9000 mm): Footprint C68
-    @(198.0000 mm, 80.0000 mm): Footprint C63
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(154.6200 mm, 55.6500 mm): Footprint R146
-    @(150.2000 mm, 55.6500 mm): Footprint R145
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(154.6200 mm, 55.6500 mm): Footprint R146
-    @(153.6400 mm, 58.9000 mm): Footprint D34
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(138.5000 mm, 119.8000 mm): Footprint R43
-    @(137.9000 mm, 117.6000 mm): Footprint R44
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(138.5000 mm, 119.8000 mm): Footprint R43
-    @(139.1000 mm, 117.6000 mm): Footprint C43
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(161.2600 mm, 120.4500 mm): Footprint R58
-    @(161.2600 mm, 117.4000 mm): Footprint R59
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(125.7500 mm, 119.8000 mm): Footprint R31
-    @(127.0000 mm, 121.7500 mm): Footprint R33
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: error
     @(125.7500 mm, 119.8000 mm): Footprint R31
     @(125.1500 mm, 117.6000 mm): Footprint R32
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: error
-    @(151.0000 mm, 120.0000 mm): Footprint R67
-    @(149.7000 mm, 119.9000 mm): Footprint D27
+    @(125.7500 mm, 119.8000 mm): Footprint R31
+    @(127.0000 mm, 121.7500 mm): Footprint R33
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: error
-    @(151.0000 mm, 120.0000 mm): Footprint R67
-    @(152.2000 mm, 119.9000 mm): Footprint D28
+    @(145.0000 mm, 103.7000 mm): Footprint C12
+    @(145.0000 mm, 105.1000 mm): Footprint C11
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: error
-    @(158.7200 mm, 120.4500 mm): Footprint R56
-    @(158.7200 mm, 117.4000 mm): Footprint R57
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(144.7700 mm, 121.2000 mm): Footprint R62
-    @(143.5000 mm, 120.0000 mm): Footprint R61
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(144.7700 mm, 121.2000 mm): Footprint R62
-    @(146.0000 mm, 120.0000 mm): Footprint R63
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(162.0000 mm, 75.0000 mm): Footprint U14
-    @(166.4000 mm, 75.0000 mm): Footprint C62
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(166.3400 mm, 117.4000 mm): Footprint R52
-    @(166.3400 mm, 120.4500 mm): Footprint R51
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(151.7350 mm, 80.6000 mm): Footprint U7
-    @(146.6550 mm, 80.6000 mm): Footprint U6
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(149.7000 mm, 119.9000 mm): Footprint D27
-    @(150.4000 mm, 117.6000 mm): Footprint R68
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(149.7000 mm, 119.9000 mm): Footprint D27
-    @(149.1000 mm, 117.6000 mm): Footprint C53
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(149.7000 mm, 119.9000 mm): Footprint D27
-    @(148.5000 mm, 120.0000 mm): Footprint R65
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(143.5000 mm, 120.0000 mm): Footprint R61
-    @(141.4000 mm, 119.9000 mm): Footprint D35
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(203.8200 mm, 120.4500 mm): Footprint F2
-    @(199.4000 mm, 121.0000 mm): Footprint R110
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(176.2500 mm, 102.1000 mm): Footprint R139
-    @(179.4000 mm, 99.0000 mm): Footprint J3
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(176.2500 mm, 102.1000 mm): Footprint R139
-    @(174.0000 mm, 100.5000 mm): Footprint D36
+    @(145.0000 mm, 103.7000 mm): Footprint C12
+    @(145.0000 mm, 102.3000 mm): Footprint FB1
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: error
     @(143.5000 mm, 117.6000 mm): Footprint C51
     @(141.4000 mm, 119.9000 mm): Footprint D35
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: error
+    @(179.0000 mm, 97.5000 mm): Footprint D37
+    @(179.8000 mm, 95.4500 mm): Footprint R140
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(179.0000 mm, 97.5000 mm): Footprint D37
+    @(179.0000 mm, 100.5000 mm): Footprint D36
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(180.0000 mm, 87.6000 mm): Footprint U11
+    @(181.5800 mm, 81.9000 mm): Footprint D45
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(180.0000 mm, 87.6000 mm): Footprint U11
+    @(173.9600 mm, 81.9000 mm): Footprint D44
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(148.5600 mm, 58.9000 mm): Footprint D32
+    @(145.7800 mm, 55.8000 mm): Footprint R144
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(148.5600 mm, 58.9000 mm): Footprint D32
+    @(150.2000 mm, 55.6500 mm): Footprint R145
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(158.7200 mm, 61.5000 mm): Footprint Q1
+    @(153.6400 mm, 68.1000 mm): Footprint Q19
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(141.4000 mm, 119.9000 mm): Footprint D35
+    @(143.5000 mm, 120.0000 mm): Footprint R61
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(132.6500 mm, 117.6000 mm): Footprint R40
+    @(133.2500 mm, 119.8000 mm): Footprint R39
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(181.2500 mm, 102.1000 mm): Footprint R139
+    @(179.0000 mm, 100.5000 mm): Footprint D36
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
     @(120.4000 mm, 79.4000 mm): Footprint R7
     @(114.6000 mm, 75.4000 mm): Footprint D6
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(135.7500 mm, 119.8000 mm): Footprint R41
-    @(136.3500 mm, 117.6000 mm): Footprint C42
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(146.0200 mm, 72.9000 mm): Footprint R15
-    @(147.2900 mm, 75.9700 mm): Footprint C34
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(145.7800 mm, 55.8000 mm): Footprint R144
-    @(146.0200 mm, 58.9000 mm): Footprint D31
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(145.7800 mm, 55.8000 mm): Footprint R144
-    @(150.2000 mm, 55.6500 mm): Footprint R145
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(147.2700 mm, 121.2000 mm): Footprint R64
-    @(146.0000 mm, 120.0000 mm): Footprint R63
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(129.7500 mm, 121.7500 mm): Footprint R36
-    @(127.0000 mm, 121.7500 mm): Footprint R33
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(129.7500 mm, 121.7500 mm): Footprint R36
-    @(130.7500 mm, 119.8000 mm): Footprint R37
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(129.7500 mm, 121.7500 mm): Footprint R36
-    @(128.2500 mm, 119.8000 mm): Footprint R34
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(127.6500 mm, 117.6000 mm): Footprint R35
-    @(128.2500 mm, 119.8000 mm): Footprint R34
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(179.4000 mm, 99.0000 mm): Footprint J3
-    @(174.0000 mm, 100.5000 mm): Footprint D36
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(179.4000 mm, 99.0000 mm): Footprint J3
-    @(174.0000 mm, 97.5000 mm): Footprint D37
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(174.0000 mm, 100.5000 mm): Footprint D36
-    @(174.0000 mm, 97.5000 mm): Footprint D37
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(149.8000 mm, 89.6000 mm): Footprint C8
-    @(151.2000 mm, 90.9800 mm): Footprint C2
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(152.2000 mm, 119.9000 mm): Footprint D28
-    @(153.1500 mm, 117.6000 mm): Footprint R70
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(152.2000 mm, 119.9000 mm): Footprint D28
-    @(151.6000 mm, 117.6000 mm): Footprint C54
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(130.1500 mm, 117.6000 mm): Footprint R38
-    @(130.7500 mm, 119.8000 mm): Footprint R37
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(114.6000 mm, 75.4000 mm): Footprint D6
-    @(113.8000 mm, 80.4000 mm): Footprint D7
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(131.3500 mm, 117.6000 mm): Footprint C40
-    @(130.7500 mm, 119.8000 mm): Footprint R37
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(147.2900 mm, 75.9700 mm): Footprint C34
-    @(148.5600 mm, 72.9000 mm): Footprint R16
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(193.6000 mm, 116.1000 mm): Footprint D41
-    @(196.0000 mm, 112.6000 mm): Footprint U101
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(193.6000 mm, 116.1000 mm): Footprint D41
-    @(197.0000 mm, 117.6000 mm): Footprint R108
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(152.3700 mm, 75.9700 mm): Footprint C35
-    @(151.1000 mm, 72.9000 mm): Footprint R17
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(201.5000 mm, 105.0000 mm): Footprint C109
-    @(202.8000 mm, 105.7700 mm): Footprint D30
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(123.2500 mm, 119.8000 mm): Footprint R29
-    @(123.8500 mm, 117.6000 mm): Footprint C37
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(123.2500 mm, 119.8000 mm): Footprint R29
-    @(122.6500 mm, 117.6000 mm): Footprint R30
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(196.0000 mm, 112.6000 mm): Footprint U101
-    @(197.0000 mm, 117.6000 mm): Footprint R108
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(127.0000 mm, 121.7500 mm): Footprint R33
-    @(128.2500 mm, 119.8000 mm): Footprint R34
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(174.0000 mm, 97.5000 mm): Footprint D37
-    @(174.8000 mm, 95.4500 mm): Footprint R140
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(163.8000 mm, 117.4000 mm): Footprint R54
-    @(163.8000 mm, 120.4500 mm): Footprint R53
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(150.2000 mm, 55.6500 mm): Footprint R145
-    @(151.1000 mm, 58.9000 mm): Footprint D33
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(151.2000 mm, 90.9800 mm): Footprint C2
-    @(161.0000 mm, 98.0000 mm): Footprint U1
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(137.9000 mm, 114.9000 mm): Footprint D26
-    @(136.1500 mm, 112.7500 mm): Footprint D38
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(137.9000 mm, 114.9000 mm): Footprint D26
-    @(136.3500 mm, 114.9000 mm): Footprint D25
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: error
-    @(145.0000 mm, 105.1000 mm): Footprint C11
-    @(145.0000 mm, 103.7000 mm): Footprint C12
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: error
     @(202.8000 mm, 105.7700 mm): Footprint D30
@@ -1622,8 +1431,28 @@
     @(204.0000 mm, 105.5000 mm): Footprint C111
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: error
+    @(202.8000 mm, 105.7700 mm): Footprint D30
+    @(201.5000 mm, 105.0000 mm): Footprint C109
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(143.5000 mm, 120.0000 mm): Footprint R61
+    @(144.7700 mm, 121.2000 mm): Footprint R62
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(199.4000 mm, 121.0000 mm): Footprint R110
+    @(203.8200 mm, 120.4500 mm): Footprint F2
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
     @(194.4000 mm, 79.0000 mm): Footprint R141
     @(198.0000 mm, 80.0000 mm): Footprint C63
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(113.8000 mm, 80.4000 mm): Footprint D7
+    @(114.6000 mm, 75.4000 mm): Footprint D6
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(136.1500 mm, 112.7500 mm): Footprint D38
+    @(134.0000 mm, 114.9000 mm): Footprint D24
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: error
     @(136.1500 mm, 112.7500 mm): Footprint D38
@@ -1631,7 +1460,259 @@
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: error
     @(136.1500 mm, 112.7500 mm): Footprint D38
-    @(134.0000 mm, 114.9000 mm): Footprint D24
+    @(137.9000 mm, 114.9000 mm): Footprint D26
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(149.1000 mm, 117.6000 mm): Footprint C53
+    @(149.7000 mm, 119.9000 mm): Footprint D27
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(137.9000 mm, 117.6000 mm): Footprint R44
+    @(138.5000 mm, 119.8000 mm): Footprint R43
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(131.3500 mm, 117.6000 mm): Footprint C40
+    @(130.7500 mm, 119.8000 mm): Footprint R37
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(166.3400 mm, 81.9000 mm): Footprint D43
+    @(166.3400 mm, 75.5000 mm): Footprint D47
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(163.8000 mm, 117.4000 mm): Footprint R54
+    @(163.8000 mm, 120.4500 mm): Footprint R53
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(181.5800 mm, 81.9000 mm): Footprint D45
+    @(181.5800 mm, 75.5000 mm): Footprint D49
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(196.0000 mm, 112.6000 mm): Footprint U101
+    @(197.0000 mm, 117.6000 mm): Footprint R108
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(196.0000 mm, 112.6000 mm): Footprint U101
+    @(199.4000 mm, 117.4000 mm): Footprint R109
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(141.4000 mm, 84.2000 mm): Footprint C65
+    @(142.8500 mm, 87.6500 mm): Footprint U13
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(151.7350 mm, 80.6000 mm): Footprint U7
+    @(146.6550 mm, 80.6000 mm): Footprint U6
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(162.5300 mm, 69.4000 mm): Footprint R19
+    @(158.7200 mm, 75.5000 mm): Footprint D46
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(162.5300 mm, 69.4000 mm): Footprint R19
+    @(166.3400 mm, 75.5000 mm): Footprint D47
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(151.1000 mm, 58.9000 mm): Footprint D33
+    @(150.2000 mm, 55.6500 mm): Footprint R145
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(158.7200 mm, 81.9000 mm): Footprint D42
+    @(158.7200 mm, 75.5000 mm): Footprint D46
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(133.8500 mm, 117.6000 mm): Footprint C41
+    @(133.2500 mm, 119.8000 mm): Footprint R39
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(142.8500 mm, 87.6500 mm): Footprint U13
+    @(140.2000 mm, 92.0000 mm): Footprint C27
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(142.8500 mm, 87.6500 mm): Footprint U13
+    @(145.6500 mm, 84.7700 mm): Footprint C66
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(200.6000 mm, 117.4000 mm): Footprint C104
+    @(199.4000 mm, 117.4000 mm): Footprint R109
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(151.0000 mm, 120.0000 mm): Footprint R67
+    @(149.7000 mm, 119.9000 mm): Footprint D27
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(151.0000 mm, 120.0000 mm): Footprint R67
+    @(152.2000 mm, 119.9000 mm): Footprint D28
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(181.5800 mm, 75.5000 mm): Footprint D49
+    @(185.3900 mm, 69.4000 mm): Footprint R22
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(181.5800 mm, 75.5000 mm): Footprint D49
+    @(177.7700 mm, 69.4000 mm): Footprint R21
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(148.5600 mm, 72.9000 mm): Footprint R16
+    @(147.2900 mm, 75.9700 mm): Footprint C34
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(200.3500 mm, 114.3300 mm): Footprint R133
+    @(199.4000 mm, 117.4000 mm): Footprint R109
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(153.5500 mm, 63.3000 mm): Footprint R147
+    @(151.1000 mm, 64.1000 mm): Footprint Q18
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(153.5500 mm, 63.3000 mm): Footprint R147
+    @(153.6400 mm, 58.9000 mm): Footprint D34
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(149.7000 mm, 119.9000 mm): Footprint D27
+    @(148.5000 mm, 120.0000 mm): Footprint R65
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(149.7000 mm, 119.9000 mm): Footprint D27
+    @(150.4000 mm, 117.6000 mm): Footprint R68
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(154.6200 mm, 55.6500 mm): Footprint R146
+    @(153.6400 mm, 58.9000 mm): Footprint D34
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(154.6200 mm, 55.6500 mm): Footprint R146
+    @(150.2000 mm, 55.6500 mm): Footprint R145
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(127.6500 mm, 117.6000 mm): Footprint R35
+    @(128.2500 mm, 119.8000 mm): Footprint R34
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(146.0200 mm, 58.9000 mm): Footprint D31
+    @(145.7800 mm, 55.8000 mm): Footprint R144
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(173.9600 mm, 75.5000 mm): Footprint D48
+    @(170.1500 mm, 69.4000 mm): Footprint R20
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(173.9600 mm, 75.5000 mm): Footprint D48
+    @(173.9600 mm, 81.9000 mm): Footprint D44
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(173.9600 mm, 75.5000 mm): Footprint D48
+    @(177.7700 mm, 69.4000 mm): Footprint R21
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(153.1500 mm, 117.6000 mm): Footprint R70
+    @(152.2000 mm, 119.9000 mm): Footprint D28
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(144.7700 mm, 121.2000 mm): Footprint R62
+    @(146.0000 mm, 120.0000 mm): Footprint R63
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(128.8500 mm, 117.6000 mm): Footprint C39
+    @(128.2500 mm, 119.8000 mm): Footprint R34
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(145.7800 mm, 55.8000 mm): Footprint R144
+    @(150.2000 mm, 55.6500 mm): Footprint R145
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(161.0000 mm, 98.0000 mm): Footprint U1
+    @(151.2000 mm, 90.9800 mm): Footprint C2
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(158.7200 mm, 117.4000 mm): Footprint R57
+    @(158.7200 mm, 120.4500 mm): Footprint R56
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(152.2000 mm, 119.9000 mm): Footprint D28
+    @(151.6000 mm, 117.6000 mm): Footprint C54
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(200.6000 mm, 75.6000 mm): Footprint Q20
+    @(198.0000 mm, 80.0000 mm): Footprint C63
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(120.5000 mm, 119.8000 mm): Footprint R27
+    @(119.9000 mm, 117.6000 mm): Footprint R28
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(146.0000 mm, 120.0000 mm): Footprint R63
+    @(147.2700 mm, 121.2000 mm): Footprint R64
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(135.7500 mm, 119.8000 mm): Footprint R41
+    @(136.3500 mm, 117.6000 mm): Footprint C42
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(135.7500 mm, 119.8000 mm): Footprint R41
+    @(135.1500 mm, 117.6000 mm): Footprint R42
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(170.1500 mm, 69.4000 mm): Footprint R20
+    @(166.3400 mm, 75.5000 mm): Footprint D47
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(208.2500 mm, 69.4000 mm): Footprint R25
+    @(214.7000 mm, 78.3000 mm): Footprint J4
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(146.0200 mm, 72.9000 mm): Footprint R15
+    @(147.2900 mm, 75.9700 mm): Footprint C34
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(201.4000 mm, 109.2000 mm): Footprint R103
+    @(199.5500 mm, 107.6500 mm): Footprint D40
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(199.5500 mm, 107.6500 mm): Footprint D40
+    @(198.4000 mm, 108.9000 mm): Footprint C105
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(161.2600 mm, 117.4000 mm): Footprint R59
+    @(161.2600 mm, 120.4500 mm): Footprint R58
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(127.0000 mm, 121.7500 mm): Footprint R33
+    @(128.2500 mm, 119.8000 mm): Footprint R34
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(127.0000 mm, 121.7500 mm): Footprint R33
+    @(129.7500 mm, 121.7500 mm): Footprint R36
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(215.8700 mm, 69.4000 mm): Footprint R26
+    @(214.7000 mm, 78.3000 mm): Footprint J4
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(149.8000 mm, 89.6000 mm): Footprint C8
+    @(151.2000 mm, 90.9800 mm): Footprint C2
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(136.3500 mm, 114.9000 mm): Footprint D25
+    @(137.9000 mm, 114.9000 mm): Footprint D26
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(196.6000 mm, 81.9000 mm): Footprint C68
+    @(198.0000 mm, 80.0000 mm): Footprint C63
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(138.5000 mm, 119.8000 mm): Footprint R43
+    @(139.1000 mm, 117.6000 mm): Footprint C43
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(130.7500 mm, 119.8000 mm): Footprint R37
+    @(129.7500 mm, 121.7500 mm): Footprint R36
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(128.2500 mm, 119.8000 mm): Footprint R34
+    @(129.7500 mm, 121.7500 mm): Footprint R36
+[courtyards_overlap]: Courtyards overlap
+    Rule: board setup constraints courtyard; Severity: error
+    @(123.8500 mm, 117.6000 mm): Footprint C37
+    @(123.2500 mm, 119.8000 mm): Footprint R29
 
 ** Found 0 unconnected pads **
 

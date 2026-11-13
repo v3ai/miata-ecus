@@ -21,7 +21,7 @@ rm -f $OUT/${P}_in.kicad_pcb $OUT/${P}_in.kicad_pro $OUT/*.kicad_prl
 /usr/bin/python3 $S/silk_jlc.py $OUT/$P.kicad_pcb > /dev/null                 # JLCPCB silkscreen minimums
 /usr/bin/python3 $S/via_hole_gap.py $OUT/$P.kicad_pcb $OUT/$P.kicad_pcb | grep -v leak | tail -1   # 0.45 mm via to pad hole
 /usr/bin/python3 $S/drc.py $OUT/$P.kicad_pcb $OUT/fab/drc_report.txt | tail -1
-/usr/bin/python3 $S/jlc_spacing.py $OUT/$P.kicad_pcb | head -1
+/usr/bin/python3 $S/jlc_spacing.py $OUT/$P.kicad_pcb 2>/dev/null | head -1
 /usr/bin/python3 $S/jlc_fab_check.py $OUT/$P.kicad_pcb | head -6
 /usr/bin/python3 $S/track_current.py $OUT/$P.kicad_pcb | grep -v leak | tee $OUT/fab/track_current.txt | tail -1   # track width against current, per layer
 bash $S/export.sh $OUT/$P.kicad_pcb $OUT/fab > /dev/null
