@@ -1,0 +1,5 @@
+// The wideband controller's outside world: the LSU 4.9 sensor plant on the F103's ADC inputs (models/LsuSensor.cs).
+// Load after stm32f103_wbo.repl.
+// registered at an unused address so Renode creates it (its registers read as 0)
+lsu: Miata.LsuSensor @ sysbus 0x50000000
+    adc: adc1
