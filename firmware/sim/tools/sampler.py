@@ -13,6 +13,9 @@ for _n, _p in sys.miata_probes.items():
         _a = struct.unpack('<I', _rd(_p['addr'], 4))[0]
         _out[_n] = _rd(_a, 64).split(b'\0')[0].decode('latin-1') if _a else None
         continue
+    if _p['kind'] == 'reg32':        # a peripheral register, read as one 32-bit access
+        _out[_n] = int(_b.ReadDoubleWord(_p['addr']))
+        continue
     if _p['kind'] == 'bytes':
         _raw = _rd(_p['addr'], min(_p['size'], 64))
         _out[_n] = _raw.split(b'\0')[0].decode('latin-1')

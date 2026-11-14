@@ -48,11 +48,19 @@ jobs:
             "https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode-${RENODE_VERSION}.linux-portable.tar.gz"
           mkdir -p /tmp/renode && tar -xzf /tmp/renode.tar.gz -C /tmp/renode --strip-components=1
 
-      - name: ECU, every model year
+      - name: ECU, every model year (daughterboard rev 0.10)
         env:
           RENODE: /tmp/renode/renode
           RUSEFI: ${{ github.workspace }}/firmware/ext/rusefi/firmware
-        run: python3 firmware/sim/run_ecu.py --out /tmp/fil | tee fil_ecu.txt; test ${PIPESTATUS[0]} -eq 0
+        run: python3 firmware/sim/run_ecu.py --board 0.10 --out /tmp/fil | tee fil_ecu.txt; test ${PIPESTATUS[0]} -eq 0
+
+      # the same firmware serves the rev 0.9 boards, which sense the battery behind the reverse diode and have no card socket
+      - name: ECU, every model year (daughterboard rev 0.9)
+        if: always()
+        env:
+          RENODE: /tmp/renode/renode
+          RUSEFI: ${{ github.workspace }}/firmware/ext/rusefi/firmware
+        run: python3 firmware/sim/run_ecu.py --board 0.9 --out /tmp/fil/rev0.9 | tee fil_ecu_rev0.9.txt; test ${PIPESTATUS[0]} -eq 0
 
       - name: ECU + wideband (flashing, CAN, lambda loop)
         if: always()

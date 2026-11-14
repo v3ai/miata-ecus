@@ -18,7 +18,7 @@ wheel: Miata.TriggerWheel @ sysbus
 
 // Output pins recorded with their virtual time (input number = port * 16 + pin, PA0 = 0): ignition PE1/PE0/PB9/PB8,
 // injectors PB7-PB4, IACV PB3, VVT/BOOST/ALT PD7/PD6/PD5, FP PC14, MAINRLY PC13, AC/FAN/CEL/TACH/LS7 PE6-PE2,
-// driver enable PA8.
+// driver enable PA8, microSD chip select PD13 (rev 0.10).
 rec: Miata.PinRecorder @ sysbus
 
 gpioPortA:
@@ -32,6 +32,7 @@ gpioPortC:
 
 gpioPortD:
     [5-7] -> rec@[53-55]
+    13 -> rec@61
 
 gpioPortE:
     [0-6] -> rec@[64-70]

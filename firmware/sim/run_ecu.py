@@ -9,7 +9,7 @@ stop -> key off, and checks what the firmware does at the pins against what it s
 state, read from emulated RAM through the ELF's debug info) and against the car's expectations (RPM, sensor values,
 injector and coil order, spark angle relative to TDC, fuel pump prime, main relay hold on 2003-05).
 
-usage: run_ecu.py [--years 1989-93,2003-05] [--out DIR] [--keep]
+usage: run_ecu.py [--years 1989-93,2003-05] [--board 0.10|0.9] [--out DIR]
 Needs: Renode 1.15 (RENODE env or /home/claude/renode/renode_1.15.3_portable/renode), the rusEFI build with this
 board (RUSEFI env, default /home/claude/fw/rusefi/firmware: build/rusefi.elf, build/rusefi_crc32.bin,
 bootloader/blbuild/openblt_f407-discovery.elf) and rusEFI's unit-test trigger captures (unit_tests/tests/trigger/
@@ -82,6 +82,12 @@ PROBES = {
     'mainRelayPin': CFG + '.mainRelayPin',
     'primeS': CFG + '.startUpFuelPumpDuration',
 }
+# rev 0.10: the card socket's SPI2 pins and the two new inputs, as the tune holds them
+PROBES.update({'spi2sck': CFG + '.spi2sckPin', 'spi2miso': CFG + '.spi2misoPin', 'spi2mosi': CFG + '.spi2mosiPin',
+               'sdSpi': CFG + '.sdCardSpiDevice', 'sdCs': CFG + '.sdCardCsPin', 'flexPin': CFG + '.flexSensorPin'})
+# ... and as the port registers hold them (GPIOB MODER / AFRH for PB10, PB14, PB15; GPIOD MODER / ODR for PD13)
+REGS = {'gpiobModer': 0x40020400, 'gpiobAfrh': 0x40020424, 'gpiodModer': 0x40020C00, 'gpiodOdr': 0x40020C14}
+SD_CS_INDEX = 3 * 16 + 13       # PD13 on the pin recorder
 for i in range(4):
     PROBES[f'injPin{i}'] = f'{CFG}.injectionPins[{i}]'
     PROBES[f'ignPin{i}'] = f'{CFG}.ignitionPins[{i}]'
@@ -109,7 +115,11 @@ def sensor_ids(elf):
 # --- the board's analog front end (firmware/board/miata_pins.h, scripts/design.py) ---
 VBATT_DIV = (33.0 + 6.8) / 6.8
 ANALOG_DIV = (5.6 + 10.0) / 10.0
-RAIL_DROP = 0.35          # +12V rail sits behind the reverse diode D7 and PTC F1
+# Where the board takes its battery measurement, as a drop below the battery pin. A rev 0.10 daughterboard senses the
+# battery input itself; up to rev 0.9 the divider sat on the +12V rail behind the reverse diode D7 and the fuse F1.
+# Set from --board in main().
+BOARDS = {'0.10': 0.0, '0.9': 0.35}
+RAIL_DROP = BOARDS['0.10']
 TEMP_PULLUP, TEMP_LOAD = 2700.0, 15600.0
 
 
@@ -135,7 +145,7 @@ def car_pins(vbat, key, tps_v, map_kpa, clt_ohm, iat_ohm, maf_v=1.2, vign_mode=N
     else:
         vign = 0.0
     return {
-        'PA1': max(0.0, vbat - RAIL_DROP) / VBATT_DIV,    # VBATT (board +12V rail)
+        'PA1': max(0.0, vbat - RAIL_DROP) / VBATT_DIV,    # VBATT (the board's battery sense point)
         'PA2': vign / VBATT_DIV,                          # ignition sense (1C / 4S)
         'PA4': tps_v / ANALOG_DIV,
         'PA5': mpx5700(map_kpa) / ANALOG_DIV,
@@ -443,12 +453,35 @@ def analyse(year, samples, phases, pins, stim, chk):
     chk.add('boot', 'injector outputs', inj_pins[:4] == ['INJ1', 'INJ2', 'INJ3', 'INJ4'], ' '.join(map(str, inj_pins)))
     chk.add('boot', 'ignition outputs', ign_pins[0] == 'IGN1' and ign_pins[2] == 'IGN2', ' '.join(map(str, ign_pins)))
 
+    # rev 0.10: the card socket on SPI2. The tune's pins, then what the port registers say at the end of the run:
+    # PB10/PB14/PB15 in alternate-function mode 5 (SPI2), PD13 a push-pull output (the card's chip select).
+    def gp(v):
+        if v is None:
+            return None
+        v = int(v)          # rusEFI's Gpio enum: 0 unassigned, PA0 = 2, then 16 per port
+        return 'unassigned' if v == 0 else 'P' + 'ABCDEFGH'[(v - 2) // 16] + str((v - 2) % 16)
+    card = [gp(last.get(k)) for k in ('spi2sck', 'spi2miso', 'spi2mosi', 'sdCs')]
+    chk.add('boot', 'card socket pins in the tune (SCK MISO MOSI CS)', card == ['PB10', 'PB14', 'PB15', 'PD13'] and last.get('sdSpi') == 2,
+            f"{' '.join(map(str, card))}, SPI device {last.get('sdSpi')}")
+    chk.add('boot', 'flex input ships unassigned', last.get('flexPin') == 0, str(gp(last.get('flexPin'))))
+    if last.get('gpiobModer') is not None:
+        mb_, af, md, od = (int(last[k]) for k in ('gpiobModer', 'gpiobAfrh', 'gpiodModer', 'gpiodOdr'))
+        mode = {p: (mb_ >> (2 * p)) & 3 for p in (10, 14, 15)}
+        func = {p: (af >> (4 * (p - 8))) & 15 for p in (10, 14, 15)}
+        chk.add('all', 'SPI2 on PB10 / PB14 / PB15 (alternate function 5)', all(mode[p] == 2 and func[p] == 5 for p in mode),
+                ', '.join(f'PB{p}: mode {mode[p]} AF{func[p]}' for p in mode))
+        cs = pins.get(SD_CS_INDEX, [])
+        chk.add('all', 'card chip select PD13 is an output, driven high (no card selected)',
+                (md >> 26) & 3 == 1 and (od >> 13) & 1 == 1,
+                f"mode {(md >> 26) & 3}, level {(od >> 13) & 1} at the end, {len(cs)} edges in the run"
+                + (f', first at {cs[0][0]:.2f} s' if cs else ''))
+
     # key on: sensors
     s = at_end('keyOn')
     if s:
         vb = s.get('sVbatt')
         chk.add('keyOn', 'battery voltage reading', vb is not None and abs(vb - (12.4 - RAIL_DROP)) < 0.25,
-                f'{vb} V (rail {12.4 - RAIL_DROP:.2f} V)')
+                f'{vb} V (12.4 V at the pin, {12.4 - RAIL_DROP:.2f} V at the sense point)')
         conf = {k[4:]: s[k] for k in s if k.startswith('clt_')}
         want = steinhart(conf, 2500.0)
         got = s.get('sClt')
@@ -617,7 +650,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--years', default=','.join(YEARS))
     ap.add_argument('--out', default=os.path.join(SIM, 'out'))
+    ap.add_argument('--board', default='0.10', choices=sorted(BOARDS),
+                    help='daughterboard revision the bench models (where the battery is sensed)')
     args = ap.parse_args()
+    global RAIL_DROP
+    RAIL_DROP = BOARDS[args.board]
+    print(f'bench: daughterboard rev {args.board} (battery sensed {RAIL_DROP:.2f} V below the battery pin)', flush=True)
     pr = subprocess.run([sys.executable, os.path.join(SIM, 'tools/elf_probes.py'), ELF] +
                         [f'{k}={v}' for k, v in PROBES.items() if k not in ('critMsg', 'cfgMsg')] +
                         ['critMsg=@_ZL26criticalErrorMessageBuffer', 'cfgMsg=@_ZL24configErrorMessageBuffer'],
@@ -627,6 +665,8 @@ def main():
     probes = json.loads(pr.stdout)
     for k in ('critMsg', 'cfgMsg'):
         probes[k].update(kind='bytes', size=64)
+    for k, addr in REGS.items():
+        probes[k] = dict(kind='reg32', addr=addr, size=4, scale=1)
     SENSORS.update(sensor_ids(ELF))
     total_fail = 0
     for year in args.years.split(','):
