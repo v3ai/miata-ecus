@@ -1,0 +1,38 @@
+Ref,Value,Footprint,LCSC,Assembly,Description
+J1,TE 353830-5,ecu_mb:TE_353830-5_72P,,hand-fit / not fitted,"Stock harness header, 72 positions (3 rows). Hand-solder; salvage from a stock ECU or use a clone"
+H1,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
+H2,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
+H3,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
+H4,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
+H5,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
+H6,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
+JD1,Socket 1x40 (daughter J1),Connector_PinSocket_2.54mm:PinSocket_1x40_P2.54mm_Vertical,C124412,hand-fit,"2.54 mm 1x40 female, 8.5 mm. Mates with the daughterboard J1 (power + outputs)"
+JD2,Socket 1x40 (daughter J2),Connector_PinSocket_2.54mm:PinSocket_1x40_P2.54mm_Vertical,C124412,hand-fit,"2.54 mm 1x40 female, 8.5 mm. Mates with the daughterboard J2 (inputs + comms)"
+HD1,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
+HD2,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
+HD3,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
+HD4,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
+R1,120,Resistor_SMD:R_0603_1608Metric,C22787,JLC,CAN termination
+R6,0R,Resistor_SMD:R_0603_1608Metric,C21189,JLC,CAN termination link: fitted = 120R terminator active; remove if the bus is terminated elsewhere
+F1,3A hold,Fuse:Fuse_2920_7451Metric,C22446884,JLC,"Resettable fuse for the LSU heater supply (LUTE 2920L300/30GR: 3 A hold, 5 A trip, 30 V)"
+J2,AEM 30-3427,Connector_JST:JST_PUD_S08B-PUDSS-1_2x04_P2.00mm_Horizontal,,hand-fit / not fitted,"Wideband sensor harness AEM 30-3427 (to a Bosch LSU 4.9). JST PUD side-entry header S08B-PUDSS-1. AEM pin: 1 trim (RT, green), 2 heater - (white), 3 common (VM, orange), 5 pump (IP, red), 6 sense (UN, black), 8 heater + (brown); 4 and 7 empty"
+R35,4.7k,Resistor_SMD:R_0603_1608Metric,C23162,JLC,Flex-fuel sensor signal pull-up to 5 V
+R36,10k,Resistor_SMD:R_0603_1608Metric,C25804,JLC,"Nitrous arming input pull-down: an open wire reads ""not armed"""
+D5,SS34,Diode_SMD:D_SMA,C8678,JLC,Boost valve freewheel diode to the AUX +12 V pin (feed the valve from J5-15)
+U2,MPX5700AP,ecu_mb:MPX5700AP_867B_Flat,C90152,hand-fit,"MAP sensor, 15-700 kPa absolute, single barbed port (case 867B). Lies flat, marking up, leads bent 90 deg, 2x M3 screws"
+C1,1u,Capacitor_SMD:C_0603_1608Metric,C15849,JLC,MAP supply
+C2,10n,Capacitor_SMD:C_0603_1608Metric,C57112,JLC,MAP supply
+C3,470p,Capacitor_SMD:C_0603_1608Metric,C1620,JLC,MAP output filter
+J4,USB-C,ecu_mb:USB_C_GCT_USB4105_16P,C3020560,JLC,USB-C for tuning and firmware (USB 2.0 FS)
+R2,5.1k,Resistor_SMD:R_0603_1608Metric,C23186,JLC,USB-C sink CC1
+R3,5.1k,Resistor_SMD:R_0603_1608Metric,C23186,JLC,USB-C sink CC2
+U4,USBLC6-2SC6,Package_TO_SOT_SMD:SOT-23-6,C7519,JLC,USB ESD protection
+J5,AUX 2x10,Connector_IDC:IDC-Header_2x10_P2.54mm_Vertical,,hand-fit / not fitted,"Add-on I/O: COP 3/4, boost, alternator, main relay, knock, VR crank/cam, external AFR, flex-fuel sensor, nitrous arming switch, CAN for gauges, 5 V, +12 V (fused, F4)"
+F4,1.1A hold,Fuse:Fuse_1812_4532Metric,C883150,JLC,"Resettable fuse for the AUX +12 V pin J5-15 (BHFUSE BSMD1812-110-33V: 1.1 A hold, 2.2 A trip, 33 V, 1812; the daughterboard's F1 is the same part)"
+F2,2A hold,Fuse:Fuse_1812_4532Metric,C46641168,JLC,"Resettable fuse, idle valve +12 V feed (2P) (R+O SMD1812-200-30: 2 A hold, 30 V)"
+F3,2A hold,Fuse:Fuse_1812_4532Metric,C46641168,JLC,"Resettable fuse, VVT valve +12 V feed (4D) (R+O SMD1812-200-30: 2 A hold, 30 V)"
+D1,SS34,Diode_SMD:D_SMA,C8678,JLC,"Idle valve freewheel diode (to its +12 V feed, IAC_12V): keeps the PWM turn-off energy out of the driver"
+D2,SS34,Diode_SMD:D_SMA,C8678,JLC,"VVT-driver coil freewheel diode (to its +12 V feed, OCV_12V)"
+R20,4.7k,Resistor_SMD:R_0603_1608Metric,,hand-fit / not fitted,"NOT FITTED: 12 V pull-up for the vehicle speed input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the switch closed) only if your car's signal switches to ground or is open collector; a switch that drives 12 V must not have it"
+R21,4.7k,Resistor_SMD:R_0603_1608Metric,,hand-fit / not fitted,"NOT FITTED: 12 V pull-up for the A/C switch input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the switch closed) only if your car's signal switches to ground or is open collector; a switch that drives 12 V must not have it"
+R22,4.7k,Resistor_SMD:R_0603_1608Metric,,hand-fit / not fitted,"NOT FITTED: 12 V pull-up for the clutch switch input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the switch closed) only if your car's signal switches to ground or is open collector; a switch that drives 12 V must not have it"

@@ -70,7 +70,7 @@ td.item b a{color:var(--accent);text-underline-offset:2px}
 <main>
   <header>
     <h1>Miata ECU: parts JLCPCB won't fit</h1>
-    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.10 and the four motherboards (1989-95 rev 0.12; 1996-97, 1999-2000 and 2001-05 rev 0.8), plus the parts that go in the car. Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
+    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.10 and the four motherboards (1989-95 rev 0.13; 1996-97, 1999-2000 and 2001-05 rev 0.9), plus the parts that go in the car. Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
   </header>
 
   <div class="counts" role="group" aria-label="Build counts">
@@ -107,7 +107,7 @@ const GROUPS = [
   {item:'TE 178780-1, 76 positions', pn:'TE 178780-1', per:'9697', q:1, who:'must',
    note:'1996-97. Alternates: 174915-6, 3-178780-6.'},
   {item:'TE 178780-1, 76 positions', pn:'TE 178780-1', per:'9900', q:1, who:'must',
-   note:'1999-2000, the same header as 1996-97 since rev 0.8 (the car’s own is the 64-position 176122-6, whose three plugs are the same housings).'},
+   note:'1999-2000, the same header as 1996-97 (the car’s own is the 64-position 176122-6, whose three plugs are the same housings).'},
   {item:'TE 353830-5, 72 positions in 3 rows', pn:'TE 353830-5', per:'0105', q:1, who:'must',
    note:'2001-05. Alternate: 1123038-2.'},
  ]},
@@ -122,8 +122,8 @@ const GROUPS = [
    note:'Holds the daughterboard above the motherboard (8.5 mm sockets + headers). Steel, 5.5 mm hex. Any M3 × 11 mm female-female hex standoff does.'},
   {item:'M3 × 6 mm pan head screw (standoffs)', pn:'McMaster 92000A116', mc:'92000A116', per:'mb', q:8, who:'must', note:'Two per standoff, one through each board. 18-8 stainless, Phillips; pack of 100.'},
   {item:'Socket, 1×40, 2.54 mm, female, 8.5 mm, gold', pn:'Würth 61304011821', dk:'61304011821', per:'mb', q:2, who:'must', note:'JD1 and JD2 for the daughterboard, one piece per row (straighter than two 1×20s end to end). Gold contacts, to match the gold-flash header pins: avoid tin sockets, which corrode against gold under vibration (crank, cam and injector signals go through these). 0.335″ (8.50 mm) insulation height: the 11 mm standoffs depend on it. Same-size alternatives: Samtec SSQ-140-01-G-S, or two Sullins PPPC201LFBN-RC end to end.'},
-  {item:'Micro-Fit 3.0 header, 2×4, right angle', pn:'Molex 0430450800', dk:'0430450800', per:'mb', q:1, who:'must', warn:'Plug family assumed',
-   note:'J2, wideband sensor, for AEM’s X-Series harness 30-3427. AEM gives the pin functions, not the connector: check a harness against this header before ordering.'},
+  {item:'JST PUD header, 2×4, 2 mm, side entry', pn:'JST S08B-PUDSS-1', dk:'S08B-PUDSS-1', per:'mb', q:1, who:'must',
+   note:'J2, wideband sensor, for AEM’s X-Series harness 30-3427 (its plug is JST’s PUDP-08V-S: AEM’s instructions name that series’ terminal).'},
   {item:'Box header, 2×10, 2.54 mm', pn:'On Shore 302-S201', dk:'302-S201', per:'mb', q:1, who:'opt', note:'J5, add-on header: boost valve, flex fuel, nitrous, CAN, coils 3 and 4, knock. Leave it off if you use none of them.'},
  ]},
  {id:'na', title:'1989-95 motherboard: jumpers', sub:'One board covers 1989-93 and 1994-95; six jumpers set it for the car.', rows:[
@@ -142,7 +142,7 @@ const GROUPS = [
   {item:'Bosch LSU 4.9 wideband sensor', pn:'Bosch 0 258 017 025', per:'car', q:1, who:'must', note:'The board runs it directly; no separate wideband controller.'},
   {item:'O2 sensor weld bung, M18 × 1.5', pn:'M18 × 1.5 bung', per:'car', q:1, who:'opt', note:'Only to keep the stock oxygen sensor as well. The LSU 4.9 screws into the stock front sensor’s hole (same M18 × 1.5 thread).'},
   {item:'AEM X-Series wideband sensor harness', pn:'AEM 30-3427', per:'car', q:1, who:'must', warn:'Fit unchecked', link:'https://www.aemelectronics.com/products/dashes_and_gauges/aem_performance_gauges/gauge_accessories/parts/30-3427',
-   note:'From the sensor’s plug to J2. That its board-end plug is a Micro-Fit 2×4 is assumed; check it, and each wire with a meter, before plugging a sensor in (INSTALL.md, header pin maps).'},
+   note:'From the sensor’s plug to J2. Nobody has plugged one into this board yet: compare its wire colours with the print beside J2, and check each wire with a meter, before plugging a sensor in (INSTALL.md, header pin maps).'},
   {item:'Air temperature sensor, open element (GM type), on an adapter for the stock sensor’s plug', pn:'open-element thermistor', per:'car', q:1, who:'opt', note:'Only once the airflow meter or the stock airbox is gone. The board reads the car’s own air-temperature wire; there is no separate plug for it.'},
   {item:'Ribbon cable with a 2×10 IDC socket, 2.54 mm', pn:'20-way IDC ribbon cable', per:'car', q:1, who:'opt', note:'To the add-on header J5.'},
   {item:'microSD card', pn:'any microSD, FAT32', per:'car', q:1, who:'opt', note:'For rusEFI’s logging, in the daughterboard’s socket. Not needed to run.'},

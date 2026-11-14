@@ -1,7 +1,7 @@
 # Verification report
 
-**Date:** 2026-10-30; full-firmware emulation, expanded circuit and board checks 2026-11-02; rev 0.7 and 0.8 fixes 2026-11-03; rev 0.9 layout 2026-11-03; rev 0.10 2026-11-13.
-**Boards:** daughterboard rev 0.10; motherboards 1989-95 rev 0.12, 1996-97 / 1999-2000 / 2001-05 rev 0.8. The boards ordered in November 2026 are the earlier set (daughterboard rev 0.9), kept in `ordered-boards/2026-11/`; what this review means for them is under [Rev 0.10](#the-ordered-rev-09-boards).
+**Date:** 2026-10-30; full-firmware emulation, expanded circuit and board checks 2026-11-02; rev 0.7 and 0.8 fixes 2026-11-03; rev 0.9 layout 2026-11-03; rev 0.10 2026-11-13; wideband connector, emulation re-run and pictures 2026-11-14.
+**Boards:** daughterboard rev 0.10; motherboards 1989-95 rev 0.13, 1996-97 / 1999-2000 / 2001-05 rev 0.9. The boards ordered in November 2026 are the earlier set (daughterboard rev 0.9), kept in `ordered-boards/2026-11/`; what this review means for them is under [Rev 0.10](#the-ordered-rev-09-boards).
 These revisions carry the fixes this review called for (see [Rev 0.5 changes](#rev-05-changes-and-re-verification),
 [Rev 0.6](#rev-06-stm32f103-wideband-controller), [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings),
 [Rev 0.8](#rev-08-driver-temperature-and-protected-outputs) and
@@ -709,8 +709,9 @@ the 1994-97 years run a fuel table made on a 1.6, and nothing is tuned above abo
 ## Rev 0.10: six layers, injector clamps, card socket, two more inputs (2026-11-13)
 
 Daughterboard rev 0.10 keeps the 125 × 76 mm outline and the J1/J2 pinout and goes from four copper layers to six.
-Motherboards: 1989-95 rev 0.12 (one board for 1989-93 and 1994-95, set by jumpers), 1996-97, 1999-2000 and 2001-05
-rev 0.8. Nothing has been built; everything below is reading, calculation and simulation.
+Motherboards: 1989-95 rev 0.13 (one board for 1989-93 and 1994-95, set by jumpers), 1996-97, 1999-2000 and 2001-05
+rev 0.9 (rev 0.12 / 0.8 until 2026-11-14, when the wideband connector was corrected: see
+[Motherboards](#motherboards-rev-013--09)). Nothing has been built; everything below is reading, calculation and simulation.
 
 What is new on the daughterboard:
 - **Injector turn-off clamp, one per injector:** a fast diode (ES1D) from the driver's drain to a 16 V TVS that
@@ -788,8 +789,8 @@ Rise above the air around the board, sustained 7200 rpm, 20 mH injectors (withou
 
 What that means:
 - **The board as a whole warms by 23-43 °C at sustained high rpm.** The earlier, per-part estimates missed this. It
-  matters most for the processor: the STM32F407VGT6 is the 85 °C grade (105 °C junction, as recalled from ST's
-  datasheet). It is inside that up to about 65-73 °C air in sequential years and 51-63 °C on a 1989-93 car. The
+  matters most for the processor: the STM32F407VGT6 is the 85 °C grade (suffix 6: −40 to 85 °C ambient, 105 °C
+  junction; suffix 7: −40 to 105 °C ambient, 125 °C junction, per ST's ordering information and ST's own forum). It is inside that up to about 65-73 °C air in sequential years and 51-63 °C on a 1989-93 car. The
   VGT7 grade (125 °C junction) fits the same pads and was in stock at LCSC on 2026-11-13 at about five times the price;
   it is not fitted.
 - **Clamp TVSs** (185 °C): inside their rating to above 100 °C air when sharing, and to about 74-86 °C in the worst
@@ -847,10 +848,23 @@ One firmware serves rev 0.9 and rev 0.10 boards: the new pins are simply not con
 Not re-run for this revision: the Renode full-firmware emulation. The firmware it ran did not have the card, flex and
 nitrous settings; the pins it exercises are unchanged.
 
-### Motherboards rev 0.12 / 0.8
-- **Wideband plug:** an 8-way header for AEM's X-Series sensor harness 30-3427. The pin functions are from AEM's
-  instructions (read again 2026-11-13: 1 trim, 2 heater −, 3 common, 5 pump current, 6 sense, 8 heater +). **The plug
-  family (Molex Micro-Fit 3.0, 2 × 4) is assumed**, not confirmed: check it against a harness before ordering.
+### Motherboards rev 0.13 / 0.9
+- **Wideband connector, corrected 2026-11-14:** J2 is a JST PUD side-entry header (S08B-PUDSS-1: two rows of four at
+  2.0 mm) for AEM's X-Series sensor harness 30-3427. The first boards of this set (rev 0.12 / 0.8, never ordered)
+  carried a Molex Micro-Fit 3.0 2 × 4, a guess, and wrong. AEM's instructions for the 30-0300 gauge say, in both
+  editions (document 10-0300 of 2017 and 10-0400 of 2022): "Replacement pins are JST P/N SPUD-001T-P0.5 terminals for
+  22-26 AWG wire". That terminal is the contact of JST's PUD series (housing PUDP-08V-S for eight circuits), which
+  also has the ten-circuit housing of the gauge's other connector; a Micro-Fit header would not have taken the plug.
+  The pin functions are as read on 2026-11-13 (1 trim, 2 heater −, 3 common, 5 pump current, 6 sense, 8 heater +),
+  and each pin's wire colour is printed beside the connector. PUD contacts are rated 3 A and −25 to +85 °C.
+  **Not verified:** that AEM numbers the cavities as JST does (AEM does not say; under JST's numbering each signal pair
+  in AEM's two tables shares a column, which fits), and the header against a real harness. The product photographs
+  could not be opened with the tools used here, so the identification rests on AEM's document, not on a picture.
+- **A fault in the motherboard router, found while re-routing:** it raises the search limit for its long runs above
+  the daughterboard's, and did so by position in the search function's argument list. The six-layer work added an
+  argument after it, so the limit silently stayed at the daughterboard's value: three to seven nets failed on the two
+  fuller boards and the retries did not recover them. It now sets the limit by name and stops if that did not take.
+  All four boards then routed with no failed nets (8 to 21 minutes each).
 - **Add-on header:** 2 × 10, for a ribbon cable: spare outputs, flex-fuel input with its 12 V and ground, nitrous arm,
   CAN, boost valve with a fused 12 V and a freewheel diode.
 - **1989-95:** one board; jumpers select batch or sequential injection, the tach direction, and the pins that differ
@@ -858,8 +872,14 @@ nitrous settings; the pins it exercises are unchanged.
   daughterboard.
 - **Ground:** on the 2001-05 board the injector and PCM ground pins 3A/3B had ended up joined to the ground pours only
   through the daughterboard; `scripts/mb_gnd_islands.py` now ties any such island on the board itself, and runs in
-  the release. The 2001-05 board still has 12 pads on single thermal spokes (DRC warnings, connected).
-- All four: schematic against board 0 differences; DRC at the earlier baseline (the USB-C holes, thermal spokes).
+  the release. After the re-route the 2001-05 board has 15 pad faces on a single thermal spoke (DRC warnings; every
+  pad is connected), most of them the daughterboard ground pins of JD1; a spoke is a 0.25 mm neck and carries their
+  share of the return current without warming.
+- All four (rev 0.13 / 0.9): schematic against board 0 differences (198 to 236 pads each), 0 unconnected, 0 part
+  pairs under JLCPCB's spacing; DRC at the earlier baseline (the USB-C holes, thermal spokes), plus two warnings per
+  board where J2's printed outline runs to the board edge. Heater tracks 1.0 mm on both layers.
+  `board_checks.py` on the new boards: 1606 OK / 263 CHECK / 4 FAIL, as before; `circuit_sim_full.py` 93 OK / 11
+  CHECK / 1 REF / 0 FAIL.
 
 ### The ordered rev 0.9 boards
 - **A1 applies.** They will switch injectors as designed; what ST does not guarantee without the series resistance is
@@ -875,8 +895,9 @@ nitrous settings; the pins it exercises are unchanged.
 - **All temperatures:** a model, with the heat transfer to the air assumed.
 - **Stock at JLCPCB** of the Vishay TPSMC16A (it is in JLCPCB's parts library; the page shows no stock figure). The
   alternate, Diodes Inc. SMCJ14A-13-F, had 2,707 at LCSC on 2026-11-13.
-- **The AEM plug family**, the card socket's rotation in JLCPCB's placement preview, and the land pattern of the
-  input inductor against its maker's drawing.
+- **The wideband connector against a real harness** (the series is from AEM's instructions; which cavity is pin 1
+  is not), the card socket's rotation in JLCPCB's placement preview, and the land pattern of the input inductor
+  against its maker's drawing.
 - **Load dump level** of a Miata alternator; **the consequence of A1** (the rule is ST's, what happens below 150 Ω is
   not stated).
 - The full list is in the audit.
@@ -892,7 +913,7 @@ IP or RT short (N3, the ICs are protected), N11 (1994-95 2L on a car; 1989-93 no
 | A3 | **Injector inductance is not known** (rev 0.10 audit). Every clamp energy and board temperature scales with it; 8 mH and 20 mH are both plausible | Measure one injector with an LCR meter, unplugged, before sustained high rpm. Near 8 mH: nothing to do. Near 20 mH on a 1989-93 car: see the next row |
 | Heat | **Board temperature at sustained high rpm** (rev 0.10 model): the processor's 105 °C junction is reached at 65-73 °C air around the board (sequential years) or 51-63 °C (1989-93, 20 mH injectors) | If the injectors measure high: fit the STM32F407VGT7 (125 °C), or move the 1989-93 clamp heat to that motherboard (not designed yet). Measure a board's temperature at full load on the first car either way |
 | A1 | **Ordered rev 0.9 daughterboards have no series resistor at the driver inputs** (ST asks for 150 Ω minimum) | Rework by hand, or accept it knowingly: [The ordered rev 0.9 boards](#the-ordered-rev-09-boards) |
-| J2 | **The AEM harness plug family is assumed** (Micro-Fit 3.0, 2 × 4) on motherboards rev 0.12 / 0.8 | Check a harness 30-3427 against the header before ordering |
+| J2 | **No AEM harness has been plugged into a board.** The connector series (JST PUD) is from AEM's instructions; that AEM's pin numbers are JST's is not stated anywhere | Compare a harness's wire colours with the print beside J2 before the first use. With a harness in hand, check the fit before ordering boards |
 | M5 | **NB alternator control wire: may need a pull-up.** Corrected 2026-11-12: 1O (NB1) / 3M (NB2) is a logic-level PWM input to the regulator inside the alternator, not the field coil (stock 1999 ECU scoped at 250 Hz; working MS3 and ECUMaster set-ups use a low side with a 1k pull-up to 5 V, about 5 mA). The old worry, 3-5 A of field current, doesn't apply: the VND7NV04 drives it easily. What isn't known is whether the alternator pulls the wire up itself. Firmware ships control off, at 250 Hz | Key on, ECU unplugged: measure 1O / 3M to ground. About 5 or 12 V: turn on "Alternator control". Near 0 V: fit 1k + 1N4148 from AUX J5-14 (5 V, anode) to J5-4 (OUT_ALT), then turn it on. First run: if the battery goes past about 15 V, switch it off and invert the output. Next motherboard revision: a pull-up footprint on the NB boards |
 | M6 | ~~ULN2003 at full load~~ **Resolved in rev 0.8:** the relay, lamp and tach outputs are seven ZXMS6004FF protected low sides (hottest, the NB1 VICS solenoid: Tj 102 °C at 85 °C ambient) | — |
 | Tach | 1989-95 tach cavity 2I: our board drives it as an output (as Hellen does); the wiki tables call it an input | Kept as an output. Check the wiring diagram; if the igniter feeds 2I, set the tach output to none |

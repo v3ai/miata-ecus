@@ -14,13 +14,13 @@ MPN = json.load(open(os.path.join(HERE, 'mpn.json')))
 # parts that have an LCSC number but that you fit yourself (left out of the JLC BOM and CPL)
 HAND = {
     'daughter': {'J1', 'J2'},                                   # 1x40 pin headers, bottom side
-    'mb': {'JD1', 'JD2', 'J2', 'J3', 'J5', 'U2'},               # sockets, Micro-Fit, add-on header, MAP (and every JPn)
+    'mb': {'JD1', 'JD2', 'J2', 'J3', 'J5', 'U2'},               # sockets, wideband header, add-on header, MAP (and every JPn)
 }
 # hand-fitted parts the board's parts list names without an LCSC number: value or footprint fragment ->
 # (item, manufacturer, part number, required)
 NAMED = {
-    'AEM 30-3427': ('Wideband sensor header, Micro-Fit 3.0, 2x4, right angle (assumed to take AEM harness 30-3427)',
-                    'Molex', '0430450800', 'Yes'),
+    'AEM 30-3427': ('Wideband sensor header, JST PUD, 2x4, 2.0 mm, side entry (takes AEM harness 30-3427)',
+                    'JST', 'S08B-PUDSS-1', 'Yes'),
     'AUX 2x10': ('Box header, 2x10, 2.54 mm, vertical (add-on header; takes a 20-way ribbon cable plug)',
                  'On Shore Technology', '302-S201', 'Optional'),
     'PinHeader_1x02': ('Pin header, male, 1x2, 2.54mm, through-hole, vertical', 'Sullins', 'PRPC002SAAN-RC', 'Optional'),
@@ -167,7 +167,7 @@ CAR = [
     ('Wideband sensor, Bosch LSU 4.9', 1, 'Bosch', '0 258 017 025', '', 'Yes', 'The board runs it directly'),
     ('O2 sensor weld bung, M18 x 1.5', 1, '', 'M18 x 1.5 weld bung', '', 'Optional', 'Only to keep the stock oxygen sensor as well: the LSU 4.9 screws into the stock front sensor\'s hole (same M18 x 1.5 thread)'),
     ('Wideband sensor harness, AEM X-Series', 1, 'AEM', '30-3427', '', 'Yes',
-     'From the sensor to J2. That its plug fits J2 (Micro-Fit 3.0, 2x4) is assumed: check before the first use'),
+     'From the sensor to J2 (its plug is a JST PUD, 8 positions). Compare the wire colours with the print beside J2 before the first use'),
     ('Silicone vacuum hose, 3-4 mm (1/8-5/32 in) inside diameter, 3 m', 1, '', '4 mm ID silicone vacuum hose', '', 'Yes', 'MAP sensor barb to the intake manifold. 1994-97 need most of it (ECU behind the seat). See INSTALL.md, MAP hose'),
     ('Barbed vacuum tee, 4 mm (5/32 in)', 1, '', '4 mm barbed tee', '', 'Optional', 'Needed when the manifold port already has a hose on it: cars with cruise control (1990-95) and every 1996-97. Not needed on a free capped nipple'),
     ('Air temperature sensor, open element (GM type), with an adapter for the stock sensor plug', 1, '',

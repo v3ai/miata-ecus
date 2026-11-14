@@ -262,6 +262,7 @@ def cylinder(f, lx, ly, z, r, length, axis='-y', sections=24):
 
 
 BLACK, DARK, TIN, CERAMIC = (24, 24, 26), (12, 12, 13), (165, 163, 146), (111, 102, 81)
+NATURAL = (226, 221, 205)          # unpigmented nylon / PBT (JST housings)
 extra = collections.defaultdict(list)
 if True:                       # procedural models (both boards)
     for fp in board.GetFootprints():
@@ -303,6 +304,34 @@ if True:                       # procedural models (both boards)
                     extra[DARK].append(cuboid(f, x - 1.05, x + 1.05, y0 - 0.12, y0 + 0.6, zc - 1.05, zc + 1.05))
             for x, y in pins:
                 extra[TIN].append(cuboid(f, x - 0.32, x + 0.32, y - 0.32, y + 0.32, -3.0, 1.7))
+        elif 'JST_PUD_S' in name and name.endswith('Horizontal'):
+            # side-entry JST PUD header (no 3D model in this KiCad install): natural-colour housing on the footprint's
+            # Fab outline, open mating face on local +y (the board edge), pins through the board. Height is not in the
+            # footprint: 6.6 mm, a two-row 2 mm header lying down (stand-in model).
+            src = open(f'/usr/share/kicad/footprints/Connector_JST.pretty/{name.split(":")[1]}.kicad_mod').read()
+            fab = [tuple(map(float, m)) for m in re.findall(
+                r'fp_line\s*\(start ([-\d.]+) ([-\d.]+)\)\s*\(end ([-\d.]+) ([-\d.]+)\)[^\n]*?\(layer "?F\.Fab"?\)', src)]
+            fx = [v for a, b, c, d in fab for v in (a, c)]; fy = [v for a, b, c, d in fab for v in (b, d)]
+            x0, x1, y0, y1 = min(fx), max(fx), min(fy), max(fy)
+            top = 1.6 + 6.6
+            extra[NATURAL].append(cuboid(f, x0, x1, y0, y1, 1.6, top))
+            extra[DARK].append(cuboid(f, x0 + 0.8, x1 - 0.8, y1 - 0.5, y1 + 0.1, 1.6 + 0.9, top - 0.9))
+            extra[NATURAL].append(cuboid(f, (x0 + x1) / 2 - 1.6, (x0 + x1) / 2 + 1.6, y1 - 4.0, y1 - 1.2, top, top + 0.7))   # lock ledge
+            for p in fp.Pads():
+                if p.GetNumber():
+                    px_, py_ = pcbnew.ToMM(p.GetPos0().x), pcbnew.ToMM(p.GetPos0().y)
+                    extra[TIN].append(cuboid(f, px_ - 0.25, px_ + 0.25, py_ - 0.25, py_ + 0.25, -2.6, 1.7))
+        elif name.endswith('microSD_HC_Molex_47219-2001'):
+            # Molex 47219-2001 hinged microSD socket: stamped steel cover over a black base, 1.9 mm tall, on the
+            # footprint's Fab outline (stand-in model)
+            src = open(f'/usr/share/kicad/footprints/Connector_Card.pretty/{name.split(":")[1]}.kicad_mod').read()
+            fab = [tuple(map(float, m)) for m in re.findall(
+                r'fp_line\s*\(start ([-\d.]+) ([-\d.]+)\)\s*\(end ([-\d.]+) ([-\d.]+)\)[^\n]*?\(layer "?F\.Fab"?\)', src)]
+            fx = [v for a, b, c, d in fab for v in (a, c)]; fy = [v for a, b, c, d in fab for v in (b, d)]
+            x0, x1, y0, y1 = min(fx), max(fx), min(fy), max(fy)
+            extra[BLACK].append(cuboid(f, x0, x1, y0, y1, 1.6, 2.3))
+            extra[TIN].append(cuboid(f, x0 + 0.15, x1 - 0.15, y0 + 0.15, y1 - 0.15, 2.3, 3.5))
+            extra[DARK].append(cuboid(f, x0 + 2.2, x1 - 2.2, y0 + 2.5, y1 - 4.0, 3.5, 3.56))                 # card window in the cover
         elif name.endswith('Fuse_2920_7451Metric'):
             # 2920 (7.4 x 5.1 mm) polymer resettable fuse, the wideband heater's F1 on every motherboard: KiCad has no
             # model for this package, so without this only its two pads show. Dark body, tinned end terminals on the pads.

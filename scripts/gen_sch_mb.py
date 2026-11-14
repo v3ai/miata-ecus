@@ -50,7 +50,7 @@ def choose(p):
         return 'Connector_Generic', 'Conn_01x40'
     if r in ('JW1', 'JW2'):
         return 'Connector_Generic', 'Conn_01x08'
-    if r == 'J2':            # rev 0.12 / 0.8: Micro-Fit 2x4 for the AEM X-Series sensor harness
+    if r == 'J2':            # 2x4 for the AEM X-Series sensor harness (JST PUD: odd/even rows)
         return 'Connector_Generic', 'Conn_02x04_Odd_Even' if len(p['pads']) > 6 else 'Conn_02x03_Odd_Even'
     if r == 'J3':
         return 'Connector_Generic', 'Conn_01x02'
@@ -128,7 +128,7 @@ def sheet_io(s):
     # ---- LSU 4.9 connector (controller is on the daughterboard) + CAN termination
     s.text('Wideband sensor harness AEM 30-3427 (controller on the daughterboard)', 20.32, 22.86)
     s.place('J2', 60.96, 55.88)
-    s.text('AEM pin: 1 trim (RT)  2 H-  3 common (VM)  5 pump (IP)  6 sense (UN)  8 H+.  Micro-Fit 2x4 ASSUMED', 30.48, 43.18, 1.27)
+    s.text('AEM pin: 1 trim (RT)  2 H-  3 common (VM)  5 pump (IP)  6 sense (UN)  8 H+.  JST PUD S08B-PUDSS-1 (plug PUDP-08V-S)', 30.48, 43.18, 1.27)
     s.text('IP/VM/RT/UN and H- run to daughterboard J2 33-38; the heater current returns on J2 39/40', 20.32, 96.52, 1.27)
     # heater fuse from VBAT
     s.o2('F1', 40.64, 78.74, 'h')

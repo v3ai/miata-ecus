@@ -9,7 +9,7 @@ A plug-in [rusEFI](https://rusefi.com) engine computer for the 1989–2005 Mazda
 
 The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 standoffs.
 
-![The daughterboard plugged into the 1989–93 motherboard](images/assembly_1989-93.jpg)
+![The daughterboard plugged into the 1989–95 motherboard](images/assembly_1989-95.jpg)
 
 <table>
 <tr>
@@ -18,11 +18,11 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 </tr>
 <tr>
 <td align="center"><sub>Daughterboard lifted off its sockets and standoffs</sub></td>
-<td align="center"><sub>The universal daughterboard (rev 0.9)</sub></td>
+<td align="center"><sub>The universal daughterboard (rev 0.10)</sub></td>
 </tr>
 </table>
 
-<sub>The pictures and the 3D viewer still show the previous board set (daughterboard rev 0.9); the current boards differ as listed under <a href="#features-and-limitations">Features</a> and in <a href="INSTALL.md#whats-what">INSTALL.md</a>. Renders from the 3D viewer in <a href="viewer/"><code>viewer/</code></a>, with black solder mask (<code>MASK=black</code> in <code>viewer/pcb3d.py</code>). The harness header, the LSU and IAT connectors, the MAP sensor and the heater fuse F1 are simplified stand-in models.</sub>
+<sub>Renders from the 3D viewer in <a href="viewer/"><code>viewer/</code></a>, with black solder mask (<code>MASK=black</code> in <code>viewer/pcb3d.py</code>). The harness header, the wideband connector, the card socket, the MAP sensor and the heater fuse F1 are simplified stand-in models.</sub>
 
 **Fitting one to a car:** [INSTALL.md](INSTALL.md) has labelled pictures of every connector, the header pin maps, the
 MAP hose and wideband for each year, and the first start.
@@ -40,7 +40,7 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
   used and can come out of the intake.
 - **MAP sensor good for boost:** 15–700 kPa absolute, so a turbo or supercharger needs no sensor change.
 - **Wideband oxygen sensor controller on the board** for a Bosch LSU 4.9. No separate gauge or controller box. The
-  board's plug is meant for AEM's ready-made X-Series sensor harness (30-3427).
+  board's connector takes AEM's ready-made X-Series sensor harness (30-3427).
 - **Closed-loop fuel from the wideband**, switched on from the first start: ±10 % at idle and cruise, +10 / −5 %
   under load.
 - **A base tune for each year**, loaded by the year button in TunerStudio ([what is in it](firmware/README.md#base-tune)).
@@ -149,6 +149,10 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
 > was a guess. A model of the whole board's copper now gives those temperatures. See
 > [Rev 0.10](VERIFICATION.md#rev-010-six-layers-injector-clamps-card-socket-two-more-inputs-2026-11-13).
 >
+> **2026-11-14:** the motherboards' wideband connector was the wrong series (a guess); it is now the JST header
+> that AEM's instructions point to (motherboards rev 0.13 / 0.9, routed again). The full-firmware emulation was run
+> again with the rev 0.10 firmware, and the pictures and 3D viewer were redrawn from the current boards.
+>
 > **The boards ordered in November 2026** are the set before this (daughterboard rev 0.9). Their files are kept in
 > [`ordered-boards/2026-11/`](ordered-boards/2026-11/); what the rev 0.10 review means for them is in
 > [VERIFICATION.md](VERIFICATION.md#the-ordered-rev-09-boards).
@@ -156,16 +160,16 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
 | Board | Folder | Rev | Harness header | Case fit |
 |---|---|---|---|---|
 | Daughterboard (all years) | [`daughterboard/`](daughterboard/) | 0.10 | 2 × 1×40 to the motherboard | 125 × 76 mm, 6 layers |
-| 1989–95 (NA6 and NA8; jumpers set 1989–93 or 1994–95) | [`motherboards/1989-95/`](motherboards/1989-95/) | 0.12 | TE 174917-6, 48 pins | stock NA case outline |
-| 1996–97 (NA8, OBD-II) | [`motherboards/1996-97/`](motherboards/1996-97/) | 0.8 | TE 178780-1, 76 positions | **provisional** (NA outline) |
-| 1999–2000 (NB1) | [`motherboards/1999-2000/`](motherboards/1999-2000/) | 0.8 | TE 178780-1, as 1996–97 (the car's own is the 64-position 176122-6; its plugs are the same housings) | **provisional** (NA outline) |
-| 2001–05 (NB2, VVT) | [`motherboards/2001-05/`](motherboards/2001-05/) | 0.8 | TE 353830-5, 72 positions | **provisional** (NA outline) |
+| 1989–95 (NA6 and NA8; jumpers set 1989–93 or 1994–95) | [`motherboards/1989-95/`](motherboards/1989-95/) | 0.13 | TE 174917-6, 48 pins | stock NA case outline |
+| 1996–97 (NA8, OBD-II) | [`motherboards/1996-97/`](motherboards/1996-97/) | 0.9 | TE 178780-1, 76 positions | **provisional** (NA outline) |
+| 1999–2000 (NB1) | [`motherboards/1999-2000/`](motherboards/1999-2000/) | 0.9 | TE 178780-1, as 1996–97 (the car's own is the 64-position 176122-6; its plugs are the same housings) | **provisional** (NA outline) |
+| 2001–05 (NB2, VVT) | [`motherboards/2001-05/`](motherboards/2001-05/) | 0.9 | TE 353830-5, 72 positions | **provisional** (NA outline) |
 
 Each board folder contains:
 - the KiCad 7 project (schematic and board);
 - a schematic PDF;
 - JLCPCB gerbers, BOM and placement files in `fab/`, with the DRC report, named for the board and revision (for example
-  `miata-ecu-motherboard-1989-95-rev0.12_jlcpcb_gerbers.zip`). The JLC BOM is the SMD parts (and USB-C);
+  `miata-ecu-motherboard-1989-95-rev0.13_jlcpcb_gerbers.zip`). The JLC BOM is the SMD parts (and USB-C);
   `…_self_order_bom.csv` is everything you order and solder yourself, and
   [`additional-parts/order_all_boards.csv`](additional-parts/order_all_boards.csv) adds up every motherboard, a daughterboard for each and the in-car parts
   (the same list as a page with quantities and tick boxes: [`additional-parts/shopping_list.html`](additional-parts/shopping_list.html));
@@ -220,9 +224,11 @@ Check the plug's wiring and the sensor's pins on your car before fitting R28: se
   around the board on 1994–2005 cars and 42–54 °C on 1989–93 cars, against a 105 °C junction rating. The 125 °C grade
   of the processor (STM32F407VGT7) fits the same pads and costs about five times as much. Numbers and options:
   [VERIFICATION.md](VERIFICATION.md#board-temperature).
-- **The wideband plug's family is assumed.** The motherboards carry a Molex Micro-Fit 3.0 2×4 header for AEM's
-  X-Series sensor harness 30-3427. AEM publishes the pin functions, not the connector: check a harness against the
-  header before ordering boards.
+- **The wideband connector has not been tried with a harness.** The motherboards carry a JST PUD header
+  (S08B-PUDSS-1) for AEM's X-Series sensor harness 30-3427. AEM's instructions name the harness's terminal, and that
+  terminal belongs to this connector series; AEM does not say which cavity is pin 1, so the board follows JST's
+  numbering and prints each pin's wire colour beside the connector. Compare a harness with the print before the first
+  use ([INSTALL.md](INSTALL.md#header-pin-maps)).
 - **Clamp TVS stock.** The daughterboard's injector clamp TVS (Vishay TPSMC16A) is in JLCPCB's library, but its stock
   could not be confirmed; the [daughterboard README](daughterboard/README.md#before-ordering) names the alternate.
 - **1996–2005 case geometry is a placeholder.** These motherboards use the NA board outline and mounting holes until a
@@ -242,7 +248,7 @@ Check the plug's wiring and the sensor's pins on your car before fitting R28: se
 | `mb/ecu_mb.pretty/` | Project footprints (harness headers named by OEM terminal, the flat MPX5700AP, USB-C, M4 case hole) |
 | `research/` | Pinout research for 1996–2005 (sources compared per pin); the rev 0.10 design audit (every figure the board relies on, its source, and what could not be checked); ST's pin data files |
 | `ordered-boards/2026-11/` | The board set ordered in November 2026 (daughterboard rev 0.9), as ordered |
-| `viewer/` | Interactive 3D viewer: the daughterboard alone, or assembled on any year's motherboard. Click a part for its details and shop links. Not yet rebuilt for rev 0.10: it shows the rev 0.9 board set |
+| `viewer/` | Interactive 3D viewer: the daughterboard alone, or assembled on any year's motherboard. Click a part for its details and shop links |
 | `firmware/` | The rusEFI board definition, the wideband flasher, the simulation tests and the verification tools. rusEFI itself is a submodule in `firmware/ext/rusefi` |
 | `website/` | A black-and-white Shopify theme for selling the boards, draft product listings and product photos ([website/README.md](website/README.md)) |
 | `INSTALL.md` | Fitting the ECU to a car: labelled pictures, header pin maps, the MAP hose and wideband per year, first start |
@@ -262,7 +268,7 @@ LAYERS=6 scripts/daughter_make.sh work/daughter
 scripts/daughter_release.sh work/daughter/finished.kicad_pcb out/daughterboard
 
 # a motherboard: <year module> <short name> <rev>, e.g. 1999-2000
-scripts/mb_make.sh mb_nb1 9900 0.8      # writes mb/release_9900
+scripts/mb_make.sh mb_nb1 9900 0.9      # writes mb/release_9900
 ```
 
 Routing takes 10–40 minutes per motherboard and about an hour for the daughterboard.
@@ -277,6 +283,8 @@ The viewer is a static page. To open it, run `cd viewer && python3 -m http.serve
 
 The labelled pictures and pin maps in [INSTALL.md](INSTALL.md) come from the viewer and the board files:
 `scripts/annotate.py --three <unpacked three@0.160.0 package>` redraws them (needs Playwright with Chromium, and `Pillow`).
+`scripts/render_photos.py` renders the pictures at the top of this page and the shop's product photos the same way,
+from a black-mask build of the viewer's assets.
 
 ## Credits and licences
 - This project (the board designs, scripts and viewer) is released under the [MIT licence](LICENSE).
