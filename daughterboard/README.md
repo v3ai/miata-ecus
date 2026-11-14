@@ -7,7 +7,7 @@ bottom edge carries inputs, comms and the LSU 4.9 wideband sensor.
 
 ## What changed in rev 0.10
 Same outline, same J1/J2 pinout except J2-24 / J2-25; **six layers** instead of four. A rev 0.10 daughterboard goes
-with motherboard rev 0.12 (1989-95) or 0.8 (1996-2005); it also fits the earlier motherboards, without the new
+with motherboard rev 0.13 (1989-95) or 0.9 (1996-2005); it also fits the earlier motherboards, without the new
 inputs. Background and numbers: `VERIFICATION.md`, [Rev 0.10](../VERIFICATION.md#rev-010-six-layers-injector-clamps-card-socket-two-more-inputs-2026-11-13),
 and the audit in `research/rev0.10_design_audit.md`.
 - **Injector clamp per injector** (D42-D45 ES1D, D46-D49 TPSMC16A): a fast diode from each injector driver's drain to

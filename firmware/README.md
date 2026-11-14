@@ -2,7 +2,7 @@
 
 This folder is the [rusEFI](https://github.com/rusefi/rusefi) board definition for the miata-ecus daughterboard
 (STM32F407VGT6), plus a flasher that programs the on-board wideband MCU through the main one. One firmware serves
-all five motherboards. You pick the model year in TunerStudio.
+all four motherboards. You pick the model year in TunerStudio.
 
 > **Status:** the board code compiles and links against rusEFI (commit `1374bd07`). It has **not run on hardware**,
 > because no board has been built yet. Work through [First start](#first-start) before the engine is started.
@@ -65,7 +65,7 @@ gets no fuel or spark with the key on, check that you didn't pick 2003-05 on a 2
 - **NA years** use rusEFI's own Miata presets (`setMazdaMiataNA6`, `setMazdaMiataNA94`, `setMazdaMiata96`), which
   include base fuel and ignition tables.
 - **1989-93:** the stock harness has two injectors on each of its two injector wires (2U, 2V). With jumpers JP1 and
-  JP2 on PAIR, the 1989-95 motherboard (rev 0.12) puts INJ1 + INJ4 on 2U and INJ2 + INJ3 on 2V, and the preset assigns
+  JP2 on PAIR, the 1989-95 motherboard (rev 0.12 on) puts INJ1 + INJ4 on 2U and INJ2 + INJ3 on 2V, and the preset assigns
   all four in batch mode. rusEFI fires each cylinder's output together with the cylinder 360° away (1 with 4, 3 with
   2), so the two drivers on a wire switch together and each carries one injector. Each injector fires once per
   revolution in this mode. For a sequential conversion (new wires to 2Y and 2Z) move JP1 and JP2 to SEQ and set the

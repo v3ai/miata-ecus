@@ -1,14 +1,18 @@
-built /home/claude/miata-ecus/scripts/../mb/work_0105/0105_placed.kicad_pcb 36 parts 63 nets
-routed in 1017s, failed: []
-removed 53 GND vias
-schematic sheets ['harness.kicad_sch', 'daughter.kicad_sch', 'io.kicad_sch'] symbols 36
-pads checked 206 mismatches 0 extra 0 merged 0
-linked 36 footprints; renamed 6 nets
+built /home/claude/miata-ecus/scripts/../mb/work_0105/0105_placed.kicad_pcb 37 parts 61 nets
+routed in 1260s, failed: []
+removed 43 GND vias
+schematic sheets ['harness.kicad_sch', 'daughter.kicad_sch', 'io.kicad_sch'] symbols 37
+pads checked 211 mismatches 0 extra 0 merged 0
+linked 37 footprints; renamed 5 nets
 no D3/D4: nothing to do
 removed 0 GND vias
-{'silk_overlap': 9, 'silk_over_copper': 4, 'starved_thermal': 6, 'lib_footprint_issues': 36, 'silk_edge_clearance': 2, 'hole_clearance': 4}
-exported /home/claude/miata-ecus/scripts/../mb/release_0105/fab 12 BOM lines
+deleted stitching vias: 0  routed vias too close (net, x, y, gap): []
+ground groups left unconnected: []
+{'silk_overlap': 8, 'silk_over_copper': 3, 'starved_thermal': 15, 'lib_footprint_issues': 37, 'silk_edge_clearance': 4, 'hole_clearance': 4}
+0 pairs under JLC recommended spacing; unknown footprints: []
+/home/claude/miata-ecus/scripts/../mb/release_0105/miata_mb_0105.kicad_pcb: 2 layers, copper 0.40 mm from the edge at closest: OK
+exported /home/claude/miata-ecus/scripts/../mb/release_0105/fab 14 BOM lines
 released /home/claude/miata-ecus/scripts/../mb/release_0105
 made /home/claude/miata-ecus/scripts/../mb/release_0105
 wrote /home/claude/miata-ecus/mb/release_0105/README.md 37 pins used
-zipped /home/claude/miata-ecus/mb/miata_mb_0105_rev0.7.zip
+zipped /home/claude/miata-ecus/mb/miata_mb_0105_rev0.9.zip

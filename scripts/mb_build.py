@@ -132,6 +132,17 @@ def build(modname, out):
             t.SetPosition(VECTOR2I(int(x), int(y)))
             t.SetTextSize(VECTOR2I(FromMM(0.9), FromMM(0.9))); t.SetTextThickness(FromMM(0.14)); board.Add(t)
         jp.Reference().SetVisible(False)
+    # the wideband harness plug's wire colours beside J2 (AEM's pin table), to check a harness against by eye
+    j2 = board.FindFootprintByReference('J2')
+    if j2 and 'PUD' in str(j2.GetFPID().GetLibItemName()):
+        pos = {p.GetNumber(): p.GetPosition() for p in j2.Pads() if p.GetNumber()}
+        x = max(p.x for p in pos.values()) + FromMM(3.2); y = pos['1'].y + FromMM(0.3)
+        # two lines laid out like the two pin rows: odd pins away from the board edge, even pins nearer it
+        for k, label in enumerate(('AEM 30-3427 (JST PUD)', '1 GRN  3 ORG  5 RED  7 --', '2 WHT  4 --   6 BLK  8 BRN')):
+            t = pcbnew.PCB_TEXT(board); t.SetText(label); t.SetLayer(pcbnew.F_SilkS)
+            t.SetHorizJustify(pcbnew.GR_TEXT_H_ALIGN_LEFT)
+            t.SetPosition(VECTOR2I(int(x), int(y + FromMM(1.7 * k))))
+            t.SetTextSize(VECTOR2I(FromMM(1.0), FromMM(1.0))); t.SetTextThickness(FromMM(0.15)); board.Add(t)
     t = pcbnew.PCB_TEXT(board); t.SetText(M.TITLE + '  rev ' + os.environ.get('MBREV', '0.3')); t.SetLayer(pcbnew.F_SilkS)
     # rev 0.9: the title goes in the free band between the harness header and the daughterboard
     t.SetPosition(P(M.W / 2, M.DAUGHTER[1] - 8.0)); t.SetTextSize(VECTOR2I(FromMM(1.6), FromMM(1.6))); t.SetTextThickness(FromMM(0.22))

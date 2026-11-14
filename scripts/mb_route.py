@@ -21,7 +21,13 @@ R.SKIP = {'GND'}
 R.DIRPREF = 1.8
 R.LAYER_COST = [1.0, 1.0]
 # long runs across the board (LSU connector <-> daughterboard J2 33-40, MAP) need a bigger search
-_d = list(R.Router.astar.__defaults__); _d[-1] = 8000000; R.Router.astar.__defaults__ = tuple(_d)
+# (set by name: astar gained a parameter after `limit` for the six-layer daughterboard, and setting "the last
+# default" then silently left the limit at the daughterboard's 1.5 million and switched outer_only on)
+import inspect
+_n = list(inspect.signature(R.Router.astar).parameters)
+_d = list(R.Router.astar.__defaults__); _d[_n.index('limit') - (len(_n) - len(_d))] = 8000000
+R.Router.astar.__defaults__ = tuple(_d)
+assert inspect.signature(R.Router.astar).parameters['limit'].default == 8000000
 R.WIDTH = {
     'IAC_12V': 0.8, 'OCV_12V': 0.8,
     'VBAT_IN': 1.2, 'HTR_PWR': 1.0, 'LSU_HTR_N': 1.0, 'VIGN_IN': 0.4, 'V5_SENS': 0.4, 'V5_EXT': 0.4, '+5V': 0.5,

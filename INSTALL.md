@@ -16,20 +16,15 @@ How to fit the ECU to a 1990–2005 Miata and start the engine for the first tim
 
 ## What's what
 
-![The assembled 1989–93 ECU from above, with every connector labelled](images/annotated_1989-93.jpg)
+![The assembled 1989–95 ECU from above, with every connector labelled](images/annotated_1989-95.jpg)
 
-> **The pictures show the previous board set** (daughterboard rev 0.9, motherboards rev 0.11 / 0.9 / 0.7). On the
-> current boards the wideband plug is an 8-way one for AEM's harness, the separate air-temperature plug and its jumper
-> are gone, the add-on header has 20 pins, the daughterboard carries a microSD socket, and 1989–93 and 1994–95 share one
-> motherboard with six jumpers along its side edges. The tables below describe the current boards.
-
-The layout below the harness plug is the same on every year: only the harness plug and a few option links change.
+The layout below the harness plug is the same on every year: only the harness plug, a few option links and, on the
+1989–95 board, the six year jumpers along the side edges change.
 The pictures show green solder mask; yours is whatever colour you ordered.
 
-| Year | Assembled | Motherboard alone (sockets, fuses, option links) |
+| Year | Assembled | Motherboard alone (sockets, fuses, jumpers, option links) |
 |---|---|---|
-| 1989–93 | [picture](images/annotated_1989-93.jpg) | [picture](images/annotated_motherboard_1989-93.jpg) |
-| 1994–95 | [picture](images/annotated_1994-95.jpg) | [picture](images/annotated_motherboard_1994-95.jpg) |
+| 1989–95 | [picture](images/annotated_1989-95.jpg) | [picture](images/annotated_motherboard_1989-95.jpg) |
 | 1996–97 | [picture](images/annotated_1996-97.jpg) | [picture](images/annotated_motherboard_1996-97.jpg) |
 | 1999–2000 | [picture](images/annotated_1999-2000.jpg) | [picture](images/annotated_motherboard_1999-2000.jpg) |
 | 2001–05 | [picture](images/annotated_2001-05.jpg) | [picture](images/annotated_motherboard_2001-05.jpg) |
@@ -41,6 +36,8 @@ Which harness pin carries which signal is in each motherboard's README
 ### Header pin maps
 
 Looking down on the board with the connector edge toward you. The same on all four motherboards.
+
+![Pin maps of the add-on header J5 and the wideband connector J2](images/header_pinouts.png)
 
 **J5, add-on header** (2×10 box header, 2.54 mm; a 20-way ribbon cable plugs in). Pin 1 is at the right; odd pins are
 the row nearer the daughterboard.
@@ -66,9 +63,9 @@ the row nearer the daughterboard.
 
 Pins 12 and 13 need a rev 0.10 daughterboard.
 
-**J2, wideband sensor** (Molex Micro-Fit 3.0, 2×4), for **AEM's X-Series sensor harness 30-3427**, which has the Bosch
-LSU 4.9 plug on its other end. Pins 1–4 are the pad row nearer the board edge, pin 1 at the right; pin 5 is behind
-pin 1.
+**J2, wideband sensor** (JST PUD header S08B-PUDSS-1: two rows of four at 2 mm), for **AEM's X-Series sensor harness
+30-3427**, which has the Bosch LSU 4.9 plug on its other end. Pin 1 is at the left. Pins 1 and 2 are the first
+column; odd pins are the row away from the board edge.
 
 | Pin | AEM's name | AEM harness wire | LSU 4.9 signal |
 |---|---|---|---|
@@ -80,9 +77,11 @@ pin 1.
 | 8 | Heater + | brown | H+, 12 V through the board's 3 A fuse |
 | 4, 7 | not used | | |
 
-The pin functions and wire colours are from AEM's instructions for the 30-0300 gauge. **That the harness's plug is a
-Micro-Fit 2×4 is an assumption**: nobody has tried one on a board. Check the plug, and each wire with a meter, before
-plugging a sensor in.
+The pin functions and wire colours are from AEM's instructions for the 30-0300 gauge. The same instructions name the
+harness's replacement terminal, JST SPUD-001T-P0.5, which is the contact of JST's PUD connectors: that is how the
+connector was identified. **Nobody has plugged a harness into this board yet**, and AEM does not say which cavity is
+pin 1 (the board follows JST's numbering). Each pin's wire colour is printed on the board beside J2: compare the
+harness with the print before plugging a sensor in, and stop if they differ.
 
 **1989–95 motherboard jumpers** (three-pin and two-pin headers with shunts, along the side edges). Set them for the
 car before the first start:
@@ -231,8 +230,9 @@ manifold. The engine will not run properly without it.
    converter. The LSU 4.9 has the same M18 × 1.5 thread. A weld-in bung is only needed to keep the stock sensor too.
 2. **Use a genuine Bosch sensor.** Copies read wrongly.
 3. **The lead is AEM's X-Series sensor harness 30-3427**: sensor plug on one end, J2 on the other
-   ([pin map](#header-pin-maps)). **Unchecked: the plug family is assumed.** Before the first use, check with a meter
-   that each J2 pin reaches the sensor-plug pin the table gives.
+   ([pin map](#header-pin-maps)). **Unchecked: nobody has plugged one into this board yet.** Before the first use,
+   compare the harness's wire colours with the print beside J2, and check with a meter that each J2 pin reaches the
+   sensor-plug pin the table gives.
 4. Route it through the firewall with the MAP hose, clear of the exhaust, and tie it up.
 5. Leave the stock oxygen sensor's plug unconnected and tie it back.
 6. **Check:** engine running and warm, TunerStudio shows a lambda reading that moves when you blip the throttle.

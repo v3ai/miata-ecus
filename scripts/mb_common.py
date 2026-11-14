@@ -39,13 +39,18 @@ def common_parts():
     # 3 A hold / 5 A trip, 30 V).
     add('F1', '3A hold', 'Fuse:Fuse_2920_7451Metric', 'C22446884', {1: 'VBAT_IN', 2: 'HTR_PWR'},
         'Resettable fuse for the LSU heater supply (LUTE 2920L300/30GR: 3 A hold, 5 A trip, 30 V)')
-    # Rev 0.10: the wideband connector takes AEM's X-Series sensor harness (30-3427), 8 positions. AEM publishes the
-    # pin functions (1 trim, 2 heater -, 3 common, 5 pump, 6 sense, 8 heater +) but not the plug's maker: the 2x4
-    # Micro-Fit 3.0 header here is ASSUMED. Check the plug and its pin numbering against a real harness before ordering.
-    add('J2', 'AEM 30-3427', 'Connector_Molex:Molex_Micro-Fit_3.0_43045-0800_2x04_P3.00mm_Horizontal', '',
+    # The wideband connector takes AEM's X-Series sensor harness (30-3427), 8 positions. AEM's instructions for the
+    # 30-0300 gauge (documents 10-0300, 2017 and 10-0400, 2022) give the pin functions (1 trim, 2 heater -, 3 common,
+    # 5 pump, 6 sense, 8 heater +) and name the replacement terminal: JST SPUD-001T-P0.5. That is the contact of JST's
+    # PUD series (2.0 mm pitch, two rows, locking; housing PUDP-08V-S), so the board header is the PUD side-entry
+    # header S08B-PUDSS-1. (Up to 1989-95 rev 0.12 / the others' rev 0.8 this was a Molex Micro-Fit 3.0 2x4, a guess
+    # that was wrong.) JST numbers the circuits 1/2 in the first column, odd numbers in the row away from the mating
+    # face; that AEM's pin numbers are JST's is not stated by AEM: the wire colours are on the silkscreen to check.
+    add('J2', 'AEM 30-3427', 'Connector_JST:JST_PUD_S08B-PUDSS-1_2x04_P2.00mm_Horizontal', '',
         {1: 'LSU_RT', 2: 'LSU_HTR_N', 3: 'LSU_VM', 4: '', 5: 'LSU_IP', 6: 'LSU_UN', 7: '', 8: 'HTR_PWR'},
-        'Wideband sensor harness AEM 30-3427 (to a Bosch LSU 4.9). AEM pin: 1 trim (RT), 2 heater -, 3 common (VM), '
-        '5 pump (IP), 6 sense (UN), 8 heater +. Molex 43045-0800 ASSUMED: check against the harness')
+        'Wideband sensor harness AEM 30-3427 (to a Bosch LSU 4.9). JST PUD side-entry header S08B-PUDSS-1. AEM pin: '
+        '1 trim (RT, green), 2 heater - (white), 3 common (VM, orange), 5 pump (IP, red), 6 sense (UN, black), '
+        '8 heater + (brown); 4 and 7 empty')
     # Rev 0.10: no air-temperature connector or jumper any more: the stock sensor wire goes straight to the input
     # (year modules map their air-temperature cavity to IN_IAT).
 

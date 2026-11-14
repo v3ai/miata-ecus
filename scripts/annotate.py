@@ -2,13 +2,13 @@
 """Annotated pictures for INSTALL.md, made from the design files so they can't drift from the boards.
 
   images/annotated_<years>.jpg               the assembled ECU from above, every user-facing part labelled
-  images/annotated_motherboard_<years>.jpg   the motherboard alone: sockets, fuses, option links
-  images/header_pinouts.png                  where pin 1 is on J2 / J3 / J5 / JP1 (pad positions from the PCB file)
+  images/annotated_motherboard_<years>.jpg   the motherboard alone: sockets, fuses, jumpers and option links
+  images/header_pinouts.png                  where pin 1 is on J5 and J2 (pad positions from the PCB file)
 
 The board pictures are the 3D viewer (viewer/index.html) looking straight down; the label positions are the viewer's
 own part boxes projected through its camera, so a label always points at the real part.
 
-usage: scripts/annotate.py --three <dir> [--out images] [--only 8993 ...] [--no-boards] [--no-pinouts]
+usage: scripts/annotate.py --three <dir> [--out images] [--only 8995 ...] [--no-boards] [--no-pinouts]
   <dir> is the unpacked three.js 0.160.0 npm package (npm pack three@0.160.0 && tar xf three-0.160.0.tgz), served in
   place of the CDN the viewer loads it from. Needs Playwright with Chromium, Pillow and KiCad's pcbnew module.
 """
@@ -18,12 +18,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VIEWER = os.path.join(ROOT, 'viewer')
 
 YEARS = {   # viewer key: (file suffix, title, motherboard folder, pcb file, harness header)
-    '8993': ('1989-93', '1989–93 (NA, 1.6)', '1989-93', 'miata_mb_8993.kicad_pcb', 'TE 174917-6, 48 pins, two plugs'),
-    '9495': ('1994-95', '1994–95 (NA, 1.8)', '1994-95', 'miata_mb_9495.kicad_pcb', 'TE 174917-6, 48 pins, two plugs'),
+    '8995': ('1989-95', '1989–95 (NA)', '1989-95', 'miata_mb_8995.kicad_pcb', 'TE 174917-6, 48 pins, two plugs'),
     '9697': ('1996-97', '1996–97 (NA, 1.8, OBD-II)', '1996-97', 'miata_mb_9697.kicad_pcb', 'TE 178780-1, 76 positions'),
-    '9900': ('1999-2000', '1999–2000 (NB)', '1999-2000', 'miata_mb_9900.kicad_pcb', 'TE 176122-6, 64 positions'),
+    '9900': ('1999-2000', '1999–2000 (NB)', '1999-2000', 'miata_mb_9900.kicad_pcb', 'TE 178780-1, 76 positions'),
     '0105': ('2001-05', '2001–05 (NB, VVT)', '2001-05', 'miata_mb_0105.kicad_pcb', 'TE 353830-5, 72 positions'),
 }
+DAUGHTER_REV = '0.10'
 
 # ---- what gets a label -------------------------------------------------------------------------------------------
 # target: 'mb:REF' / 'd:REF' = a part on the motherboard / daughterboard; 'mbhole:N' / 'dhole:N' = a mounting hole.
@@ -34,21 +34,27 @@ def assembled_labels(y):
     hdr = YEARS[y][4]
     holes = ('M4, in the same places as the stock board’s.' if y not in PROVISIONAL else
              'M4. Provisional on this board: placed as in the 1989–95 case until this year’s case is measured.')
-    return [
+    L = [
         ('mb:J1', 'Harness plug (J1)', f'The car’s own ECU plugs go here. {hdr}.'),
         ('d:U1', 'Daughterboard', 'The computer itself, the same on every year. It sits on two 40-pin sockets.'),
         ('dhole:0', 'Standoff screws (4)', 'M3. Hold the daughterboard 11 mm above the motherboard.'),
         ('d:D3', 'Status lights', 'Green: power and running. Blue: talking to the laptop. Yellow: warning. Red: fault.'),
         ('d:SW1', 'BOOT and RESET buttons', 'Hold BOOT while powering up to start the firmware loader. RESET restarts the ECU.'),
+        ('d:J4', 'microSD card socket', 'For logging to a card. The metal lid slides and hinges up.'),
         ('mb:U2', 'MAP sensor', 'Push the vacuum hose from the intake manifold onto its barb.'),
-        ('mb:J5', 'AUX header (J5)', 'Add-ons: boost valve, knock sensor, coils 3 and 4, 5 V and 12 V. Pin map below.'),
+        ('mb:J5', 'Add-on header (J5)', 'Ribbon-cable header: boost valve, knock sensor, coils 3 and 4, flex-fuel and nitrous inputs, '
+                                        'CAN bus, 5 V and 12 V.'),
         ('mb:J4', 'USB-C (J4)', 'Tuning with TunerStudio, logging and firmware updates.'),
-        ('mb:JP1', 'Air-temperature jumper (JP1)', 'Left two pins: the car’s own sensor (STOCK). Right two: the sensor on J3 (EXT).'),
-        ('mb:J3', 'Air-temperature sensor (J3)', 'Optional 2-pin lead for an added sensor. Only read with JP1 on EXT.'),
-        ('mb:J2', 'Wideband oxygen sensor (J2)', '6-pin lead to a Bosch LSU 4.9. No separate controller needed.'),
+        ('mb:J2', 'Wideband oxygen sensor (J2)', 'Takes AEM’s X-Series sensor harness (30-3427) to a Bosch LSU 4.9. No separate controller needed.'),
         ('mb:F1', 'Sensor-heater fuse (F1)', 'Resets itself when it cools. Feeds the wideband sensor’s heater.'),
         ('mbhole:0', 'Case screw holes (6)', holes),
     ]
+    if y == '8995':
+        L += [('mb:JP3', 'Year jumpers, left (JP3, JP5, JP4)', 'Second fan, tachometer and the 1994–95 solenoid. Set for the car: table in INSTALL.md.'),
+              ('mb:JP5', None, None), ('mb:JP4', None, None),
+              ('mb:JP6', 'Year jumpers, right (JP6, JP1, JP2)', 'Airflow-meter wire and the two injector jumpers: PAIR for 1989–93, SEQ for 1994–95.'),
+              ('mb:JP1', None, None), ('mb:JP2', None, None)]
+    return L
 
 MB_COMMON = [
     ('mb:J1', 'Harness plug (J1)', 'Soldered by hand: salvaged from a stock ECU, or a new one.'),
@@ -56,21 +62,23 @@ MB_COMMON = [
     ('mb:JD2', 'Daughterboard socket JD2', None),
     ('mbstand:0', 'Standoff positions (4)', 'M3 × 11 mm standoffs, screwed from below.'),
     ('mb:F1', 'Sensor-heater fuse (F1)', 'Resets itself when it cools. Feeds the wideband sensor’s heater.'),
-    ('mb:F4', 'AUX 12 V fuse (F4)', 'Resets itself. Limits AUX pin 15 to 0.5 A.'),
+    ('mb:F4', 'Add-on 12 V fuse (F4)', 'Resets itself. Limits add-on pin 15 to 1.1 A.'),
     ('mb:R20', 'Pull-up options (R20–R22)', 'Not fitted. Only for a speed, A/C or clutch signal that switches to ground.'),
     ('mb:U2', 'MAP sensor', 'Lies flat, held by two M3 screws.'),
-    ('mb:J5', 'AUX header (J5)', None),
+    ('mb:J5', 'Add-on header (J5)', '2×10 box header for a 20-way ribbon cable.'),
     ('mb:J4', 'USB-C (J4)', None),
-    ('mb:JP1', 'Air-temperature jumper (JP1)', None),
-    ('mb:J3', 'Air-temperature sensor (J3)', None),
-    ('mb:J2', 'Wideband oxygen sensor (J2)', None),
+    ('mb:J2', 'Wideband oxygen sensor (J2)', 'JST PUD header for AEM’s sensor harness. The wire colours are printed beside it.'),
 ]
 MB_EXTRA = {
-    '8993': [('mb:R23', 'Injector pairing links (R23, R24)', 'Fitted: the stock harness has two injectors on each wire.'),
-             ('mb:R25', 'Sequential links (R25, R26)', 'Not fitted. Only after rewiring for one injector per wire. Never on an automatic.'),
-             ('mb:R28', 'Throttle-sensor 5 V link (R28)', 'Not fitted. Only for a real throttle position sensor on a manual car.'),
-             ('mb:R30', 'Throttle-sensor signal links (R29, R30)', 'R29 is fitted. For a real throttle position sensor, move it to R30.'),
-             ('mb:D3', 'Injector clamps (D3, D4)', None)],
+    '8995': [('mb:JP1', 'Injector jumpers (JP1, JP2)', 'PAIR: 1989–93 stock harness, two injectors per wire. SEQ: 1994–95. Never SEQ on a 1989–93 automatic.'),
+             ('mb:JP2', None, None),
+             ('mb:JP6', 'Airflow-meter wire jumper (JP6)', 'AFM: stock. BOOST: the boost valve on that wire once the meter is gone.'),
+             ('mb:JP3', 'Second-fan jumper (JP3)', '90-93 or 94-95: which harness pin the relay is on.'),
+             ('mb:JP5', 'Tachometer jumper (JP5)', 'Open with the stock igniter. Fitted only after a coil-on-plug conversion.'),
+             ('mb:JP4', '1994–95 jumper (JP4)', 'Fitted on 1994–95 (pressure-regulator solenoid). Open on 1989–93.'),
+             ('mb:R28', 'Throttle-sensor links (R28–R30)', 'R29 is fitted. For a real throttle position sensor on a manual car: fit R28, move R29 to R30.'),
+             ('mb:R30', None, None),
+             ('mb:D3', 'Spare injector clamps (D3, D4)', 'Not fitted: a rev 0.10 daughterboard clamps each injector itself.')],
     '9900': [('mb:F2', 'Idle-valve fuse (F2)', 'Resets itself.')],
     '0105': [('mb:F2', 'Idle-valve fuse (F2)', 'Resets itself.'), ('mb:F3', 'VVT-valve fuse (F3)', 'Resets itself.')],
 }
@@ -282,8 +290,8 @@ def boards(args):
         for y in args.only or list(YEARS):
             suffix, name, folder, _, _ = YEARS[y]
             rev = open(os.path.join(VIEWER, 'index.html'), encoding='utf-8').read().split(f"'{y}': {{")[1].split("rev:'")[1].split("'")[0]
-            foot = (f'Drawn from the design files: {name} motherboard rev {rev}, daughterboard rev 0.9. The harness plug '
-                    'and MAP sensor are simplified models. scripts/annotate.py redraws this picture.')
+            foot = (f'Drawn from the design files: {name} motherboard rev {rev}, daughterboard rev {DAUGHTER_REV}. The harness plug, '
+                    'the wideband connector, the card socket and the MAP sensor are simplified models. scripts/annotate.py redraws this picture.')
             for bare in (False, True):
                 geo = pg.evaluate(VIEW_JS, {'year': y, 'bare': bare})
                 time.sleep(args.settle)
@@ -291,11 +299,11 @@ def boards(args):
                 png = pg.screenshot(clip={'x': x0, 'y': y0, 'width': x1 - x0, 'height': y1 - y0}, timeout=300000)
                 if bare:
                     jobs.append((png, geo, MB_COMMON + MB_EXTRA.get(y, []), f'Miata ECU {name}: the motherboard alone',
-                                 'Seen from above with the daughterboard lifted off: the sockets, fuses and option links underneath.',
+                                 'Seen from above with the daughterboard lifted off: the sockets, fuses, jumpers and option links.',
                                  foot, os.path.join(args.out, f'annotated_motherboard_{suffix}.jpg')))
                 else:
                     jobs.append((png, geo, assembled_labels(y), f'Miata ECU {name}: what’s what',
-                                 'The assembled ECU seen from above. The four connectors along the bottom edge face the opening cut in the case.',
+                                 'The assembled ECU seen from above. The connectors along the bottom edge face the opening cut in the case.',
                                  foot, os.path.join(args.out, f'annotated_{suffix}.jpg')))
         if errs:
             print('page errors:', errs)
@@ -310,33 +318,36 @@ def boards(args):
 
 # ---- header pin maps, from the pad positions in the PCB file ---------------------------------------------------------
 AUX_NAMES = {1: ('IGN3', 'Coil 3 signal, 5 V logic'), 2: ('IGN4', 'Coil 4 signal, 5 V logic'),
-             3: ('BOOST', 'Boost valve: switches to ground'),
+             3: ('BOOST', 'Boost valve: switches to ground. Freewheel diode to pin 15 on the board'),
              4: ('ALT', 'Output to ground. In use on 1994–95 (pressure solenoid) and 1999–2005 (alternator)'),
              5: ('RELAY', 'Output to ground. In use on 1999–2000 (VICS) and 2003–05 (main relay)'),
              6: ('KNOCK', 'Knock sensor in. On 1999–2005 the stock sensor is already on it'),
              7: ('VR1+', 'Magnetic (VR) sensor input 1'), 8: ('VR1−', ''), 9: ('VR2+', 'Magnetic (VR) sensor input 2'), 10: ('VR2−', ''),
-             11: ('AFR', 'Spare 0–5 V analog in'), 12: ('TX', 'Serial out, 3.3 V'), 13: ('RX', 'Serial in'),
-             14: ('+5 V', 'Sensor supply'), 15: ('+12 V', 'Switched, 0.5 A fuse'), 16: ('GND', 'Ground')}
+             11: ('AFR', 'Spare 0–5 V analog in'), 12: ('FLEX', 'Flex-fuel sensor signal (pull-up on the board)'),
+             13: ('N2O', 'Nitrous arming switch: 12 V = armed'),
+             14: ('+5 V', 'Protected sensor supply'), 15: ('+12 V', 'Switched, self-resetting 1.1 A fuse'), 16: ('GND', 'Ground'),
+             17: ('GND', ''), 18: ('GND', ''), 19: ('CAN H', 'CAN bus, 500 kbit/s'), 20: ('CAN L', '')}
 # the nets those names stand for: checked against the PCB file, so a pin map can't outlive a board change
 AUX_NETS = {1: 'OUT_IGN3', 2: 'OUT_IGN4', 3: 'OUT_BOOST', 4: 'OUT_ALT', 5: 'OUT_MAINRLY', 6: 'IN_KNOCK', 7: 'VR1_P', 8: 'VR1_N',
-            9: 'VR2_P', 10: 'VR2_N', 11: 'IN_AFR', 12: 'UART_TX', 13: 'UART_RX', 14: 'V5_EXT', 15: 'AUX_VBAT', 16: 'GND'}
-LSU_NETS = {1: 'LSU_IP', 2: 'LSU_VM', 3: 'LSU_HTR_N', 4: 'HTR_PWR', 5: 'LSU_RT', 6: 'LSU_UN'}
-IAT_NETS = {1: 'IAT_EXT', 2: 'GND'}
-JP_NETS = {1: 'HARN_IAT', 2: 'IN_IAT', 3: 'IAT_EXT'}
-LSU_NAMES = {1: ('IP', 'pump current · red'), 2: ('VM', 'reference · yellow'), 3: ('H−', 'heater − · white'),
-             4: ('H+', 'heater +12 V · grey'), 5: ('RT', 'trim resistor (in the plug)'), 6: ('UN', 'sense cell · black')}
-IAT_NAMES = {1: ('IAT', 'sensor signal'), 2: ('GND', 'sensor ground')}
-JP_NAMES = {1: ('STOCK', 'the car’s sensor'), 2: ('IN', 'to the ECU'), 3: ('EXT', 'J3 sensor')}
+            9: 'VR2_P', 10: 'VR2_N', 11: 'IN_AFR', 12: 'IN_FLEX', 13: 'IN_N2O', 14: 'V5_EXT', 15: 'AUX_VBAT', 16: 'GND',
+            17: 'GND', 18: 'GND', 19: 'CAN_H', 20: 'CAN_L'}
+# J2 takes AEM's X-Series sensor harness: pin numbers, names and wire colours from AEM's 30-0300 instructions
+LSU_NETS = {1: 'LSU_RT', 2: 'LSU_HTR_N', 3: 'LSU_VM', 4: '', 5: 'LSU_IP', 6: 'LSU_UN', 7: '', 8: 'HTR_PWR'}
+LSU_NAMES = {1: ('Trim', 'green wire · LSU trim resistor (RT)'), 2: ('H−', 'white · heater −'), 3: ('COM', 'orange · reference (VM)'),
+             4: ('–', 'empty'), 5: ('Pump', 'red · pump current (IP)'), 6: ('Sense', 'black · sense cell (UN)'),
+             7: ('–', 'empty'), 8: ('H+', 'brown · heater +12 V, through fuse F1')}
+WIRE = {1: '#2e9c4a', 2: '#f2f2f2', 3: '#f08a24', 5: '#d6402b', 6: '#111111', 8: '#7a4a21'}     # AEM harness wire colours
 
 
 def pinouts(args):
     import pcbnew
     from playwright.sync_api import sync_playwright
-    b = pcbnew.LoadBoard(os.path.join(ROOT, 'motherboards', '1989-93', 'miata_mb_8993.kicad_pcb'))
-    # the year-independent connectors sit in the same place on all five motherboards: check, then draw once
+    first = next(iter(YEARS.values()))
+    b = pcbnew.LoadBoard(os.path.join(ROOT, 'motherboards', first[2], first[3]))
+    # the year-independent connectors sit in the same place on every motherboard: check, then draw once
     for _, _, folder, pcb, _ in YEARS.values():
         o = pcbnew.LoadBoard(os.path.join(ROOT, 'motherboards', folder, pcb))
-        for ref in ('J2', 'J3', 'J5', 'JP1'):
+        for ref in ('J2', 'J5'):
             a, c = b.FindFootprintByReference(ref), o.FindFootprintByReference(ref)
             pa = sorted((p.GetNumber(), p.GetPosition().x, p.GetPosition().y, p.GetNetname().split('/')[-1]) for p in a.Pads())
             pc = sorted((p.GetNumber(), p.GetPosition().x, p.GetPosition().y, p.GetNetname().split('/')[-1]) for p in c.Pads())
@@ -346,11 +357,12 @@ def pinouts(args):
         return {int(p.GetNumber()): (p.GetPosition().x / 1e6, p.GetPosition().y / 1e6)
                 for p in b.FindFootprintByReference(ref).Pads() if p.GetNumber()}
 
-    for ref, nets in (('J5', AUX_NETS), ('J2', LSU_NETS), ('J3', IAT_NETS), ('JP1', JP_NETS)):
+    for ref, nets in (('J5', AUX_NETS), ('J2', LSU_NETS)):
         got = {int(p.GetNumber()): p.GetNetname().split('/')[-1] for p in b.FindFootprintByReference(ref).Pads() if p.GetNumber()}
+        got = {k: ('' if v.startswith('unconnected') else v) for k, v in got.items()}
         assert got == nets, f'{ref}: the PCB says {got}'
 
-    def diagram(ref, names, scale, r, note):
+    def diagram(ref, names, scale, r, note, ring=None):
         P = pads(ref)
         xs, ys = [q[0] for q in P.values()], [q[1] for q in P.values()]
         m = r + 12
@@ -359,8 +371,10 @@ def pinouts(args):
         for n, (x, yv) in sorted(P.items()):
             cx, cy = (x - min(xs)) * scale + m, (yv - min(ys)) * scale + m
             first = n == 1
+            if ring and n in ring:        # the harness wire's colour around the pad
+                s += f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r + 5}" fill="{ring[n]}"/>'
             shape = (f'<rect x="{cx-r:.1f}" y="{cy-r:.1f}" width="{2*r}" height="{2*r}" rx="4" fill="#d6402b"/>' if first
-                     else f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r}" fill="#c9a55a"/>')
+                     else f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r}" fill="{"#6f7377" if names[n][0] == "–" else "#c9a55a"}"/>')
             s += shape + (f'<text x="{cx:.1f}" y="{cy+5:.1f}" text-anchor="middle" font-size="{14 if r > 12 else 12}" '
                           f'font-weight="700" fill="{"#fff" if first else "#1a1a1a"}">{n}</text>')
         s += '</svg>'
@@ -372,28 +386,23 @@ def pinouts(args):
 *{{box-sizing:border-box}} body{{margin:0;background:#f5f4f0;color:#16181a;font:15px/1.35 Inter,"DejaVu Sans",Arial,sans-serif}}
 #wrap{{width:1500px;padding:30px 34px 26px}} h1{{font:800 30px/1.1 Inter,"DejaVu Sans",Arial,sans-serif;margin:0 0 4px}}
 .sub{{margin:0 0 20px;color:#5a5f63;font-size:15.5px;max-width:1100px}}
-.grid{{display:grid;grid-template-columns:1.25fr 1fr;gap:18px}}
+.grid{{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;align-items:start}}
 .card{{background:#fff;border:1px solid #dcdad3;border-radius:10px;padding:18px 20px}}
 .card h2{{font:700 19px/1.2 Inter,"DejaVu Sans",Arial,sans-serif;margin:0 0 3px}} .card p.what{{margin:0 0 12px;color:#5a5f63;font-size:14px}}
 .row{{display:flex;gap:20px;align-items:flex-start}} .dia{{flex:none}} .note{{margin:8px 0 0;font-size:12.5px;color:#6b7074;max-width:330px}}
 table{{border-collapse:collapse;font-size:14px}} td{{padding:3px 10px 3px 0;vertical-align:top}}
 td.n{{font-weight:700;width:26px;text-align:right;padding-right:10px}} td.n.one{{color:#d6402b}} td.s{{font-weight:700;white-space:nowrap}}
-.stack{{display:flex;flex-direction:column;gap:18px}} svg text{{font-family:Inter,"DejaVu Sans",Arial,sans-serif}}
+svg text{{font-family:Inter,"DejaVu Sans",Arial,sans-serif}}
 .foot{{margin:16px 0 0;color:#6b7074;font-size:13px}}
 </style><div id="wrap"><h1>Miata ECU: header pin maps</h1>
-<p class="sub">Looking down on the motherboard, the way the labelled pictures show it, with the connector edge toward you. Pin 1 is the red square. The same on all five motherboards.</p>
+<p class="sub">Looking down on the motherboard, the way the labelled pictures show it, with the connector edge toward you. Pin 1 is the red square. The same on all four motherboards.</p>
 <div class="grid">
-<div class="card"><h2>J5 · AUX header (2×8, 2.54 mm)</h2><p class="what">Everything the stock harness has no wire for.</p>
-<div class="row">{diagram('J5', AUX_NAMES, 17, 15, 'Odd pins are the row nearer the daughterboard, even pins the row nearer the board edge. Pin 1 is on the right.')}</div></div>
-<div class="stack">
-<div class="card"><h2>J2 · Wideband sensor (Micro-Fit 2×3)</h2><p class="what">Board pin n goes to Bosch LSU 4.9 plug pin n. Colours are the sensor’s own wires.</p>
-<div class="row">{diagram('J2', LSU_NAMES, 17, 15, 'The pads as soldered. Pins 1–3 are the row nearer the board edge.')}</div></div>
-<div class="card"><h2>J3 · Air-temperature sensor (Micro-Fit 1×2)</h2><p class="what">For an added sensor. Either wire can go to either pin.</p>
-<div class="row">{diagram('J3', IAT_NAMES, 17, 15, 'Pin 1 is on the right.')}</div></div>
-<div class="card"><h2>JP1 · Air-temperature source (1×3 jumper)</h2><p class="what">Shunt on pins 1–2 (left): the car’s own sensor. On 2–3 (right): the sensor on J3.</p>
-<div class="row">{diagram('JP1', JP_NAMES, 17, 15, 'Pin 1 is on the left.')}</div></div>
-</div></div>
-<p class="foot">Pad positions are read from the motherboard PCB files, and the signal on each pin is checked against them, by scripts/annotate.py.</p></div>"""
+<div class="card"><h2>J5 · Add-on header (2×10 box header, 2.54 mm)</h2><p class="what">Everything the stock harness has no wire for. A 20-way ribbon cable plugs in.</p>
+<div class="row">{diagram('J5', AUX_NAMES, 17, 15, 'Odd pins are the row nearer the daughterboard, even pins the row nearer the board edge. Pin 1 is on the right. Pins 12 and 13 need a rev 0.10 daughterboard.')}</div></div>
+<div class="card"><h2>J2 · Wideband sensor (JST PUD, 2×4, 2 mm)</h2><p class="what">Takes AEM’s X-Series sensor harness 30-3427, which has the Bosch LSU 4.9 plug on its other end. The ring round each pad is the harness wire’s colour.</p>
+<div class="row">{diagram('J2', LSU_NAMES, 44, 15, 'The pads as soldered, pin 1 on the left. Odd pins are the row away from the board edge. The same colours are printed on the board beside the connector: compare them with the harness before the first use.', WIRE)}</div></div>
+</div>
+<p class="foot">Pad positions are read from the motherboard PCB files, and the signal on each pin is checked against them, by scripts/annotate.py. The J2 pin functions and wire colours are from AEM’s instructions for the 30-0300 gauge.</p></div>"""
     with sync_playwright() as p:
         br = p.chromium.launch()
         pg = br.new_page(viewport={'width': 1500, 'height': 900}, device_scale_factor=1.5)

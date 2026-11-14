@@ -1,7 +1,31 @@
 ** Drc report for /home/claude/miata-ecus/scripts/../mb/release_9900/miata_mb_9900.kicad_pcb **
-** Created on 2026-11-13 13:42:19 **
+** Created on 2026-11-14 10:22:54 **
 
-** Found 56 DRC violations **
+** Found 59 DRC violations **
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(164.1700 mm, 160.0000 mm): Reference 'R21'
+    @(163.5825 mm, 160.2373 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(166.7100 mm, 160.0000 mm): Reference 'R22'
+    @(166.1225 mm, 160.2373 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(119.0000 mm, 92.3000 mm): Reference 'HD1'
+    @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(146.6984 mm, 61.8291 mm): Footprint Text '1V' of J1
+    @(144.0467 mm, 61.1298 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(116.0000 mm, 61.8291 mm): Footprint Text '1B' of J1
+    @(111.9724 mm, 61.1050 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(152.6500 mm, 61.8291 mm): Footprint Text 'XB' of J1
+    @(144.0467 mm, 61.1298 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(238.0006 mm, 61.8291 mm): Footprint Text '3Z' of J1
@@ -16,35 +40,15 @@
     @(235.0000 mm, 92.3000 mm): Reference 'HD2'
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(114.5000 mm, 92.0000 mm): Line on F.Silkscreen
-    @(119.0000 mm, 92.3000 mm): Reference 'HD1'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(166.1225 mm, 160.2373 mm): Line on F.Silkscreen
-    @(166.7100 mm, 160.0000 mm): Reference 'R22'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(152.6500 mm, 61.8291 mm): Footprint Text 'XB' of J1
-    @(144.0467 mm, 61.1298 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(116.0000 mm, 61.8291 mm): Footprint Text '1B' of J1
-    @(111.9724 mm, 61.1050 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(146.6984 mm, 61.8291 mm): Footprint Text '1V' of J1
-    @(144.0467 mm, 61.1298 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(194.2800 mm, 169.6000 mm): Reference 'R6'
     @(194.4325 mm, 169.8373 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(164.1700 mm, 160.0000 mm): Reference 'R21'
-    @(163.5825 mm, 160.2373 mm): Line on F.Silkscreen
+    @(194.2800 mm, 169.6000 mm): Reference 'R6'
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
     @(194.2800 mm, 169.6000 mm): Reference 'R6'
+[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
+    Local override; Severity: error
+    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu
+    @(224.0200 mm, 94.7500 mm): PTH pad 39 [GND] of JD1
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
     Local override; Severity: error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu
@@ -61,105 +65,113 @@
     Local override; Severity: error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu
     @(168.1100 mm, 180.7875 mm): PTH pad 18 [GND] of J5
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(165.6000 mm, 160.0000 mm): Footprint R21
-[lib_footprint_issues]: The current configuration does not include the library 'ecu_mb'.
-    Local override; Severity: warning
-    @(116.0000 mm, 68.1300 mm): Footprint J1
 [lib_footprint_issues]: The current configuration does not include the library 'Package_TO_SOT_SMD'.
     Local override; Severity: warning
     @(180.0000 mm, 199.0000 mm): Footprint U4
-[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(201.0000 mm, 173.0000 mm): Footprint D5
-[lib_footprint_issues]: The current configuration does not include the library 'ecu_mb'.
-    Local override; Severity: warning
-    @(180.0000 mm, 207.6000 mm): Footprint J4
-[lib_footprint_issues]: The current configuration does not include the library 'Fuse'.
-    Local override; Severity: warning
-    @(200.0000 mm, 179.0000 mm): Footprint F4
 [lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
     Local override; Severity: warning
-    @(235.0000 mm, 96.5000 mm): Footprint HD2
-[lib_footprint_issues]: The current configuration does not include the library 'ecu_mb'.
-    Local override; Severity: warning
-    @(250.0000 mm, 134.0000 mm): Footprint H4
-[lib_footprint_issues]: The current configuration does not include the library 'ecu_mb'.
-    Local override; Severity: warning
-    @(250.0000 mm, 193.0000 mm): Footprint H6
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(193.9100 mm, 169.6000 mm): Footprint R1
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(163.0600 mm, 160.0000 mm): Footprint R20
-[lib_footprint_issues]: The current configuration does not include the library 'ecu_mb'.
-    Local override; Severity: warning
-    @(104.0000 mm, 134.0000 mm): Footprint H3
-[lib_footprint_issues]: The current configuration does not include the library 'Connector_PinSocket_2.54mm'.
-    Local override; Severity: warning
-    @(127.5000 mm, 94.7500 mm): Footprint JD1
-[lib_footprint_issues]: The current configuration does not include the library 'ecu_mb'.
-    Local override; Severity: warning
-    @(104.0000 mm, 193.0000 mm): Footprint H5
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
-    Local override; Severity: warning
-    @(243.6000 mm, 186.6000 mm): Footprint C2
-[lib_footprint_issues]: The current configuration does not include the library 'Connector_PinSocket_2.54mm'.
-    Local override; Severity: warning
-    @(127.5000 mm, 165.2500 mm): Footprint JD2
-[lib_footprint_issues]: The current configuration does not include the library 'Connector_IDC'.
-    Local override; Severity: warning
-    @(188.4300 mm, 178.2475 mm): Footprint J5
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(195.7100 mm, 169.6000 mm): Footprint R6
+    @(119.0000 mm, 96.5000 mm): Footprint HD1
 [lib_footprint_issues]: The current configuration does not include the library 'Fuse'.
     Local override; Severity: warning
     @(144.0000 mm, 193.0000 mm): Footprint F1
 [lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
-    @(168.1400 mm, 160.0000 mm): Footprint R22
+    @(193.9100 mm, 169.6000 mm): Footprint R1
+[lib_footprint_issues]: The current configuration does not include the library 'Connector_JST'.
+    Local override; Severity: warning
+    @(121.5000 mm, 199.4000 mm): Footprint J2
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(170.0000 mm, 172.0000 mm): Footprint R35
 [lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
     Local override; Severity: warning
-    @(119.0000 mm, 96.5000 mm): Footprint HD1
+    @(235.0000 mm, 96.5000 mm): Footprint HD2
+[lib_footprint_issues]: The current configuration does not include the library 'Fuse'.
+    Local override; Severity: warning
+    @(108.0000 mm, 80.0000 mm): Footprint F2
+[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
+    Local override; Severity: warning
+    @(235.0000 mm, 163.5000 mm): Footprint HD4
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    Local override; Severity: warning
+    @(243.6000 mm, 186.6000 mm): Footprint C2
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(165.6000 mm, 160.0000 mm): Footprint R21
+[lib_footprint_issues]: The current configuration does not include the library 'ecu_mb'.
+    Local override; Severity: warning
+    @(104.0000 mm, 134.0000 mm): Footprint H3
+[lib_footprint_issues]: The current configuration does not include the library 'ecu_mb'.
+    Local override; Severity: warning
+    @(250.0000 mm, 134.0000 mm): Footprint H4
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(163.0600 mm, 160.0000 mm): Footprint R20
+[lib_footprint_issues]: The current configuration does not include the library 'ecu_mb'.
+    Local override; Severity: warning
+    @(104.0000 mm, 193.0000 mm): Footprint H5
+[lib_footprint_issues]: The current configuration does not include the library 'Connector_PinSocket_2.54mm'.
+    Local override; Severity: warning
+    @(127.5000 mm, 94.7500 mm): Footprint JD1
+[lib_footprint_issues]: The current configuration does not include the library 'Connector_PinSocket_2.54mm'.
+    Local override; Severity: warning
+    @(127.5000 mm, 165.2500 mm): Footprint JD2
+[lib_footprint_issues]: The current configuration does not include the library 'ecu_mb'.
+    Local override; Severity: warning
+    @(224.0000 mm, 192.0000 mm): Footprint U2
+[lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(201.0000 mm, 173.0000 mm): Footprint D5
 [lib_footprint_issues]: The current configuration does not include the library 'Diode_SMD'.
     Local override; Severity: warning
     @(203.7000 mm, 102.0000 mm): Footprint D1
-[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
-    Local override; Severity: warning
-    @(176.0000 mm, 172.0000 mm): Footprint R36
 [lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
     @(173.5000 mm, 201.0000 mm): Footprint R2
 [lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
     Local override; Severity: warning
     @(243.6000 mm, 190.6000 mm): Footprint C1
-[lib_footprint_issues]: The current configuration does not include the library 'Connector_Molex'.
+[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
     Local override; Severity: warning
-    @(129.0000 mm, 202.3000 mm): Footprint J2
-[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
-    Local override; Severity: warning
-    @(235.0000 mm, 163.5000 mm): Footprint HD4
-[lib_footprint_issues]: The current configuration does not include the library 'ecu_mb'.
-    Local override; Severity: warning
-    @(224.0000 mm, 192.0000 mm): Footprint U2
+    @(243.6000 mm, 198.0000 mm): Footprint C3
 [lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
     Local override; Severity: warning
     @(119.0000 mm, 163.5000 mm): Footprint HD3
 [lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
-    @(186.5000 mm, 201.0000 mm): Footprint R3
-[lib_footprint_issues]: The current configuration does not include the library 'Capacitor_SMD'.
+    @(168.1400 mm, 160.0000 mm): Footprint R22
+[lib_footprint_issues]: The current configuration does not include the library 'ecu_mb'.
     Local override; Severity: warning
-    @(243.6000 mm, 198.0000 mm): Footprint C3
+    @(180.0000 mm, 207.6000 mm): Footprint J4
+[lib_footprint_issues]: The current configuration does not include the library 'ecu_mb'.
+    Local override; Severity: warning
+    @(116.0000 mm, 68.1300 mm): Footprint J1
 [lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
     Local override; Severity: warning
-    @(170.0000 mm, 172.0000 mm): Footprint R35
+    @(195.7100 mm, 169.6000 mm): Footprint R6
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(176.0000 mm, 172.0000 mm): Footprint R36
 [lib_footprint_issues]: The current configuration does not include the library 'Fuse'.
     Local override; Severity: warning
-    @(108.0000 mm, 80.0000 mm): Footprint F2
+    @(200.0000 mm, 179.0000 mm): Footprint F4
+[lib_footprint_issues]: The current configuration does not include the library 'Connector_IDC'.
+    Local override; Severity: warning
+    @(188.4300 mm, 178.2475 mm): Footprint J5
+[lib_footprint_issues]: The current configuration does not include the library 'ecu_mb'.
+    Local override; Severity: warning
+    @(250.0000 mm, 193.0000 mm): Footprint H6
+[lib_footprint_issues]: The current configuration does not include the library 'Resistor_SMD'.
+    Local override; Severity: warning
+    @(186.5000 mm, 201.0000 mm): Footprint R3
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; Severity: warning
+    @(240.0000 mm, 211.5000 mm): Line on Edge.Cuts
+    @(119.3900 mm, 198.6900 mm): Line on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; Severity: warning
+    @(240.0000 mm, 211.5000 mm): Line on Edge.Cuts
+    @(129.6100 mm, 198.6900 mm): Line on F.Silkscreen
 [silk_edge_clearance]: Silkscreen clipped by board edge
     Rule: board setup constraints silk; Severity: warning
     @(115.5000 mm, 53.0000 mm): Arc on Edge.Cuts
@@ -170,7 +182,7 @@
     @(111.9724 mm, 61.1050 mm): Line on F.Silkscreen
 [silk_edge_clearance]: Silkscreen clipped by board edge
     Rule: board setup constraints silk; Severity: warning
-    @(238.5000 mm, 53.0000 mm): Arc on Edge.Cuts
+    @(241.5000 mm, 53.0000 mm): Line on Edge.Cuts
     @(232.6727 mm, 52.8806 mm): Line on F.Silkscreen
 [silk_edge_clearance]: Silkscreen clipped by board edge
     Rule: board setup constraints silk; Severity: warning

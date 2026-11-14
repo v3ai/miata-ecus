@@ -106,8 +106,7 @@ aside>*{flex-shrink:0}
       <button id="m-a" aria-pressed="false">Assembled</button>
     </div>
     <div class="seg years" id="years" role="group" aria-label="Model year" hidden>
-      <button data-y="8993" aria-pressed="true">89–93</button>
-      <button data-y="9495" aria-pressed="false">94–95</button>
+      <button data-y="8995" aria-pressed="true">89–95</button>
       <button data-y="9697" aria-pressed="false">96–97</button>
       <button data-y="9900" aria-pressed="false">99–00</button>
       <button data-y="0105" aria-pressed="false">01–05</button>
@@ -215,42 +214,43 @@ scene.add(ground);
 // parts table (<pre>parts.json: size, centre in board mm, rows with 3D pick boxes in board-local mm).
 const MODELS = {
   d: {title:'Miata ECU daughterboard', scale:'125.0 × 76.0 mm',
-      sub:'Rev 0.9, as routed. Since rev 0.8 the board is 16 mm taller, for a strip just below J1: eight ST VND7NV04 low-side drivers in DPAK on heat-spreading drain copper (injectors, idle, VVT, boost, alternator), seven protected ZXMS6004 relay / lamp / tach drivers behind a second level shifter (U12), and the ignition outputs\' Schottky and pull-down stage. Also new: a protected harness 5 V (U14), a +3V3 shunt clamp (U15, Q20), TCAN1042 CAN transceivers and clamps on the wideband drive and UART lines. The STM32F407 runs the engine, an STM32F103C8 (U102) the wideband controller on the right, above the LSU pins of J2. Components are KiCad 3D models at their placed positions (a few are drawn to their datasheet sizes where the library has none). The two 40-pin headers hang underneath to plug into the motherboard.',
-      specs:[['Size','125 × 76 mm, 1.6 mm'],['Stack-up','4 layers: sig / GND / 3V3 / sig'],['Parts','<span id="partcount"></span>'],
+      sub:'Rev 0.10, as routed, on six layers. The STM32F407 runs the engine; an STM32F103C8 (U102) on the right, above the sensor pins of J2, is the wideband controller for a Bosch LSU 4.9. The strip below J1 holds eight ST VND7NV04 low-side drivers in DPAK on heat-spreading drain copper (injectors, idle, VVT, boost, alternator), each injector driver with its own clamp (a fast diode and a 16 V TVS, D42–D49), seven protected relay, lamp and tach drivers, and the ignition outputs. New in rev 0.10: the microSD socket J4 for logging, the flex-fuel and nitrous-arm inputs, and battery sensing at the battery input. Components are KiCad 3D models at their placed positions; the crystals, buttons and card socket are drawn to their datasheet sizes, because the library has no models for them. The two 40-pin headers hang underneath to plug into the motherboard.',
+      specs:[['Size','125 × 76 mm, 1.6 mm'],['Stack-up','6 layers: signal / GND / signal / signal / 3V3 / signal'],['Parts','<span id="partcount"></span>'],
              ['MCU','STM32F407VGT6 + STM32F103C8 (wideband)'],['Headers','Bottom side, pins down: J1 power+outputs · J2 inputs+comms+LSU']],
-      jumps:[['U1','MCU'],['U2','5V buck'],['U11','Level shifter'],['U15','3V3 clamp'],['Q9','Relay driver'],['U6','Coil driver'],['Q1','Injector 1'],['U9','VR input'],
+      jumps:[['U1','MCU'],['U2','5V buck'],['U11','Level shifter'],['U15','3V3 clamp'],['Q9','Relay driver'],['U6','Coil driver'],['Q1','Injector 1'],
+             ['D46','Injector clamp'],['J4','microSD socket'],['U9','VR input'],
              ['U8','Knock amp'],['U10','CAN'],['U102','Wideband MCU'],['Q101','LSU heater'],['J1','Header J1'],['J2','Header J2']]},
 };
-// one motherboard per model year; all share the daughterboard and its position
+// one motherboard per harness family; all share the daughterboard and its position
 const YEARS = {
-  '8993': {name:'1989–93', chassis:'NA6', rev:'0.11', hdr:'TE 174917-6, 48 pins (plugs 1 and 2)', prov:false,
-           extra:[['D1','Idle valve diode'],['R23','Injector pair link'],['D3','Injector clamp'],['R28','TPS conversion link (not fitted)']]},
-  '9495': {name:'1994–95', chassis:'NA8', rev:'0.9', hdr:'TE 174917-6, 48 pins (plugs 1 and 2)', prov:false,
+  '8995': {name:'1989–95', chassis:'NA6 / NA8', rev:'0.13', hdr:'TE 174917-6, 48 pins (plugs 1 and 2)', prov:false,
+           extra:[['JP1','Injector 3 jumper'],['JP2','Injector 4 jumper'],['JP3','Second fan jumper'],['JP4','1994–95 2R jumper'],
+                  ['JP5','Tach jumper'],['JP6','Airflow-meter wire jumper'],['D1','Idle valve diode'],['R28','TPS conversion link (not fitted)']]},
+  '9697': {name:'1996–97', chassis:'NA8, OBD-II', rev:'0.9', hdr:'TE 178780-1, 76 positions (plugs 1, 3, 4; plug 2 unused)', prov:true,
            extra:[['D1','Idle valve diode']]},
-  '9697': {name:'1996–97', chassis:'NA8, OBD-II', rev:'0.7', hdr:'TE 178780-1, 76 positions (plugs 1, 3, 4; plug 2 unused)', prov:true,
-           extra:[['D1','Idle valve diode']]},
-  '9900': {name:'1999–2000', chassis:'NB1', rev:'0.7', hdr:'TE 176122-6, 64 positions (plugs 1–3)', prov:true,
+  '9900': {name:'1999–2000', chassis:'NB1', rev:'0.9', hdr:'TE 178780-1, 76 positions (the car’s four plugs)', prov:true,
            extra:[['F2','Idle valve fuse'],['D1','Idle valve diode']]},
-  '0105': {name:'2001–05', chassis:'NB2, VVT', rev:'0.7', hdr:'TE 353830-5, 72 positions in 3 rows (plugs 2–4)', prov:true,
+  '0105': {name:'2001–05', chassis:'NB2, VVT', rev:'0.9', hdr:'TE 353830-5, 72 positions in 3 rows (plugs 2–4)', prov:true,
            extra:[['F2','Idle valve fuse'],['F3','VVT valve fuse'],['D2','VVT valve diode']]},
 };
 function assyModel(y){
   const Y = YEARS[y];
   return {title:`Miata ECU, <span style="white-space:nowrap">${Y.name}</span> assembly`, scale:'154.0 × 161.5 mm',
-    sub:`The ${Y.chassis} motherboard (rev ${Y.rev}) with the daughterboard plugged into its two 1×40 sockets on four M3 × 11 mm standoffs. `
+    sub:`The ${Y.chassis} motherboard (rev ${Y.rev}) with the daughterboard (rev 0.10) plugged into its two 1×40 sockets on four M3 × 11 mm standoffs. `
       + (Y.prov ? `The outline and mounting holes are the NA case's until a ${Y.name} case is measured. ` : 'It fits the stock NA case. ')
-      + 'The harness header and MAP sensor are simplified stand-in models; everything else is the KiCad 3D model.',
+      + (y === '8995' ? 'Six jumpers in the side margins set it for 1989–93 or 1994–95. ' : '')
+      + 'The harness header, the wideband connector, the MAP sensor and the heater fuse are simplified stand-in models; everything else is the KiCad 3D model.',
     specs:[['Motherboard', '154 × 161.5 mm, 2 layers' + (Y.prov ? ', provisional outline' : ', stock NA case outline')],
            ['Harness header', Y.hdr], ['Stack','Daughterboard (125 × 76 mm) 11 mm above, on 8.5 mm sockets'],
-           ['Bottom edge','LSU 4.9 · IAT · USB-C · MAP (left to right)'],['Parts','<span id="partcount"></span>']],
-    jumps:[['J1','Harness header'],['JD1','Socket JD1'],['J5','AUX header'],['J2','LSU 4.9'],['J3','IAT'],['J4','USB-C'],
+           ['Bottom edge','Wideband (AEM harness) · USB-C · MAP (left to right)'],['Parts','<span id="partcount"></span>']],
+    jumps:[['J1','Harness header'],['JD1','Socket JD1'],['J5','Add-on header'],['J2','Wideband sensor'],['J4','USB-C'],
            ['U2','MAP sensor'],['F1','Heater fuse'], ...(Y.extra || []),['U102','Wideband MCU'],['U1','Main MCU']]};
 }
 // bump when the board assets change, so browsers don't keep showing cached older boards
-const ASSET_V = '?v=d09-mb011';
+const ASSET_V = '?v=d010-mb013';
 const PCBS = {d:{pre:'', label:'Daughterboard'}};
 for (const y in YEARS) PCBS['mb' + y] = {pre:`mb${y}_`, label:`Motherboard ${YEARS[y].name}`};
-let year = '8993';
+let year = '8995';
 const curMB = () => PCBS['mb' + year];
 const STACK = 12.6;                      // daughterboard underside above the motherboard underside (1.6 + 8.5 socket + 2.5 header)
 const DAUGHTER_AT = [14.5, 42.0];         // daughterboard top-left corner on the motherboard (mm; rev 0.9: J1 on the top edge, centred)
