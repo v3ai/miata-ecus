@@ -845,8 +845,26 @@ One firmware serves rev 0.9 and rev 0.10 boards: the new pins are simply not con
   `check_pins.py` 41 defines / 39 connector entries; `sim_report.py` 115 firmware functions across six model-year
   settings reach the right harness cavities.
 
-Not re-run for this revision: the Renode full-firmware emulation. The firmware it ran did not have the card, flex and
-nitrous settings; the pins it exercises are unchanged.
+**Full-firmware emulation, run again 2026-11-14** (`sim.yaml` on GitHub: the firmware as rusEFI's own board build
+makes it from this branch, on Renode):
+- **As the bench stood** (run 43607389480): six model years 0 FAIL, 370 checks OK, the same count as before rev 0.10;
+  ECU + wideband (a blank wideband processor flashed through the serial bootloader, CAN, lambda at 0.85 / 1.0 / 1.2)
+  0 FAIL, 12 OK.
+- **With the bench brought up to the rev 0.10 board** (run 43613618562). `run_ecu.py --board 0.10` puts the battery
+  sense at the battery input, and each year has four new checks: the card socket's pins as the tune holds them
+  (PB10, PB14, PB15, PD13 on SPI2), those three pins in alternate function 5 in the port registers, PD13 an output
+  and high at the end of the run, and the flex input unassigned.
+
+  | Bench | Model years | Battery reading for 12.4 V at the pin | ECU + wideband |
+  |---|---|---|---|
+  | Daughterboard rev 0.10 | six, 0 FAIL, 394 checks OK | 12.40 V | 0 FAIL, 12 OK |
+  | Daughterboard rev 0.9 (the ordered boards), same firmware | six, 0 FAIL, 394 checks OK | 12.05 V | (run on the rev 0.10 bench) |
+
+- **What the card check shows:** with no card model the firmware selects the card once a second, ten times, then
+  stops and leaves the chip select high; the SPI pins are set up as designed. A card's data is not emulated, and
+  the flex and nitrous inputs ship unassigned, so nothing in the run drives them.
+- The eight CHECK rows (fuel demand against the injection window at 6500 rpm on the two 1989-95 settings) are as
+  before.
 
 ### Motherboards rev 0.13 / 0.9
 - **Wideband connector, corrected 2026-11-14:** J2 is a JST PUD side-entry header (S08B-PUDSS-1: two rows of four at
