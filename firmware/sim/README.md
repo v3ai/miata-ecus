@@ -15,11 +15,13 @@ timeouts) is meaningful to a few microseconds.
 
 | Script | Machines | What it checks |
 |---|---|---|
-| `run_ecu.py` | ECU: STM32F407, OpenBLT + rusEFI | Per model year: boot, year preset, key-on sensor readings through the board's front end, fuel-pump prime, cranking on a **real recorded cranking capture**, idle/cruise/high rpm, injector count/width/order, coil count/dwell/180° spacing, stall shut-off, main-relay hold and release (2003-05) |
+| `run_ecu.py` | ECU: STM32F407, OpenBLT + rusEFI | Per model year: boot, year preset, the card socket's SPI2 pins (the tune, the port registers, the chip select at the pin), key-on sensor readings through the board's front end, fuel-pump prime, cranking on a **real recorded cranking capture**, idle/cruise/high rpm, injector count/width/order, coil count/dwell/180° spacing, stall shut-off, main-relay hold and release (2003-05) |
 | `run_system.py` | ECU + wideband: STM32F407 and STM32F103 | Blank F103 programmed by the ECU over USART3 + BOOT0/NRST through the ROM bootloader protocol (erase, write, verify), F103 restart, CAN bit timing of both controllers, LSU 4.9 heater warm-up, ESR control, pump loop against the LSU curve, rusEFI's lambda reading |
 
-`python3 run_ecu.py [--years 1989-93,2003-05]` (about 6-10 minutes per year), `python3 run_system.py` (about
-30 minutes). The Renode log is written as the run goes; a run whose log stops growing for 10 minutes is stopped. Results (Renode log, pin
+`python3 run_ecu.py [--years 1989-93,2003-05] [--board 0.10|0.9]` (about 6-10 minutes per year), `python3 run_system.py` (about
+30 minutes). `--board` picks the daughterboard revision the bench models: rev 0.10 (the default) senses the battery at the
+battery input, rev 0.9 behind the reverse diode and fuse (0.35 V lower). The firmware is the same for both; the CI
+workflow runs every model year on each. The Renode log is written as the run goes; a run whose log stops growing for 10 minutes is stopped. Results (Renode log, pin
 transitions, sampled firmware state, CAN frames, check table) go to `out/` (git-ignored); exit code 0 means every
 check passed.
 
@@ -67,6 +69,8 @@ Each of these made the unmodified firmware fail in emulation while it would work
   `tools/circuit_sim_full.py`).
 - Pin levels are logic levels at the MCU. Whether a real CAS/CKP/CMP gives the polarity rusEFI expects at our
   input stage is a car fact the simulation assumes from the captures.
+- No microSD card model: the firmware finds the socket empty (it selects the card once a second, ten times, then
+  stops). That the SPI2 pins are set up and the chip select moves is checked; a card's data is not.
 - No USB (TunerStudio) model: the flasher is started by a hook that does what the TunerStudio button does.
 - Overrun, analog watchdog, injected ADC channels, DMA FIFO/burst and CAN bit-level errors are not modelled.
 - Runs stay under 51 s of virtual time: the ECU's time base (TIM5, 32 bit at 84 MHz) wraps at 51.1 s, where the
