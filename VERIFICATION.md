@@ -1,6 +1,7 @@
 # Verification report
 
-**Date:** 2026-10-30; full-firmware emulation, expanded circuit and board checks 2026-11-02; rev 0.7 and 0.8 fixes 2026-11-03; rev 0.9 layout 2026-11-03; rev 0.10 2026-11-13; wideband connector, emulation re-run and pictures 2026-11-14.
+**Date:** 2026-10-30; full-firmware emulation, expanded circuit and board checks 2026-11-02; rev 0.7 and 0.8 fixes 2026-11-03; rev 0.9 layout 2026-11-03; rev 0.10 2026-11-13; wideband connector, emulation re-run and pictures 2026-11-14; plug photograph and other
+boards 2026-11-15.
 **Boards:** daughterboard rev 0.10; motherboards 1989-95 rev 0.13, 1996-97 / 1999-2000 / 2001-05 rev 0.9. The boards ordered in November 2026 are the earlier set (daughterboard rev 0.9), kept in `ordered-boards/2026-11/`; what this review means for them is under [Rev 0.10](#the-ordered-rev-09-boards).
 These revisions carry the fixes this review called for (see [Rev 0.5 changes](#rev-05-changes-and-re-verification),
 [Rev 0.6](#rev-06-stm32f103-wideband-controller), [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings),
@@ -875,9 +876,18 @@ makes it from this branch, on Renode):
   also has the ten-circuit housing of the gauge's other connector; a Micro-Fit header would not have taken the plug.
   The pin functions are as read on 2026-11-13 (1 trim, 2 heater −, 3 common, 5 pump current, 6 sense, 8 heater +),
   and each pin's wire colour is printed beside the connector. PUD contacts are rated 3 A and −25 to +85 °C.
-  **Not verified:** that AEM numbers the cavities as JST does (AEM does not say; under JST's numbering each signal pair
-  in AEM's two tables shares a column, which fits), and the header against a real harness. The product photographs
-  could not be opened with the tools used here, so the identification rests on AEM's document, not on a picture.
+  **Checked against a photograph (2026-11-15):** a product photo of the harness's gauge-end plug, sent by the owner,
+  shows a natural-colour housing with two rows of four cavities and a lock lever on top, the cavities about one wire
+  width apart: a JST PUDP-08V-S, not a 3 mm Micro-Fit. Six cavities hold terminals and two are empty. Seen from the
+  mating face with the lock up, the empty ones are the left end of the lock-side row and the third from the left of
+  the other row. With AEM's table (pins 4 and 7 unused) only one numbering gives that pattern: odd pins in the
+  lock-side row, 7-5-3-1 from the left, and 8-6-4-2 below. That is JST's numbering as KiCad's footprints for this
+  series have it, and the one the board uses; a 1-4 / 5-8 numbering, or the same numbering started from the other
+  end, would put the empty cavities elsewhere. The wires agree: red, green and orange leave the lock-side row,
+  brown, black and white the other.
+  **Still not done:** a real harness plugged into a board, and the footprint's pad numbers are taken from KiCad's
+  library, not checked against JST's drawing. With a harness in hand: hold the plug with the lock up and look where
+  the wires go in. Top row, left to right: green, orange, red, empty. Bottom row: white, empty, black, brown.
 - **A fault in the motherboard router, found while re-routing:** it raises the search limit for its long runs above
   the daughterboard's, and did so by position in the search function's argument list. The six-layer work added an
   argument after it, so the limit silently stayed at the daughterboard's value: three to seven nets failed on the two
@@ -899,6 +909,13 @@ makes it from this branch, on Renode):
   `board_checks.py` on the new boards: 1606 OK / 263 CHECK / 4 FAIL, as before; `circuit_sim_full.py` 93 OK / 11
   CHECK / 1 REF / 0 FAIL.
 
+### What other Miata plug-in ECUs do (2026-11-15)
+[research/other_miata_pnp_boards.md](research/other_miata_pnp_boards.md): the open designs read (rusEFI Hellen and
+uaEFI, Speeduino's NA6 board) and the makers that publish a figure (Link, ME) all use 85 °C-grade processors; all
+let the driver chip's own clamp take the injector turn-off energy, as this board did up to rev 0.9; and the answer
+given for the 1990-93 paired wiring is a sequential conversion in the car, which the 1989-95 motherboard already
+supports (JP1 and JP2 on SEQ, injectors 3 and 4 to pins 2Y and 2Z, manual cars only). Nothing in it was measured.
+
 ### The ordered rev 0.9 boards
 - **A1 applies.** They will switch injectors as designed; what ST does not guarantee without the series resistance is
   the drivers' behaviour when they clamp or protect themselves. To bring a board inside the rating by hand: lift the
@@ -913,8 +930,8 @@ makes it from this branch, on Renode):
 - **All temperatures:** a model, with the heat transfer to the air assumed.
 - **Stock at JLCPCB** of the Vishay TPSMC16A (it is in JLCPCB's parts library; the page shows no stock figure). The
   alternate, Diodes Inc. SMCJ14A-13-F, had 2,707 at LCSC on 2026-11-13.
-- **The wideband connector against a real harness** (the series is from AEM's instructions; which cavity is pin 1
-  is not), the card socket's rotation in JLCPCB's placement preview, and the land pattern of the input inductor
+- **The wideband connector against a real harness** (the series is from AEM's instructions; the pin numbering
+  agrees with a photograph of the plug), the card socket's rotation in JLCPCB's placement preview, and the land pattern of the input inductor
   against its maker's drawing.
 - **Load dump level** of a Miata alternator; **the consequence of A1** (the rule is ST's, what happens below 150 Ω is
   not stated).
@@ -931,7 +948,7 @@ IP or RT short (N3, the ICs are protected), N11 (1994-95 2L on a car; 1989-93 no
 | A3 | **Injector inductance is not known** (rev 0.10 audit). Every clamp energy and board temperature scales with it; 8 mH and 20 mH are both plausible | Measure one injector with an LCR meter, unplugged, before sustained high rpm. Near 8 mH: nothing to do. Near 20 mH on a 1989-93 car: see the next row |
 | Heat | **Board temperature at sustained high rpm** (rev 0.10 model): the processor's 105 °C junction is reached at 65-73 °C air around the board (sequential years) or 51-63 °C (1989-93, 20 mH injectors) | If the injectors measure high: fit the STM32F407VGT7 (125 °C), or move the 1989-93 clamp heat to that motherboard (not designed yet). Measure a board's temperature at full load on the first car either way |
 | A1 | **Ordered rev 0.9 daughterboards have no series resistor at the driver inputs** (ST asks for 150 Ω minimum) | Rework by hand, or accept it knowingly: [The ordered rev 0.9 boards](#the-ordered-rev-09-boards) |
-| J2 | **No AEM harness has been plugged into a board.** The connector series (JST PUD) is from AEM's instructions; that AEM's pin numbers are JST's is not stated anywhere | Compare a harness's wire colours with the print beside J2 before the first use. With a harness in hand, check the fit before ordering boards |
+| J2 | **No AEM harness has been plugged into a board.** The connector series (JST PUD) is from AEM's instructions, and a photograph of the plug agrees with the board's pin numbering | With a harness in hand, check the wire colours from the wire side (lock up: green, orange, red, empty over white, empty, black, brown) and against the print beside J2 |
 | M5 | **NB alternator control wire: may need a pull-up.** Corrected 2026-11-12: 1O (NB1) / 3M (NB2) is a logic-level PWM input to the regulator inside the alternator, not the field coil (stock 1999 ECU scoped at 250 Hz; working MS3 and ECUMaster set-ups use a low side with a 1k pull-up to 5 V, about 5 mA). The old worry, 3-5 A of field current, doesn't apply: the VND7NV04 drives it easily. What isn't known is whether the alternator pulls the wire up itself. Firmware ships control off, at 250 Hz | Key on, ECU unplugged: measure 1O / 3M to ground. About 5 or 12 V: turn on "Alternator control". Near 0 V: fit 1k + 1N4148 from AUX J5-14 (5 V, anode) to J5-4 (OUT_ALT), then turn it on. First run: if the battery goes past about 15 V, switch it off and invert the output. Next motherboard revision: a pull-up footprint on the NB boards |
 | M6 | ~~ULN2003 at full load~~ **Resolved in rev 0.8:** the relay, lamp and tach outputs are seven ZXMS6004FF protected low sides (hottest, the NB1 VICS solenoid: Tj 102 °C at 85 °C ambient) | — |
 | Tach | 1989-95 tach cavity 2I: our board drives it as an output (as Hellen does); the wiki tables call it an input | Kept as an output. Check the wiring diagram; if the igniter feeds 2I, set the tach output to none |

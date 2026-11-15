@@ -152,6 +152,7 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
 > **2026-11-14:** the motherboards' wideband connector was the wrong series (a guess); it is now the JST header
 > that AEM's instructions point to (motherboards rev 0.13 / 0.9, routed again). The full-firmware emulation was run
 > again with the rev 0.10 firmware, and the pictures and 3D viewer were redrawn from the current boards.
+> [What other Miata plug-in ECUs do](research/other_miata_pnp_boards.md) about the choices still open is written up.
 >
 > **The boards ordered in November 2026** are the set before this (daughterboard rev 0.9). Their files are kept in
 > [`ordered-boards/2026-11/`](ordered-boards/2026-11/); what the rev 0.10 review means for them is in
@@ -225,10 +226,10 @@ Check the plug's wiring and the sensor's pins on your car before fitting R28: se
   of the processor (STM32F407VGT7) fits the same pads and costs about five times as much. Numbers and options:
   [VERIFICATION.md](VERIFICATION.md#board-temperature).
 - **The wideband connector has not been tried with a harness.** The motherboards carry a JST PUD header
-  (S08B-PUDSS-1) for AEM's X-Series sensor harness 30-3427. AEM's instructions name the harness's terminal, and that
-  terminal belongs to this connector series; AEM does not say which cavity is pin 1, so the board follows JST's
-  numbering and prints each pin's wire colour beside the connector. Compare a harness with the print before the first
-  use ([INSTALL.md](INSTALL.md#header-pin-maps)).
+  (S08B-PUDSS-1) for AEM's X-Series sensor harness 30-3427. AEM's instructions name the harness's terminal, which
+  belongs to this connector series, and a photograph of the plug agrees with the board's pin numbering. Each pin's
+  wire colour is printed beside the connector: compare a harness with the print before the first use
+  ([INSTALL.md](INSTALL.md#header-pin-maps)).
 - **Clamp TVS stock.** The daughterboard's injector clamp TVS (Vishay TPSMC16A) is in JLCPCB's library, but its stock
   could not be confirmed; the [daughterboard README](daughterboard/README.md#before-ordering) names the alternate.
 - **1996–2005 case geometry is a placeholder.** These motherboards use the NA board outline and mounting holes until a

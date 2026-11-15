@@ -79,9 +79,16 @@ column; odd pins are the row away from the board edge.
 
 The pin functions and wire colours are from AEM's instructions for the 30-0300 gauge. The same instructions name the
 harness's replacement terminal, JST SPUD-001T-P0.5, which is the contact of JST's PUD connectors: that is how the
-connector was identified. **Nobody has plugged a harness into this board yet**, and AEM does not say which cavity is
-pin 1 (the board follows JST's numbering). Each pin's wire colour is printed on the board beside J2: compare the
-harness with the print before plugging a sensor in, and stop if they differ.
+connector was identified, and a photograph of the plug agrees with the pin numbering. **Nobody has plugged a
+harness into this board yet.** Check yours before plugging a sensor in: hold the plug with its latch up and look at
+the end the wires enter.
+
+| | left | | | right |
+|---|---|---|---|---|
+| Top row (latch side) | green | orange | red | empty |
+| Bottom row | white | empty | black | brown |
+
+The same colours are printed on the board beside J2. Stop if yours differ.
 
 **1989–95 motherboard jumpers** (three-pin and two-pin headers with shunts, along the side edges). Set them for the
 car before the first start:
