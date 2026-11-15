@@ -109,7 +109,7 @@
   "match": true,
   "mfr": "Diodes Incorporated",
   "mpn": "SMCJ14A-13-F",
-  "note": "LCSC listing read 2026-11-13: 2,707 in stock"
+  "note": "Alternate for D46-D49. JLCPCB stock list of 2026-11-15: 2,862 in stock"
  },
  "C13585": {
   "correct_lcsc": null,
@@ -297,13 +297,21 @@
   "mpn": "BAT54SLT1G",
   "note": ""
  },
+ "C1973780": {
+  "correct_lcsc": null,
+  "desc": "TVS 13.6V stand-off, 15.2-16.8V breakdown, 22.5V clamp, 1.5kW, SMC, 150C junction",
+  "match": true,
+  "mfr": "Littelfuse",
+  "mpn": "1.5SMC16A",
+  "note": "JLCPCB stock list of 2026-11-15: 2,709 in stock (LCSC's own page the same day: 1,705). Alternates, same footprint, 15.6-17.2 V, 150 C: Diodes Inc. SMCJ14A-13-F, LCSC C135134 (2,862); Brightking SMDJ14A/TR13, LCSC C310102 (7,830)"
+ },
  "C1982018": {
   "correct_lcsc": null,
   "desc": "TVS 13.6V stand-off, 15.2-16.8V breakdown, 22.5V clamp, 1.5kW, SMC, 185C junction, AEC-Q101",
   "match": true,
   "mfr": "Vishay",
   "mpn": "TPSMC16AHE3_B/H",
-  "note": "In JLCPCB's parts library (page read 2026-11-13); stock is not shown there and not confirmed. Alternate with confirmed stock, same footprint: Diodes Inc. SMCJ14A-13-F, LCSC C135134 (150 C junction)"
+  "note": "Fitted until 2026-11-15. Not in JLCPCB's stock list of 2026-11-15 (the list holds only parts with stock). A hand-fit option for a higher junction rating; the fitted part is Littelfuse 1.5SMC16A, LCSC C1973780"
  },
  "C20551": {
   "correct_lcsc": null,
@@ -754,6 +762,14 @@
   "mfr": "Brightking",
   "mpn": "SMCJ30A/TR13",
   "note": ""
+ },
+ "C310102": {
+  "correct_lcsc": null,
+  "desc": "TVS 14V stand-off, 15.6-17.2V breakdown, 23.2V clamp, 3kW, SMC, 150C junction",
+  "match": true,
+  "mfr": "Brightking",
+  "mpn": "SMDJ14A/TR13",
+  "note": "Alternate for D46-D49. JLCPCB stock list of 2026-11-15: 7,830 in stock"
  },
  "C318884": {
   "correct_lcsc": null,

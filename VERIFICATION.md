@@ -1,7 +1,7 @@
 # Verification report
 
 **Date:** 2026-10-30; full-firmware emulation, expanded circuit and board checks 2026-11-02; rev 0.7 and 0.8 fixes 2026-11-03; rev 0.9 layout 2026-11-03; rev 0.10 2026-11-13; wideband connector, emulation re-run and pictures 2026-11-14; plug photograph and other
-boards 2026-11-15.
+boards 2026-11-15; clamp TVS stock, and the open choices decided, 2026-11-15.
 **Boards:** daughterboard rev 0.10; motherboards 1989-95 rev 0.13, 1996-97 / 1999-2000 / 2001-05 rev 0.9. The boards ordered in November 2026 are the earlier set (daughterboard rev 0.9), kept in `ordered-boards/2026-11/`; what this review means for them is under [Rev 0.10](#the-ordered-rev-09-boards).
 These revisions carry the fixes this review called for (see [Rev 0.5 changes](#rev-05-changes-and-re-verification),
 [Rev 0.6](#rev-06-stm32f103-wideband-controller), [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings),
@@ -66,6 +66,13 @@ Nothing here has been built yet, so this is a desk and simulation review. It cov
   whole board's copper shows it running 23-43 °C above the air around it at sustained high rpm, which the per-part
   estimates had missed; the tightest margin is the processor's on 1989-93 cars with high-inductance injectors. See
   [Rev 0.10](#rev-010-six-layers-injector-clamps-card-socket-two-more-inputs-2026-11-13).
+- **Clamp TVS and the open choices (2026-11-15).** The 185 °C clamp TVS first named is not in JLCPCB's stock, and no
+  part of its package rated above 150 °C is; the fitted part is now a stocked 150 °C one with the same voltages. It
+  covers every car converted to or built with one wire per injector to about 100 °C around the board. On a 1990-93
+  car's stock paired wiring it is the tightest margin if the two clamps on a wire do not share (39-51 °C at sustained
+  7200 rpm with 20 mH injectors); such cars are converted to one wire per injector for track use. The processor
+  stays the standard grade and the wideband lead stays AEM's. See
+  [Clamp TVS: what JLCPCB stocks](#clamp-tvs-what-jlcpcb-stocks-2026-11-15).
 - **External review (2026-11-12).** Found two faults the simulations couldn't see, both now fixed in firmware: 1989-95
   pin 1C is the starter signal, not ignition-on (the engine would have died when the key left START), and the fuel pump
   pin PC14 was held by the 32 kHz oscillator. Also corrected the NB alternator question (M5) and the socket plating. See
@@ -759,7 +766,7 @@ regulators and the level shifters. The audit lists each with its source.
 
 - **The injector closes later:** the current takes about 0.16 ms longer to fall. The tune's injector dead time needs
   checking on the car.
-- **Worst case** (TVS at the top of its range and hot, driver clamp at its 36 V minimum, 15.5 V supply): peak 35.5 V,
+- **Worst case** (TVS at the top of its range and hot, driver clamp at its 36 V minimum, 15.5 V supply): peak 35.7 V,
   nothing in the driver.
 - **Faults:** TVS or diode open, the driver's own clamp takes over as in rev 0.9. TVS shorted, the injector closes
   slowly (1.6 ms). Diode shorted, the driver goes into current limit and that injector stays shut.
@@ -768,8 +775,9 @@ regulators and the level shifters. The audit lists each with its source.
 - **1989-93 (two injectors per wire):** two drivers and two clamps sit in parallel on each wire. Each injector fires
   once per revolution, so each TVS takes 1.0 W at 7200 rpm if the two share. They need not: with one TVS at the
   bottom of its breakdown range and the other at the top, the low one takes all of it, 2.0 W, and does not hand any
-  over until it runs about 100 °C hotter than the other. That is why the fitted TVS is the Vishay TPSMC16A, rated to a
-  185 °C junction, and not the 150 °C SMCJ14A first chosen (same footprint).
+  over until it runs about 100 °C hotter than the other. A 185 °C part (Vishay TPSMC16A) was named for that reason.
+  JLCPCB does not stock it, so since 2026-11-15 the fitted part is a 150 °C one, and what that covers on the paired
+  wiring is stated under [Clamp TVS: what JLCPCB stocks](#clamp-tvs-what-jlcpcb-stocks-2026-11-15).
 
 ### Board temperature
 Up to rev 0.9 each hot part was estimated on its own, from its copper area and a single-sided datasheet curve. That
@@ -787,23 +795,29 @@ Rise above the air around the board, sustained 7200 rpm, 20 mH injectors (withou
 | Sequential (1994-2005), 5.9 W | 31 / 23 °C | 41 / 30 °C | 52 / 43 °C | 40 / 32 °C |
 | 1989-93, clamps sharing, 8.0 W | 43 / 31 °C | 58 / 43 °C | 84 / 72 °C | 52 / 42 °C |
 | 1989-93, one clamp of each pair taking all | 43 / 31 °C | 60 / 44 °C | 111 / 99 °C | 54 / 43 °C |
+| 1989-93, one driver per wire, one opening per cycle (not the default), 6.5 W | 34 / 25 °C | 53 / 41 °C | 71 / 61 °C | 43 / 35 °C |
 
 What that means:
 - **The board as a whole warms by 23-43 °C at sustained high rpm.** The earlier, per-part estimates missed this. It
   matters most for the processor: the STM32F407VGT6 is the 85 °C grade (suffix 6: −40 to 85 °C ambient, 105 °C
   junction; suffix 7: −40 to 105 °C ambient, 125 °C junction, per ST's ordering information and ST's own forum). It is inside that up to about 65-73 °C air in sequential years and 51-63 °C on a 1989-93 car. The
-  VGT7 grade (125 °C junction) fits the same pads and was in stock at LCSC on 2026-11-13 at about five times the price;
-  it is not fitted.
-- **Clamp TVSs** (185 °C): inside their rating to above 100 °C air when sharing, and to about 74-86 °C in the worst
-  pairing on a 1989-93 car. With the 150 °C alternate part the worst pairing is only covered to about 39-51 °C.
+  VGT7 grade (125 °C junction) fits the same pads and was in stock at LCSC on 2026-11-13 at about five times the price.
+  Decided 2026-11-15: the standard grade stays, as on every other board read
+  ([research/other_miata_pnp_boards.md](research/other_miata_pnp_boards.md)).
+- **Clamp TVSs** (150 °C since 2026-11-15): inside their rating to 98-107 °C air on sequential cars. On a 1989-93
+  car's paired wiring: to 66-78 °C when the two clamps on a wire share, and to 39-51 °C in the worst pairing. The
+  185 °C part named first would cover the worst pairing to 74-86 °C; it cannot be bought at JLCPCB.
 - **Drivers** (150 °C shutdown): 90 °C air or more in every case.
 - **With 8 mH injectors** the clamps take 0.8 W in total instead of 2.0 W (sequential). The processor is then 26-32 °C
-  above the air in sequential years and 30-38 °C on a 1989-93 car, and the hottest clamp 47-57 °C in the worst pairing.
+  above the air in sequential years and 30-38 °C on a 1989-93 car, and the hottest clamp 49-57 °C in the worst pairing
+  (inside a 150 °C rating to above 90 °C air).
 - "Air around the board" is the air inside the ECU case, which is warmer than the cabin.
 
-Not done, and why: moving the 1989-93 clamp heat to the motherboard (a diode and two TVSs per injector wire there)
-would take about 4 W off the daughterboard on those cars. It costs six parts and a re-route of that motherboard, and
-whether it is needed depends on the injector inductance. It is the next step if a measured injector is near 20 mH.
+Decided against (2026-11-15): moving the 1989-93 clamp heat to the motherboard (a diode and two TVSs per injector
+wire there). It would take about 4 W off the daughterboard on those cars, for six parts and a re-route of that
+motherboard. No other plug-in ECU read does it. The answer others give for the paired wiring is one wire per
+injector, which the 1989-95 motherboard already supports and which removes the extra heat at its source: the steps
+are in [INSTALL.md](INSTALL.md#one-wire-per-injector-on-a-199093-car-optional).
 
 `circuit_sim_full.py` takes its driver and clamp temperatures from this model (the pessimistic variant).
 
@@ -916,6 +930,77 @@ let the driver chip's own clamp take the injector turn-off energy, as this board
 given for the 1990-93 paired wiring is a sequential conversion in the car, which the 1989-95 motherboard already
 supports (JP1 and JP2 on SEQ, injectors 3 and 4 to pins 2Y and 2Z, manual cars only). Nothing in it was measured.
 
+Decided on that basis (owner, 2026-11-15): the processor stays the standard STM32F407VGT6; the 1989-95 motherboard
+gets no clamp parts, and 1990-93 cars used at sustained high rpm are converted to one wire per injector
+([INSTALL.md](INSTALL.md#one-wire-per-injector-on-a-199093-car-optional)); AEM's harness stays as the wideband lead.
+
+### Clamp TVS: what JLCPCB stocks (2026-11-15)
+Asked: a clamp TVS for D46-D49 that JLCPCB has and that suits every car.
+
+Source: JLCPCB's parts list as the jlcparts project copies it daily (github.com/yaqwsx/jlcparts, branch `gh-pages`,
+commit 6f0dfff of 2026-11-15); it holds only parts that are in stock. 586 unidirectional TVSs with a 12-14.5 V
+stand-off were in it. JLCPCB's own pages could not be opened from here; LCSC's page for the fitted part showed 1,705
+the same day, so treat the figures as the order of magnitude and check at order time.
+
+What the part has to do (`sim_inj_clamp.py`, section B): break down no lower than 14.6 V, or it conducts with the
+battery reversed; no higher than 17.2 V, or a driver whose own clamp starts at its 36 V minimum takes the energy
+instead once the TVS is hot. SMC package, the board's pads.
+
+- **The part named until now is not there:** Vishay TPSMC16AHE3_B/H (C1982018, 185 °C).
+- **No SMC part rated above 150 °C is stocked in a usable quantity.** Inside the voltage window: MCC SMLJ14AHE3-TP
+  (175 °C), 10 pieces. Just below it (14.4 V minimum): ST SMC30J13A (175 °C), 37, and Vishay 5KASMC13AHM3_A/H
+  (185 °C), 20.
+- **The 150 °C parts are plentiful** (table).
+- **The one part above 150 °C with stock is a larger package:** Littelfuse SLD8S14A (C1975823; 175 °C, 15.6-17.2 V,
+  2,829 pieces at $2.65), DO-218AB, about 15 × 10 mm against the SMC's 8 × 6 mm. Four of them mean laying out and
+  routing the injector corner again and about $10 more per board. Its rating alone would cover the worst pairing
+  to 64-76 °C (its better heat path would add to that; not modelled). But the processor reaches its own limit at
+  51-63 °C on the same cars either way (table below), so the larger part buys little.
+
+| Part | LCSC | In stock | Breakdown | |
+|---|---|---|---|---|
+| Littelfuse 1.5SMC16A (**fitted**) | C1973780 | 2,709 | 15.2-16.8 V | 1.5 kW, 150 °C |
+| Brightking SMDJ14A/TR13 | C310102 | 7,830 | 15.6-17.2 V | 3 kW, 150 °C |
+| Diodes Inc. SMCJ14A-13-F | C135134 | 2,862 | 15.6-17.2 V | 1.5 kW, 150 °C |
+
+Also in stock by the thousand: SMCJ14A and SMDJ14A from Jingdao and Yangjie (the latter AEC-Q101).
+
+**Fitted now: Littelfuse 1.5SMC16A.** It has the Vishay part's breakdown range, so the clamp behaves as simulated:
+typical peak 31.9 V; worst case 35.7 V, nothing in the driver (it was 35.5 V: this part's breakdown rises 0.1 %/°C,
+Vishay's 0.078); it blocks a reversed battery. Its datasheet (read 2026-11-15): 150 °C junction, 15 °C/W junction
+to lead. `board_checks.py` (1606 OK / 263 CHECK / 4 FAIL) and `circuit_sim_full.py` (93 OK / 11 CHECK / 1 REF /
+0 FAIL) give the totals they gave before. The board's copper, drill and placement files are unchanged; the parts
+list has one line changed.
+
+**What a 150 °C clamp covers.** Air around the board at which the hottest clamp reaches 150 °C, at sustained 7200 rpm
+(board model, without / with the header pins as a heat path), beside the same figure for the processor's 105 °C:
+
+| | Clamp, 20 mH | Clamp, 8 mH | Processor, 20 mH |
+|---|---|---|---|
+| 1994-2005, and 1990-93 converted to one wire per injector | 98-107 °C | 117-124 °C | 65-73 °C |
+| 1990-93 paired wiring, the two clamps on a wire sharing | 66-78 °C | not run | 53-63 °C |
+| 1990-93 paired wiring, one clamp taking all | 39-51 °C | 93-101 °C | 51-62 °C |
+| 1990-93 paired wiring, one driver per wire, one opening per cycle (not the default) | 79-89 °C | 105-113 °C | 62-70 °C |
+
+- On every car but one case the processor reaches its limit before a clamp does. The case is a 1990-93 car on the
+  paired wiring whose two clamps on a wire do not share.
+- How likely that is: the split is steep. In the simulation a breakdown difference of 1 % while conducting gives
+  1.45 / 0.54 W, 2 % gives 1.76 / 0.22 W, 3 % everything to one (20 mH, 7200 rpm). The hotter part's breakdown rises
+  0.1 %/°C, which pulls the two together, so parts from one reel that start close will share partly; two at the ends
+  of the datasheet range will not. Neither is guaranteed.
+- With 8 mH injectors none of this matters: the worst pairing is covered to above 90 °C.
+
+**A way to take the worst pairing out without rewiring the car** (not adopted: it changes how these cars are
+fuelled, and it has not been run even in emulation). If one driver works each paired wire and the wire opens once
+per engine cycle with a full-length pulse (MegaSquirt calls this "2 squirts, alternating"), each injector still gets
+its fuel, the board dissipates 6.5 W instead of 8.0 W, and one clamp per wire takes 1.0 W whatever the tolerances
+(`sim_inj_clamp.py` "2 injectors, 1 driver": 2.3 A through the driver, peak 32.1 V, and 36.0 V in the worst case,
+where the driver's own clamp is just reached). In rusEFI that is injection mode Sequential with the injectors
+still paired and JP1 and JP2 **open**. It is not the default because the same mode with the jumpers on PAIR, or on
+the older 1989-93 motherboards whose pairing links are fixed, opens every wire twice per cycle with full pulses:
+twice the fuel. A preset that could not be set wrong would park injection outputs 3 and 4 on unconnected processor
+pins.
+
 ### The ordered rev 0.9 boards
 - **A1 applies.** They will switch injectors as designed; what ST does not guarantee without the series resistance is
   the drivers' behaviour when they clamp or protect themselves. To bring a board inside the rating by hand: lift the
@@ -928,8 +1013,9 @@ supports (JP1 and JP2 on SEQ, injectors 3 and 4 to pins 2Y and 2Z, manual cars o
 ### Not verified
 - **Injector inductance**, on which every clamp and temperature figure here depends.
 - **All temperatures:** a model, with the heat transfer to the air assumed.
-- **Stock at JLCPCB** of the Vishay TPSMC16A (it is in JLCPCB's parts library; the page shows no stock figure). The
-  alternate, Diodes Inc. SMCJ14A-13-F, had 2,707 at LCSC on 2026-11-13.
+- **Stock at JLCPCB** of the clamp TVS: read from a daily copy of JLCPCB's parts list, not from JLCPCB itself
+  ([Clamp TVS: what JLCPCB stocks](#clamp-tvs-what-jlcpcb-stocks-2026-11-15)).
+- **How two clamp TVSs on one wire share on real parts** (1989-93 paired wiring): the model gives the two ends.
 - **The wideband connector against a real harness** (the series is from AEM's instructions; the pin numbering
   agrees with a photograph of the plug), the card socket's rotation in JLCPCB's placement preview, and the land pattern of the input inductor
   against its maker's drawing.
@@ -946,7 +1032,7 @@ IP or RT short (N3, the ICs are protected), N11 (1994-95 2L on a car; 1989-93 no
 | # | Issue | What to do |
 |---|---|---|
 | A3 | **Injector inductance is not known** (rev 0.10 audit). Every clamp energy and board temperature scales with it; 8 mH and 20 mH are both plausible | Measure one injector with an LCR meter, unplugged, before sustained high rpm. Near 8 mH: nothing to do. Near 20 mH on a 1989-93 car: see the next row |
-| Heat | **Board temperature at sustained high rpm** (rev 0.10 model): the processor's 105 °C junction is reached at 65-73 °C air around the board (sequential years) or 51-63 °C (1989-93, 20 mH injectors) | If the injectors measure high: fit the STM32F407VGT7 (125 °C), or move the 1989-93 clamp heat to that motherboard (not designed yet). Measure a board's temperature at full load on the first car either way |
+| Heat | **Board temperature at sustained high rpm** (rev 0.10 model, 20 mH injectors): the processor's 105 °C junction is reached at 65-73 °C air around the board (sequential years) or 51-63 °C (1989-93 paired wiring). On that paired wiring a clamp TVS reaches its 150 °C at 39-51 °C if the two on a wire do not share | Decided 2026-11-15: the standard processor stays and the motherboard gets no clamps. A 1990-93 car used at sustained high rpm is converted to one wire per injector ([INSTALL.md](INSTALL.md#one-wire-per-injector-on-a-199093-car-optional)). Measure a board's temperature at full load on the first car either way |
 | A1 | **Ordered rev 0.9 daughterboards have no series resistor at the driver inputs** (ST asks for 150 Ω minimum) | Rework by hand, or accept it knowingly: [The ordered rev 0.9 boards](#the-ordered-rev-09-boards) |
 | J2 | **No AEM harness has been plugged into a board.** The connector series (JST PUD) is from AEM's instructions, and a photograph of the plug agrees with the board's pin numbering | With a harness in hand, check the wire colours from the wire side (lock up: green, orange, red, empty over white, empty, black, brown) and against the print beside J2 |
 | M5 | **NB alternator control wire: may need a pull-up.** Corrected 2026-11-12: 1O (NB1) / 3M (NB2) is a logic-level PWM input to the regulator inside the alternator, not the field coil (stock 1999 ECU scoped at 250 Hz; working MS3 and ECUMaster set-ups use a low side with a 1k pull-up to 5 V, about 5 mA). The old worry, 3-5 A of field current, doesn't apply: the VND7NV04 drives it easily. What isn't known is whether the alternator pulls the wire up itself. Firmware ships control off, at 250 Hz | Key on, ECU unplugged: measure 1O / 3M to ground. About 5 or 12 V: turn on "Alternator control". Near 0 V: fit 1k + 1N4148 from AUX J5-14 (5 V, anode) to J5-4 (OUT_ALT), then turn it on. First run: if the battery goes past about 15 V, switch it off and invert the output. Next motherboard revision: a pull-up footprint on the NB boards |

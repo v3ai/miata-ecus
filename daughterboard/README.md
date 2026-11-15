@@ -10,10 +10,13 @@ Same outline, same J1/J2 pinout except J2-24 / J2-25; **six layers** instead of 
 with motherboard rev 0.13 (1989-95) or 0.9 (1996-2005); it also fits the earlier motherboards, without the new
 inputs. Background and numbers: `VERIFICATION.md`, [Rev 0.10](../VERIFICATION.md#rev-010-six-layers-injector-clamps-card-socket-two-more-inputs-2026-11-13),
 and the audit in `research/rev0.10_design_audit.md`.
-- **Injector clamp per injector** (D42-D45 ES1D, D46-D49 TPSMC16A): a fast diode from each injector driver's drain to
+- **Injector clamp per injector** (D42-D45 ES1D, D46-D49 1.5SMC16A): a fast diode from each injector driver's drain to
   a 16 V TVS that returns to the battery input. The turn-off energy goes there instead of through the driver's own
   clamp: 8.8 mJ per shot instead of 15.3 mJ with 20 mH injectors, peak 32 V instead of 43 V. The injector current
-  takes about 0.16 ms longer to fall, so **check the injector dead time in the tune**.
+  takes about 0.16 ms longer to fall, so **check the injector dead time in the tune**. The TVS is Littelfuse's
+  1.5SMC16A since 2026-11-15 (15.2-16.8 V, 150 °C junction): Vishay's TPSMC16A, the same voltages with a 185 °C
+  junction, was named first but JLCPCB had none, nor any other part of this package rated above 150 °C. What that
+  means for 1989-93 cars is under [Before ordering](#before-ordering), item 8.
 - **220 Ω in series with each low-side driver input** (R152-R159): ST's VND7NV04 rating asks for at least 150 Ω.
 - **microSD socket** J4 (Molex 47219-2001, hinged lid) on SPI2 with 47 kΩ pull-ups on every line but the clock.
   Rated -20 to +85 °C.
@@ -318,7 +321,7 @@ that needs the same hand finishing.
 |---|---|
 | MCU | STM32F407VGT6 (1 MB flash, rusEFI F4 target), 8 MHz crystal, 4 status LEDs (PD12, PC8, PC9, PD15), BOOT/RESET buttons, Tag-Connect TC2030 SWD pads |
 | Power | SMCJ30A load-dump TVS → SS34 reverse diode (and B5819W ignition wake) → 1.1 A PTC → SMAJ33A TVS → 2.2 µH → LMR14020 5 V buck. Two TLS115 protected 5 V supplies (MAP sensor; harness sensors on V5_EXT). LDL1117 3.3 V (low dropout), TL431 + BCP53 shunt clamp on +3V3. USB VBUS can power it on the bench. |
-| Injectors / IACV / VVT / boost / alternator | 8× VND7NV04 protected low sides (DPAK, 60 mΩ) on drain copper columns with thermal vias, driven at 5 V by an SN74LVC4245A through 220 Ω each. Its output enable (PA8) is pulled off until the firmware runs; pull-downs on both sides. Each injector driver has a turn-off clamp: ES1D to a TPSMC16A that returns to the battery input |
+| Injectors / IACV / VVT / boost / alternator | 8× VND7NV04 protected low sides (DPAK, 60 mΩ) on drain copper columns with thermal vias, driven at 5 V by an SN74LVC4245A through 220 Ω each. Its output enable (PA8) is pulled off until the firmware runs; pull-downs on both sides. Each injector driver has a turn-off clamp: ES1D to a 1.5SMC16A that returns to the battery input |
 | Relays, CEL, tach, spare | 7× ZXMS6004FF protected low sides (current limit, thermal shutdown, 60 V clamp) driven at 5 V by a second SN74LVC4245A on the same enable; the check-engine lamp's switch takes its gate from the processor pin directly |
 | Ignition (COP / smart coils) | 2× TC4427 sourcing through 100 Ω and a B5819W Schottky per channel; a ZXMS6004FF per channel (gates from a 74HCT04) pulls low, 3.3k to ground. Pulled down at the inputs |
 | Crank / cam | LM2903 dual comparator for VR sensors (two 5.1k resistors per leg, 1 nF differential, BAT54S clamps, 1.65 V bias, 1M hysteresis). Spare: Miatas use hall/optical sensors on the hall inputs |
@@ -346,7 +349,7 @@ that needs the same hand finishing.
     J102 Tag-Connect pads on the bottom side.
 
 ## Before ordering
-1. **LCSC numbers.** Every number was looked up against LCSC/JLCPCB in rev 0.2, and three wrong ones were fixed; the rev 0.10 parts were looked up on 2026-11-13 (`research/rev0.10_design_audit.md`). Still check stock for the extended parts when you order. **The clamp TVS D46-D49 (Vishay TPSMC16AHE3_B/H, C1982018) is in JLCPCB's library but its stock is not confirmed.** If it is out: Diodes Inc. SMCJ14A-13-F (C135134) fits the same pads; it is rated to 150 °C instead of 185 °C, which is enough on 1994-2005 cars and on 1989-93 cars with low-inductance injectors (`VERIFICATION.md`, Rev 0.10).
+1. **LCSC numbers.** Every number was looked up against LCSC/JLCPCB in rev 0.2, and three wrong ones were fixed; the rev 0.10 parts were looked up on 2026-11-13 (`research/rev0.10_design_audit.md`). Still check stock for the extended parts when you order. **The clamp TVS D46-D49 is Littelfuse 1.5SMC16A (C1973780): 2,709 in JLCPCB's stock list on 2026-11-15.** If it is out, any SMCJ14A or SMDJ14A fits the same pads and passes the same simulation (15.6-17.2 V, 150 °C): Diodes Inc. SMCJ14A-13-F (C135134, 2,862) or Brightking SMDJ14A/TR13 (C310102, 7,830). Not a 13 V or 15 V type: the first conducts with the battery reversed, the second clamps too late. Vishay's TPSMC16AHE3_B/H (C1982018, 185 °C) can be fitted by hand where it can be bought; JLCPCB had none (`VERIFICATION.md`, Rev 0.10).
 2. **Part rotations.** Check every rotation in JLC's assembly preview. JLC's footprint orientation differs from KiCad's for some packages (SOT-223, SOIC, QSOP). New in rev 0.10 and never checked there: the card socket J4, the clamp TVSs and diodes.
 3. **Ignition outputs.** The 10 nF caps from the hellen ignition outputs were left off to keep the column tidy. If you want them back, add them on the motherboard next to the coil connector.
 4. **Headers on the bottom.** J1/J2 are not in the JLC BOM or CPL (they'd need bottom-side assembly). They're in
@@ -361,7 +364,7 @@ that needs the same hand finishing.
    in the release scripts. KiCad still reports courtyard overlaps (101) where small parts sit closer than their
    courtyards allow; the bodies clear and the pad spacing meets JLC's table. When ordering assembly, let JLC add the
    edge rails and fiducials (the boards have none of their own), and look at their DFM report and 3D preview.
-8. **Temperature at full load.** A model of the whole board puts the injector drivers 30-41 °C, the clamp TVSs 43-52 °C and the processor 32-40 °C above the air around the board at sustained 7200 rpm with 20 mH injectors (sequential; more on 1989-93 cars: `VERIFICATION.md`, Rev 0.10). It is a model: measure a board at full load before track use. **Measure one injector's inductance** (LCR meter, injector unplugged): the clamp heat scales with it, and it is not known for Miata injectors.
+8. **Temperature at full load.** A model of the whole board puts the injector drivers 30-41 °C, the clamp TVSs 43-52 °C and the processor 32-40 °C above the air around the board at sustained 7200 rpm with 20 mH injectors (sequential; more on 1989-93 cars: `VERIFICATION.md`, Rev 0.10). The clamp TVSs are 150 °C parts: on 1994-2005 cars, and on 1989-93 cars converted to one wire per injector (`INSTALL.md`), they stay inside that to about 100 °C around the board. On the stock paired wiring of a 1989-93 car the model gives 66-78 °C if the two clamps on a wire share, and 39-51 °C if one takes all of it. It is a model: measure a board at full load before track use. **Measure one injector's inductance** (LCR meter, injector unplugged): the clamp heat scales with it, and it is not known for Miata injectors.
 9. **Filled vias.** The board has vias in the DPAK tab pads and in the clamp TVS pads. JLCPCB fills and caps the vias of a six-layer board by default; check that the order says so (epoxy filled and capped). Open vias in those pads would wick solder away.
 10. **After an LSU wire short to battery,** check R108-R110 (1206): they take the fault so U101 doesn't, and R108 can open.
 11. **Six-layer order:** 1.6 mm, JLCPCB's standard six-layer stack, 1 oz outer and 0.5 oz inner copper.

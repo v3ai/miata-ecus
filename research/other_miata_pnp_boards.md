@@ -76,6 +76,20 @@ part's datasheet, or a maker says nothing, the table says so. Nothing here was m
    conversion, which this motherboard already supports, and which removes the extra heat at its source.
 3. **Wideband lead.** Keeping AEM's harness is defensible; the alternative others take is to supply their own lead.
 
+## Decisions (2026-11-15)
+
+The owner's, on the three choices above:
+
+1. **Processor:** the standard STM32F407VGT6 stays.
+2. **1989-95 motherboard:** no clamp parts. 1990-93 cars used at sustained high rpm are converted to one wire per
+   injector; the steps are in [INSTALL.md](../INSTALL.md#one-wire-per-injector-on-a-199093-car-optional).
+3. **Wideband lead:** AEM's harness (30-3427) stays.
+
+One thing in AMP's 1990-93 instructions bears on the install guide: "'93 California models are already set up for
+this; all others must have their wiring harness repinned at the ECU". If a 1993 California car has one wire per
+injector, this board's PAIR jumper setting would leave injectors 3 and 4 without a pulse. INSTALL.md now has a
+check for it. Not confirmed from a wiring diagram.
+
 ## Sources
 
 - rusEFI Hellen64 NA6: `bom_replace_hellen64_NA6_94-d.csv` in https://github.com/rusefi/hellen-miata-NA6

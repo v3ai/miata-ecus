@@ -836,7 +836,7 @@ for y, _ in YEARS:
     assert hn == set(LOADS[y]), f'{y}: harness outputs {sorted(hn)} vs simulated {sorted(LOADS[y])}'
 
 # shared simulations (same circuit on several years), computed once
-# Rev 0.10: each injector driver has its own clamp on the daughterboard (fast diode to an SMCJ14A that returns to the
+# Rev 0.10: each injector driver has its own clamp on the daughterboard (fast diode to a 14 V-class TVS that returns to the
 # battery input), so the turn-off energy goes into that TVS, not into the driver or a motherboard TVS. The bench is
 # sim_inj_clamp.py's. The injector inductance is not known (8 mH was assumed up to rev 0.9, a published fit for a similar
 # injector gives 20 mH), so both ends are simulated and the verdicts use 20 mH.
@@ -845,7 +845,7 @@ for _i in range(4):
     assert DB[f'D{46 + _i}']['value'] in IC.PART_KEY and DB[f'R{152 + _i}']['value'] == '220'
 TVS_PART = DB['D46']['value']
 TVS_KEY = IC.PART_KEY[TVS_PART]
-TVS_TJMAX = 185.0 if TVS_PART == 'TPSMC16A' else 150.0
+TVS_TJMAX = IC.TJMAX.get(TVS_KEY, 150.0)
 INJ_LS = (8e-3, 20e-3)
 inj_seq = {L: IC.bench(f'o_seq_{int(L * 1e3)}', 'BAT', L=L, tvs=TVS_KEY) for L in INJ_LS}
 inj_pair = {L: IC.bench(f'o_pair_{int(L * 1e3)}', 'BAT', L=L, n_inj=2, n_drv=2, tvs=TVS_KEY) for L in INJ_LS}

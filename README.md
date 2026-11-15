@@ -154,6 +154,13 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
 > again with the rev 0.10 firmware, and the pictures and 3D viewer were redrawn from the current boards.
 > [What other Miata plug-in ECUs do](research/other_miata_pnp_boards.md) about the choices still open is written up.
 >
+> **2026-11-15:** those choices are made. The processor stays the standard STM32F407VGT6, as on every other board
+> read. The 1989–95 motherboard gets no clamp parts of its own; 1990–93 cars used at sustained high rpm are converted
+> to one wire per injector instead ([INSTALL.md](INSTALL.md#one-wire-per-injector-on-a-199093-car-optional)). AEM's
+> wideband harness stays. The injector clamp TVS is now a part JLCPCB has: the 185 °C part first named was not in
+> its stock, and nothing rated above 150 °C in that package was
+> ([what was found](VERIFICATION.md#clamp-tvs-what-jlcpcb-stocks-2026-11-15)).
+>
 > **The boards ordered in November 2026** are the set before this (daughterboard rev 0.9). Their files are kept in
 > [`ordered-boards/2026-11/`](ordered-boards/2026-11/); what the rev 0.10 review means for them is in
 > [VERIFICATION.md](VERIFICATION.md#the-ordered-rev-09-boards).
@@ -222,16 +229,24 @@ Check the plug's wiring and the sensor's pins on your car before fitting R28: se
 - **Measure one injector's inductance first** (LCR meter, injector unplugged). The heat the injector clamps put into
   the board scales with it, and it is not known for Miata injectors: the design is sized for 20 mH, earlier revisions
   assumed 8 mH. At sustained 7200 rpm with 20 mH injectors the board model puts the processor 32–40 °C above the air
-  around the board on 1994–2005 cars and 42–54 °C on 1989–93 cars, against a 105 °C junction rating. The 125 °C grade
-  of the processor (STM32F407VGT7) fits the same pads and costs about five times as much. Numbers and options:
+  around the board on 1994–2005 cars and 42–54 °C on 1989–93 cars, against a 105 °C junction rating. That is the
+  standard grade every other Miata plug-in ECU read uses, and it stays. Numbers:
   [VERIFICATION.md](VERIFICATION.md#board-temperature).
+- **1990–93 cars at sustained high rpm: convert to one wire per injector.** On the stock paired wiring each injector
+  wire opens twice per engine cycle with two injectors on it. With 20 mH injectors held at 7200 rpm the model keeps
+  the injector clamp TVSs (150 °C parts) inside their rating up to 66–78 °C around the board if the two clamps on a
+  wire share the heat, and only to 39–51 °C if one takes it all, which the parts' tolerances allow. Converted, the
+  same parts are good to about 100 °C. All of this is for an engine held at 7200 rpm; at half that the clamps take
+  half the heat. Steps:
+  [INSTALL.md](INSTALL.md#one-wire-per-injector-on-a-199093-car-optional).
 - **The wideband connector has not been tried with a harness.** The motherboards carry a JST PUD header
   (S08B-PUDSS-1) for AEM's X-Series sensor harness 30-3427. AEM's instructions name the harness's terminal, which
   belongs to this connector series, and a photograph of the plug agrees with the board's pin numbering. Each pin's
   wire colour is printed beside the connector: compare a harness with the print before the first use
   ([INSTALL.md](INSTALL.md#header-pin-maps)).
-- **Clamp TVS stock.** The daughterboard's injector clamp TVS (Vishay TPSMC16A) is in JLCPCB's library, but its stock
-  could not be confirmed; the [daughterboard README](daughterboard/README.md#before-ordering) names the alternate.
+- **Clamp TVS.** The daughterboard's injector clamp TVS is Littelfuse's 1.5SMC16A (2,709 at JLCPCB on 2026-11-15).
+  Any SMCJ14A or SMDJ14A fits the same pads if it runs out; the
+  [daughterboard README](daughterboard/README.md#before-ordering) names two.
 - **1996–2005 case geometry is a placeholder.** These motherboards use the NA board outline and mounting holes until a
   stock 96–97 / NB case is measured. The 76-pin 96–97 header is 130 mm wide and must clear the real case.
 - **2001–05 Mazdaspeed:** pin 4R is the second intake-air-temperature sensor on the turbo cars, not the VVT valve.

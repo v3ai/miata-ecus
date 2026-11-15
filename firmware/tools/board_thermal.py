@@ -51,7 +51,7 @@ VIA_PLATE = 18e-6
 G_PIN, MB_AREA, MB_FIN = 3e-3, 2 * 0.154 * 0.1616, 0.35
 
 # junction to case / lead, C/W (maker's figures; the ones marked "read" are in research/rev0.10_design_audit.md)
-RTH_J = {'VND7NV04TR-E': 2.1, 'VND14NV04': 1.8, 'SMCJ14A': 15.0, 'TPSMC16A': 15.0, 'ES1D': 20.0, 'SMCJ30A': 15.0,
+RTH_J = {'VND7NV04TR-E': 2.1, 'VND14NV04': 1.8, 'SMCJ14A': 15.0, 'TPSMC16A': 15.0, '1.5SMC16A': 15.0, 'ES1D': 20.0, 'SMCJ30A': 15.0,
          'LDL1117S33R': 15.0, 'LMR14020': 6.0, 'TLS115B0EJ': 10.0, 'SS34': 20.0, 'B360A': 15.0,
          'STM32F407VGT6': 20.0, 'ZXMS6004FFTA': 60.0}
 # pads that carry the heat out of a part (default: all pads)
@@ -62,7 +62,9 @@ HEAT_PADS = {'VND7NV04TR-E': ('2',), 'VND14NV04': ('2',), 'LDL1117S33R': ('2',),
 def losses(case, l_mh=20.0, rpm=7200):
     """{ref: watts} at sustained high load. case: 'seq' sequential injection; 'batch' the 1989-93 wiring with the four
     clamp TVSs sharing equally; 'batch_hog' the same with one TVS of each pair taking both injectors' energy;
-    'rev09' the rev 0.9 board, where each injector driver's own clamp takes the energy (sequential).
+    'pair1' the 1989-93 wiring with one driver on each wire (JP1/JP2 open) firing once per cycle: two clamp TVSs take
+    two injectors each, two take nothing; 'rev09' the rev 0.9 board, where each injector driver's own clamp takes the
+    energy (sequential).
     Clamp energy per shot from sim_inj_clamp.py: 8.3 mJ per injector at 20 mH into a battery-referred TVS, 15.3 mJ
     into a driver's own clamp; both scale with the inductance."""
     e_tvs, e_drv = 8.3e-3 * l_mh / 20.0, 15.3e-3 * l_mh / 20.0
@@ -71,9 +73,12 @@ def losses(case, l_mh=20.0, rpm=7200):
         p[q] = 1.2 ** 2 * 0.12 * 0.8                    # 1.2 A, 120 mOhm hot, 80 % duty
         if case == 'rev09':
             p[q] += e_drv * rpm / 120
+        if case == 'pair1':                             # two injectors through Q1 and Q2, nothing through Q3 and Q4
+            p[q] = 2.4 ** 2 * 0.12 * 0.8 if q in ('Q1', 'Q2') else 0.0
     p.update({'Q5': 1.3 ** 2 * 0.12 * 0.6, 'Q6': 1.9 ** 2 * 0.12 * 0.6, 'Q7': 0.5 ** 2 * 0.12 * 0.5})
     seq, bat = e_tvs * rpm / 120, e_tvs * rpm / 60
-    tvs = {'seq': [seq] * 4, 'batch': [bat] * 4, 'batch_hog': [2 * bat, 2 * bat, 0.0, 0.0], 'rev09': [0.0] * 4}[case]
+    tvs = {'seq': [seq] * 4, 'batch': [bat] * 4, 'batch_hog': [2 * bat, 2 * bat, 0.0, 0.0],
+           'pair1': [2 * seq, 2 * seq, 0.0, 0.0], 'rev09': [0.0] * 4}[case]
     for i, w in enumerate(tvs):
         p[f'D{46 + i}'] = w
         p[f'D{42 + i}'] = 0.06 * w                      # clamp diode: 0.9 V of the 16 V clamp

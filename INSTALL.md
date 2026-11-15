@@ -185,8 +185,49 @@ carpet up again.
 - **Jumpers:** JP1 and JP2 on PAIR, JP3 on 90-93, JP4 and JP5 open, JP6 on AFM.
 - **Automatics:** never put JP2 on SEQ, and leave R28 and R30 off.
 - **Sustained high rpm:** on these cars each injector fires once per revolution, which doubles the heat the injector
-  clamps put into the ECU. Measure one injector's inductance before track use
+  clamps put into the ECU. For track use, convert the car to one wire per injector
+  ([below](#one-wire-per-injector-on-a-199093-car-optional)), and measure one injector's inductance either way
   ([why](README.md#things-to-know-before-ordering)).
+- **1993 California cars:** AMP EFI's instructions for its own 1990–93 ECU say these cars already have one wire per
+  injector. Check before the first start: with the ECU unplugged, measure from cavities 2Y and 2Z of the harness plug
+  to the ECU-side pins of injector plugs 3 and 4. If they connect, the car is wired like a converted one: set the
+  jumpers and the injection mode as in steps 6 and 7 below. With the jumpers on PAIR those two injectors would never
+  open. **Unchecked.**
+
+#### One wire per injector on a 1990–93 car (optional)
+
+**Unchecked on this board. Manual cars only.** This is what other plug-in ECUs do about these cars' paired injector
+wiring, and one rusEFI owner's write-up of a 1991 car is the model for the steps (see [Sources](#sources)). It halves
+the injector heat in the ECU, which then runs like a 1994–95 car's, and gives each cylinder its own injection timing.
+
+The stock harness: each injector plug has two wires. One is the 12 V feed, common to all four. The other goes to
+the ECU, and on the way the injectors are joined in pairs: injectors 1 and 3 on ECU pin 2U, injectors 2 and 4 on
+pin 2V.
+
+You need about 3 m each of two colours of 0.5–0.85 mm² (20–18 AWG) automotive wire, two new terminals for the ECU
+plug, solder or crimp joints and heat-shrink.
+
+1. Disconnect the battery and unplug the ECU.
+2. With a meter, confirm the pairs from the harness plug: 2U reaches the ECU-side pin of injector plugs 1 and 3, 2V
+   reaches 2 and 4. If your car differs, stop.
+3. In the injector harness, cut injector 3's ECU-side wire between its plug and the crimped joint where it meets
+   injector 1's wire. Do the same for injector 4, which is joined to injector 2's. Insulate the stub left at each
+   joint.
+4. Measure again: 2U now reaches injector 1 only, 2V injector 2 only.
+5. Extend the two cut leads to the ECU, along the stock harness through the firewall, and fit them into the harness
+   plug: **injector 3 to cavity 2Y, injector 4 to cavity 2Z** (rusEFI's pinout for these cars calls them 3Y and 3Z).
+   Both are empty on a manual car. Use new terminals and check that each one locks: the 1991 owner reused old ones
+   and had an injector cut out when the wire moved.
+6. On the motherboard, move **JP1 and JP2 to SEQ**.
+7. In TunerStudio set the injection **Mode** to **Sequential** and Burn. Injection outputs 1–4 stay as the 1989–93
+   button set them.
+8. Before starting: key on, engine off, open *Controller → Bench test* and pulse each injector in turn while
+   listening at the rail. Output 1 must click injector 1 only, and so on to 4. Two injectors clicking on one output
+   means a joint is still there. No click means a bad connection or a jumper still on PAIR.
+
+**Never select Sequential with the injectors still joined in pairs and the jumpers on PAIR:** every injector would
+then open twice per cycle with full-length pulses, which is twice the fuel. Not for automatics: 2Z is the A/T
+control unit's wire there.
 
 ### 1994–95 and 1996–97
 
@@ -325,6 +366,11 @@ Where this guide's car-specific facts come from:
   [FOME Miata quick start](https://wiki.fome.tech/Vehicle-Specific/Mazda-MX5-Miata/Miata-MX5-Quick-Start/).
 - 1990–93 fuel pump: the [ME221 MX-5 guide](https://motorsport-electronics.co.uk/wp-content/uploads/2023/09/ME221_MX5_8995-Quick-Start-.pdf),
   the [Speeduino MX5 manual](https://speeduino.com/Speeduino_mx5.pdf) and the FOME quick start.
+- One wire per injector on 1990–93 cars: a 1991 owner's write-up in the
+  [rusEFI forum](https://rusefi.com/forum/viewtopic.php?p=41337) (the joints, the two new wires, the loose terminal)
+  and AMP EFI's [1990–93 MSPNP Pro instructions](https://ampenginemanagement.com/blogs/mspnp-pro-documentation/pro-mm9093-installation)
+  (repinning at the ECU; the 1993 California cars). What other makers do is in
+  [research/other_miata_pnp_boards.md](research/other_miata_pnp_boards.md).
 - Hose size for the MAP sensor: NXP application note
   [AN1513](https://www.nxp.jp/docs/en/application-note/AN1513.pdf).
 - Wideband harness pins and wire colours: AEM's

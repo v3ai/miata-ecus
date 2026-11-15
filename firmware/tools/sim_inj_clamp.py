@@ -19,8 +19,10 @@ Numbers and where they come from
       6.5 W on an infinite heat sink, RthJL 15 C/W, RthJA 75 C/W, Tj 150 C. VBR temperature coefficient: the DS gives
       the formula without the number; 0.1 %/C assumed (Vishay tabulates 0.084-0.089 %/C for 15-18 V parts of its
       1.5KE family, read 2026-11-13).
-  TPSMC16A (Vishay doc 88407, read 2026-11-13), the part fitted: 15.2-16.8 V at 1 mA, 22.5 V at 66.7 A, junction to
-      185 C, temperature coefficient 0.078 %/C maximum. Same SMC package.
+  1.5SMC16A (Littelfuse 1.5SMC series DS, read 2026-11-15), the part fitted: 15.2-16.8 V at 1 mA, 22.5 V at 67.6 A,
+      junction to 150 C, RthJL 15 C/W, temperature coefficient 0.1 %/C typical. SMC package.
+  TPSMC16A (Vishay doc 88407, read 2026-11-13), fitted until 2026-11-15, when JLCPCB had none: the same 15.2-16.8 V
+      at 1 mA, 22.5 V at 66.7 A, junction to 185 C, temperature coefficient 0.078 %/C maximum. Same SMC package.
   Injector: Mazda specifies 12-16 ohm. The inductance is NOT known for Miata injectors: 8 mH was assumed up to
       rev 0.9; a published fit for a 14.8 ohm port injector gives 20.3 mH (Sensors 2020, 20, 4151). So 5-20 mH is
       swept, and anything that only passes at 8 mH is marked.
@@ -41,10 +43,14 @@ TVS = {'13A': (14.4, 15.9, 21.5, 69.8), '14A': (15.6, 17.2, 23.2, 64.7), '15A': 
        '16A': (17.8, 19.7, 26.0, 57.7), '18A': (20.0, 22.1, 29.2, 51.4), '30A': (33.3, 36.8, 48.4, 31.0),
        # Vishay TPSMC16A (doc 88407, read 2026-11-13): 15.2-16.8 V at 1 mA, 22.5 V at 66.7 A, 185 C junction,
        # temperature coefficient 0.078 %/C maximum
-       'T16A': (15.2, 16.8, 22.5, 66.7)}
+       'T16A': (15.2, 16.8, 22.5, 66.7),
+       # Littelfuse 1.5SMC16A (1.5SMC series DS, read 2026-11-15): 15.2-16.8 V at 1 mA, 22.5 V at 67.6 A, 150 C junction,
+       # temperature coefficient 0.1 %/C typical (= ALPHA)
+       'L16A': (15.2, 16.8, 22.5, 67.6)}
 TVS_ALPHA = {'T16A': 0.00078}
-PART_KEY = {'SMCJ14A': '14A', 'TPSMC16A': 'T16A'}            # design.py value -> key above
-NAME = {'T16A': 'TPSMC16A'}                                  # the others are SMCJ + key
+PART_KEY = {'SMCJ14A': '14A', 'TPSMC16A': 'T16A', '1.5SMC16A': 'L16A'}   # design.py value -> key above
+NAME = {'T16A': 'TPSMC16A', 'L16A': '1.5SMC16A'}             # the others are SMCJ + key
+TJMAX = {'T16A': 185.0}                                      # rated junction temperature, C; the others 150
 
 
 def _fitted():
@@ -201,7 +207,7 @@ def main():
                 f'{r["t35"] * 1e6:.0f} us, to 5 % in {r["t05"] * 1e6:.0f} us')
 
     # ---- B. choice of TVS: clamp level against the driver's own clamp, and reverse battery ------------------------------
-    for part in ('T16A', '14A', '15A', '16A', '18A'):
+    for part in ('L16A', 'T16A', '14A', '15A', '16A', '18A'):
         lo, hi, vc, ipp = TVS[part]
         worst = bench(f'B_{part}_w', 'BAT', L=20e-3, vb=15.5, drv='min', tvs=part, tvs_corner='max', tvs_tj=150)
         typ = bench(f'B_{part}_t', 'BAT', L=20e-3, vb=14.4, drv='typ', tvs=part)
@@ -258,13 +264,23 @@ def main():
         rec('H pair', '2 injectors, 2 drivers' + (' + motherboard SMCJ30A' if mb else ''),
             f'peak {r["vpk"]:.1f} V; daughterboard TVSs {mJ(r["e_tvs"])} together, motherboard TVS {mJ(r["e_mb"])}, '
             f'drivers {mJ(r["e_drv"])}; to 35 % in {r["t35"] * 1e6:.0f} us')
+    # the same wire through one driver only (the second driver not used, or its jumper open): one clamp takes both
+    for drv, corner, tj, vb in (('typ', 'typ', 25.0, 14.4), ('min', 'max', 150.0, 15.5)):
+        r = bench(f'H_one_{drv}', 'BAT', L=20e-3, n_inj=2, n_drv=1, drv=drv, tvs_corner=corner, tvs_tj=tj, vb=vb)
+        share = r['e_drv'] / max(1e-12, r['e_drv'] + r['e_tvs'] + r['e_dio'])
+        rec('H pair', '2 injectors, 1 driver' + (', worst case' if drv == 'min' else ''),
+            f'{r["i0"]:.2f} A through the one driver; peak {r["vpk"]:.1f} V; its TVS {mJ(r["e_tvs"])} per shot = '
+            f'{r["e_tvs"] * 7200 / 120:.2f} W at 7200 rpm with one opening per cycle, {r["e_tvs"] * 7200 / 60:.2f} W with two; '
+            f'driver clamp {mJ(r["e_drv"])} ({share * 100:.0f} % of the heat); to 35 % in {r["t35"] * 1e6:.0f} us'
+            + (' (TVS at its maximum and 150 C, driver clamp at its minimum, 15.5 V)' if drv == 'min' else ''),
+            'OK' if (r['e_drv'] < 1e-5 if drv == 'typ' else share < 0.05) else 'CHECK')
 
     # ---- I. the same wire with unequal clamp TVSs: who takes the energy? ---------------------------------------------
     # Worst case the datasheets allow: one part at the bottom of its breakdown range, the other at the top. The low
     # one takes nearly everything; it only hands current over once it runs hotter by the spread divided by its
     # temperature coefficient (about 100 C for a 1.6 V spread). What that does to its temperature is the board
     # model's "batch_hog" case (board_thermal.py); here only the electrical split.
-    for part in ('14A', 'T16A'):
+    for part in dict.fromkeys(('14A', 'T16A', FITTED)):
         for L in (8e-3, 20e-3):
             eq, _ = pair_share(L, ('typ', 'typ'), tag=f'_{part}eq', tvs=part)
             rows_ = []

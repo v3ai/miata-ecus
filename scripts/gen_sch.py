@@ -239,7 +239,7 @@ def choose(p):
     if r.startswith('D'):
         if 'LED' in fpn:
             return 'Device', 'LED'
-        if v.startswith(('SMCJ', 'SMAJ', 'MMSZ', 'TPSMC')):
+        if v.startswith(('SMCJ', 'SMAJ', 'MMSZ', 'TPSMC', '1.5SMC')):
             return 'Device', 'D_Zener'
         if v.startswith(('1N4148', 'ES1')):
             return 'Device', 'D'
