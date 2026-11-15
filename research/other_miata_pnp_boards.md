@@ -30,7 +30,7 @@ part's datasheet, or a maker says nothing, the table says so. Nothing here was m
 
 | ECU | Injector drivers | Where the coil's turn-off energy goes | Two injectors on one wire (1990-93 harness) |
 |---|---|---|---|
-| Speeduino NA6 PNP v1.3 | two VNLD5090 (dual), four channels | the driver's own clamp (ST: 41 to 52 V for this family). No clamp parts outside it; the diodes on that sheet feed the indicator lights | its page does not say (the 1.6 harness joins the injectors in pairs) |
+| Speeduino NA6 PNP v1.3 | two VNLD5090 (dual), four channels | the driver's own clamp (ST: 41 to 52 V for this family). No clamp parts outside it; the diodes on that sheet feed the indicator lights | one driver channel for the two injectors ([below](#how-the-others-fire-the-paired-injectors-2026-11-15)) |
 | rusEFI Hellen (output module 0.3) | AUIPS2041L in SOT-223 | the driver's own clamp (63 to 75 V on the sibling AUIPS2051L; the 2041's own sheet was not read). Freewheel diodes only on the general-purpose outputs | the part is listed at 1.4 A, less than two 12 to 16 Ω injectors draw; the uaEFI page says its board "was designed for one injector per driver" |
 | ME221 / ME442, 1989-95 | not published | not published | one output per pair before 1993 ("Injector 1 (&3 <1993)"); high-impedance injectors only |
 | AMP EFI, 1990-93 | four channels, high-impedance | not published | sequential needs the harness "repinned at the ECU", except the 1993 California cars |
@@ -86,9 +86,40 @@ The owner's, on the three choices above:
 3. **Wideband lead:** AEM's harness (30-3427) stays.
 
 One thing in AMP's 1990-93 instructions bears on the install guide: "'93 California models are already set up for
-this; all others must have their wiring harness repinned at the ECU". If a 1993 California car has one wire per
-injector, this board's PAIR jumper setting would leave injectors 3 and 4 without a pulse. INSTALL.md now has a
-check for it. Not confirmed from a wiring diagram.
+this; all others must have their wiring harness repinned at the ECU". DIYAutoTune's page for the same cars agrees:
+"'93 California spec models also use 4Y and 4Z for injector outputs" (its adapter's names for 2Y and 2Z), and "The
+California spec versions in 1993 (and the 1994-1997 European market 1.6 cars) had sequential injection". On such a
+car this board's PAIR jumper setting would leave injectors 3 and 4 without a pulse. INSTALL.md has a check for it.
+Not confirmed from a wiring diagram.
+
+## How the others fire the paired injectors (2026-11-15)
+
+Asked: on a 1990-93 car's stock wiring (injectors 1 and 3 on one ECU wire, 2 and 4 on the other), how many drivers
+work each wire, and how often does it open?
+
+| ECU | Drivers on each paired wire | Openings of each wire per engine cycle | Read from |
+|---|---|---|---|
+| rusEFI Hellen NA6, and FOME on the same board | one. Its four outputs go to four pins (3U, 3V, 3Y, 3Z in its naming); the stock harness has wires on the first two | two. Batch mode fires each output again with the cylinder 360° away, "to support 'two-wire batch' mode" | the firmware's 1.6 preset, board file and connector map |
+| Speeduino NA6 PNP v1.3 | one VNLD5090 channel per pin (2U, 2V, 2Y, 2Z) | two. Its own base tune: layout "Paired", 2 squirts, alternating. In the firmware: "Default is 1 squirt per revolution" | board file (pads traced), base tune, firmware |
+| MegaSquirt from DIYAutoTune / AMP EFI (DIYPNP, MSPNP2) | one: INJ1 to 2U, INJ2 to 2V | settable. "2 squirts, alternating" is one (the two drivers take turns); simultaneous is two. The base map's setting could not be read | DIYAutoTune's 1990-93 page; MegaSquirt forum |
+| ME221 / ME442 | one: "2U Injector 1 (&3 <1993)" | not stated. The guide calls the fuelling mode "usually 'Fully Seq'", which on this wiring would be one | install guide |
+| Link MX5X | one per pin (Injection 1 to 4 on 2U, 2V, 2Y, 2Z) | not found | pinout |
+
+- **Nobody puts two drivers on one wire.** Every board read drives each paired wire from a single output. This
+  board's PAIR jumpers, which add a second driver, are its own (from motherboard rev 0.6, to halve each driver's
+  current).
+- **The open designs open each wire once per revolution**, twice per cycle. Speeduino's stated reason: without
+  knowing the stroke "you cannot have less than 2 squirts". The Miata's cam sensor gives the stroke, so that reason
+  does not bind here.
+- **MegaSquirt's own advice is once per cycle:** "for port injection, 2 squirts/alternating is generally the way to
+  go", and more squirts "eat into the injection time with the extra open times" (Bernard Fife, 2006). A poster in
+  another thread prefers once per revolution for batch fire. Both are in use.
+- **None of them has clamp parts outside the driver**, so none has this board's question of which of two clamps
+  takes the energy, and none publishes a temperature estimate.
+
+For this board: its present 1989-93 setting (two drivers per wire, two openings per cycle) matches the open
+designs in how often the wire opens and nobody in the two drivers. One driver per wire with one opening per cycle
+(VERIFICATION.md, "Clamp TVS: what JLCPCB stocks") is MegaSquirt's "2 squirts, alternating" on the same wiring.
 
 ## Sources
 
@@ -104,3 +135,14 @@ check for it. Not confirmed from a wiring diagram.
 - ME221 specifications: https://merchandising.demon-tweeks.com/DT/product-images/manuals-instructions-guides/atp_me221-ecu-specs-may23.pdf ; ME221 / ME442 1989-95 install guide: https://sps-motorsportshop.com/media/pdf/25/1a/70/ME221_ME442-MX58995-Install-Guide.pdf
 - AMP EFI 1990-93 product page: https://www.diyautotune.com/product/mspnp2-mm9093/ ; installation: https://ampenginemanagement.com/blogs/mspnp-pro-documentation/pro-mm9093-installation
 - ECU temperatures in use: https://hpacademy.com/forum/off-topic-discussion/show/ecu-temperature-2
+- Firing of the paired injectors: rusEFI `firmware/config/engines/mazda/mazda_miata_1_6.cpp`,
+  `firmware/config/boards/hellen/hellenMiataNA6/` and `firmware/controllers/engine_cycle/fuel_schedule.cpp`
+  (commit 1374bd0); FOME `firmware/controllers/engine_cycle/fuel_schedule.cpp` and
+  `firmware/config/boards/hellen/hellen64_miataNA6_94/` in https://github.com/FOME-Tech/fome-fw (e628773, 2026-11-14);
+  Speeduino `speeduino/fuel_calcs.cpp` in https://github.com/speeduino/speeduino (5d217bf, 2026-11-06) and
+  `Mazda/NA6 PNP base tune.msq` in https://github.com/speeduino/Tunes (99b2a62, 2025-03-03);
+  DIYAutoTune's 1990-93 Miata page: https://www.diyautotune.com/?p=95448 ;
+  ME221 quick start: https://motorsport-electronics.co.uk/wp-content/uploads/2023/09/ME221_MX5_8995-Quick-Start-.pdf ;
+  Link pinout: https://cdn.shopify.com/s/files/1/0811/8022/9941/files/G4x_MX5Link_MX5NAX_Wiring_Pinout.pdf ;
+  MegaSquirt forum: https://microsquirt.com/viewtopic.php?p=137124 , https://microsquirt.com/viewtopic.php?p=125250 ,
+  https://grassrootsmotorsports.com/forum/grm/injector-pairing-for-batch-fire-injection-in-megas/34018/page1/

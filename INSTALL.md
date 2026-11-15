@@ -188,8 +188,8 @@ carpet up again.
   clamps put into the ECU. For track use, convert the car to one wire per injector
   ([below](#one-wire-per-injector-on-a-199093-car-optional)), and measure one injector's inductance either way
   ([why](README.md#things-to-know-before-ordering)).
-- **1993 California cars:** AMP EFI's instructions for its own 1990–93 ECU say these cars already have one wire per
-  injector. Check before the first start: with the ECU unplugged, measure from cavities 2Y and 2Z of the harness plug
+- **1993 California cars:** AMP EFI's and DIYAutoTune's instructions for their own 1990–93 ECUs say these cars
+  already have one wire per injector. Check before the first start: with the ECU unplugged, measure from cavities 2Y and 2Z of the harness plug
   to the ECU-side pins of injector plugs 3 and 4. If they connect, the car is wired like a converted one: set the
   jumpers and the injection mode as in steps 6 and 7 below. With the jumpers on PAIR those two injectors would never
   open. **Unchecked.**
@@ -369,7 +369,8 @@ Where this guide's car-specific facts come from:
 - One wire per injector on 1990–93 cars: a 1991 owner's write-up in the
   [rusEFI forum](https://rusefi.com/forum/viewtopic.php?p=41337) (the joints, the two new wires, the loose terminal)
   and AMP EFI's [1990–93 MSPNP Pro instructions](https://ampenginemanagement.com/blogs/mspnp-pro-documentation/pro-mm9093-installation)
-  (repinning at the ECU; the 1993 California cars). What other makers do is in
+  (repinning at the ECU; the 1993 California cars, also on [DIYAutoTune's 1990–93 page](https://www.diyautotune.com/?p=95448)).
+  What other makers do is in
   [research/other_miata_pnp_boards.md](research/other_miata_pnp_boards.md).
 - Hose size for the MAP sensor: NXP application note
   [AN1513](https://www.nxp.jp/docs/en/application-note/AN1513.pdf).
