@@ -7,6 +7,7 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 - the sockets for the universal daughterboard, which does all the engine control (including the wideband controller).
 
 ## Changes in this revision
+- 2026-11-15, no change to the board: on 1989-93 cars JP1 and JP2 now carry no shunt, so each of the two injector wires has one driver (INJ1, INJ2), as on rusEFI's and Speeduino's boards for these cars. Before, both sat on PAIR and two drivers shared each wire. The firmware is unchanged (batch firing).
 - Rev 0.13: the wideband sensor connector J2 is now a JST PUD side-entry header (S08B-PUDSS-1, two rows of four at 2.0 mm) instead of rev 0.12's Molex Micro-Fit 2x4. AEM's instructions for the X-Series gauge name the harness's replacement terminal, JST SPUD-001T-P0.5, which is the contact of JST's PUD series (plug housing PUDP-08V-S): a Micro-Fit header would not have taken the plug. The wire colour of each pin is printed beside the connector, to check a harness against by eye. The board is routed again; nothing else changed.
 - Rev 0.12: one board for 1989-93 and 1994-95 (same case and header); the pins that differ are on jumpers JP1-JP6, set for the car (table below). Rev 0.12 is for daughterboard rev 0.10 (a rev 0.9 daughterboard fits too, without the new functions). The wideband sensor connector J2 is a Molex Micro-Fit 2x4 for the off-the-shelf AEM X-Series sensor harness (30-3427) instead of the 2x3 for a hand-made lead; that plug family was a guess, and wrong: corrected in rev 0.13. The separate air-temperature connector J3 and its jumper are gone: the stock sensor's harness wire goes straight to the air-temperature input. The add-on header J5 is a 2x10 box header for a ribbon cable and gains the flex-fuel input (4.7k pull-up to 5 V, R35), the nitrous arming input (10k pull-down, R36) and the CAN bus; a boost valve on it has its own freewheel diode (D5), and its +12 V fuse F4 holds 1.1 A instead of 0.5 A. The tach output only reaches cavity 2I through JP5, left open: 2I is the igniter's signal into the ECU. D3/D4 are not fitted with a rev 0.10 daughterboard, which clamps each injector driver itself. Sequential injection on 1989-93 is now two jumpers (JP1/JP2 to SEQ), not solder links.
 - Rev 0.11, for daughterboard rev 0.9: the throttle position sensor conversion uses the stock throttle switch plug, as rusEFI's Hellen NA6 and MRE boards do, instead of rev 0.10's separate lead: J6 is gone. Harness pin 1N (the manual cars' idle contact) is no longer wired straight to the sensor 5 V: it goes through R28 (0R, not fitted), so a car with the stock switch no longer shorts the 5 V to ground at every idle (rev 0.10 and earlier did, if 1N is the idle contact as the rusEFI sources say). Pin 2L goes through R29 (0R, fitted) to the spare analog AUX1 as before, or through R30 (0R, not fitted) to the TPS input. For a sensor on the stock plug: fit R28, move R29 to R30. The links are hand-routed into the rev 0.9 copper; nothing else moved.
@@ -84,11 +85,11 @@ TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); ru
 | 2R | `HARN_2R` | jumper JP4 | 1994-95: pressure regulator control solenoid, through JP4. Not connected on 1989-93 |
 | 2S | `HARN_2S` | jumper JP3 | 1994-95: condenser fan relay, second fan output through JP3 (position 94-95) |
 | 2T | `OUT_FP` | fuel pump relay | fuel pump relay |
-| 2U | `OUT_INJ1` | injector 1 | 1989-93: two injectors on this wire (JP2 on PAIR adds the INJ4 driver). 1994-95: injector 1 |
-| 2V | `OUT_INJ2` | injector 2 | 1989-93: the other two injectors (JP1 on PAIR adds the INJ3 driver). 1994-95: injector 2 |
+| 2U | `OUT_INJ1` | injector 1 | 1989-93: two injectors on this wire, one driver. 1994-95: injector 1 |
+| 2V | `OUT_INJ2` | injector 2 | 1989-93: the other two injectors, one driver. 1994-95: injector 2 |
 | 2W | `OUT_IACV` | idle air valve |  |
 | 2X | `OUT_VVT` | PWM low side (VVT driver) | purge solenoid (VVT driver reused, set as purge / generic PWM) |
-| 2Y | `HARN_2Y` | jumper JP1 | 1994-95: injector 3 (JP1 on SEQ). 1989-93: empty until a sequential conversion |
+| 2Y | `HARN_2Y` | jumper JP1 | 1994-95: injector 3 (JP1 on SEQ). 1989-93: empty until the car has one wire per injector |
 | 2Z | `HARN_2Z` | jumper JP2 | 1994-95: injector 4 (JP2 on SEQ). 1989-93: A/T control unit on automatics, never JP2 on SEQ there |
 
 Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J.
@@ -135,8 +136,8 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J.
 
 | Jumper | Marked | 1989-93 | 1994-95 | What it does |
 |---|---|---|---|---|
-| JP1 | INJ3 | PAIR | SEQ | Injector 3 driver: PAIR = in parallel with INJ2 on 2V (1989-93 stock harness, two injectors per wire); SEQ = its own wire 2Y (1994-95, or a 1989-93 sequential conversion) |
-| JP2 | INJ4 | PAIR | SEQ | Injector 4 driver: PAIR = in parallel with INJ1 on 2U (1989-93 stock); SEQ = its own wire 2Z (1994-95, or a 1989-93 sequential conversion). NEVER SEQ on a 1989-93 automatic: 2Z is the A/T control unit |
+| JP1 | INJ3 | open | SEQ | Injector 3 driver. No shunt = 1989-93 stock harness: the two injector wires 2U and 2V each have one driver (INJ1, INJ2). SEQ = its own wire 2Y (1994-95, or a 1989-93 car with one wire per injector). PAIR = in parallel with INJ2 on 2V: only with a rev 0.9 daughterboard on a 1989-93 car |
+| JP2 | INJ4 | open | SEQ | Injector 4 driver. No shunt = 1989-93 stock harness. SEQ = its own wire 2Z (1994-95, or a 1989-93 car with one wire per injector). PAIR = in parallel with INJ1 on 2U: only with a rev 0.9 daughterboard on a 1989-93 car. NEVER SEQ on a 1989-93 automatic: 2Z is the A/T control unit |
 | JP3 | FAN2 | 90-93 | 94-95 | Second fan relay output: 1R on 1990-93 (the 1990-91 A/C fan), 2S on 1994-95 (condenser fan) |
 | JP4 | 94-95 2R | open | fitted | Fit on 1994-95: the pressure regulator control solenoid on 2R. Leave open on 1989-93 |
 | JP5 | TACH COP | open | open | Leave OPEN with the stock igniter: it drives the tachometer and sends its signal to the ECU on 2I. Fit only after a coil-on-plug conversion with the igniter removed: the ECU then drives the tachometer through 2I (R37 is its 12 V pull-up; join the two tach wires at the old igniter plug) |
@@ -152,7 +153,7 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J.
 
 **Sensor 5 V:** the harness's 5 V reference and the AUX header pin J5-14 come from the daughterboard's protected 5 V regulator (V5_EXT; it survives a short to the battery or to ground). The MAP sensor has its own supply (V5_SENS), so a damaged sensor wire doesn't take the MAP reading with it.
 
-**Injectors (1989-93):** the stock harness has two injectors on each of 2U and 2V (about 1.8 A per wire). With JP1 and JP2 on PAIR two daughterboard drivers share each wire (INJ1 + INJ4 on 2U, INJ2 + INJ3 on 2V) and rusEFI's batch mode fires each pair together. A rev 0.10 daughterboard clamps each driver itself, so D3/D4 are not fitted; **fit them (SMCJ30A) only to run this board with a rev 0.9 daughterboard on a 1989-93 car.** For a sequential conversion (new wires to 2Y/2Z) move JP1 and JP2 to SEQ and switch the firmware to sequential. **Never put JP2 on SEQ on a 1989-93 automatic: 2Z goes to the A/T control unit.**
+**Injectors (1989-93):** the stock harness has two injectors on each of 2U and 2V (about 1.8 A per wire). JP1 and JP2 carry no shunt: one daughterboard driver works each wire (INJ1 on 2U, INJ2 on 2V), as on rusEFI's and Speeduino's boards for these cars, and rusEFI's batch mode opens each wire once per revolution. The INJ3 and INJ4 drivers switch with nothing connected. For a car with one wire per injector (new wires to 2Y/2Z, or a 1993 California car) fit JP1 and JP2 on SEQ; the firmware can then be set to sequential. **Never put JP2 on SEQ on a 1989-93 automatic: 2Z goes to the A/T control unit.** PAIR (a second driver on each wire) is for a rev 0.9 daughterboard on a 1989-93 car, whose drivers take the injectors' turn-off energy themselves: **fit D3/D4 (SMCJ30A) for that combination only.** With PAIR never set the firmware to sequential: every injector would get twice its fuel.
 
 **Tachometer (1989-95):** cavity 2I is the igniter's signal into the ECU; the igniter drives the tachometer itself. JP5 is left open and the firmware has no tach output on these years. Only after a coil-on-plug conversion with the igniter removed: fit JP5, set the tach output in TunerStudio, and join the two tach wires at the old igniter plug (R37 is the 12 V pull-up the tachometer then needs).
 

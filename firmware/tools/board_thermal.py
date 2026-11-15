@@ -25,7 +25,7 @@ show what the chosen h gives.
 
 As a module: Model(board, h, pins).rise({ref: watts}) -> {ref: (watts, pad rise, junction rise)}.
 
-usage: /usr/bin/python3 firmware/tools/board_thermal.py [board.kicad_pcb] [--h 10] [--pins] [--case seq,batch]
+usage: /usr/bin/python3 firmware/tools/board_thermal.py [board.kicad_pcb] [--h 10] [--pins] [--case seq,batch1,pair1,batch,batch_hog]
                                                         [--png out.png] [--selftest]
 """
 import argparse
@@ -60,11 +60,13 @@ HEAT_PADS = {'VND7NV04TR-E': ('2',), 'VND14NV04': ('2',), 'LDL1117S33R': ('2',),
 
 
 def losses(case, l_mh=20.0, rpm=7200):
-    """{ref: watts} at sustained high load. case: 'seq' sequential injection; 'batch' the 1989-93 wiring with the four
-    clamp TVSs sharing equally; 'batch_hog' the same with one TVS of each pair taking both injectors' energy;
-    'pair1' the 1989-93 wiring with one driver on each wire (JP1/JP2 open) firing once per cycle: two clamp TVSs take
-    two injectors each, two take nothing; 'rev09' the rev 0.9 board, where each injector driver's own clamp takes the
-    energy (sequential).
+    """{ref: watts} at sustained high load. case: 'seq' sequential injection; 'batch1' the 1989-93 wiring as it is set
+    up since 2026-11-15: one driver on each two-injector wire (JP1/JP2 without shunts), each wire opening once per
+    revolution (rusEFI's batch mode), so two clamp TVSs take two injectors each twice per cycle and two take nothing;
+    'pair1' the same wiring with each wire opening once per cycle (sequential mode); 'batch' two drivers on each wire
+    (JP1/JP2 on PAIR) with the four clamp TVSs sharing equally; 'batch_hog' the same with one TVS of each pair taking
+    both injectors' energy; 'rev09' the rev 0.9 board, where each injector driver's own clamp takes the energy
+    (sequential).
     Clamp energy per shot from sim_inj_clamp.py: 8.3 mJ per injector at 20 mH into a battery-referred TVS, 15.3 mJ
     into a driver's own clamp; both scale with the inductance."""
     e_tvs, e_drv = 8.3e-3 * l_mh / 20.0, 15.3e-3 * l_mh / 20.0
@@ -73,12 +75,12 @@ def losses(case, l_mh=20.0, rpm=7200):
         p[q] = 1.2 ** 2 * 0.12 * 0.8                    # 1.2 A, 120 mOhm hot, 80 % duty
         if case == 'rev09':
             p[q] += e_drv * rpm / 120
-        if case == 'pair1':                             # two injectors through Q1 and Q2, nothing through Q3 and Q4
+        if case in ('pair1', 'batch1'):                 # two injectors through Q1 and Q2, nothing through Q3 and Q4
             p[q] = 2.4 ** 2 * 0.12 * 0.8 if q in ('Q1', 'Q2') else 0.0
     p.update({'Q5': 1.3 ** 2 * 0.12 * 0.6, 'Q6': 1.9 ** 2 * 0.12 * 0.6, 'Q7': 0.5 ** 2 * 0.12 * 0.5})
     seq, bat = e_tvs * rpm / 120, e_tvs * rpm / 60
     tvs = {'seq': [seq] * 4, 'batch': [bat] * 4, 'batch_hog': [2 * bat, 2 * bat, 0.0, 0.0],
-           'pair1': [2 * seq, 2 * seq, 0.0, 0.0], 'rev09': [0.0] * 4}[case]
+           'batch1': [2 * bat, 2 * bat, 0.0, 0.0], 'pair1': [2 * seq, 2 * seq, 0.0, 0.0], 'rev09': [0.0] * 4}[case]
     for i, w in enumerate(tvs):
         p[f'D{46 + i}'] = w
         p[f'D{42 + i}'] = 0.06 * w                      # clamp diode: 0.9 V of the 16 V clamp
@@ -270,7 +272,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('board', nargs='?', default=os.path.join(ROOT, 'daughterboard', 'miata_ecu_daughter.kicad_pcb'))
     ap.add_argument('--h', type=float, default=10.0)
-    ap.add_argument('--case', default='seq,batch,batch_hog')
+    ap.add_argument('--case', default='seq,batch1')
     ap.add_argument('--mh', type=float, default=20.0, help='injector inductance, mH')
     ap.add_argument('--png')
     ap.add_argument('--pins', action='store_true', help='count the header pins as a path into the motherboard')

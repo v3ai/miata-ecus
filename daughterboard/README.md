@@ -17,6 +17,9 @@ and the audit in `research/rev0.10_design_audit.md`.
   1.5SMC16A since 2026-11-15 (15.2-16.8 V, 150 °C junction): Vishay's TPSMC16A, the same voltages with a 185 °C
   junction, was named first but JLCPCB had none, nor any other part of this package rated above 150 °C. What that
   means for 1989-93 cars is under [Before ordering](#before-ordering), item 8.
+- **1989-93 cars: one driver per injector wire** (2026-11-15, no board change). On the stock harness INJ1 and INJ2
+  each work a wire with two injectors; INJ3 and INJ4 are not connected on the motherboard (no shunts on its JP1 and
+  JP2). Before, a second driver sat in parallel on each wire.
 - **220 Ω in series with each low-side driver input** (R152-R159): ST's VND7NV04 rating asks for at least 150 Ω.
 - **microSD socket** J4 (Molex 47219-2001, hinged lid) on SPI2 with 47 kΩ pull-ups on every line but the clock.
   Rated -20 to +85 °C.
@@ -364,7 +367,7 @@ that needs the same hand finishing.
    in the release scripts. KiCad still reports courtyard overlaps (101) where small parts sit closer than their
    courtyards allow; the bodies clear and the pad spacing meets JLC's table. When ordering assembly, let JLC add the
    edge rails and fiducials (the boards have none of their own), and look at their DFM report and 3D preview.
-8. **Temperature at full load.** A model of the whole board puts the injector drivers 30-41 °C, the clamp TVSs 43-52 °C and the processor 32-40 °C above the air around the board at sustained 7200 rpm with 20 mH injectors (sequential; more on 1989-93 cars: `VERIFICATION.md`, Rev 0.10). The clamp TVSs are 150 °C parts: on 1994-2005 cars, and on 1989-93 cars converted to one wire per injector (`INSTALL.md`), they stay inside that to about 100 °C around the board. On the stock paired wiring of a 1989-93 car the model gives 66-78 °C if the two clamps on a wire share, and 39-51 °C if one takes all of it. It is a model: measure a board at full load before track use. **Measure one injector's inductance** (LCR meter, injector unplugged): the clamp heat scales with it, and it is not known for Miata injectors.
+8. **Temperature at full load.** A model of the whole board puts the injector drivers 30-41 °C, the clamp TVSs 43-52 °C and the processor 32-40 °C above the air around the board at sustained 7200 rpm with 20 mH injectors (sequential; more on 1989-93 cars: `VERIFICATION.md`, Rev 0.10). The clamp TVSs are 150 °C parts: on 1994-2005 cars, and on 1989-93 cars converted to one wire per injector (`INSTALL.md`), they stay inside that to about 100 °C around the board. On a stock-wired 1989-93 car one driver and one clamp work each pair of injectors (as on rusEFI's and Speeduino's boards), and that clamp takes both injectors' energy twice per cycle: the model gives 34-47 °C at a sustained 7200 rpm and 61-72 °C at 5000 rpm with 20 mH injectors, 88-97 °C with 8 mH. Sequential mode on that wiring gives 79-89 °C (`VERIFICATION.md`, "1989-93: one driver per injector wire"). It is a model: measure a board at full load before track use. **Measure one injector's inductance** (LCR meter, injector unplugged): the clamp heat scales with it, and it is not known for Miata injectors.
 9. **Filled vias.** The board has vias in the DPAK tab pads and in the clamp TVS pads. JLCPCB fills and caps the vias of a six-layer board by default; check that the order says so (epoxy filled and capped). Open vias in those pads would wick solder away.
 10. **After an LSU wire short to battery,** check R108-R110 (1206): they take the fault so U101 doesn't, and R108 can open.
 11. **Six-layer order:** 1.6 mm, JLCPCB's standard six-layer stack, 1 oz outer and 0.5 oz inner copper.

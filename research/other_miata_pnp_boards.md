@@ -117,9 +117,15 @@ work each wire, and how often does it open?
 - **None of them has clamp parts outside the driver**, so none has this board's question of which of two clamps
   takes the energy, and none publishes a temperature estimate.
 
-For this board: its present 1989-93 setting (two drivers per wire, two openings per cycle) matches the open
-designs in how often the wire opens and nobody in the two drivers. One driver per wire with one opening per cycle
-(VERIFICATION.md, "Clamp TVS: what JLCPCB stocks") is MegaSquirt's "2 squirts, alternating" on the same wiring.
+For this board, as it stood when this was written: its 1989-93 setting (two drivers per wire, two openings per
+cycle) matched the open designs in how often the wire opens and nobody in the two drivers. One driver per wire with
+one opening per cycle (VERIFICATION.md, "Clamp TVS: what JLCPCB stocks") is MegaSquirt's "2 squirts, alternating" on
+the same wiring.
+
+**Decided (owner, 2026-11-15): copy the open designs.** A stock-wired 1989-93 car now has one driver on each
+injector wire (no shunts on JP1 and JP2 of the 1989-95 motherboard) and keeps batch firing. For this board that is
+the hottest of the arrangements compared, because its clamp parts, not the driver chips, take the turn-off energy:
+the numbers are in VERIFICATION.md, "1989-93: one driver per injector wire".
 
 ## Sources
 

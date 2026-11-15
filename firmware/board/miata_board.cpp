@@ -301,22 +301,25 @@ static void setMiataNb2() {
 void miataApplyYearPreset(engine_type_e engineType) {
 	switch (engineType) {
 	case engine_type_e::MAZDA_MIATA_NA6:
-		// 1989-93: batch fire, VAF, wasted spark. The stock harness has two injectors on each of 2U and 2V. The 1989-93
-		// motherboard (rev 0.6) wires two drivers to each wire: INJ1 + INJ4 to 2U, INJ2 + INJ3 to 2V. rusEFI's batch
-		// mode fires each cylinder's output together with the cylinder 360 degrees away (1 with 4, 3 with 2 in the
-		// 1-3-4-2 order), so each pair switches together and each driver carries one injector. 2Y/2Z (2Z is the A/T
-		// unit on automatics) are not connected unless the motherboard links are moved for a sequential conversion.
+		// 1989-93: batch fire, VAF, wasted spark. The stock harness has two injectors on each of 2U and 2V. rusEFI's
+		// batch mode fires each cylinder's output together with the cylinder 360 degrees away (1 with 4, 3 with 2 in
+		// the 1-3-4-2 order), so each output opens once per revolution.
+		// 1989-95 motherboard, jumpers JP1 / JP2 without shunts (the 1989-93 setting since 2026-11-15): INJ1 works
+		// 2U and INJ2 works 2V, one driver for the two injectors on each wire, as on rusEFI's Hellen NA6 and
+		// Speeduino's NA6 boards; INJ3 / INJ4 switch with nothing connected. With the shunts on SEQ they reach
+		// 2Y / 2Z (a car with one wire per injector; 2Z is the A/T unit on automatics).
+		// Jumpers on PAIR, and the 1989-93 motherboards rev 0.6 to 0.11 with their fixed links: INJ4 is in parallel
+		// with INJ1 on 2U and INJ3 with INJ2 on 2V. Batch mode switches the two drivers of a wire together, so this
+		// preset is right for those boards too; sequential mode would not be (twice the fuel).
 		// The "cylinder" numbers below are rusEFI's output slots, not the injectors on each wire: in the car 2U feeds
-		// injectors 1 and 3 and 2V feeds 2 and 4. In batch mode that doesn't matter; it only pairs the drivers.
-		// This needs the rev 0.6 1989-93 motherboard: on an older one INJ3/INJ4 would drive the unused 2Y/2Z pins
-		// and each 2U/2V driver would carry two injectors on its own.
+		// injectors 1 and 3 and 2V feeds 2 and 4. In batch mode that doesn't matter.
 		setMazdaMiataNA6();
 		miataNoTachOutput();
 		engineConfiguration->injectionMode = IM_BATCH;
 		engineConfiguration->injectionPins[0] = MIATA_INJ1;   // slot 1 -> 2U
 		engineConfiguration->injectionPins[1] = MIATA_INJ2;   // slot 2 -> 2V
-		engineConfiguration->injectionPins[2] = MIATA_INJ3;   // slot 3 -> 2V, paired with slot 2
-		engineConfiguration->injectionPins[3] = MIATA_INJ4;   // slot 4 -> 2U, paired with slot 1
+		engineConfiguration->injectionPins[2] = MIATA_INJ3;   // slot 3 -> nothing (2V with JP1 on PAIR, 2Y on SEQ)
+		engineConfiguration->injectionPins[3] = MIATA_INJ4;   // slot 4 -> nothing (2U with JP2 on PAIR, 2Z on SEQ)
 		break;
 	case engine_type_e::MAZDA_MIATA_NA94:
 		// 1994-95: four injector wires (2U/2V/2Y/2Z), sequential like rusEFI's own 1994 preset.

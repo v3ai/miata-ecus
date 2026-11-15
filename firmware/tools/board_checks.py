@@ -813,7 +813,10 @@ def connectivity(sysm, year, module, fw, board_fw, research, notes):
         elif key and not want:
             # firmware drives a function the reference table doesn't have for this year
             row('FAIL' if cavs else 'CHECK', 'reverse', year, f'{func} {port} ({net}) -> harness {cavs or "-"}: '
-                'no reference cavity for this function on this year')
+                'no reference cavity for this function on this year'
+                + ('. By design: one driver works each two-injector wire (JP1 / JP2 without shunts, as rusEFI\'s and '
+                   'Speeduino\'s boards drive these cars), so this output switches with nothing connected; it reaches '
+                   '2Y / 2Z with the shunts on SEQ' if year == '1989-93' and func in ('inj3', 'inj4') and not cavs else ''))
         else:
             sev = 'OK'
             if func in FW_OUTPUTS and cavs:
@@ -926,7 +929,8 @@ def drivers_check(sysm, year, fw, board_fw, research, notes):
         elif cars:
             row('FAIL', 'drivers', year, f'{"/".join(sorted(nets))}: ECU low side on a cavity the car drives: {names}')
         else:
-            # open-drain pair: fine only if the firmware switches both together (1989-93 batch pairs)
+            # open-drain pair: fine only if the firmware switches both together (1989-93 with JP1 / JP2 on PAIR, the
+            # setting up to 2026-11-15; since then they carry no shunt and no net has two drivers)
             pair_ok = False
             if year == '1989-93' and nets >= {'OUT_INJ1', 'OUT_INJ4'} or nets >= {'OUT_INJ2', 'OUT_INJ3'}:
                 inj = [fw.get(f'inj{i}') for i in range(1, 5)]

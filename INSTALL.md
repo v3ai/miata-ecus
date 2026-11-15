@@ -95,7 +95,7 @@ car before the first start:
 
 | Jumper | 1989–93 | 1994–95 | What it does |
 |---|---|---|---|
-| JP1, JP2 (INJ3, INJ4) | PAIR | SEQ | PAIR: two injector drivers share each of the two injector wires. SEQ: one wire per injector. **Never SEQ on a 1989–93 automatic** |
+| JP1, JP2 (INJ3, INJ4) | no shunt | SEQ | No shunt: the stock 1989–93 harness, where one driver works each of the two injector wires. SEQ: one wire per injector. **Never SEQ on a 1989–93 automatic.** PAIR is only for a rev 0.9 daughterboard |
 | JP3 (FAN2) | 90-93 | 94-95 | Which harness pin the second fan relay is on |
 | JP4 (94-95 2R) | open | fitted | The 1994–95 pressure-regulator solenoid |
 | JP5 (TACH COP) | open | open | Fit only after a coil-on-plug conversion with the igniter removed |
@@ -182,23 +182,30 @@ carpet up again.
 - **Manual cars have no throttle position sensor**, only a switch. The engine runs without one, but there is no
   closed-loop idle, no throttle-based acceleration fuel and no overrun fuel cut until you fit one: see
   [Throttle position sensor](README.md#throttle-position-sensor-198993-manual-cars).
-- **Jumpers:** JP1 and JP2 on PAIR, JP3 on 90-93, JP4 and JP5 open, JP6 on AFM.
+- **Jumpers:** no shunt on JP1 and JP2, JP3 on 90-93, JP4 and JP5 open, JP6 on AFM.
 - **Automatics:** never put JP2 on SEQ, and leave R28 and R30 off.
-- **Sustained high rpm:** on these cars each injector fires once per revolution, which doubles the heat the injector
-  clamps put into the ECU. For track use, convert the car to one wire per injector
-  ([below](#one-wire-per-injector-on-a-199093-car-optional)), and measure one injector's inductance either way
-  ([why](README.md#things-to-know-before-ordering)).
+- **Sustained high rpm:** on the stock wiring one driver and one clamp in the ECU work each pair of injectors, and
+  each wire opens once per revolution. That is how rusEFI's and Speeduino's boards run these cars, and it is the
+  hottest arrangement for this board: with high-inductance injectors (20 mH) held at 7200 rpm the model keeps the
+  clamp inside its rating only while the air around the board is below about 34–47 °C (at 5000 rpm, 61–72 °C).
+  With 8 mH injectors there is ample margin. So measure one injector's inductance
+  ([why](README.md#things-to-know-before-ordering)), and for track use do one of these, both **unchecked**:
+  - set the injection **Mode** to **Sequential** in TunerStudio. With no shunts on JP1 and JP2 each wire then opens
+    once per engine cycle with a full-length pulse: the same fuel, half the clamp heat. Check the idle afterwards;
+  - or convert the car to one wire per injector
+    ([below](#one-wire-per-injector-on-a-199093-car-optional)).
 - **1993 California cars:** AMP EFI's and DIYAutoTune's instructions for their own 1990–93 ECUs say these cars
-  already have one wire per injector. Check before the first start: with the ECU unplugged, measure from cavities 2Y and 2Z of the harness plug
-  to the ECU-side pins of injector plugs 3 and 4. If they connect, the car is wired like a converted one: set the
-  jumpers and the injection mode as in steps 6 and 7 below. With the jumpers on PAIR those two injectors would never
-  open. **Unchecked.**
+  already have one wire per injector. Check before the first start: with the ECU unplugged, measure from cavities
+  2Y and 2Z of the harness plug to the ECU-side pins of injector plugs 3 and 4. If they connect, the car is wired
+  like a converted one: set the jumpers and the injection mode as in steps 6 and 7 below. Without shunts on JP1 and
+  JP2 those two injectors would never open. **Unchecked.**
 
 #### One wire per injector on a 1990–93 car (optional)
 
 **Unchecked on this board. Manual cars only.** This is what other plug-in ECUs do about these cars' paired injector
-wiring, and one rusEFI owner's write-up of a 1991 car is the model for the steps (see [Sources](#sources)). It halves
-the injector heat in the ECU, which then runs like a 1994–95 car's, and gives each cylinder its own injection timing.
+wiring, and one rusEFI owner's write-up of a 1991 car is the model for the steps (see [Sources](#sources)). The ECU
+then runs like a 1994–95 car's: each clamp takes a quarter of the heat, and each cylinder has its own injection
+timing.
 
 The stock harness: each injector plug has two wires. One is the 12 V feed, common to all four. The other goes to
 the ECU, and on the way the injectors are joined in pairs: injectors 1 and 3 on ECU pin 2U, injectors 2 and 4 on
@@ -218,16 +225,16 @@ plug, solder or crimp joints and heat-shrink.
    plug: **injector 3 to cavity 2Y, injector 4 to cavity 2Z** (rusEFI's pinout for these cars calls them 3Y and 3Z).
    Both are empty on a manual car. Use new terminals and check that each one locks: the 1991 owner reused old ones
    and had an injector cut out when the wire moved.
-6. On the motherboard, move **JP1 and JP2 to SEQ**.
+6. On the motherboard, fit shunts on **JP1 and JP2 at SEQ**.
 7. In TunerStudio set the injection **Mode** to **Sequential** and Burn. Injection outputs 1–4 stay as the 1989–93
    button set them.
 8. Before starting: key on, engine off, open *Controller → Bench test* and pulse each injector in turn while
    listening at the rail. Output 1 must click injector 1 only, and so on to 4. Two injectors clicking on one output
-   means a joint is still there. No click means a bad connection or a jumper still on PAIR.
+   means a joint is still there. No click means a bad connection or a missing shunt.
 
-**Never select Sequential with the injectors still joined in pairs and the jumpers on PAIR:** every injector would
-then open twice per cycle with full-length pulses, which is twice the fuel. Not for automatics: 2Z is the A/T
-control unit's wire there.
+Not for automatics: 2Z is the A/T control unit's wire there. And **never select Sequential with shunts on PAIR**
+(or on a 1989–93 motherboard older than rev 0.12, which pairs the drivers with fixed links): every injector would
+then open twice per cycle with full-length pulses, which is twice the fuel.
 
 ### 1994–95 and 1996–97
 

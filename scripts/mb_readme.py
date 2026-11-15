@@ -147,11 +147,14 @@ o.append('**Sensor 5 V:** the harness\'s 5 V reference and the AUX header pin J5
          'protected 5 V regulator (V5_EXT; it survives a short to the battery or to ground). The MAP sensor has its own '
          'supply (V5_SENS), so a damaged sensor wire doesn\'t take the MAP reading with it.\n')
 if getattr(M, 'JUMPERS', None):
-    o.append('**Injectors (1989-93):** the stock harness has two injectors on each of 2U and 2V (about 1.8 A per wire). With JP1 and JP2 '
-             'on PAIR two daughterboard drivers share each wire (INJ1 + INJ4 on 2U, INJ2 + INJ3 on 2V) and rusEFI\'s batch mode fires each '
-             'pair together. A rev 0.10 daughterboard clamps each driver itself, so D3/D4 are not fitted; **fit them (SMCJ30A) only to run '
-             'this board with a rev 0.9 daughterboard on a 1989-93 car.** For a sequential conversion (new wires to 2Y/2Z) move JP1 and JP2 '
-             'to SEQ and switch the firmware to sequential. **Never put JP2 on SEQ on a 1989-93 automatic: 2Z goes to the A/T control unit.**\n')
+    o.append('**Injectors (1989-93):** the stock harness has two injectors on each of 2U and 2V (about 1.8 A per wire). JP1 and JP2 carry '
+             'no shunt: one daughterboard driver works each wire (INJ1 on 2U, INJ2 on 2V), as on rusEFI\'s and Speeduino\'s boards for these '
+             'cars, and rusEFI\'s batch mode opens each wire once per revolution. The INJ3 and INJ4 drivers switch with nothing connected. '
+             'For a car with one wire per injector (new wires to 2Y/2Z, or a 1993 California car) fit JP1 and JP2 on SEQ; the firmware can '
+             'then be set to sequential. **Never put JP2 on SEQ on a 1989-93 automatic: 2Z goes to the A/T control unit.** PAIR (a second '
+             'driver on each wire) is for a rev 0.9 daughterboard on a 1989-93 car, whose drivers take the injectors\' turn-off energy '
+             'themselves: **fit D3/D4 (SMCJ30A) for that combination only.** With PAIR never set the firmware to sequential: every '
+             'injector would get twice its fuel.\n')
     o.append('**Tachometer (1989-95):** cavity 2I is the igniter\'s signal into the ECU; the igniter drives the tachometer itself. JP5 '
              'is left open and the firmware has no tach output on these years. Only after a coil-on-plug conversion with the igniter '
              'removed: fit JP5, set the tach output in TunerStudio, and join the two tach wires at the old igniter plug (R37 is the 12 V '

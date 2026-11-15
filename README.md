@@ -45,7 +45,7 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
   under load.
 - **A base tune for each year**, loaded by the year button in TunerStudio ([what is in it](firmware/README.md#base-tune)).
 - **Four injector outputs** for high-impedance injectors. Sequential on 1994–2005; in pairs on 1989–93, as the
-  stock harness is wired (a jumper pair on that board is for a sequential conversion).
+  stock harness is wired (two jumpers on that board are for a car with one wire per injector).
 - **Four ignition outputs** (5 V logic): two on the harness for the stock coils, two more on the AUX header for one
   coil per cylinder.
 - **Closed-loop idle** (on cars with a throttle position sensor), radiator fan, second fan, A/C clutch, fuel pump,
@@ -159,7 +159,10 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
 > to one wire per injector instead ([INSTALL.md](INSTALL.md#one-wire-per-injector-on-a-199093-car-optional)). AEM's
 > wideband harness stays. The injector clamp TVS is now a part JLCPCB has: the 185 °C part first named was not in
 > its stock, and nothing rated above 150 °C in that package was
-> ([what was found](VERIFICATION.md#clamp-tvs-what-jlcpcb-stocks-2026-11-15)).
+> ([what was found](VERIFICATION.md#clamp-tvs-what-jlcpcb-stocks-2026-11-15)). On a stock-wired 1989–93 car one
+> driver now works each injector wire, as on rusEFI's and Speeduino's boards for these cars: JP1 and JP2 carry no
+> shunt. The boards themselves are unchanged
+> ([what it means](VERIFICATION.md#1989-93-one-driver-per-injector-wire-2026-11-15)).
 >
 > **The boards ordered in November 2026** are the set before this (daughterboard rev 0.9). Their files are kept in
 > [`ordered-boards/2026-11/`](ordered-boards/2026-11/); what the rev 0.10 review means for them is in
@@ -229,16 +232,16 @@ Check the plug's wiring and the sensor's pins on your car before fitting R28: se
 - **Measure one injector's inductance first** (LCR meter, injector unplugged). The heat the injector clamps put into
   the board scales with it, and it is not known for Miata injectors: the design is sized for 20 mH, earlier revisions
   assumed 8 mH. At sustained 7200 rpm with 20 mH injectors the board model puts the processor 32–40 °C above the air
-  around the board on 1994–2005 cars and 42–54 °C on 1989–93 cars, against a 105 °C junction rating. That is the
-  standard grade every other Miata plug-in ECU read uses, and it stays. Numbers:
+  around the board on 1994–2005 cars and 45–56 °C on stock-wired 1989–93 cars, against a 105 °C junction rating.
+  That is the standard grade every other Miata plug-in ECU read uses, and it stays. Numbers:
   [VERIFICATION.md](VERIFICATION.md#board-temperature).
-- **1990–93 cars at sustained high rpm: convert to one wire per injector.** On the stock paired wiring each injector
-  wire opens twice per engine cycle with two injectors on it. With 20 mH injectors held at 7200 rpm the model keeps
-  the injector clamp TVSs (150 °C parts) inside their rating up to 66–78 °C around the board if the two clamps on a
-  wire share the heat, and only to 39–51 °C if one takes it all, which the parts' tolerances allow. Converted, the
-  same parts are good to about 100 °C. All of this is for an engine held at 7200 rpm; at half that the clamps take
-  half the heat. Steps:
-  [INSTALL.md](INSTALL.md#one-wire-per-injector-on-a-199093-car-optional).
+- **1990–93 cars at sustained high rpm.** On the stock paired wiring one driver and one clamp TVS work each pair
+  of injectors, as on rusEFI's and Speeduino's boards, and each wire opens once per revolution. For this board that
+  is the hottest arrangement: with 20 mH injectors held at 7200 rpm the model keeps that clamp (a 150 °C part) inside
+  its rating only up to 34–47 °C around the board, and up to 61–72 °C at 5000 rpm. With 8 mH injectors it is about
+  90 °C at 7200 rpm. For track use, set the injection mode to sequential (no rewiring: 79–89 °C at 7200 rpm) or
+  convert the car to one wire per injector (about 100 °C). Both are untried:
+  [INSTALL.md](INSTALL.md#4-year-specific-steps).
 - **The wideband connector has not been tried with a harness.** The motherboards carry a JST PUD header
   (S08B-PUDSS-1) for AEM's X-Series sensor harness 30-3427. AEM's instructions name the harness's terminal, which
   belongs to this connector series, and a photograph of the plug agrees with the board's pin numbering. Each pin's

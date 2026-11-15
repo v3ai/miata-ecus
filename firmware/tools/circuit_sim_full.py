@@ -540,8 +540,9 @@ R_MB, R_HARN = 0.03, 0.05
 
 # Board temperature model (board_thermal.py): every copper layer of the routed board, the vias, the losses of all the
 # other parts. Run without the header pins as a heat path (the pessimistic variant) at h = 10 W/m2K. The base load is
-# sustained 7200 rpm with 20 mH injectors: "seq" sequential, "batch" the 1989-93 wiring, "batch_hog" the same with one
-# TVS of each pair taking both injectors' energy. Temperatures are quoted for 60 and 85 C air around the board.
+# sustained 7200 rpm with 20 mH injectors: "seq" sequential, "batch1" the 1989-93 wiring (one driver on each
+# two-injector wire, opening once per revolution), "pair1" the same with the wire opening once per cycle.
+# Temperatures are quoted for 60 and 85 C air around the board.
 import board_thermal as BT
 DB_BOARD = os.environ.get('DB_BOARD') or os.path.join(os.path.dirname(__file__), '../../daughterboard/miata_ecu_daughter.kicad_pcb')
 TM = BT.Model(DB_BOARD, h=10.0, pins=False)
@@ -848,13 +849,16 @@ TVS_KEY = IC.PART_KEY[TVS_PART]
 TVS_TJMAX = IC.TJMAX.get(TVS_KEY, 150.0)
 INJ_LS = (8e-3, 20e-3)
 inj_seq = {L: IC.bench(f'o_seq_{int(L * 1e3)}', 'BAT', L=L, tvs=TVS_KEY) for L in INJ_LS}
-inj_pair = {L: IC.bench(f'o_pair_{int(L * 1e3)}', 'BAT', L=L, n_inj=2, n_drv=2, tvs=TVS_KEY) for L in INJ_LS}
+# 1989-93: two injectors on a wire, one driver with its clamp (JP1 / JP2 without shunts)
+inj_pair = {L: IC.bench(f'o_pair_{int(L * 1e3)}', 'BAT', L=L, n_inj=2, n_drv=1, tvs=TVS_KEY) for L in INJ_LS}
+inj_pair_16 = IC.bench('o_pair_16V', 'BAT', L=8e-3, n_inj=2, n_drv=1, vb=16.0, tvs=TVS_KEY)
+inj_pair_w = IC.bench('o_pair_worst', 'BAT', L=20e-3, n_inj=2, n_drv=1, vb=15.5, drv='min', tvs=TVS_KEY, tvs_corner='max', tvs_tj=150.0)
 inj_16 = IC.bench('o_seq_16V', 'BAT', L=8e-3, vb=16.0, tvs=TVS_KEY)
 inj_open = IC.bench('o_tvs_open', 'BAT', L=20e-3, fault='tvs_open', tvs=TVS_KEY)   # a clamp part open: the driver takes it all
 RPM = 7200
 i1, i1_16, vpk1 = inj_seq[8e-3]['i0'], inj_16['i0'], inj_seq[20e-3]['vpk']
 p_tvs_seq = {L: inj_seq[L]['e_tvs'] * RPM / 120 for L in INJ_LS}           # sequential: one pulse per 720 deg
-p_tvs_bat = {L: inj_pair[L]['e_tvs'] / 2 * RPM / 60 for L in INJ_LS}       # batch: each wire once per revolution, two TVSs
+p_tvs_bat = {L: inj_pair[L]['e_tvs'] * RPM / 60 for L in INJ_LS}           # batch: each wire once per revolution, one TVS
 p_seq = 0.0                    # clamp power in an injector driver with the clamp parts working
 # idle valve (BAC/ISC): 11 ohm / 20 mH (typical published, as circuit_sim.py), 200 Hz (assumed), 60 % duty
 iac = {feed: pwm_coil(11, 20e-3, 200, 0.6, rfeed=R_HARN + (0.1 if feed != 'VBAT_IN' else 0), name='iac')
@@ -900,20 +904,25 @@ for y, _ in YEARS:
     case = 'batch' if 'inj_pair' in L.values() else 'seq'
     tvs_txt = lambda r: f'{60 + r:.0f} / {85 + r:.0f} C at 60 / 85 C air'
     if case == 'batch':
-        # 1989-93: jumpers JP1 / JP2 on PAIR put two drivers, each with its own clamp, on each two-injector wire
-        on('R_JP2A', 'OUT_INJ1', 'OUT_INJ4', parts=MB[y]); on('R_JP1A', 'OUT_INJ2', 'OUT_INJ3', parts=MB[y])
+        # 1989-93: JP1 / JP2 without shunts, so one driver, with its clamp, works each two-injector wire (as rusEFI's
+        # and Speeduino's boards drive these cars); batch mode opens each wire once per revolution
+        for _r in ('R_JP1A', 'R_JP1B', 'R_JP2A', 'R_JP2B'):
+            assert not MB[y][_r]['lcsc'], f'{_r}: the 1989-93 simulation assumes JP1 / JP2 carry no shunt'
         assert not MB[y]['D3']['lcsc'] and not MB[y]['D4']['lcsc'], 'motherboard D3/D4 are not fitted with a rev 0.10 daughterboard'
         pr = inj_pair[20e-3]
-        tj = tj2(pr['i0'] / 2 * math.sqrt(0.9), case='batch')
+        tj = tj2(pr['i0'] * math.sqrt(0.9), case='batch1')
         pw = p_tvs_bat[20e-3]
-        (r_eq, _), (r_hog, p_hog) = tvs_tj('batch'), tvs_tj('batch_hog')
-        record(area, f'injectors {cav("OUT_INJ1")}/{cav("OUT_INJ2")}: 2 x 12 ohm per wire, INJ1+INJ4 / INJ2+INJ3, batch',
-               f'{pr["i0"] / 2:.2f} A per driver, peak {pr["vpk"]:.0f} V, nothing in the driver clamps ({pr["e_drv"] * 1e3:.2f} mJ); each '
-               f'clamp TVS {p_tvs_bat[8e-3]:.2f} W (8 mH) to {pw:.2f} W (20 mH) at {RPM} rpm; drivers at 90 % duty: {tj_txt(tj, case="batch")}',
-               'OK' if pr['vpk'] < 36 and pr['e_drv'] < 1e-4 and tj[1] < NCV_TSD - 15 and 85 + r_hog < TVS_TJMAX else 'CHECK',
-               f'clamp TVSs ({TVS_PART}, {TVS_TJMAX:.0f} C rated) at 20 mH, sustained {RPM} rpm: {tvs_txt(r_eq)} if the two on a wire '
-               f'share equally; {tvs_txt(r_hog)} if one takes both injectors ({p_hog:.1f} W: its breakdown is the lower one, '
-               f'sim_inj_clamp.py section I). The injector inductance is not known')
+        (r_b1, p_b1), (r_p1, _) = tvs_tj('batch1'), tvs_tj('pair1')
+        record(area, f'injectors {cav("OUT_INJ1")}/{cav("OUT_INJ2")}: 2 x 12 ohm per wire, one driver each (INJ1, INJ2), batch',
+               f'{pr["i0"]:.2f} A per driver ({inj_pair_16["i0"]:.2f} A at 16 V; limit >= {NCV_ILIM150:.1f} A hot), peak {pr["vpk"]:.0f} V '
+               f'({inj_pair_w["vpk"]:.1f} V with the TVS at its maximum and hot and the driver clamp at its 36 V minimum: '
+               f'{inj_pair_w["e_drv"] * 1e3:.2f} mJ in the driver); its clamp TVS {p_tvs_bat[8e-3]:.2f} W (8 mH) to {pw:.2f} W (20 mH) '
+               f'at {RPM} rpm; driver at 90 % duty: {tj_txt(tj, case="batch1")}',
+               'OK' if (pr['vpk'] < 36 and pr['e_drv'] < 1e-4 and tj[1] < NCV_TSD - 15 and inj_pair_16['i0'] < NCV_ILIM150
+                        and 85 + r_b1 < TVS_TJMAX) else 'CHECK',
+               f'clamp TVS ({TVS_PART}, {TVS_TJMAX:.0f} C rated) at 20 mH, sustained {RPM} rpm: {tvs_txt(r_b1)} ({p_b1:.1f} W: the one '
+               f'clamp on a wire takes both its injectors, twice per cycle). With the firmware set to sequential the wire opens once per '
+               f'cycle: {tvs_txt(r_p1)}. The injector inductance is not known')
     else:
         tj = tj2(i1 * math.sqrt(0.9))
         pins = '/'.join(cav(f'OUT_INJ{k}') for k in range(1, 5))

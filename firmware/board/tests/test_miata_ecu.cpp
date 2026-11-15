@@ -434,8 +434,9 @@ void checkInjectors(Recorder& rec, int cycles, float rpm) {
 		// 1989-93: two groups, each opening once per crank revolution
 		EXPECT_EQ(2 * cycles, countEdges(i1, true)) << "INJ1 @" << rpm;
 		EXPECT_EQ(2 * cycles, countEdges(i2, true)) << "INJ2 @" << rpm;
-		// The 1989-93 motherboard parallels INJ4 with INJ1 (harness 2U) and INJ3 with INJ2 (2V): each pair must switch
-		// together, or one driver would carry both injectors (or fight the other).
+		// With JP1 / JP2 on PAIR (and on the 1989-93 motherboards rev 0.6 to 0.11) INJ4 is in parallel with INJ1
+		// (harness 2U) and INJ3 with INJ2 (2V): each pair must switch together. Since 2026-11-15 the 1989-93 setting
+		// is no shunt, one driver per wire, where this does not matter; the check stays for the boards that pair.
 		for (auto [a, b, wire] : {std::tuple{&i1, &i4, "2U"}, std::tuple{&i2, &i3, "2V"}}) {
 			ASSERT_EQ(a->edges.size(), b->edges.size()) << wire << " pair edge count @" << rpm;
 			double worst = 0;

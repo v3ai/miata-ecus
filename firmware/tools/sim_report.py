@@ -49,8 +49,9 @@ PORT_NET = {PINS[int(p)]: net for p, net in design.mcu.items()}
 # 1989-95 have no tach entry: cavity 2I is the igniter's signal into the ECU (the igniter drives the tachometer), so
 # the ECU must not drive it; the 1989-95 motherboard only joins the tach output to 2I through jumper JP5 (left open).
 EXPECTED = {
-    # 1989-93: two drivers per batch injector wire (the motherboard's jumpers JP1 / JP2 on PAIR)
-    '1989-93': {'ign1&4': '1G', 'ign2&3': '1H', 'inj1': '2U', 'inj2': '2V', 'inj3': '2V', 'inj4': '2U',
+    # 1989-93: one driver per batch injector wire, as on the Hellen NA6 board on a stock harness (the motherboard's
+    # jumpers JP1 / JP2 carry no shunt: the firmware's injector 3 and 4 outputs reach no cavity)
+    '1989-93': {'ign1&4': '1G', 'ign2&3': '1H', 'inj1': '2U', 'inj2': '2V',
                 'fuelPump': '2T', 'fan': '1L',
                 'fan2': '1R', 'acRelay': '1J', 'cel': '1E', 'idle': '2W', 'vss': '1M',
                 'acSwitch': '1Q', 'clutch': '1V', 'crank(SGT)': '2E', 'cam(SGC)': '2G'},

@@ -52,7 +52,7 @@ def assembled_labels(y):
     if y == '8995':
         L += [('mb:JP3', 'Year jumpers, left (JP3, JP5, JP4)', 'Second fan, tachometer and the 1994–95 solenoid. Set for the car: table in INSTALL.md.'),
               ('mb:JP5', None, None), ('mb:JP4', None, None),
-              ('mb:JP6', 'Year jumpers, right (JP6, JP1, JP2)', 'Airflow-meter wire and the two injector jumpers: PAIR for 1989–93, SEQ for 1994–95.'),
+              ('mb:JP6', 'Year jumpers, right (JP6, JP1, JP2)', 'Airflow-meter wire and the two injector jumpers: no shunt for 1989–93, SEQ for 1994–95.'),
               ('mb:JP1', None, None), ('mb:JP2', None, None)]
     return L
 
@@ -70,7 +70,7 @@ MB_COMMON = [
     ('mb:J2', 'Wideband oxygen sensor (J2)', 'JST PUD header for AEM’s sensor harness. The wire colours are printed beside it.'),
 ]
 MB_EXTRA = {
-    '8995': [('mb:JP1', 'Injector jumpers (JP1, JP2)', 'PAIR: 1989–93 stock harness, two injectors per wire. SEQ: 1994–95. Never SEQ on a 1989–93 automatic.'),
+    '8995': [('mb:JP1', 'Injector jumpers (JP1, JP2)', 'No shunt: 1989–93 stock harness. SEQ: 1994–95, or one wire per injector. Never SEQ on a 1989–93 automatic.'),
              ('mb:JP2', None, None),
              ('mb:JP6', 'Airflow-meter wire jumper (JP6)', 'AFM: stock. BOOST: the boost valve on that wire once the meter is gone.'),
              ('mb:JP3', 'Second-fan jumper (JP3)', '90-93 or 94-95: which harness pin the relay is on.'),

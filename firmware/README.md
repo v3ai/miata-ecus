@@ -48,7 +48,7 @@ A blank board starts with the 1989–93 settings.
 
 | Button | rusEFI engine type | Trigger | Injection | Ignition sense | Year-specific outputs |
 |---|---|---|---|---|---|
-| 1989-93 (NA6, 1.6) | `MAZDA_MIATA_NA6` | NA CAS: SGC on HALL2, SGT on HALL1 | batch, two drivers per wire | none (1C is the starter signal) | none (VVT driver = purge, not driven) |
+| 1989-93 (NA6, 1.6) | `MAZDA_MIATA_NA6` | NA CAS: SGC on HALL2, SGT on HALL1 | batch, one driver per wire | none (1C is the starter signal) | none (VVT driver = purge, not driven) |
 | 1994-95 (NA8, 1.8) | `MAZDA_MIATA_NA94` | NA CAS | sequential | none (1C is the starter signal) | none (ALT driver = pressure regulator solenoid, not driven) |
 | 1996-97 (NA8, OBD-II) | `MAZDA_MIATA_NA96` | NA CAS | sequential | none | O2 heater on the VVT driver |
 | 1999-2000 (NB1) | `MAZDA_MIATA_NB1` | NB crank on HALL1, cam on HALL2 | sequential | none | O2 heater on VVT, alternator field on ALT (control off by default) |
@@ -64,18 +64,22 @@ gets no fuel or spark with the key on, check that you didn't pick 2003-05 on a 2
 
 - **NA years** use rusEFI's own Miata presets (`setMazdaMiataNA6`, `setMazdaMiataNA94`, `setMazdaMiata96`), which
   include base fuel and ignition tables.
-- **1989-93:** the stock harness has two injectors on each of its two injector wires (2U, 2V). With jumpers JP1 and
-  JP2 on PAIR, the 1989-95 motherboard (rev 0.12 on) puts INJ1 + INJ4 on 2U and INJ2 + INJ3 on 2V, and the preset assigns
-  all four in batch mode. rusEFI fires each cylinder's output together with the cylinder 360° away (1 with 4, 3 with
-  2), so the two drivers on a wire switch together and each carries one injector. Each injector fires once per
-  revolution in this mode. For a sequential conversion (new wires to 2Y and 2Z) move JP1 and JP2 to SEQ and set the
-  injection mode to sequential; never on an automatic, where 2Z is the A/T control unit.
+- **1989-93:** the stock harness has two injectors on each of its two injector wires (2U, 2V). The preset assigns
+  all four injector outputs in batch mode: rusEFI fires each cylinder's output together with the cylinder 360° away
+  (1 with 4, 3 with 2), so each output opens once per revolution. On the 1989-95 motherboard JP1 and JP2 carry no
+  shunt (since 2026-11-15): INJ1 works 2U and INJ2 works 2V, one driver for the two injectors on each wire, as
+  rusEFI's Hellen NA6 and Speeduino's NA6 boards do, and the INJ3 and INJ4 outputs switch with nothing connected.
+  For a car with one wire per injector (new wires to 2Y and 2Z) fit JP1 and JP2 on SEQ; the injection mode can then
+  be set to sequential. Never JP2 on SEQ on an automatic, where 2Z is the A/T control unit.
   - **Injector clamps.** A rev 0.10 daughterboard clamps each injector itself (a diode and a 16 V TVS back to the
     battery input). The injector current takes about 0.16 ms longer to fall than with the drivers' own clamp: check
-    the injector dead time on the car. Two clamps share each wire on these cars and need not share evenly; what that
-    means for temperature is in `VERIFICATION.md`, Rev 0.10.
-  - **Earlier 1989-93 motherboards** (rev 0.6 to 0.11) pair the injectors with 0 Ω links R23/R24 instead of jumpers
-    and carry their own clamps D3/D4 for a rev 0.9 daughterboard.
+    the injector dead time on the car. On a stock-wired 1989-93 car one clamp takes both injectors of its wire, twice
+    per cycle; what that means for temperature is in `VERIFICATION.md`, Rev 0.10.
+  - **Sequential mode on the stock wiring** (no shunts on JP1 / JP2) opens each wire once per cycle with a
+    full-length pulse. The fuel is the same and the clamp heat is half. Not tried.
+  - **JP1 / JP2 on PAIR, and the earlier 1989-93 motherboards** (rev 0.6 to 0.11, which pair the injectors with 0 Ω
+    links R23/R24 and carry their own clamps D3/D4 for a rev 0.9 daughterboard): two drivers share each wire. Batch
+    mode switches them together. Never set sequential mode there: every injector would get twice its fuel.
 - **1994-95:** four injector wires (2U/2V/2Y/2Z), sequential, as in rusEFI's own 1994 preset.
 - **NB years:** rusEFI builds its NB presets for its Hellen boards only, so the engine facts are repeated here
   (displacement, trigger, injector flow, idle and alternator PID, VVT PID), and rusEFI's NB fuel, ignition and VVT

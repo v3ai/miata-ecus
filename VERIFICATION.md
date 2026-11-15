@@ -1,7 +1,7 @@
 # Verification report
 
 **Date:** 2026-10-30; full-firmware emulation, expanded circuit and board checks 2026-11-02; rev 0.7 and 0.8 fixes 2026-11-03; rev 0.9 layout 2026-11-03; rev 0.10 2026-11-13; wideband connector, emulation re-run and pictures 2026-11-14; plug photograph and other
-boards 2026-11-15; clamp TVS stock, and the open choices decided, 2026-11-15.
+boards 2026-11-15; clamp TVS stock, the open choices decided, and one driver per 1989-93 injector wire, 2026-11-15.
 **Boards:** daughterboard rev 0.10; motherboards 1989-95 rev 0.13, 1996-97 / 1999-2000 / 2001-05 rev 0.9. The boards ordered in November 2026 are the earlier set (daughterboard rev 0.9), kept in `ordered-boards/2026-11/`; what this review means for them is under [Rev 0.10](#the-ordered-rev-09-boards).
 These revisions carry the fixes this review called for (see [Rev 0.5 changes](#rev-05-changes-and-re-verification),
 [Rev 0.6](#rev-06-stm32f103-wideband-controller), [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings),
@@ -68,11 +68,15 @@ Nothing here has been built yet, so this is a desk and simulation review. It cov
   [Rev 0.10](#rev-010-six-layers-injector-clamps-card-socket-two-more-inputs-2026-11-13).
 - **Clamp TVS and the open choices (2026-11-15).** The 185 °C clamp TVS first named is not in JLCPCB's stock, and no
   part of its package rated above 150 °C is; the fitted part is now a stocked 150 °C one with the same voltages. It
-  covers every car converted to or built with one wire per injector to about 100 °C around the board. On a 1990-93
-  car's stock paired wiring it is the tightest margin if the two clamps on a wire do not share (39-51 °C at sustained
-  7200 rpm with 20 mH injectors); such cars are converted to one wire per injector for track use. The processor
+  covers every car converted to or built with one wire per injector to about 100 °C around the board. The processor
   stays the standard grade and the wideband lead stays AEM's. See
   [Clamp TVS: what JLCPCB stocks](#clamp-tvs-what-jlcpcb-stocks-2026-11-15).
+- **1989-93: one driver per injector wire (2026-11-15).** A stock-wired 1989-93 car is now run as rusEFI's and
+  Speeduino's boards run it: one driver for the two injectors on each wire (no shunts on JP1 and JP2), batch firing.
+  No board changes. It is the hottest arrangement for this board: with 20 mH injectors the clamp TVS is inside its
+  rating at a sustained 7200 rpm only below 34-47 °C around the board (61-72 °C at 5000 rpm; 88-97 °C with 8 mH
+  injectors). Sequential mode on the same wiring, or one wire per injector, lowers it. See
+  [1989-93: one driver per injector wire](#1989-93-one-driver-per-injector-wire-2026-11-15).
 - **External review (2026-11-12).** Found two faults the simulations couldn't see, both now fixed in firmware: 1989-95
   pin 1C is the starter signal, not ignition-on (the engine would have died when the key left START), and the fuel pump
   pin PC14 was held by the 32 kHz oscillator. Also corrected the NB alternator question (M5) and the socket plating. See
@@ -126,7 +130,8 @@ Everything matched except these:
 - IGN1 (coil 1&4) and IGN2 (coil 2&3) fire twice per cycle, 180° apart, within 1.5° of TDC minus the commanded
   advance. IGN3/IGN4 stay idle.
 - **1989-93:** INJ1/INJ2 open twice per cycle, 180° apart. INJ4 switches with INJ1 and INJ3 with INJ2, edge for
-  edge (0 µs apart in the simulator), so each pair of drivers on one harness wire works as one.
+  edge (0 µs apart in the simulator), so each pair of drivers on one harness wire works as one. (Since 2026-11-15
+  only INJ1 and INJ2 reach the harness on these cars; the pairing matters for shunts on PAIR and the older boards.)
 - **Other years:** each injector opens once per cycle in 1-3-4-2 order, with pulse width equal to the computed
   duration.
 - Fuel pump primes at key-on and stays on while running. Tach gives 2 pulses per revolution. The CEL lights at key-on.
@@ -204,7 +209,7 @@ re-checked as listed. Refs are the new board's.
 | H2 | No freewheel diodes on the idle and VVT valves: 3.4 W into the driver's clamp | **Motherboards:** SS34 D1 from the idle valve output to that valve's own +12 V feed: VBAT_IN, or IAC_12V through F2 on NB. D2 on the VVT output where it drives a coil: the purge solenoid on 1989-95, the VVT valve (OCV_12V through F3) on NB2. None on the alternator output (its field supply is unknown) or the O2 heater (resistive) | Idle valve at 200 Hz: **0 W** in the driver clamp (was 3.41 W); VVT valve at 300 Hz: 0 W |
 | H3 | PB2 (BOOT1) floating: DFU entry unreliable | **Daughterboard:** R72 10 kΩ PB2 → GND | Netlist |
 | H4 | 2003-05 key-off back-feed through the ULN2003 clamp diodes | **Daughterboard:** ULN2003 COM now goes to an SMAJ33A TVS (D11, 400 W, breakdown 36.7-40.6 V) instead of +12V. (A first draft used a 33 V zener; review found that a 35 V load dump on the battery-fed relay feeds would push current through it, and a failed-short zener would switch every relay on) | Key off: **0 mA** into the ECU (was 81 mA). Relay kick-back peaks at 42.6 V with the TVS at maximum breakdown (ULN limit 50 V). 35 V load dump on the relay feeds, TVS at minimum breakdown: **0 mA** into it |
-| M1 | 1989-93: one driver carried two injectors (about 2 A, plus about 1 W of clamp energy at 7000 rpm) | **1989-93 motherboard:** two drivers per harness wire (R23: INJ1 + INJ4 on 2U; R24: INJ2 + INJ3 on 2V), plus an SMCJ40A clamp per wire (D3/D4, about 48 V, below the drivers' 63 V). **Firmware:** all four outputs in batch mode. rusEFI fires cylinder 1's output with cylinder 4's and 3's with 2's, so each pair switches together. 2Y/2Z (2Z = the A/T unit) only through not-fitted links R25/R26, for a sequential conversion | **0.99 A per driver** (was 1.96 A); **0 mW** in the drivers' clamps, 1.0 W in the SMC TVS at 7000 rpm, even with a 2 µs turn-off skew. Engine sim: the paired outputs switch edge for edge at 900-6500 rpm |
+| M1 | 1989-93: one driver carried two injectors (about 2 A, plus about 1 W of clamp energy at 7000 rpm) | **1989-93 motherboard:** two drivers per harness wire (R23: INJ1 + INJ4 on 2U; R24: INJ2 + INJ3 on 2V), plus an SMCJ40A clamp per wire (D3/D4, about 48 V, below the drivers' 63 V). **Firmware:** all four outputs in batch mode. rusEFI fires cylinder 1's output with cylinder 4's and 3's with 2's, so each pair switches together. 2Y/2Z (2Z = the A/T unit) only through not-fitted links R25/R26, for a sequential conversion | **0.99 A per driver** (was 1.96 A); **0 mW** in the drivers' clamps, 1.0 W in the SMC TVS at 7000 rpm, even with a 2 µs turn-off skew. Engine sim: the paired outputs switch edge for edge at 900-6500 rpm. **2026-11-15:** with a rev 0.10 daughterboard a 1989-93 car is back to one driver per wire, by the owner's decision ([what it means](#1989-93-one-driver-per-injector-wire-2026-11-15)) |
 | M2 | Ignition-wake path unclamped; TVS clamp above the buck's 44 V maximum; C16 a 16 V part | **Daughterboard:** D7 and D8 now feed a 0.5 A PTC (F1; Hellen's power-module part), then an SMAJ33A (D12) on +12V. Its breakdown (36.7 V minimum) sits above the 35 V load-dump clamp, so the input TVS D6 takes that energy and D12 only catches fast spikes and the ignition-wake path. (A first draft used an SMAJ26A, which review found would conduct for the whole 400 ms load dump.) C16 is 10 µF / 50 V. D9 catch diode is a 60 V SS36 | +12V peaks with D12 at maximum breakdown: **34.2 V** (ISO 16750 suppressed load dump), **36.4 V** (ISO 7637 pulse 2a), 23.5 V (24 V jump start): all under the buck's 44 V. Energy into D12 at its minimum breakdown: **0 mJ** in all three. A sustained 39 V regulator failure puts 9 A through F1, which trips; below about 37 V nothing on +12V conducts |
 | M3 | Fuel pump and main relay on the backup-domain pins PC14/PC13 | **No change, after checking the numbers.** ST limits these pins because their power switch can supply only 3 mA in total, and says not to drive LEDs from them. The two ULN2003 inputs draw at most about 0.72 mA each at 3.3 V ((3.3 V − 2 Vbe) / 2.7 kΩ), 1.45 mA together, and relays are DC, so the 2 MHz limit doesn't matter. (Moving them to PC0/PC1 was tried: the lines had to cross the crystal and the board would not route cleanly) | Calculation; end-to-end check (2T, 3H) |
 | M4 | Switch inputs can't read ground-switching signals | **Motherboards:** R20-R22, 4.7 kΩ 0603 12 V pull-ups on VSS / A/C / clutch, **not fitted** by default (a switch that drives 12 V must not have one). Fit per car. (A first draft used 2.2 kΩ, 94 mW at 14.4 V against the 0603's 100 mW) | With a pull-up fitted, a ground-switching signal reads 3.02 V high / 0.04 V low at 14 V, 44 mW in the resistor. At 9 V (cranking) it reads 1.89 V, the same marginal case as a 12 V switch at 9 V |
@@ -772,7 +777,10 @@ regulators and the level shifters. The audit lists each with its source.
   slowly (1.6 ms). Diode shorted, the driver goes into current limit and that injector stays shut.
 - **Supply held at 40-45 V** (an unsuppressed load dump): the drivers' own clamps conduct through the injectors for
   as long as it lasts, as in rev 0.9. The design still assumes the car limits a dump to about 35 V.
-- **1989-93 (two injectors per wire):** two drivers and two clamps sit in parallel on each wire. Each injector fires
+- **1989-93 (two injectors per wire):** since 2026-11-15 one driver and its clamp work each wire, and that clamp
+  takes both injectors' energy at every opening: 2.0 W at 7200 rpm
+  ([1989-93: one driver per injector wire](#1989-93-one-driver-per-injector-wire-2026-11-15)). Until then, and
+  still with shunts on PAIR, two drivers and two clamps sit in parallel on each wire. Each injector fires
   once per revolution, so each TVS takes 1.0 W at 7200 rpm if the two share. They need not: with one TVS at the
   bottom of its breakdown range and the other at the top, the low one takes all of it, 2.0 W, and does not hand any
   over until it runs about 100 °C hotter than the other. A 185 °C part (Vishay TPSMC16A) was named for that reason.
@@ -793,24 +801,26 @@ Rise above the air around the board, sustained 7200 rpm, 20 mH injectors (withou
 | | Board, mean | Injector drivers | Clamp TVSs | Processor |
 |---|---|---|---|---|
 | Sequential (1994-2005), 5.9 W | 31 / 23 °C | 41 / 30 °C | 52 / 43 °C | 40 / 32 °C |
-| 1989-93, clamps sharing, 8.0 W | 43 / 31 °C | 58 / 43 °C | 84 / 72 °C | 52 / 42 °C |
-| 1989-93, one clamp of each pair taking all | 43 / 31 °C | 60 / 44 °C | 111 / 99 °C | 54 / 43 °C |
-| 1989-93, one driver per wire, one opening per cycle (not the default), 6.5 W | 34 / 25 °C | 53 / 41 °C | 71 / 61 °C | 43 / 35 °C |
+| 1989-93 as set up since 2026-11-15: one driver per wire, batch, 8.6 W | 46 / 33 °C | 72 / 54 °C | 116 / 103 °C | 56 / 45 °C |
+| 1989-93, one driver per wire, sequential mode (one opening per cycle), 6.5 W | 34 / 25 °C | 53 / 41 °C | 71 / 61 °C | 43 / 35 °C |
+| 1989-93 with shunts on PAIR (until 2026-11-15), clamps sharing, 8.0 W | 43 / 31 °C | 58 / 43 °C | 84 / 72 °C | 52 / 42 °C |
+| 1989-93 with shunts on PAIR, one clamp of each pair taking all | 43 / 31 °C | 60 / 44 °C | 111 / 99 °C | 54 / 43 °C |
 
 What that means:
-- **The board as a whole warms by 23-43 °C at sustained high rpm.** The earlier, per-part estimates missed this. It
+- **The board as a whole warms by 23-46 °C at sustained high rpm.** The earlier, per-part estimates missed this. It
   matters most for the processor: the STM32F407VGT6 is the 85 °C grade (suffix 6: −40 to 85 °C ambient, 105 °C
-  junction; suffix 7: −40 to 105 °C ambient, 125 °C junction, per ST's ordering information and ST's own forum). It is inside that up to about 65-73 °C air in sequential years and 51-63 °C on a 1989-93 car. The
+  junction; suffix 7: −40 to 105 °C ambient, 125 °C junction, per ST's ordering information and ST's own forum). It is inside that up to about 65-73 °C air in sequential years and 49-60 °C on a stock-wired 1989-93 car. The
   VGT7 grade (125 °C junction) fits the same pads and was in stock at LCSC on 2026-11-13 at about five times the price.
   Decided 2026-11-15: the standard grade stays, as on every other board read
   ([research/other_miata_pnp_boards.md](research/other_miata_pnp_boards.md)).
-- **Clamp TVSs** (150 °C since 2026-11-15): inside their rating to 98-107 °C air on sequential cars. On a 1989-93
-  car's paired wiring: to 66-78 °C when the two clamps on a wire share, and to 39-51 °C in the worst pairing. The
-  185 °C part named first would cover the worst pairing to 74-86 °C; it cannot be bought at JLCPCB.
-- **Drivers** (150 °C shutdown): 90 °C air or more in every case.
+- **Clamp TVSs** (150 °C since 2026-11-15): inside their rating to 98-107 °C air on sequential cars. On a
+  stock-wired 1989-93 car, one driver per wire: to 34-47 °C in batch mode and 79-89 °C in sequential mode. With
+  shunts on PAIR: to 66-78 °C when the two clamps on a wire share, and to 39-51 °C in the worst pairing. The
+  185 °C part named first would add 35 °C to each figure; it cannot be bought at JLCPCB.
+- **Drivers** (150 °C shutdown): 90 °C air or more, except with one driver per wire in batch mode: 78-96 °C.
 - **With 8 mH injectors** the clamps take 0.8 W in total instead of 2.0 W (sequential). The processor is then 26-32 °C
-  above the air in sequential years and 30-38 °C on a 1989-93 car, and the hottest clamp 49-57 °C in the worst pairing
-  (inside a 150 °C rating to above 90 °C air).
+  above the air in sequential years and 33-40 °C on a stock-wired 1989-93 car, and that car's hottest clamp 53-62 °C
+  (inside a 150 °C rating to 88-97 °C air).
 - "Air around the board" is the air inside the ECU case, which is warmer than the cabin.
 
 Decided against (2026-11-15): moving the 1989-93 clamp heat to the motherboard (a diode and two TVSs per injector
@@ -933,6 +943,8 @@ supports (JP1 and JP2 on SEQ, injectors 3 and 4 to pins 2Y and 2Z, manual cars o
 Decided on that basis (owner, 2026-11-15): the processor stays the standard STM32F407VGT6; the 1989-95 motherboard
 gets no clamp parts, and 1990-93 cars used at sustained high rpm are converted to one wire per injector
 ([INSTALL.md](INSTALL.md#one-wire-per-injector-on-a-199093-car-optional)); AEM's harness stays as the wideband lead.
+Later the same day: a stock-wired 1989-93 car is driven as the open designs drive it
+([1989-93: one driver per injector wire](#1989-93-one-driver-per-injector-wire-2026-11-15)).
 
 ### Clamp TVS: what JLCPCB stocks (2026-11-15)
 Asked: a clamp TVS for D46-D49 that JLCPCB has and that suits every car.
@@ -955,7 +967,7 @@ instead once the TVS is hot. SMC package, the board's pads.
   2,829 pieces at $2.65), DO-218AB, about 15 × 10 mm against the SMC's 8 × 6 mm. Four of them mean laying out and
   routing the injector corner again and about $10 more per board. Its rating alone would cover the worst pairing
   to 64-76 °C (its better heat path would add to that; not modelled). But the processor reaches its own limit at
-  51-63 °C on the same cars either way (table below), so the larger part buys little.
+  about 50-60 °C on the same cars either way (table below), so the larger part buys little.
 
 | Part | LCSC | In stock | Breakdown | |
 |---|---|---|---|---|
@@ -978,28 +990,86 @@ list has one line changed.
 | | Clamp, 20 mH | Clamp, 8 mH | Processor, 20 mH |
 |---|---|---|---|
 | 1994-2005, and 1990-93 converted to one wire per injector | 98-107 °C | 117-124 °C | 65-73 °C |
-| 1990-93 paired wiring, the two clamps on a wire sharing | 66-78 °C | not run | 53-63 °C |
-| 1990-93 paired wiring, one clamp taking all | 39-51 °C | 93-101 °C | 51-62 °C |
-| 1990-93 paired wiring, one driver per wire, one opening per cycle (not the default) | 79-89 °C | 105-113 °C | 62-70 °C |
+| 1990-93 paired wiring, one driver per wire, batch (the setting since later the same day) | 34-47 °C | 88-97 °C | 49-60 °C |
+| 1990-93 paired wiring, one driver per wire, sequential mode (one opening per cycle) | 79-89 °C | 105-113 °C | 62-70 °C |
+| 1990-93 paired wiring, shunts on PAIR, the two clamps on a wire sharing | 66-78 °C | not run | 53-63 °C |
+| 1990-93 paired wiring, shunts on PAIR, one clamp taking all | 39-51 °C | 93-101 °C | 51-62 °C |
 
-- On every car but one case the processor reaches its limit before a clamp does. The case is a 1990-93 car on the
-  paired wiring whose two clamps on a wire do not share.
-- How likely that is: the split is steep. In the simulation a breakdown difference of 1 % while conducting gives
+- Where each injector has its own wire, and in sequential mode on the paired wiring, the processor reaches its
+  limit before a clamp does. On the paired wiring in batch mode the clamp is first, unless two clamps on a wire
+  share it well.
+- How two clamps on one wire (shunts on PAIR) share: the split is steep. In the simulation a breakdown difference of 1 % while conducting gives
   1.45 / 0.54 W, 2 % gives 1.76 / 0.22 W, 3 % everything to one (20 mH, 7200 rpm). The hotter part's breakdown rises
   0.1 %/°C, which pulls the two together, so parts from one reel that start close will share partly; two at the ends
   of the datasheet range will not. Neither is guaranteed.
 - With 8 mH injectors none of this matters: the worst pairing is covered to above 90 °C.
 
-**A way to take the worst pairing out without rewiring the car** (not adopted: it changes how these cars are
-fuelled, and it has not been run even in emulation). If one driver works each paired wire and the wire opens once
-per engine cycle with a full-length pulse (MegaSquirt calls this "2 squirts, alternating"), each injector still gets
-its fuel, the board dissipates 6.5 W instead of 8.0 W, and one clamp per wire takes 1.0 W whatever the tolerances
-(`sim_inj_clamp.py` "2 injectors, 1 driver": 2.3 A through the driver, peak 32.1 V, and 36.0 V in the worst case,
-where the driver's own clamp is just reached). In rusEFI that is injection mode Sequential with the injectors
-still paired and JP1 and JP2 **open**. It is not the default because the same mode with the jumpers on PAIR, or on
-the older 1989-93 motherboards whose pairing links are fixed, opens every wire twice per cycle with full pulses:
-twice the fuel. A preset that could not be set wrong would park injection outputs 3 and 4 on unconnected processor
-pins.
+**One driver per wire, one opening per cycle.** If one driver works each paired wire and the wire opens once per
+engine cycle with a full-length pulse (MegaSquirt calls this "2 squirts, alternating"), each injector still gets
+its fuel, the board dissipates 6.5 W, and the one clamp on a wire takes 1.0 W (`sim_inj_clamp.py` "2 injectors,
+1 driver": 2.3 A through the driver, peak 32.1 V, and 36.0 V in the worst case, where the driver's own clamp is
+just reached). In rusEFI that is injection mode Sequential with the injectors still paired and no shunts on JP1
+and JP2. With shunts on PAIR, or on the older 1989-93 motherboards whose pairing links are fixed, the same mode
+opens every wire twice per cycle with full pulses: twice the fuel. It has not been run, even in emulation.
+
+### 1989-93: one driver per injector wire (2026-11-15)
+The owner's decision, after reading how the other plug-in ECUs fire the paired injectors
+([research/other_miata_pnp_boards.md](research/other_miata_pnp_boards.md#how-the-others-fire-the-paired-injectors-2026-11-15)):
+run a stock-wired 1989-93 car as the open designs do, with one driver for the two injectors on each wire and batch
+firing (each wire opens once per revolution).
+
+**What changed.** On a 1989-93 car JP1 and JP2 carry no shunt. Until now both sat on PAIR, which put a second
+driver and its clamp on each wire. INJ1 works 2U and INJ2 works 2V; the INJ3 and INJ4 drivers switch with nothing
+connected. The firmware does what it did (batch mode, four outputs assigned; only comments changed), and no board
+changed: the 1989-95 motherboard's README, schematic notes, parts list and labelled pictures were regenerated, and
+its copper and fabrication files are the same.
+
+**What it does to the temperatures** (board model, 20 mH injectors, sustained 7200 rpm; rise above the air around
+the board, without / with the header pins as a heat path):
+
+| | Board, mean | Injector drivers | Hottest clamp TVS | Processor |
+|---|---|---|---|---|
+| One driver per wire (now), 8.6 W | 46 / 33 °C | 72 / 54 °C | 116 / 103 °C | 56 / 45 °C |
+| Two drivers per wire (until now), 8.0 W | 43 / 31 °C | 58-60 / 43-44 °C | 84-111 / 72-99 °C | 52-54 / 42-43 °C |
+
+- One clamp takes both injectors of its wire at every opening: 2.0 W at 7200 rpm. With two drivers per wire that
+  was the worst pairing of tolerances; it is now every board. The clamp simulation for it (`sim_inj_clamp.py`,
+  "2 injectors, 1 driver"): 2.28 A through the driver, peak 32.1 V; in the worst case 36.0 V, where the driver's
+  own clamp is just reached and takes nothing.
+- The driver beside that clamp carries both injectors: 0.55 W instead of 0.14 W.
+- Air around the board at which a part reaches its rating, by sustained engine speed (20 mH):
+
+| Sustained rpm | Clamp TVS reaches 150 °C at | Processor reaches 105 °C at |
+|---|---|---|
+| 3000 | 86-95 °C | 64-72 °C |
+| 4000 | 74-84 °C | 60-69 °C |
+| 5000 | 61-72 °C | 57-66 °C |
+| 6000 | 49-61 °C | 53-63 °C |
+| 7200 | 34-47 °C | 49-60 °C |
+
+  The drivers reach their 150 °C shutdown threshold at 78-96 °C (7200 rpm). With 8 mH injectors at 7200 rpm: clamp
+  88-97 °C, processor 65-72 °C.
+- **So with high-inductance injectors, a warm ECU and engine speeds held above about 5000-6000 rpm, the clamp TVS
+  is outside its rating.** A TVS normally fails as a short. The clamp simulation's "TVS shorted" case then applies:
+  the two injectors on that wire close slowly (1.6 ms) and their cylinders run rich.
+- This re-opens finding M1 of the first review in part ("one driver carried two injectors"), which the paired
+  drivers of motherboard rev 0.6 had answered. The difference from then: the turn-off energy goes into the clamp
+  TVS and not into the driver, and the driver carries 2.3 to 2.6 A against a current limit of 5 A or more.
+
+**Ways to lower it on a stock-wired car** (none tried):
+- Injection mode **Sequential**: each wire opens once per cycle with a full-length pulse, the same fuel. Clamp
+  1.0 W: inside its rating to 79-89 °C at 7200 rpm, processor to 62-70 °C. Right for fuel only without shunts on
+  PAIR.
+- One wire per injector ([INSTALL.md](INSTALL.md#one-wire-per-injector-on-a-199093-car-optional)): 98-107 °C.
+- Shunts on PAIR, the setting until now, stay right for fuel in batch mode and are never hotter than no shunt: the
+  two clamps on a wire share as far as their tolerances allow. Never with Sequential.
+- Injectors that measure near 8 mH need none of this.
+
+**Checked after the change.** `circuit_sim_full.py`: 93 OK / 11 CHECK / 1 REF / 0 FAIL; the 1989-93 injector row
+stays a CHECK (clamp temperature, and the driver's at 85 °C air). `board_checks.py`: 1602 OK / 265 CHECK / 4 FAIL
+(it was 1606 / 263 / 4): the two "drivers in parallel" rows are gone, and the firmware's injector 3 and 4 outputs,
+which reach no cavity on these cars, are two notes. `sim_report.py` now expects those two outputs on no cavity.
+The firmware's code is unchanged, so the full-firmware emulation was not run again.
 
 ### The ordered rev 0.9 boards
 - **A1 applies.** They will switch injectors as designed; what ST does not guarantee without the series resistance is
@@ -1032,7 +1102,7 @@ IP or RT short (N3, the ICs are protected), N11 (1994-95 2L on a car; 1989-93 no
 | # | Issue | What to do |
 |---|---|---|
 | A3 | **Injector inductance is not known** (rev 0.10 audit). Every clamp energy and board temperature scales with it; 8 mH and 20 mH are both plausible | Measure one injector with an LCR meter, unplugged, before sustained high rpm. Near 8 mH: nothing to do. Near 20 mH on a 1989-93 car: see the next row |
-| Heat | **Board temperature at sustained high rpm** (rev 0.10 model, 20 mH injectors): the processor's 105 °C junction is reached at 65-73 °C air around the board (sequential years) or 51-63 °C (1989-93 paired wiring). On that paired wiring a clamp TVS reaches its 150 °C at 39-51 °C if the two on a wire do not share | Decided 2026-11-15: the standard processor stays and the motherboard gets no clamps. A 1990-93 car used at sustained high rpm is converted to one wire per injector ([INSTALL.md](INSTALL.md#one-wire-per-injector-on-a-199093-car-optional)). Measure a board's temperature at full load on the first car either way |
+| Heat | **Board temperature at sustained high rpm** (rev 0.10 model, 20 mH injectors): the processor's 105 °C junction is reached at 65-73 °C air around the board (sequential years) or 49-60 °C (stock-wired 1989-93). On a stock-wired 1989-93 car the clamp TVS reaches its 150 °C first: at 34-47 °C at a sustained 7200 rpm, 61-72 °C at 5000 rpm | Decided 2026-11-15: the standard processor stays, the motherboard gets no clamps, and a stock-wired 1989-93 car has one driver per injector wire as on the open designs. For sustained high rpm on such a car: injection mode Sequential, or one wire per injector ([1989-93: one driver per injector wire](#1989-93-one-driver-per-injector-wire-2026-11-15)). Measure an injector's inductance, and a board's temperature at full load on the first car |
 | A1 | **Ordered rev 0.9 daughterboards have no series resistor at the driver inputs** (ST asks for 150 Ω minimum) | Rework by hand, or accept it knowingly: [The ordered rev 0.9 boards](#the-ordered-rev-09-boards) |
 | J2 | **No AEM harness has been plugged into a board.** The connector series (JST PUD) is from AEM's instructions, and a photograph of the plug agrees with the board's pin numbering | With a harness in hand, check the wire colours from the wire side (lock up: green, orange, red, empty over white, empty, black, brown) and against the print beside J2 |
 | M5 | **NB alternator control wire: may need a pull-up.** Corrected 2026-11-12: 1O (NB1) / 3M (NB2) is a logic-level PWM input to the regulator inside the alternator, not the field coil (stock 1999 ECU scoped at 250 Hz; working MS3 and ECUMaster set-ups use a low side with a 1k pull-up to 5 V, about 5 mA). The old worry, 3-5 A of field current, doesn't apply: the VND7NV04 drives it easily. What isn't known is whether the alternator pulls the wire up itself. Firmware ships control off, at 250 Hz | Key on, ECU unplugged: measure 1O / 3M to ground. About 5 or 12 V: turn on "Alternator control". Near 0 V: fit 1k + 1N4148 from AUX J5-14 (5 V, anode) to J5-4 (OUT_ALT), then turn it on. First run: if the battery goes past about 15 V, switch it off and invert the output. Next motherboard revision: a pull-up footprint on the NB boards |
@@ -1075,7 +1145,7 @@ lamp circuits). The ECU only switches their ground side, through current-limited
 |---|---|
 | ECU logic | about 0.25 A at 13.8 V (F1 holds 0.5 A) |
 | LSU heater | about 0.6 A average once warm, ramped by the wideband firmware; up to about 4 A briefly when cold |
-| Injectors (through the ECU's grounds) | about 1 A each at peak, one per driver on every year (1989-93: two drivers per wire) |
+| Injectors (through the ECU's grounds) | about 1 A each at peak, one per driver (stock-wired 1989-93: two per driver, about 2.3 A) |
 | Idle valve, VVT valve | about 1 A each; turn-off energy goes into D1/D2 |
 | Relays | about 0.18 A each through the ULN2003 |
 
