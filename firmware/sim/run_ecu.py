@@ -27,8 +27,8 @@ import sys
 import time
 
 SIM = os.path.dirname(os.path.abspath(__file__))
-RENODE = os.environ.get('RENODE', '~/renode/renode_1.15.3_portable/renode')
-RUSEFI = os.environ.get('RUSEFI', '~/fw/rusefi/firmware')
+RENODE = os.environ.get('RENODE', os.path.expanduser('~/renode/renode_1.15.3_portable/renode'))
+RUSEFI = os.environ.get('RUSEFI', os.path.expanduser('~/fw/rusefi/firmware'))
 ELF = os.path.join(RUSEFI, 'build/rusefi.elf')
 APP = os.path.join(RUSEFI, 'build/rusefi_crc32.bin')
 # openblt_<board>.elf: f407-discovery from the offline compile check, miata-ecu from the real (CI) build

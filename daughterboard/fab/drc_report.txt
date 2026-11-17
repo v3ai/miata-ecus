@@ -1,4 +1,4 @@
-** Drc report for /tmp/scratchpad/d10six/rel8/miata_ecu_daughter.kicad_pcb **
+** Drc report for /tmp/d10six/rel8/miata_ecu_daughter.kicad_pcb **
 ** Created on 2026-11-13 13:29:20 **
 
 ** Found 495 DRC violations **

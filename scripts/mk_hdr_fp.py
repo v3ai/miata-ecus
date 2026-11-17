@@ -12,8 +12,8 @@ import pcbnew
 import os
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'mb', 'ecu_mb.pretty') + '/'
 # reference designs the header geometry is read from (rusEFI hellen-one boards, rusefi KiCad library)
-REF = os.environ.get('MIATA_REF', '~/ref')
-LIBS = os.environ.get('RUSEFI_LIBS', '~/tools/KiCAD-libraries')
+REF = os.environ.get('MIATA_REF', os.path.expanduser('~/ref'))
+LIBS = os.environ.get('RUSEFI_LIBS', os.path.expanduser('~/tools/KiCAD-libraries'))
 L = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 
