@@ -79,8 +79,8 @@ TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); ru
 | 2L | `HARN_2L` | option links R29 / R30 | manual cars: the throttle switch's other contact. R29 (fitted) to the spare analog AUX1, or R30 (not fitted) to the TPS input after a sensor conversion |
 | 2M | `IN_TPS` | TPS | automatics' TPS signal (a manual car's converted sensor comes in on 2L through R30) |
 | 2N | `IN_AUX2` | spare analog 2 | stock narrowband O2 |
-| 2O | `HARN_2O` | jumper JP6 | airflow meter signal. JP6: to the spare analog input (AFM), or the boost valve output on this wire once the meter is gone |
-| 2P | `IN_IAT` | air temperature (stock sensor) | air temperature sensor in the airflow meter |
+| 2O | `HARN_2O` | jumper JP6 | airflow meter signal. JP6: BOOST on 1989-93 (the fuel pump relay, linked to the pump contact in the meter plug), AFM = the spare analog input |
+| 2P | `IN_IAT` | air temperature (GM sensor on the stock wires) | air temperature sensor in the airflow meter |
 | 2Q | `IN_CLT` | coolant temp |  |
 | 2R | `HARN_2R` | jumper JP4 | 1994-95: pressure regulator control solenoid, through JP4. Not connected on 1989-93 |
 | 2S | `HARN_2S` | jumper JP3 | 1994-95: condenser fan relay, second fan output through JP3 (position 94-95) |
@@ -101,7 +101,7 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J.
 | J4 | USB-C | USB 2.0 device: tuning, logging, DFU |
 | U2 | MPX5700AP | Absolute MAP sensor (15-700 kPa, case 867B). Lies flat on 2 × M3, marking side up, leads bent 90° down, the single barb toward the board centre |
 
-**Air temperature:** the stock sensor's harness wire goes straight to the air temperature input (inside the airflow meter on 1989-97, in the air filter box on 1999-2005). The separate IAT connector and its jumper are gone. The pull-up is 2.7 kΩ.
+**Air temperature:** the stock sensor's harness wire goes straight to the air temperature input. Every board ships with a GM open-element sensor that goes on those wires (at the airflow meter's plug on 1989-97, at the air filter box sensor's plug on 1999-2005), and the firmware is set for its curve ([INSTALL.md](../../INSTALL.md#7-air-temperature)). The separate IAT connector and its jumper are gone. The pull-up is 2.7 kΩ.
 
 **CAN:** R1 + R6 terminate the bus at the ECU end; remove R6 if the bus is terminated elsewhere. The bus is on the add-on header (J5-19 CAN H, J5-20 CAN L) for a dash or gauges; it is the bus the on-board wideband controller reports on, at 500 kbit/s.
 
@@ -141,7 +141,7 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J.
 | JP3 | FAN2 | 90-93 | 94-95 | Second fan relay output: 1R on 1990-93 (the 1990-91 A/C fan), 2S on 1994-95 (condenser fan) |
 | JP4 | 94-95 2R | open | fitted | Fit on 1994-95: the pressure regulator control solenoid on 2R. Leave open on 1989-93 |
 | JP5 | TACH COP | open | open | Leave OPEN with the stock igniter: it drives the tachometer and sends its signal to the ECU on 2I. Fit only after a coil-on-plug conversion with the igniter removed: the ECU then drives the tachometer through 2I (R37 is its 12 V pull-up; join the two tach wires at the old igniter plug) |
-| JP6 | 2O | AFM | AFM | Airflow meter signal wire 2O: AFM = to the spare analog input (stock); BOOST = boost valve output on that wire once the meter is removed (valve between the old meter plug's signal pin and 12 V) |
+| JP6 | 2O | BOOST | AFM | Airflow meter signal wire 2O: BOOST on 1989-93 = the boost driver on that wire, which the 1989-93 firmware runs as the fuel pump relay (link the meter plug's pump-contact cavity to its signal cavity); AFM = to the spare analog input (1994-95, or a 1989-93 car with an added 2T pump wire) |
 
 **Protection:** D1 (and D2 where the VVT driver runs a coil) freewheel the PWM valve coils into their own +12 V feed, and D5 does the same for a boost valve on the add-on header, so the drivers don't absorb the turn-off energy. F4 fuses the add-on header's +12 V pin (1.1 A hold: a boost valve draws about 0.5 A).
 
@@ -165,6 +165,6 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J.
 ## Still to verify
 - The case geometry: hole centres and header 1A position, with calipers on a stock case.
 - Your car's fan wiring: early cars switch the fan relay on 1R, later ones on 1L; both are driven (fan and spare outputs).
-- LCSC stock for the extended parts (C124412, C127367, C277684, C587650, C3020560, C410772, C46641168, C3406).
+- LCSC stock for the extended parts (C124412, C127367, C277684, C587650, C3020560, C410772, C960026, C3406).
 - Harness pins 1N and 2L on a 1989-93 car: with the throttle switch unplugged, which plug wire reaches each (the rusEFI sources give 1N = idle contact, 2D = ground, 2L = full-throttle contact). Do this before fitting R28.
 - The TPS conversion on a manual car: the sensor and mount against your throttle body, and the sensor's output across the throttle travel (calibrate closed and wide open in TunerStudio).

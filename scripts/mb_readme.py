@@ -22,7 +22,7 @@ used = [(p, n) for p, n in H.items() if n]
 unused = [p for p, n in H.items() if not n]
 
 ROLE = {'VBAT_IN': 'ECU power (main relay)', 'VIGN_IN': 'switched 12 V sense (wakes the logic supply)', 'GND': 'ground',
-        'V5_SENS': 'sensor 5 V reference (out)', 'V5_EXT': 'sensor 5 V reference (out; protected, short-to-battery proof)', 'IN_IAT': 'air temperature (stock sensor)'}
+        'V5_SENS': 'sensor 5 V reference (out)', 'V5_EXT': 'sensor 5 V reference (out; protected, short-to-battery proof)', 'IN_IAT': 'air temperature (GM sensor on the stock wires)'}
 ROLE.update({'HARN_1N': 'option links R28', 'HARN_2L': 'option links R29 / R30', 'HARN_1R': 'jumper JP3', 'HARN_2S': 'jumper JP3',
              'HARN_2I': 'jumper JP5', 'HARN_2O': 'jumper JP6', 'HARN_2R': 'jumper JP4', 'HARN_2Y': 'jumper JP1', 'HARN_2Z': 'jumper JP2'})
 for n in ('INJ1', 'INJ2', 'INJ3', 'INJ4'):
@@ -81,8 +81,10 @@ o.append('| Ref | What | Notes |\n|---|---|---|')
 o.append('| J2 | Wideband sensor (JST PUD side-entry header S08B-PUDSS-1, 2×4, 2.0 mm) | For the **AEM X-Series sensor harness 30-3427** and a Bosch LSU 4.9. Pin 1 trim (LSU RT, green wire), 2 heater − (white), 3 common (VM, orange), 5 pump current (IP, red), 6 sense (UN, black), 8 heater + (brown); 4 and 7 empty. Pins 1/2 are the first column, odd pins in the row away from the board edge; the colours are printed beside the connector. The pin functions and the terminal (JST SPUD-001T-P0.5, the PUD series\' contact) are from AEM\'s instructions for the gauge; **nobody has plugged a harness into this board yet: compare the wire colours with the print before the first use.** Heater fed from the main relay through F1 (3 A hold, 30 V, 2920). The controller is on the daughterboard |')
 o.append('| J4 | USB-C | USB 2.0 device: tuning, logging, DFU |')
 o.append('| U2 | MPX5700AP | Absolute MAP sensor (15-700 kPa, case 867B). Lies flat on 2 × M3, marking side up, leads bent 90° down, the single barb toward the board centre |\n')
-o.append('**Air temperature:** the stock sensor\'s harness wire goes straight to the air temperature input (inside the airflow meter on '
-         '1989-97, in the air filter box on 1999-2005). The separate IAT connector and its jumper are gone. The pull-up is 2.7 kΩ.\n')
+o.append('**Air temperature:** the stock sensor\'s harness wire goes straight to the air temperature input. Every board ships with a GM '
+         'open-element sensor that goes on those wires (at the airflow meter\'s plug on 1989-97, at the air filter box sensor\'s plug on '
+         '1999-2005), and the firmware is set for its curve ([INSTALL.md](../../INSTALL.md#7-air-temperature)). The separate IAT connector '
+         'and its jumper are gone. The pull-up is 2.7 kΩ.\n')
 o.append('**CAN:** R1 + R6 terminate the bus at the ECU end; remove R6 if the bus is terminated elsewhere. The bus is on the add-on header '
          '(J5-19 CAN H, J5-20 CAN L) for a dash or gauges; it is the bus the on-board wideband controller reports on, at 500 kbit/s.\n')
 AUXROLE = {'OUT_IGN3': 'ignition 3 (5 V logic), coil-on-plug', 'OUT_IGN4': 'ignition 4 (5 V logic), coil-on-plug',

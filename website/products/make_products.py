@@ -12,6 +12,8 @@ COMMON = [
     ('Tuning', 'TunerStudio over USB-C'),
 ]
 VARIANTS = [('Board only', '350.00', ''), ('Complete kit', '500.00', '-kit')]   # (Package option, price, SKU suffix)
+INCLUDED = ('A GM air temperature sensor with its plug, terminals and 2 m of wire, for the car\'s own air '
+            'temperature wires (the firmware is set for it)')
 YOU_ADD = 'A Bosch LSU 4.9 sensor (it fits the stock front oxygen sensor\'s hole) and its lead, a vacuum hose to the intake manifold, your stock ECU case'
 KIT_ADDS = ('A Bosch LSU 4.9 sensor with a lead made up for this board, 3 m of 4 mm silicone vacuum hose and a tee, '
             'a 3 m USB cable and case washers. You add your stock ECU case')
@@ -42,7 +44,7 @@ def ecu_body(y):
             f'engine, and a motherboard made for your model year.</p>'
             + y['extra']
             + table([('Fits', y['fits']), ('Connector', y['connector'])] + COMMON
-                    + [('Board only: you add', YOU_ADD), ('Complete kit adds', KIT_ADDS)]))
+                    + [('Included', INCLUDED), ('Board only: you add', YOU_ADD), ('Complete kit adds', KIT_ADDS)]))
 
 
 products = []

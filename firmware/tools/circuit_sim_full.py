@@ -1088,9 +1088,10 @@ def r_of_t(coef, tc):
     return math.exp((lo + hi) / 2)
 
 
-# Mazda NA/NB coolant/air NTC as rusEFI's Miata presets (-20/40/80 C = 16150/1150/330 ohm); J3 "M12x1.5" sensor
-# assumed GM-type (published GM table: -20 C 28680, 40 C 1459, 100 C 177 ohm).
-NTC = {'Mazda (stock)': sh_coeffs([(-20, 16150), (40, 1150), (80, 330)])}
+# Mazda NA/NB coolant NTC as rusEFI's Miata presets (-20/40/80 C = 16150/1150/330 ohm); the air-temperature sensor every
+# unit ships with is GM-type, on the curve the firmware loads (Delphi 25036751: -20 C 28146, 40 C 1443, 100 C 175.3 ohm).
+NTC = {'Mazda (stock)': sh_coeffs([(-20, 16150), (40, 1150), (80, 330)]),
+       'GM (kit IAT)': sh_coeffs([(-20, 28146), (40, 1443), (100, 175.3)])}
 TEMPS_C = [-40, -20, 0, 20, 40, 60, 80, 90, 100, 110, 120, 130]
 therm = {}
 for sname, coef in NTC.items():
@@ -1112,7 +1113,7 @@ for sname, rows in therm.items():
            f'ADC {rng[0]:.2f} .. {rng[1]:.2f} V (open {open_v:.2f} V, short 0 V); resolution '
            f'{res_c[-20]:.2f} / {res_c[20]:.2f} / {res_c[90]:.2f} / {res_c[110]:.2f} C per LSB at -20/20/90/110 C',
            'OK' if worst < 0.5 and rng[0] < open_v - 0.1 and rng[1] > 0.05 else 'CHECK',
-           ('GM-type needs its own coefficients in TunerStudio (the year presets assume the Mazda sensor); ' if 'GM' in sname
+           ('the year presets load this curve for the IAT; ' if 'GM' in sname
             else '') + (f'-40 C reads within {(open_v - rng[0]) * 1000:.0f} mV of an open circuit' if rng[0] > open_v - 0.1 else ''))
 record('In sensors', 'air temperature sensor unplugged', f'IN_IAT open: reads {open_v:.2f} V = open-circuit sensor (about -50 C)',
        'OK', 'rusEFI flags it as a sensor fault rather than a plausible temperature')

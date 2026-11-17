@@ -166,8 +166,8 @@ pins:
   - pin: J2-7
     id: EFI_ADC_7
     class: analog_inputs
-    function: "Intake air temperature (2.7k pull-up), source picked by JP1"
-    ts_name: "IAT - air temperature (JP1)"
+    function: "Intake air temperature (2.7k pull-up): GM sensor on the car's IAT wires"
+    ts_name: "IAT - air temperature (GM sensor)"
     type: at
 
   - pin: J2-8

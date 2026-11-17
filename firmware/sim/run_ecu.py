@@ -492,6 +492,8 @@ def analyse(year, samples, phases, pins, stim, chk):
         got = s.get('sIat')
         chk.add('keyOn', 'intake air temperature reading', got is not None and abs(got - want) < 1.5,
                 f'{got} C for 2.0 kOhm (tune curve says {want:.1f} C)')
+        chk.add('keyOn', 'air temperature curve is the GM sensor\'s', abs(conf.get('resistance_1', 0) - 28146) < 1,
+                f"-20 C = {conf.get('resistance_1')} ohm (GM 28146)")
         m = s.get('sMap')
         chk.add('keyOn', 'MAP reading (engine off = baro)', m is not None and abs(m - 100) < 2, f'{m} kPa (100 applied)')
         if y['ign_sense']:

@@ -71,7 +71,7 @@ CHANGES = ["2026-11-15, no change to the board: on 1989-93 cars JP1 and JP2 now 
            'connector 6 mm right; SWD header removed; heater fuse now 30 V rated.']
 VERIFY = ['The case geometry: hole centres and header 1A position, with calipers on a stock case.',
           'Your car\'s fan wiring: early cars switch the fan relay on 1R, later ones on 1L; both are driven (fan and spare outputs).',
-          'LCSC stock for the extended parts (C124412, C127367, C277684, C587650, C3020560, C410772, C46641168, C3406).',
+          'LCSC stock for the extended parts (C124412, C127367, C277684, C587650, C3020560, C410772, C960026, C3406).',
           'Harness pins 1N and 2L on a 1989-93 car: with the throttle switch unplugged, which plug wire reaches each (the '
           'rusEFI sources give 1N = idle contact, 2D = ground, 2L = full-throttle contact). Do this before fitting R28.',
           'The TPS conversion on a manual car: the sensor and mount against your throttle body, and the sensor\'s output '
@@ -118,7 +118,7 @@ HARNESS = {
     '2L': 'HARN_2L',     # manual cars: the throttle switch's other contact. R29 (fitted) to the spare analog AUX1, or R30 (not fitted) to the TPS input after a sensor conversion
     '2M': 'IN_TPS',      # automatics' TPS signal (a manual car's converted sensor comes in on 2L through R30)
     '2N': 'IN_AUX2',     # stock narrowband O2
-    '2O': 'HARN_2O',     # airflow meter signal. JP6: to the spare analog input (AFM), or the boost valve output on this wire once the meter is gone
+    '2O': 'HARN_2O',     # airflow meter signal. JP6: BOOST on 1989-93 (the fuel pump relay, linked to the pump contact in the meter plug), AFM = the spare analog input
     '2P': 'IN_IAT',      # air temperature sensor in the airflow meter
     '2Q': 'IN_CLT',
     '2R': 'HARN_2R',     # 1994-95: pressure regulator control solenoid, through JP4. Not connected on 1989-93
@@ -152,8 +152,9 @@ JUMPERS = [
      'after a coil-on-plug conversion with the igniter removed: the ECU then drives the tachometer through 2I (R37 '
      'is its 12 V pull-up; join the two tach wires at the old igniter plug)'),
     ('JP6', 3, {1: 'IN_AUX3', 2: 'HARN_2O', 3: 'OUT_BOOST'}, '2O', {1: 'AFM', 3: 'BOOST'},
-     'Airflow meter signal wire 2O: AFM = to the spare analog input (stock); BOOST = boost valve output on that wire '
-     'once the meter is removed (valve between the old meter plug\'s signal pin and 12 V)'),
+     'Airflow meter signal wire 2O: BOOST on 1989-93 = the boost driver on that wire, which the 1989-93 firmware runs '
+     'as the fuel pump relay (link the meter plug\'s pump-contact cavity to its signal cavity); AFM = to the spare '
+     'analog input (1994-95, or a 1989-93 car with an added 2T pump wire)'),
 ]
 
 
@@ -161,7 +162,9 @@ JUMPERS = [
 # tools (mb_y8993.py / mb_y9495.py) and the README.
 # 1989-93 since 2026-11-15: no shunt on JP1 / JP2 (one driver per two-injector wire, as on rusEFI's and Speeduino's
 # boards for these cars); before that both sat on PAIR.
-SHUNTS = {'1989-93': {'JP3': (1, 2), 'JP6': (1, 2)},
+# 1989-93 since rev 0.14: JP6 on BOOST (2-3), the fuel pump relay on the old airflow meter signal wire 2O (the meter is
+# replaced by the kit's GM air-temperature sensor, and its pump contact with it).
+SHUNTS = {'1989-93': {'JP3': (1, 2), 'JP6': (2, 3)},
           '1994-95': {'JP1': (2, 3), 'JP2': (2, 3), 'JP3': (2, 3), 'JP4': (1, 2), 'JP6': (1, 2)}}
 
 

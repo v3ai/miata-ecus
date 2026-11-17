@@ -57,7 +57,7 @@ TE **178780-1**, 76 positions, the same header as the 1996-97 board (rev 0.8; th
 | 1R | `OUT_FAN` | fan relay | radiator cooling fan relay |
 | 1S | `OUT_AC` | A/C relay | A/C compressor relay |
 | 1U | `OUT_VVT` | PWM low side (VVT driver) | front HO2S heater (PWM low side; no VVT on NB1) |
-| 2B | `IN_IAT` | air temperature (stock sensor) | intake air temperature sensor (in the air filter box) |
+| 2B | `IN_IAT` | air temperature (GM sensor on the stock wires) | intake air temperature sensor (in the air filter box) |
 | 2C | `IN_AUX2` | spare analog 2 | front HO2S |
 | 2D | `IN_SW1` | 12 V switch input 1 | vehicle speed sensor |
 | 2E | `IN_CLT` | coolant temp | coolant temperature |
@@ -94,7 +94,7 @@ Not connected: 1A, 1C, 1D, 1F, 1G, 1H, 1J, 1K, 1L, 1M, 1N, 1Q, 1T, 1V, 2A, 2G, 2
 | J4 | USB-C | USB 2.0 device: tuning, logging, DFU |
 | U2 | MPX5700AP | Absolute MAP sensor (15-700 kPa, case 867B). Lies flat on 2 × M3, marking side up, leads bent 90° down, the single barb toward the board centre |
 
-**Air temperature:** the stock sensor's harness wire goes straight to the air temperature input (inside the airflow meter on 1989-97, in the air filter box on 1999-2005). The separate IAT connector and its jumper are gone. The pull-up is 2.7 kΩ.
+**Air temperature:** the stock sensor's harness wire goes straight to the air temperature input. Every board ships with a GM open-element sensor that goes on those wires (at the airflow meter's plug on 1989-97, at the air filter box sensor's plug on 1999-2005), and the firmware is set for its curve ([INSTALL.md](../../INSTALL.md#7-air-temperature)). The separate IAT connector and its jumper are gone. The pull-up is 2.7 kΩ.
 
 **CAN:** R1 + R6 terminate the bus at the ECU end; remove R6 if the bus is terminated elsewhere. The bus is on the add-on header (J5-19 CAN H, J5-20 CAN L) for a dash or gauges; it is the bus the on-board wideband controller reports on, at 500 kbit/s.
 

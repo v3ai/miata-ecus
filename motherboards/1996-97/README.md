@@ -64,7 +64,7 @@ TE **178780-1**, 76 positions (alternates 174915-6, 3-178780-6): OEM plug 1 = 1A
 | 3F | `IN_TPS` | TPS | throttle position sensor |
 | 3G | `IN_CLT` | coolant temp | coolant temperature sensor |
 | 3I | `V5_EXT` | sensor 5 V reference (out; protected, short-to-battery proof) | +5 V sensor reference (TPS, MAF) |
-| 3K | `IN_IAT` | air temperature (stock sensor) | intake air temperature sensor (in the airflow meter) |
+| 3K | `IN_IAT` | air temperature (GM sensor on the stock wires) | intake air temperature sensor (in the airflow meter) |
 | 3M | `OUT_VVT` | PWM low side (VVT driver) | front HO2S heater (PWM low side; no VVT on this engine) |
 | 3O | `GND` | ground | sensor ground (BLK/BLU) |
 | 4A | `GND` | ground | ground |
@@ -91,7 +91,7 @@ Not connected: 1C, 1D, 1F, 1H, 1I, 1J, 1N, 1P, 1Q, 1R, 1S, 1T, 1V, 2A, 2B, 2C, 2
 | J4 | USB-C | USB 2.0 device: tuning, logging, DFU |
 | U2 | MPX5700AP | Absolute MAP sensor (15-700 kPa, case 867B). Lies flat on 2 × M3, marking side up, leads bent 90° down, the single barb toward the board centre |
 
-**Air temperature:** the stock sensor's harness wire goes straight to the air temperature input (inside the airflow meter on 1989-97, in the air filter box on 1999-2005). The separate IAT connector and its jumper are gone. The pull-up is 2.7 kΩ.
+**Air temperature:** the stock sensor's harness wire goes straight to the air temperature input. Every board ships with a GM open-element sensor that goes on those wires (at the airflow meter's plug on 1989-97, at the air filter box sensor's plug on 1999-2005), and the firmware is set for its curve ([INSTALL.md](../../INSTALL.md#7-air-temperature)). The separate IAT connector and its jumper are gone. The pull-up is 2.7 kΩ.
 
 **CAN:** R1 + R6 terminate the bus at the ECU end; remove R6 if the bus is terminated elsewhere. The bus is on the add-on header (J5-19 CAN H, J5-20 CAN L) for a dash or gauges; it is the bus the on-board wideband controller reports on, at 500 kbit/s.
 

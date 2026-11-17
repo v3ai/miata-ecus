@@ -60,7 +60,7 @@
 #define MIATA_IN_TPS EFI_ADC_4     // PA4
 #define MIATA_IN_MAP EFI_ADC_5     // PA5, on-board MPX5700AP
 #define MIATA_IN_CLT EFI_ADC_6     // PA6, 2.7k pull-up to the harness 5 V (V5_EXT, rev 0.8: a second TLS115 tracking +5V)
-#define MIATA_IN_IAT EFI_ADC_7     // PA7, 2.7k pull-up; JP1 on the motherboard picks stock or M12 sensor
+#define MIATA_IN_IAT EFI_ADC_7     // PA7, 2.7k pull-up: the GM air-temperature sensor on the car's own IAT wires
 #define MIATA_IN_AFR EFI_ADC_14    // PC4, external 0-5 V wideband (the on-board one talks CAN)
 #define MIATA_IN_AUX1 EFI_ADC_15   // PC5, rear O2 / idle switch / load signal, depending on year
 #define MIATA_IN_AUX2 EFI_ADC_8    // PB0, front narrowband O2

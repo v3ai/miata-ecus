@@ -98,7 +98,7 @@ on this board, and the tables were made on other people's cars, so treat it as a
 | 2001-05 | the same NB table, plus rusEFI's VVT target table | rusEFI's NB table | 265 cc/min |
 
 - **What else is set:** cranking fuel, warm-up and idle-speed curves, closed-loop idle, a 7200 rpm limit, fan
-  temperatures, the coolant and air-temperature sensor curves for the stock sensors, and a target mixture that goes
+  temperatures, the coolant curve for the stock sensor and the air-temperature curve for the kit's GM sensor (Delphi 25036751), and a target mixture that goes
   richer as load rises (rusEFI's default: lambda 1.0 in cruise, 0.90 at 100 kPa, 0.80 at 175 kPa).
 - **Closed-loop fuel is on.** Once the engine is warm, the ECU trims fuel towards the target using the on-board
   wideband. It may move idle and cruise fuel 10 % either way; under load it may add 10 % but remove only 5 %. With no
@@ -112,11 +112,11 @@ on this board, and the tables were made on other people's cars, so treat it as a
 - **Always:** check base timing with a timing light before the first drive (step 11 below).
 
 ### Same on every year
-- **Outputs:** fuel pump, A/C relay, radiator fan, second fan (LS7), check engine lamp, tach (1996-2005), idle valve, INJ1-4,
+- **Outputs:** fuel pump (on 1989-93 on the BOOST driver, which JP6 puts on 2O; see INSTALL.md), A/C relay, radiator fan, second fan (LS7), check engine lamp, tach (1996-2005), idle valve, INJ1-4,
   IGN1 (coil 1&4) and IGN2 (coil 2&3) in wasted spark.
 - **COP conversion:** IGN3/IGN4 are assigned too (cylinder 2 on IGN3, cylinder 4 on IGN4), ready for coil-on-plug.
 - **Inputs:** SW1 = vehicle speed, SW2 = A/C switch, SW3 = clutch.
-- **Sensors:** TPS, MAP (on-board MPX5700AP), CLT and IAT, MAF/AFM on AUX3. External 0-5 V wideband on AFR, used
+- **Sensors:** TPS, MAP (on-board MPX5700AP), CLT and IAT (GM sensor curve), AUX3 spare (the old airflow meter input; unused). External 0-5 V wideband on AFR, used
   only if the CAN wideband is switched off.
   - **1989-93 manual cars have no TPS**, only a throttle switch: the TPS input reads 0 V and rusEFI reports the sensor
     failed (open-loop idle, no TPS acceleration fuel, no overrun cut). For a sensor on the stock plug, fit R28 and move
@@ -144,8 +144,8 @@ on this board, and the tables were made on other people's cars, so treat it as a
 - **Analog dividers:** analog inputs ×1.56 (5.6k/10k). Battery and ignition sense ×5.85 (33k/6.8k). The ignition
   sense channel itself is part of the year defaults (table above).
 - **CLT/IAT pull-up:** 2.7 kΩ to 5 V, and the ADC divider loads the same node. Together they behave like a
-  4.26 V supply behind 2.30 kΩ, and the firmware uses exactly that. Only pick the sensor curve in TunerStudio (stock
-  or the M12 sensor, as set by JP1).
+  4.26 V supply behind 2.30 kΩ, and the firmware uses exactly that. The year buttons load the GM air-temperature curve
+  (-20 °C 28146 Ω, 40 °C 1443 Ω, 100 °C 175.3 Ω); a car keeping the stock Mazda sensor needs its curve entered.
 - **MAP:** MPX5700AP, 0.2 V at 0 kPa to 4.70 V at 700 kPa (custom linear MAP type). This is set with the year
   defaults, so you can change it if you fit another sensor.
 - **CAN:** the STM32's CAN2 peripheral on PB12/PB13 is the only bus, set up as rusEFI's first CAN bus (rusEFI picks
