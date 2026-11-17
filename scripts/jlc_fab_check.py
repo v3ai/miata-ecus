@@ -2,11 +2,56 @@
 (https://jlcpcb.com/capabilities/pcb-capabilities, 1 oz copper; multilayer values for 4 layers, 2-layer values
 otherwise). Copper clearances themselves are KiCad DRC's job (the boards' 0.15 mm rule is above JLC's 0.09/0.10 mm);
 this covers what the DRC rule set doesn't: track width, via and hole sizes, PTH annular ring, hole-to-hole spacing,
-copper to the board edge, silkscreen line width and text height. Exit status 1 if anything is below a minimum."""
+copper to the board edge, silkscreen line width and text height, and no via in or within 0.1 mm of an SMD pad
+(the boards are ordered without via fill). Exit status 1 if anything is below a minimum."""
 import sys, math
 import pcbnew
 
 mm = pcbnew.ToMM
+
+
+VIA_PAD_GAP = 0.10      # mm, via ring edge to SMD pad edge: no via in a pad, and a solder-mask web between them
+
+
+def via_in_pad(b, min_gap=VIA_PAD_GAP):
+    """Vias whose copper ring overlaps, or comes within min_gap of, an SMD pad's copper (exact pad outlines).
+    Through vias only: the ring is the same on F.Cu and B.Cu, and no SMD pad sits on an inner layer."""
+    from shapely.geometry import Point, Polygon
+    from shapely.ops import unary_union
+    from shapely.strtree import STRtree
+    geoms, ids = [], []
+    for fp in b.GetFootprints():
+        for p in fp.Pads():
+            if p.GetAttribute() != pcbnew.PAD_ATTRIB_SMD:
+                continue
+            lay = pcbnew.F_Cu if p.IsOnLayer(pcbnew.F_Cu) else pcbnew.B_Cu if p.IsOnLayer(pcbnew.B_Cu) else None
+            if lay is None:                     # paste-only helper pads (exposed-pad footprints) carry no copper
+                continue
+            ps = pcbnew.SHAPE_POLY_SET()
+            p.TransformShapeToPolygon(ps, lay, 0, pcbnew.FromMM(0.005), pcbnew.ERROR_INSIDE)
+            polys = [Polygon([(mm(o.CPoint(k).x), mm(o.CPoint(k).y)) for k in range(o.PointCount())])
+                     for o in (ps.Outline(i) for i in range(ps.OutlineCount()))]
+            geoms.append(unary_union([q if q.is_valid else q.buffer(0) for q in polys]))
+            ids.append(f'{fp.GetReference()}.{p.GetNumber()}')
+    tree = STRtree(geoms)
+    inside, near = {}, {}
+    for v in b.GetTracks():
+        if v.Type() != pcbnew.PCB_VIA_T:
+            continue
+        c = Point(mm(v.GetPosition().x), mm(v.GetPosition().y))
+        ring = c.buffer(mm(v.GetWidth(pcbnew.F_Cu)) / 2)
+        for j in tree.query(ring, predicate='dwithin', distance=min_gap - 1e-4):
+            d = geoms[j].distance(ring)
+            key = f'{c.x:.2f},{c.y:.2f}'
+            (inside if d == 0 else near).setdefault(key, f'{ids[j]} {v.GetNetname()} @ {key}' + ('' if d == 0 else f' ({d:.3f} mm)'))
+    for k in inside:
+        near.pop(k, None)
+    out = []
+    for what, dd in (('in an SMD pad', inside), (f'within {min_gap} mm of an SMD pad', near)):
+        if dd:
+            vals = list(dd.values())
+            out.append(f'{len(vals)} vias {what} (no via in pad; scripts/via_out_of_pad.py): ' + '; '.join(vals[:8]) + (' ...' if len(vals) > 8 else ''))
+    return out
 
 
 def check(path):
@@ -118,6 +163,7 @@ def check(path):
         bad.append(f'{len(small_txt)} silkscreen texts under {lim["silk_h"]} mm high: ' + ', '.join(small_txt[:12]) + (' ...' if len(small_txt) > 12 else ''))
     if thin:
         bad.append(f'{len(thin)} silkscreen lines under {lim["silk_w"]} mm: ' + ', '.join(sorted(set(thin))[:12]) + (' ...' if len(thin) > 12 else ''))
+    bad += via_in_pad(b)
     return layers, min_edge, bad
 
 

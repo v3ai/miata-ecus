@@ -165,6 +165,15 @@ class Grid:
             m = m & self.ok(net, L, 0.6, soft)[0]
         return m
 
+    def exclude_area(self, poly):
+        """no via centre inside poly (grid cells whose centre lies in it)"""
+        import shapely
+        x0, y0, x1, y1 = poly.bounds
+        i0, i1 = max(0, int(x0 / G)), min(self.nx, int(x1 / G) + 2)
+        j0, j1 = max(0, int(y0 / G)), min(self.ny, int(y1 / G) + 2)
+        if i0 < i1 and j0 < j1:
+            self.vexcl[j0:j1, i0:i1] |= shapely.contains_xy(poly, self.X[j0:j1, i0:i1], self.Y[j0:j1, i0:i1])
+
     def mark_via(self, x, y):
         i0 = max(0, int((x - 1) / G)); i1 = min(self.nx, int((x + 1) / G) + 2)
         j0 = max(0, int((y - 1) / G)); j1 = min(self.ny, int((y + 1) / G) + 2)
@@ -206,6 +215,9 @@ class Router:
                 g.stamp(poly if fp.GetReference() == 'U1' else poly.buffer(0.03), layers, net, True)
                 self.pads.append(dict(fp=fp.GetReference(), num=p.GetNumber(), net=name, poly=poly,
                                       layers=layers, c=pos))
+                if p.GetAttribute() == pcbnew.PAD_ATTRIB_SMD and layers:
+                    # rev 0.11: no via in, or within 0.1 mm of, any SMD pad (the board is ordered without via fill)
+                    g.exclude_area(poly.buffer(VIA_D / 2 + 0.1))
         self.load_block()
         for p in self.pads:
             p['cells'] = self.pad_cells(p)

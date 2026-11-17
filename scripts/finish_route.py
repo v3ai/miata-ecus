@@ -371,31 +371,6 @@ def loose_plane_pieces(B, net):
     return out
 
 
-def via_in_pad(B, net, idx):
-    """A boxed-in pad on a six-layer board: the via goes into the pad itself (JLCPCB fills and caps every via on a
-    six-layer board, so a via in a pad solders like the pad). Returns a route result or None."""
-    if len(B.sig) != 4:
-        return None
-    others = [a[2] for n2, lst in B.items.items() if n2 != net for a in lst]
-    tree = STRtree(others)
-    holes = unary_union(B.holes).buffer(0.32 + VD / 2)
-    for i in idx:
-        a = B.items[net][i]
-        if a[0] != 'p':
-            continue
-        c0 = a[2].centroid
-        x0, y0, x1, y1 = a[2].bounds
-        cand = [Point(x0 + i * G, y0 + j * G) for i in range(int((x1 - x0) / G) + 1) for j in range(int((y1 - y0) / G) + 1)]
-        for c in sorted((q for q in cand if a[2].contains(q)), key=lambda q: q.distance(c0)):    # nearest the middle first
-            v = c.buffer(VD / 2)
-            if holes.contains(c) or not B.edge.contains(c):
-                continue
-            if any(others[int(j)].distance(v) < CL for j in tree.query(v, predicate='dwithin', distance=CL)):
-                continue
-            return [[], [(round(c.x, 3), round(c.y, 3))], 0.0, TW]
-    return None
-
-
 def stitch_planes(B):
     """pads of the plane nets that nothing ties to their plane: lead each loose piece to a via site"""
     left = 0
@@ -408,7 +383,7 @@ def stitch_planes(B):
                 break
             idx, key = todo[0]
             names = ', '.join(f'{r}.{n}' for r, n in key[:4])
-            res = B.route(net, idx, [], plane=True) or B.route(net, idx, [], plane=True, tw=0.15) or via_in_pad(B, net, idx)
+            res = B.route(net, idx, [], plane=True) or B.route(net, idx, [], plane=True, tw=0.15)
             if not res:
                 print(f'{net}: NO VIA SITE for {names}  (BLOCKED {key[0][0]}.{key[0][1]})', flush=True)
                 left += 1
