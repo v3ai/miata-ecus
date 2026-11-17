@@ -22,6 +22,7 @@ from shapely.strtree import STRtree
 
 mm, MM = pcbnew.ToMM, pcbnew.FromMM
 GAP = 0.10              # via ring to any SMD pad edge (same as the jlc_fab_check rule)
+THIN = 0.3              # stub width tried when a full-width stub fits nowhere (logged)
 PAD_HOLE_GAP = 0.45     # via hole to plated/unplated pad hole, edge to edge (via_hole_gap.py)
 VIA_GAP = 0.25          # via hole to via hole, edge to edge (JLC 0.20; board rule 0.25)
 TAB_MM2 = 20.0          # a pad this big on a TO-252 is the driver tab
@@ -238,35 +239,8 @@ def main():
             b.Remove(v)
             deleted.append(tab[1])
             tabs.setdefault(tab[1], [tab, 0])[1] += 1
-    for v, hits in bad:
-        if any(h[5] for h in hits):
-            continue
-        net = v.GetNetname()
-        old = via_holes[id(v)]
-        r, h = mm(v.GetWidth(F)) / 2, mm(v.GetDrillValue()) / 2
-        # layers on which copper meets the via: tracks ending in it (stub from that track end), and the pads it
-        # sits in (stub from the old centre, which is inside the pad)
-        lays = {}          # layer -> [width, set of stub start points]
-        for g, n_, l, k, ref in others(old.buffer(r), 0.0):
-            if n_ != net:
-                continue
-            if k == 'trk':
-                for q in (ref.GetStart(), ref.GetEnd()):
-                    qp = (round(mm(q.x), 6), round(mm(q.y), 6))
-                    if Point(qp).distance(old) <= r + 1e-3:
-                        e = lays.setdefault(l, [0, set()])
-                        e[0] = max(e[0], min(mm(ref.GetWidth()), 0.3)); e[1].add(qp)
-            elif k == 'pad' and l in (F, B):
-                lays.setdefault(l, [0, set()])[1].add((old.x, old.y))
-        for hh in hits:
-            if hh[2] == net:
-                lays.setdefault(hh[3], [0, set()])[1].add((old.x, old.y))
-        for l, e in lays.items():
-            if e[0] == 0:
-                padw = min((min(hh[0].bounds[2] - hh[0].bounds[0], hh[0].bounds[3] - hh[0].bounds[1]) for hh in hits if hh[3] == l), default=R['stub'])
-                e[0] = max(R['stub'], min(0.3, padw))
-        dead.add(vidx[id(v)])
-        found = None
+    def search(old, lays, net, r, h, v):
+        """nearest legal via spot with straight or L stubs, else grid-routed stubs: ((dist, c), paths) or None"""
         for rr, dx, dy in offs:
             c = (old.x + dx, old.y + dy)
             if not via_ok(c, net, r, h, v):
@@ -285,13 +259,54 @@ def main():
                 if not ok:
                     break
             if ok:
-                found = (rr, c); found_paths = paths; break
-        if not found:
-            spots = [(rr, dx, dy) for rr, dx, dy in offs if via_ok((old.x + dx, old.y + dy), net, r, h, v)]
-            gp = grid_paths(old, lays, net, v, spots) if spots else None
-            if gp:
-                c, found_paths = gp
-                found = (math.hypot(c[0] - old.x, c[1] - old.y), c)
+                return (rr, c), paths
+        spots = [(rr, dx, dy) for rr, dx, dy in offs if via_ok((old.x + dx, old.y + dy), net, r, h, v)]
+        gp = grid_paths(old, lays, net, v, spots) if spots else None
+        if gp:
+            c, paths = gp
+            return (math.hypot(c[0] - old.x, c[1] - old.y), c), paths
+        return None
+
+    for v, hits in bad:
+        if any(h[5] for h in hits):
+            continue
+        net = v.GetNetname()
+        old = via_holes[id(v)]
+        r, h = mm(v.GetWidth(F)) / 2, mm(v.GetDrillValue()) / 2
+        # layers on which copper meets the via: tracks ending in it (stub from that track end), and the pads it
+        # sits in (stub from the old centre, which is inside the pad)
+        lays = {}          # layer -> [width, set of stub start points]
+        for g, n_, l, k, ref in others(old.buffer(r), 0.0):
+            if n_ != net:
+                continue
+            if k == 'trk':
+                for q in (ref.GetStart(), ref.GetEnd()):
+                    qp = (round(mm(q.x), 6), round(mm(q.y), 6))
+                    if Point(qp).distance(old) <= r + 1e-3:
+                        e = lays.setdefault(l, [0, set()])
+                        e[0] = max(e[0], mm(ref.GetWidth())); e[1].add(qp)
+            elif k == 'pad' and l in (F, B):
+                lays.setdefault(l, [0, set()])[1].add((old.x, old.y))
+        for hh in hits:
+            if hh[2] == net:
+                lays.setdefault(hh[3], [0, set()])[1].add((old.x, old.y))
+        for l, e in lays.items():
+            if e[0] == 0:
+                padw = min((min(hh[0].bounds[2] - hh[0].bounds[0], hh[0].bounds[3] - hh[0].bounds[1]) for hh in hits if hh[3] == l), default=R['stub'])
+                e[0] = max(R['stub'], min(1.0, padw))
+        dead.add(vidx[id(v)])
+        # stubs as wide as the track they continue (a power via keeps its current capacity); only when nothing fits
+        # are they narrowed to THIN, and the log says so
+        tries = [lays]
+        if any(w > THIN for w, _ in lays.values()):
+            tries.append({l: [min(w, THIN), st] for l, (w, st) in lays.items()})
+        for lays in tries:
+            found = search(old, lays, net, r, h, v)
+            if found:
+                found, found_paths = found
+                break
+        if found and lays is not tries[0]:
+            log.append(f'narrowed stubs to {THIN} mm: {hits[0][1]} {net}')
         if not found and len(lays) == 1 and net:
             # the via only joins its pad to the other layers: route the pad to a neighbouring via of the same net
             # instead, and delete this one
