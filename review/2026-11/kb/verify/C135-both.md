@@ -1,0 +1,6 @@
+# C135 MAP hose clearance 14 mm - verdict: unverifiable (geometry true but inferred; kink claim is a rule of thumb)
+Checked: kb/boards/B09 lines 136-141 (barb axis/tip INFERRED from footprint polygon rotated 90 deg; 94..108 = 14 mm arithmetic is right).
+review brief section 6 says the barb position was taken from a photo (unchecked). INSTALL.md says only "barb points sideways, toward the middle of the board"; case cut-out position is not given anywhere, so "force a turn to the bottom wall" is an assumption. A hose can also bend upward in the open space above the board; no kink radius for the actual hose was measured.
+Ordered boards: evidence/ord_mb8993, ord_mb9495, ord_mb9697 have the same U2 (224,192, rot 90), J5 and F1 placement as cur_mb8995, so the issue (if real) also applies to the ordered 1989-95 and 1996-97 boards; claim's "ordered: false" is wrong. Not documented in VERIFICATION.md (no hose/barb entry).
+Corrected statement: U2's barb (inferred) leaves about 14 mm before J5/F1 in the -x direction; whether the hose kinks depends on the unknown cut-out position and hose OD/wall. Low-value, no evidence of failure.
+Fix: measure real MPX5700AP barb position and hose bend radius on a built board; a 90 deg silicone elbow (cheap) is a fine workaround.

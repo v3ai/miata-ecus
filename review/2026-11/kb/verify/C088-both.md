@@ -1,0 +1,5 @@
+# C088 verdict: confirmed (partly overlapping with owner decision)
+Checked: ext/hellen-miata-NB1/bom_replace_64_NB1-a/b/c.csv line U105 = STM32F407ZGT7 C1337111; NA6 rev d U105 = ZGT6 C19156; NA6 Q305-308 = ZXMS6005SGTA C174042. tools/lcsc.py today: C1337111 -40..105C, extended, stock 34, 27.80@1; C19156 stock 389, 6.26@1.
+repo/research/other_miata_pnp_boards.md lines 14,22-23 ("Nobody found uses suffix-7"; Hellen driver AUIPS2041L) and README:157/236, VERIFICATION.md:938 ("all use 85C") repeat the false claim. NA8 rev A claim relies on R30's clone (not in ext/); not rechecked.
+Corrected: NB1 (and per R30 NA8) use the 105C ZGT7; NA6 and uaEFI-class use ZGT6; so "every board / nobody" is false. ZXMS6005 on Hellen Miata boards is true for NA6 (checked); NB1 BOM-replace check below. Cost delta ~USD 21 on Hellen's LQFP144 part is real, but the VGT7 price was already stated (about 5x) in VERIFICATION.md:812, so the cost trade-off was known; only the "everyone" justification is wrong. Not a board error; docs only. Affects ordered daughterboard only as a decision (VGT6 populated).
+Fix: reword the survey and README/VERIFICATION justification as cost vs margin.

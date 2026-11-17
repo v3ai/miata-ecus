@@ -1,0 +1,7 @@
+# C148 verdict: partly (low value, not news-worthy; no action on ordered boards)
+Checked: evidence/{cur_db,ord_db}/pcb_nets.txt: R7 (1 ohm, C22936) + C16 (10u/50V 1206, C13585) form net /Power/DAMP, +12V -> R7 -> C16 -> GND, on the source side of L1 (2.2uH). Filter C17/C18 (10u each) on +12V_F. Source side holds only C24/C62 (1u 0603). Same on ordered and current boards.
+Manifest: C13585 $0.075-0.121, R7 $0.003: saving ~$0.10 true, but C13585 stays on the BOM (C17/C18), so only the placements and qty-break change.
+Sim (work/P06-power-input-protection/p2a.sh) models C16 as 6u, buck as 80 ohm: the 1-1.3 V effect is a model output only, not re-run by me. Peak ~38-39 V stays under the 44 V buck max either way, so "little effect" holds for ISO 2a. Hot-plug / key-on ringing (ceramic C17/C18 + harness L + 1u source cap) was not simulated; this is the classic job of such a damper, so "little effect" is unproven for it. Hellen power_12and5V 0.3 BOM has R420 (C25086, 0402) and C427 4.7u: a similar RC, not a verified identical network/placement.
+(a) Not in review brief s6 or VERIFICATION open items (only M2 mentions C16 as 50 V part). Not documented, but it is a $0.10 optional idea.
+(b) Affects ord_db physically, but removal saves only on a future spin; the claim itself says keep, bench-test first. No rework value.
+Corrected statement: R7/C16 is a ~$0.10 damper; sim shows only ~1 V ISO-2a benefit; hot-plug ringing unassessed; delete only after a scope check. Confidence low.

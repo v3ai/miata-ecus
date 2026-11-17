@@ -1,0 +1,9 @@
+# C063 verdict: partly (low-value; the topology worry is largely refuted)
+Checked:
+- Mitchell 2005 text (kb/research/files/R20/mitchell2005_engine_control_system.txt l.1254-1263, 2259): labels "IAC (positive)" / "IAC (negative)"; scope "2P(+) <--> 2Q(-)". True, but it is only a terminal naming and says nothing about 2P being switched.
+- rusEFI Hellen NB2 (ext/hellen-miata-NB2/hellen72_NB2.xml): P2 pin 106 (2P) is on the 12 V raw rail (net at l.3587, next to F5 and M5 V12_RAW); P2 pin 63 (2Q) is net /OUT_IDLE with Q2 drain plus diodes D18/D22/D36 (low-side MOSFET + flyback). The Hellen board is a rusEFI-field-used plug-in for this exact NB2 PCM, so 2P = steady 12 V, 2Q = low-side drive is the working topology. An H-bridge valve is not supported by any source; the NB IAC is a single-coil duty solenoid (the 1990 manual and pinouts_9605.md say 11-13 ohm single-coil).
+- repo mb_nb2.py:47-48 matches Hellen (2P -> IAC_12V via F2, 2Q low side, D1 freewheel 2Q->2P). The repo's own research (repo/research/pinouts_9605.md l.229) and the R20 note l.73/108 list it as open.
+- Not independently confirmed: 2P voltage with a stock PCM (no measurement; the Hellen design is indirect evidence); coil resistance and frequency for 1999-2005 are unknown (true, both are not needed for the connection).
+(a) Already known: the R20 audit notes list it as unresolved and the repo documents the assumption; partly known, not in VERIFICATION.md. (b) It would affect the ordered 2001-05 and 1999-2000 motherboards only if wrong; no rework is suggested by the evidence.
+Corrected statement: Manual naming is "positive/negative", but Hellen NB2 (rusEFI-proven) feeds 2P from 12 V and drives 2Q low-side, as the repo does. Residual risk is small; the open items are 2P being main-relay 12 V (fused F2 2 A suits it) and the unknown frequency.
+Fix: optional bench check of 2P at key-on with a stock PCM (cheap), no design change.

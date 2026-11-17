@@ -1,0 +1,7 @@
+# C047 verdict: partly (history true; consequence for this design is already mitigated; documented)
+Checked: hellen-NB2-issues #23 exists (title "Pin Error While driving around TC4427 maybe alternator damage in USA", body is thin: failed board shipped for inspection; the 8-10 ohm / 2-20 ohm numbers and the 100R+Schottky fix are not in the body I fetched, so unverified by me).
+Design (evidence/ord_db, cur_db): TC4427 U6/U7 (C20551) drive only IGN1-4_DRV -> R15-R18 (nets /Outputs/IGN*_DRV). Alternator output OUT_ALT is Q8 (VND7NV04), a low-side switch driven by ALT_CTL from U11 (level shifter), not a TC4427. So the NB failure mode (TC4427 push-pull wired straight to the alternator wire) does not exist here.
+Documented: VERIFICATION.md M5 (alt control ships off, line ~221/1108), N13, ignition protection row line ~570 (B5819W D31-D34 after 100R; present in the netlist, 6 B5819W). review brief section 6 mentions alternator off. "Already has 100R+B5819W" is true for ignition outputs.
+Ordered boards: same architecture (ord_db netlist shows U6/U7 TC4427 and Q8 alt); nothing to rework from this claim.
+Corrected statement: historic Hellen failures from a TC4427 directly on the alternator/tach wire; this design uses a protected VND7NV04 for the alternator and TC4427 only for ignition gates with 100R+Schottky. Not news; no action beyond keeping alternator default off and the existing M5 test.
+Fix: none needed.

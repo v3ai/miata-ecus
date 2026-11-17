@@ -1,0 +1,9 @@
+# C154 verdict: partly (true option, marginal, deliberate, not news)
+Checked:
+- Upstream F1 wideband boards (ext/wideband-rusefi/firmware/boards/f1_rev2, f1_rev3, f1_dual) set HSE_ENABLED FALSE and PLLSRC_HSI. f1_dual_rev1 uses HSE, so "upstream runs HSI" holds for most F1 boards but not all. The port sets HSE TRUE (repo/firmware/wideband/miata_f1/mcuconf.h:44,47).
+- STM32F103C8 datasheet Table 24 (datasheets/txt/C8734_STM32F103C8T6.txt:3078): factory-calibrated HSI is -2 to +2.5 % over -40 to 105 C, -1.5 to +2.2 % over -10 to 85 C. The CAN limit is about 1.58 % total oscillator tolerance across the network. HSI is therefore marginal for a car engine bay unless the other nodes are accurate and the sample point is tolerant.
+- Saving: Y101 is $0.2461 at qty 1 and $0.1264 at the top tier (kb/parts_manifest.md:18). C119/C120 33 pF are a Basic part costing a fraction of a cent. The real saving is about $0.13-0.25 per board, not a guaranteed 0.19-0.25. The part is Basic, so there is no extended-part fee. Y101 is the same part number as the main MCU crystal Y1, so BOM line consolidation is lost, which is minor.
+- Already documented: repo/VERIFICATION.md:322-323 states the crystal exists because "rusEFI's F1 boards run CAN from the internal oscillator, which drifts a few percent over temperature, more than CAN bit timing allows". Line 333 records HSE 8 MHz x 6 as a deliberate choice. The claim is not news.
+- Ordered boards: the ordered daughterboard carries Y101. Removing it is a firmware plus unpopulate change and cannot be reworked as a benefit. It is a cost option for future builds only.
+Corrected statement: dropping Y101 and C119/C120 would save about $0.13-0.25 per board at the cost of CAN timing margin, since F103 HSI is -2/+2.5 % over temperature against a 1.58 % CAN budget. The author documented and rejected it on those grounds. Not recommended without temperature bench tests.
+Fix: none needed; keep HSE. Severity downgrade to info.

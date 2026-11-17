@@ -1,0 +1,81 @@
+# R22 Alternative manufacturing and fulfilment routes (read 2026-11-16)
+
+Scratch: work/R22-alternative-manufacturing/dl/ (saved vendor HTML + text, untrusted data). Context numbers (JLC fee table, DB model $83/66/52/48/45 per board at 5/10/30/50/100, tariffs, USPS rates) come from kb/research/R21 and R26 and are not re-derived.
+
+## Summary
+1. No vendor publishes a price table I could read for a 6-layer 125x76 mm / 430-part board. PCBWay, Seeed, Elecrow, Makerfabs, NextPCB, ALLPCB, MacroFab, CircuitHub and Eurocircuits all price by instant quote behind JS/login or by e-mail. So price at 30/100 units for alternatives is NOT obtainable from public pages; only fee structures are. Any dollar comparison below marked INFERRED/UNVERIFIED.
+2. JLCPCB itself can already do what the repo hand-does: its capabilities page says THT (connectors) and mixed SMD+THT assembly is available under Economic and Standard (wave soldering, and the FAQ says wave-soldering parts are in practice assembled manually), fee $3.5-3.58 per order + $0.0164-0.0173 per joint (R21 table). Parts in the JLC library can be selected; customers can also consign parts (via HK warehouse, 2% handling min $10 + refundable duty/VAT deposit). MCU programming is "partially supported" on Standard orders with a hex file. VERIFIED.
+3. TE 174917-6 IS in JLC's library today: C592838, Extended, stock 32, $12.92@1 / $12.16@100 (live tools/lcsc.py). The repo marks it [self-order]. Stock 32 means at most 32 units from JLC; Newark/Farnell is cheaper (R24: about $7.5-10.7). VERIFIED stock; the other two harness headers (178780-1, 353830-5) not checked here.
+4. Only Western services that can take the 6-layer DB: MacroFab (2-36 layers, US-built, THT selective/wave, conformal coating, programming, consignment, no minimum; VERIFIED page) and CircuitHub (Grid: SMT+THT, max 215x199 mm, qty 1-1000+; Conventional 2-4 wk, 508x360; VERIFIED page). Aisler lists only 2/4-layer pricing (VERIFIED pricing table, 2023 post) so the 6-layer rev 0.10 DB likely does not fit (INFERRED). Eurocircuits assembles only boards it fabricated, max 800 THT placements, max 200 BOM lines for instant price (VERIFIED), small series up to 50 pcs.
+5. Chinese alternatives (PCBWay, NextPCB, Elecrow, Makerfabs, ALLPCB, Seeed) all claim SMT+THT, consignment/partial turnkey, functional test and programming; PCBWay and NextPCB explicitly list conformal coating. None publishes quantities of price at our size. JLC remains the lowest-friction since the design/BOM is already LCSC-coded.
+6. Counterfeit/clone risk: only authorised distributors (Newark/Farnell/RS/LCSC) give traceable TE parts. Turnkey houses sourcing "global" parts (NextPCB lists Digikey/Mouser/Newark etc.; Makerfabs says authorised distributors but may substitute brands for passives/connectors and flags it Y/N) are acceptable; brokers need AS6081-type practices. Chinese clone headers (Kinkong etc., R24) have no quality evidence.
+7. Fulfilment: home pick/pack costs about 15-18 USD domestic all-in (R26) plus 10-20 min labour; a small 3PL adds about $2-3.2 pick/pack (+$0.48-0.75 per extra item), storage $18-25/pallet/month, receiving $5-15/pallet, setup $250-1000 at about half of providers, monthly minimums (fulfill.com 2026 guide citing the Fulfillment Advisor survey; secondary). Having the assembler ship each finished unit is advertised by PCBWay and Rapid Direct but without prices; customs/importer-of-record not addressed.
+8. Conclusion: stay with JLC (+ buy headers from Newark) through the first 100 units; move to a US/EU assembler only for specific pain points (below). The first move worth making is not a different assembler but having JLC place the harness header and sockets (small fee) once the footprint/library part exists.
+
+## Detail
+
+### A. Vendor capability matrix (VERIFIED from vendor pages saved in work dir unless tagged)
+| Vendor | Layers / size | THT | Consigned parts | Coating | Programming / test | Min order | Lead | Price info |
+|---|---|---|---|---|---|---|---|---|
+| JLCPCB (baseline) | 2/4/6 Economic; 10x10 to 470x500 | yes, wave/manual, $3.58+0.0164/joint | yes, via HK warehouse; duty deposit + 2% fee (min $10) | not listed | MCU hex programming "partial"; no functional test seen | Economic 2-50, Standard larger | R21 | R21 |
+| PCBWay | "any layers"; assembly 10x10 to 250x500 mm | "SMT, THT and hybrid" | kitted/consigned/combo (pcbway.com/assembly-capabilities.html) | "Encapsulation and conformal coating" listed under system assembly (pcbway.com/oem/electronics-manufacturing) | FCT "following your test procedures"; IC programming per homepage | "as low as 5 pieces" | "24 h to a few weeks"; PCBA 3-5 d claim | $29/20 pcs promo only; setup/part fees not published. Claimed "no markup on parts" (secondary) |
+| Elecrow | 10-550 mm | yes | turnkey / consigned (no handling fee) / combo; sourcing fee for difficult parts, once | not seen | FCT "free"; ICT fixture $300-1000 | page says 1 pc; blog says 5; older PDF none | Not read | Engineer start fee $10 (older PDF); assembly cost $30 shown in quote form; promo "free assembly under 10 pcs". Conflicting; UNVERIFIED |
+| NextPCB | 2+ layers; | SMT/THT/mixed | full / partial turnkey / full consigned | conformal coating machine named in factory list | FCT, IC programming, jig test; IATF16949 certificate claimed | "No MOQ" | 7 working days Rev0, assembly 24 h after parts ready | Free assembly on first Rev 0 order up to $500 (promo); parts from Digikey/Mouser/Newark etc. |
+| Makerfabs | not stated | "THT pad" $0.03/pad hand or machine | customer may send parts | not seen | programming + testing, test at $0.1/min | none stated | 12 wd prototype, 15 wd small batch | $0.03 per pad SMD or THT; DHL 2-3 days to North America; may substitute brands for passives/connectors (flagged Y/N) |
+| ALLPCB | rigid/flex | SMT/THT/mixed | not read | not seen | IC programming, FCT, X-ray | not stated | not read | promo "$35 /10 pcs" |
+| Seeed Fusion | not read | not mentioned | not mentioned | not mentioned | "FREE" functional testing described vaguely | not stated | not stated | calculator shows only placeholders; "certification and mechanical parts require manual quotation" |
+| MacroFab (US) | 2-36 layers | selective + wave, SN100, IPC Class 2/3 | yes, consigned inventory held in warehouse | spray/dip acrylic, silicone, PU, UV check; self-service in quote | pre-assembly flashing, in-circuit programming; test via quote | none | not read | Instant quote only (login) |
+| CircuitHub (US/global) | Grid max 215x199; Conventional 508x360 | SMT+THT | consign rare parts only; no full kits; spares 5% min 3 for THT <$0.70 | not read | not read | qty 1-1000+ | Grid from 3 d; Conventional 2-4 wk | Instant quote only |
+| Aisler (DE) | 2/4-layer priced | SMD/THT/mixed | EUR 15 fee per customer-supplied assigned part (2023 forum post; page says per-part fee, amount not stated) | not seen | none seen | 1 | 6-12 business days | Job fee + tasks; free shipping worldwide |
+| Eurocircuits (BE) | only boards it makes; up to 340x440 | THT single/double, max 800 THT placements | components not sourceable may be supplied by customer | not read | not read | 1 pc to 50 pcs "small series" | 3/5/7/10 wd | instant price; >200 BOM lines manual quote |
+
+URLs: pcbway.com/assembly-capabilities.html, pcbway.com/oem/electronics-manufacturing, elecrow.com/pcb-assembly.html and /blog/pcb-assembly-services.html, nextpcb.com/pcb-assembly, makerfabs.com/pcb-assembly.html, allpcb.com/pcb-assembly.html, seeedstudio.com/fusion_pcb.html, macrofab.com/pcba/ and /platform, circuithub.com and docs.circuithub.com/placing-an-order/part-consignment, community.aisler.net/t/our-simple-pricing/102, eurocircuits.com/printed-circuit-boards/pcb-assembly/ (404 on canonical, content via second URL), jlcpcb.com/capabilities/pcb-assembly-capabilities, /help/article/pcb-assembly-faqs, /help/article/how-to-consign-parts-to-jlcpcb.
+Caveat: page fetch summaries of PCBWay/Seeed/CircuitHub differ from raw HTML where I re-read raw HTML (PCBWay coating confirmed in raw HTML).
+
+### B. Price level at 30 and 100 units (INFERRED, low confidence)
+- No public numbers. Structure: JLC R21 model 52/45 USD per DB at 30/100 (UNVERIFIED PCB part). Chinese houses (PCBWay, NextPCB) have similar per-board economics (same ecosystem) but charge their own setup/part-handling fees and often mark up parts; expect parity to +20-40% (UNVERIFIED, no source).
+- US assemblers (MacroFab, CircuitHub): published structure only. Typical US/EU quote for a 330-placement 6-layer at 30 pcs is several times JLC (guess 2-3x, UNVERIFIED); exploring requires an account quote (not done: read-only rule).
+- Aisler: structure shows setup EUR 332.50 per SMD side + EUR 3.75 per SMD part + EUR 0.03 placement + EUR 30 THT setup (2023 forum post, series model). For 92 lines: 332.5+345 = about EUR 680 setup alone, plus parts (INFERRED from the old formulas, may be outdated).
+- Fixed fees at JLC for this DB are about $123/order (R21); JLC remains cheapest unless a vendor waives them (NextPCB Rev 0 promo covers only the first order).
+
+### C. Tariff and shipping
+- JLC DDP tariff 35% on PCB+SMT (R21). Chinese alternates are subject to the same US duties (INFERRED, same origin); Elecrow/Makerfabs/Seeed DHL/FedEx routes carry the same tariff stack (R21 UNVERIFIED classification).
+- MacroFab/CircuitHub US-built boards avoid China duties on the assembly but imported parts and bare PCBs are still dutied if made in China; CircuitHub offers "USA or global" fabrication (VERIFIED page); MacroFab says "built in North America" (VERIFIED marketing). Whether their parts BOM duties flow to the customer is not published (UNVERIFIED).
+- EU option Aisler/Eurocircuits for a US customer: shipping and import 2.7% plus 301 does not apply (EU origin) but EU VAT/customs and freight apply (INFERRED).
+- Consigning parts to JLC from outside China costs import deposits and fees (VERIFIED above) and creates a re-export problem: JLC may only resell remaining parts back to the original seller.
+
+### D. Supply side
+- TE 174917-6: available as stock at JLC (32) and at authorised distributors (R24: Newark 471). Cut quantities from Newark/Farnell/RS are the safest. A Chinese turnkey house can buy it from LCSC, Digikey, etc. (NextPCB lists 20 million parts from Digikey, Mouser, Element14, Avnet, RS, TME; VERIFIED claim) so genuine TE stock is orderable by NextPCB-like houses at distributor prices.
+- Clones (R24): Kinkong etc., no data. A turnkey house will happily buy clones; if you consign genuine parts you control provenance.
+- Brokers: SAE AS6081A and ARP6178A govern independent distributors; standards bodies recommend buying from original manufacturer or authorised distributors where possible (SAE G-19 deck, secondary). For connectors, counterfeit risk is lower (no die) but plating/material substitution is possible (INFERRED).
+- JLC stock: STM32F407VGT6 stock 126, 1x40 socket 65, MAP sensor 155 (R21, live 2026-11-15) limit one 100-unit build; alternative houses buy from distributors, relieving it at higher price.
+
+### E. Fulfilment
+| Route | Cost per order (USD) | Notes |
+|---|---|---|
+| Seller packs at home | postage 8-9 commercial GA + signature 4.15 + cover 6.05 + box = about 15-18 (R26) | plus 10-20 min labour (INFERRED); no fixed cost; theft/loss risk stays |
+| Small 3PL | pick/pack 2-3.2 first item (survey avg 3.20), receiving 5-15/pallet, storage 18-25/pallet/month, setup 250-1000 (about half of providers), monthly minimum; real invoices 20-50% above rate card (Eightx); source fulfill.com/3pl-pricing (VERIFIED page read, but figures secondary survey) | Postage same as home or a bit higher; no signature/insurance by default (UNVERIFIED); fixed monthly cost makes it worthwhile only at tens of orders per month (INFERRED) |
+| Assembler ships finished units | not published; PCBWay lists "direct shipping to our end users", labelling, kitting, packaging; Rapid Direct drop-shipping (vendor marketing) | $399 consumer parcel from China = US duties per parcel and importer-of-record issues; returns/RMA impractical (INFERRED). Better: assembler ships a batch to the seller or 3PL. |
+Recommendation (INFERRED): home fulfilment to about 100 units total, then 3PL if over about 40-60 orders per month, always batch-ship inbound.
+
+### F. Staged plan
+1. First 10 units: JLC Economic for DB + one motherboard type; headers from Newark; hand-fit THT. Conformal coat by hand (spray can) at home; programme the F407 over USB-DFU after assembly (JLC programming is "partial" so avoid). Test each unit on a simple jig.
+2. 10-30 units: ask JLC to fit headers/sockets (library part C592838 or consigned): saves roughly 10-20 min per board, costs about $3.58/order + $0.0164 x pads (about 100 pads = $1.6/board). Order motherboards with the same fee structure. Keep Newark spares for stock.
+3. 30-100 units per batch: 100 forces JLC Standard (R21). Still JLC; request quote from NextPCB/PCBWay with consigned TE headers if JLC stock of STM32F407 (126) or sockets (65) run out. Consider US assembler only if customers' tariff pass-through or "made in USA" matters.
+4. 100+ per batch: get quotes from MacroFab/CircuitHub or EU house for the full flow including test, coating, box assembly and fulfilment; a contract manufacturer with ICT/FCT fixtures ($300-1000, Elecrow) pays back when the hand-test time per unit exceeds a few minutes.
+Triggers to leave JLC: (a) customer-visible quality escapes (cold joints on THT headers), (b) stock-outs of scarce parts, (c) need for coating/functional test/serial numbering at scale, (d) tariff cost exceeds the labour saving (35% of about $50-65 board value = $17-23 per board, R21).
+
+## Implications for this project
+1. Goal 5/6: Ask JLC to place J1 (C592838, 32 in stock) and other wave-soldering library parts instead of hand-fitting; fee about $3.58 + $0.0164/joint (VERIFIED fees). Needs `C592838` in BOM instead of "[self-order]" and checking the JLC footprint/CPL. Confidence medium (JLC may decline THT connectors that the preview rejects, not tested).
+2. Goal 2/3: for 100 units JLC stock is insufficient for J1 (32) and the 1x40 socket (65); stock plan: buy genuine 174917-6 from Newark/Farnell (R24) and consign or hand-fit. Confidence high on stock numbers.
+3. Goal 6: Do not switch to a Western assembler for 10-100 units; no published prices, fixed fees likely higher, and Aisler cannot do 6 layers. Revisit at 100+ or for coating/FCT. Confidence medium (price UNVERIFIED).
+4. Goal 4: Add a simple documented bench test and DFU programming step in the repo's assembly docs; vendors' "functional testing" follows only the customer's test procedure (PCBWay VERIFIED; Elecrow "free" with fixture $300-1000), so a test procedure/fixture design is needed whichever route.
+5. Goal 6: Fulfilment at home to about 100 units; a 3PL only with steady volume; keep shipping to buyer with signature (R26).
+6. Goal 5: Tariff 35% is the same for all Chinese houses; to cut it, buy the through-hole bulk parts (MAP sensor, headers) in the US and keep them off JLC invoice (R21).
+7. Goal 1: Consignment adds paperwork and costs (HK shipment, 2% handling, duty deposit); only worth it for the TE headers if JLC cannot supply them.
+
+## Sources actually read
+JLC capabilities, FAQ, consignment guide; PCBWay homepage and OEM page; Elecrow PCBA page and blog; NextPCB assembly page; Makerfabs PCBA page; ALLPCB assembly page; Seeed Fusion page (page fetch summary); MacroFab capabilities and platform pages; CircuitHub homepage and consignment docs; Aisler pricing post and page fetch of assembly page; Eurocircuits capabilities page; fulfill.com 3PL guide; ShipBob pricing page (no numbers); web-search summaries for SAE AS6081 and PCBWay-vs-JLC anecdotes (secondary); kb R21, R24, R26.
+
+## Not checked
+Real instant quotes (need login/JS) for any vendor, so price at 30/100 is not verified; MacroFab/CircuitHub/PCBWay setup and per-joint fees; whether JLC will place C592838, 178780-1 and 353830-5 and the 1x40 sockets; Chinese tariff pass-through for MacroFab/CircuitHub; Seeed THT/consignment policy; ALLPCB consignment/coating; 3PL primary rate cards; quality-escape statistics for any vendor (only anecdotes); broker sites for TE parts; current Aisler pricing (only 2023 post).

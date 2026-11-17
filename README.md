@@ -267,6 +267,7 @@ Check the plug's wiring and the sensor's pins on your car before fitting R28: se
 | `mb/ecu_mb.pretty/` | Project footprints (harness headers named by OEM terminal, the flat MPX5700AP, USB-C, M4 case hole) |
 | `research/` | Pinout research for 1996–2005 (sources compared per pin); the rev 0.10 design audit (every figure the board relies on, its source, and what could not be checked); ST's pin data files |
 | `ordered-boards/2026-11/` | The board set ordered in November 2026 (daughterboard rev 0.9), as ordered |
+| `review/2026-11/` | The November 2026 design review: findings, next steps for the next batch, the full report and the working notes ([start here](review/2026-11/README.md)) |
 | `viewer/` | Interactive 3D viewer: the daughterboard alone, or assembled on any year's motherboard. Click a part for its details and shop links |
 | `firmware/` | The rusEFI board definition, the wideband flasher, the simulation tests and the verification tools. rusEFI itself is a submodule in `firmware/ext/rusefi` |
 | `website/` | A black-and-white Shopify theme for selling the boards, draft product listings and product photos ([website/README.md](website/README.md)) |

@@ -1,0 +1,22 @@
+# P19b harness header TE 178780-1 (76p) / 176122-6 (64p), J1 on 1996-97 and 1999-2000 motherboards
+
+## Summary
+1. VERIFIED: repo footprints TE_178780-1_76P and _76P_NB1 match the Hellen NB1 (ext/hellen-miata-NB1, P2, "hellen-one-common:178780-1") pad-for-pad: all 76 positions within 0.01 mm, pad 1.8 / drill 1.1, 4 pegs 3.5 mm; names identical except 12-bay (XA-XL here vs Hellen 4x). Hellen NA6 uses the same footprint (same coordinates).
+2. VERIFIED (TE drawing 178780 rev P10, via LCSC C5166246 datasheet): pitch/rows/pegs match (rows 0,3.5,6.6,9.6...30.7; 36.65..51.65; row spacing 4.5; peg 5.7 beyond row; pegs at -0.65/34.45/81.85/123.3 from first peg). TE recommends 76 x dia 1.35 +-0.10 holes (position dia 0.2), 4 x dia 3.5 +-0.1. Repo/Hellen drill 1.1 is smaller than TE's 1.35 (post 0.64 sq, diagonal 0.905).
+3. VERIFIED: 64P footprint = 76P with the 12-bay removed: plug1->plug2 offset 36.65 (64P) vs 57.35 (76P), i.e. plugs 2 and 3 are 20.7 mm further from plug 1 on the 76P. 16->26 spacing identical (5.95 gap). The 76P board therefore needs the harness's plug 1 branch to reach 20.7 mm further. Repo claim "harness uses three separate plugs" is plausible; Hellen NB1/NA6 ship on 178780-1 (INFERRED fit, not verified on a car).
+4. Cavity naming: rusEFI wiki 1996 page (fetched today) = plug 1 (22), plug 2 (12, unused on OEM ECU), plug 3 (16), plug 4 (26); 1999 wiki = plug 1/2/3 (22/16/26). Repo naming matches wiki. Hellen NA8-96 names differ (1/4/2/3) but position->net is what matters; NA8 Hellen board not in ext/ so 1996 pad-by-pad vs Hellen NA8 NOT done (only NA6 and NB1 are in ext).
+5. Sourcing 178780-1: JLC/LCSC C5166246 stock 0 (LCSC 18), $24.94@1, $24.23@30; DigiKey 1887 stock EUR16.05@1, 13.47@12, 11.58@102, lead 27 wk, "Active". Octopart snapshot ~ $14.7. Self-order BOM has no LCSC code (hand fitted, ordered from distributor).
+6. 176122-6 (ordered ord_mb9900 board): DigiKey/Mouser/Avnet zero stock, MOQ 1600, lead 20-126 wk (web search, UNVERIFIED dates); small brokers 510-695 pcs min 5-400 at $12.8-18. JLC C5171845 "176122-6" at $0.04 is not this part (price absurd, stock 0). Candidate: TE 178764-1 (DigiKey, 64 pos, flange, 1679 stock, AUD27.28@1 / 22.88@12 / 19.70@100): footprint not verified identical.
+7. 174915-6: TE drawing 174915 rev H7 (LCSC C5166478): 76-pos cap housing, 37 g, pre-tinned x76, JLC/LCSC stock 0, $18.2@1 / $15.9@30 / $14.6@100. 178780 drawing is titled "NON FLANGE", 23.8 g. Mounting-dimension block shows same 4.5/5.7 labels, but footprint equality and flange not verified -> not a proven drop-in.
+
+## Details
+- Repo footprints: pads 1.8 mm, drill 1.1, np pegs 3.5/3.5 (mk_hdr_fp.py:35-37 write()). 64P geometry comes from rusefi_lib 176122-6_2nd (not available here; the rusEFI breakout board in repo/firmware/ext/rusefi/hardware/Breakout_64pin_176122-6-Connector is a different design). 64P pegs at -5.05, 33.80, 60.50, 106.35 (relative 1A): cannot check against a TE 176122 drawing (TE site 403 to scripts; Mouser copy blocked).
+- Placement: cur_mb9697/9900 and ord_mb9697 J1 at (116.0,68.13); ord_mb9900 64P at (126.35,68.13) (origin shifted so plug 1 stays aligned? 1A differs by 10.35 mm -> check this is a deliberate shift to keep plug 1 location) .
+- Net function spot check on cur_mb9900 vs Hellen NB1 (by position): 2B IAT, 2E CLT, 2F KNOCK, 2H cam, 2I 5V, 2J crank, 2K tach, 3A/3B/3C/3F GND, 3E TPS, 3M IACV all agree. Differences: 3Q = Hellen OUT_VICS vs repo OUT_MAINRLY; 1996-97 not compared. (Pinout is another audit's area.)
+- Hellen NB1/NA6 hole 1.1/pad 1.8 identical to repo, so repo copies a design that has been built; TE's 1.35 is a recommendation.
+
+## Sources actually read
+ext/hellen-miata-NB1/hellen64_NB1.kicad_pcb P2 (via pcbnew), ext/hellen-miata-NA6 P2, repo mb/ecu_mb.pretty/*.kicad_mod, scripts/mk_hdr_fp.py, READMEs, research/pinouts_9605.md, evidence pcb_footprints.csv, TE drawings 178780 (P10) and 174915 (H7) from LCSC PDFs (page images), wiki.rusefi.com OEM-connectors / Mazda-Miata-1996 / -1999 pages, DigiKey 178780-1 and 178764-1 pages, web search snippets for 176122-6, tools/lcsc.py.
+
+## Not checked
+TE drawing for 176122-6 and 3-178780-6 (TE site blocks scripted download; no LCSC copy); drill/pad of 64P vs TE; 1996 NA8 Hellen board (absent); physical fit in a real NB1 case or plug slack on a car; 76P housing (130 mm) vs NB1 case window; flange of 174915-6; JLC assembly of J1 (not offered).

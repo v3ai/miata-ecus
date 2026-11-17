@@ -1,0 +1,7 @@
+# C013 verification (primary sources)
+Verdict: PARTLY.
+True: all 5 ordered motherboards (evidence/ord_mb*/pcb_footprints.csv) carry J2 = Molex Micro-Fit 43045-0600 2x3 P3.00 (C127367); pads 1-6 = IP, VM, HTR-, HTR+, RT, UN (pcb_pads.csv). ordered-boards/2026-11/INSTALL.md:88 and :208 say only "a 6-wire lead"/"make or buy the lead", pin map at ~:61. The AEM 30-3427 uses a JST PUD 8-pin plug (repo/research/rev0.10_design_audit.md A13; VERIFICATION.md:896), so it cannot plug into a Micro-Fit header. Ordered docs never mention AEM, so a Bosch-plug-to-Micro-Fit lead is required.
+Not verified / overstated: pigtail 9-20 USD vs AEM 22-51/36 USD prices are web-listing figures I did not re-check (no live check, parts C293525/C490532/C267125 not in parts manifest). "Cannot take AEM harness" is trivial: it is the design intent of the ordered rev, the AEM move (JST PUD) only happened in current rev 0.13/0.9, documented as A13 and review brief sec 6 ("AEM harness never tried"). Not a defect in ordered boards; a UX/BOM note.
+Already documented: partly (INSTALL says make/buy the lead; no BOM for it; A13 documents the series change).
+Affects ordered boards: yes, by construction, but no rework needed; use a seller-made lead (Bosch LSU 4.9 plug + 43025-0600 + crimps).
+Corrected statement: Ordered motherboards have a Micro-Fit 2x3 J2, so AEM's JST PUD harness does not fit; the owner must supply a custom Bosch-plug to 43025-0600 lead, which the ordered INSTALL mentions only generically. Pigtail cost figures are unchecked estimates.

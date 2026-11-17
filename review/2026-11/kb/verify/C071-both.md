@@ -1,0 +1,9 @@
+# C071 verdict: partly (mostly confirmed)
+Checked: tools/lcsc.py live (2026-11-16): C5166246 (178780-1) JLC stock 0, $24.94@1/$24.23@30, LCSC stock 18 -> true. C5166478 (174915-6) stock 0, $18.22@1, 15.89@30, 14.60@100 -> true. C592838 (174917-6, 48P) JLC extended stock 32, $12.92@1..12.16@100 -> true.
+Findchips snapshots (kb/research/files/R24): Newark 178780-1 160 pcs CAD 20.85@1 / 18.60@10 / 15.09@100; 174917-6 Newark 471 pcs CAD 10.66@1; WEE/DigiKey marketplace 2150 pcs 174917-6 at about 5.42 (270 qty). Note Newark prices are CAD and aggregator data; the WEE line describes the part as "40 pin", so check the pin count before ordering.
+Not verified: DigiKey NL EUR figures, 27 wk lead, 37 g vs 23.8 g weights, used-ECU prices (R24.03).
+Mixed claim: the 178780-1 (1996-2000 boards, ord_mb9697/9900) is NOT cheap or JLC-stocked (JLC 0); only 174917-6 (1989-95 boards) is cheap at $6-13. The "C592838 substitute" fix applies to the 48-pin boards only, not the ordered 96-97 board (J1 TE 178780-1 in ord_mb9697 footprints).
+Already documented: partly. review brief sec.6 and VERIFICATION.md:1113 say headers are "not currently available"/salvage-clone and suggest buying ahead; repo claim "174917-6 salvage/clone only" is what is refuted. Self-order BOM lines have no LCSC (parts_manifest.md lines 123,160,189,218).
+Ordered boards: yes affected (headers are hand-fitted self-order parts, nothing to rework on PCB; purely a sourcing fact).
+Corrected statement: 174917-6 (48P) is buyable now (LCSC C592838 stock 32 at ~$12.9; Newark/marketplace ~$5-8 CAD/USD-equivalent); 178780-1 is buyable at Newark (160, CAD 20.85) and LCSC (18, $24.98) but not at JLC (0). Salvage is uneconomic. 174915-6 is a not-proven drop-in.
+Fix: add LCSC/Newark links for J1 in the self-order BOM; confirm stock first; JLC THT assembly of C592838 only for the 48P board (stock 32, extended fee).

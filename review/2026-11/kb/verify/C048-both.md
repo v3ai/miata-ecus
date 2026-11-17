@@ -1,0 +1,4 @@
+# C048 verdict: partly
+Checked: submodule HEAD 1374bd07 dated 2026-10-30 (git log); GitHub compare API 1374bd07...master live today: ahead_by 239 (true). repo/.github/workflows has only firmware.yaml (push trigger) and sim.yaml (on demand); no schedule/bump workflow (true). Pinning is documented (VERIFICATION.md line 11, firmware/README.md line 7). Could not check the "lts" branch handling of the action.
+Not true as a risk: a pinned, simulation-tested commit is the safer practice for a never-run ECU; being behind master is not a defect, and a scheduled auto-bump would add risk. Hardware is unaffected (ordered boards unaffected; firmware is reflashable over USB-C).
+Corrected: pin is 239 commits behind master, with no documented bump/refresh policy. Info/low. Fix: write a one-line policy (when to bump, rerun pin checks and sim) and record the rusEFI commit in release notes.

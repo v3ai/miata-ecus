@@ -1,0 +1,5 @@
+# C144 verdict: confirmed (low, accepted-risk)
+Checked: evidence/*/fab_drc_report.txt. Exactly 4 hole_clearance errors (0.1944 vs 0.25 mm) on all 5 ordered motherboards (ord_mb8993/9495/9697/9900/0105) and 3 current ones; 0 on daughterboards.
+Geometry (ord_mb9495 pcb_pads.csv): J4 NPTH 0.65 mm pegs at x=177.11/182.89, y=204.995; GND pads A1/B12/A12/B1 0.6x1.15 at y=203.92, so the pad corner is about 0.19 mm from the hole edge. Pegs and pads come from the GCT USB4105 footprint (C3020560), not from routing.
+Caveats: 0.25 mm is the project's own board-setup rule; JLC's published NPTH-to-copper minimum is around 0.2 mm (not re-checked live), so 0.194 mm is borderline. Not in VERIFICATION.md (grep: no hit). Affects ordered boards, but a layout change cannot be reworked by hand. Worst case is JLC trimming the pad or flagging it in DFM. GND pad function is unaffected.
+Fix: check JLC DFM/engineering questions on the ordered jobs; for the next rev, shift pads or use JLC's USB4105 library footprint.

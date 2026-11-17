@@ -1,0 +1,6 @@
+# C147 verdict: partly (true but not news; two halves differ in strength)
+Checked: F407 DS (C12345 txt:1893 USB FS 48 MHz from PLL on HSE; :6242 HSI -8/+4.5% -40..105C, +-1% 25C) confirmed. F103 DS (C8734 txt ~3075) HSI -2/+2.5% -40..105C confirmed. Upstream f1_rev3 mcuconf.h:41-50 HSE disabled, PLLSRC HSI x12 = 48 MHz confirmed. Repo miata_f1/mcuconf.h:38-47 uses HSE deliberately (comment says so); VERIFICATION.md:322,333 documents Y101.
+Part 1 (F407 Y1 must stay): true. (Strictly the F407 could run USB from HSI only outside spec; USB FS needs ~0.25%, HSI is far off.) Not a removal candidate at all.
+Part 2 (Y101 optional): true as an option, upstream proves it works. Cost saving overstated: C115962 is 0.1264 at volume tier (0.2461 at qty 1) plus two basic 33 pF caps (~0.01 each), so about 0.15-0.27, not 0.20-0.30, at assembled-board volume nearer 0.15. HSI +2.5% exceeds the ~1.58% classic-CAN tolerance at the extremes, so margin claim is fair but upstream ships it.
+Documented already: yes, design choice is documented in mcuconf.h comment and VERIFICATION.md. Ordered boards: Y101 is on ord_db (BOM Y1,Y101), but removal would be hand rework plus firmware change, not worthwhile.
+Fix: none; keep both. Low-value info item.

@@ -1,0 +1,5 @@
+# C158 verdict: partly
+Confirmed: cjiang FXL0530 datasheet (datasheets/txt/C177247_FXL0530-2R2-M.txt l.90) lists "8. Transportation equipment (automobiles...)" among applications it is not designed or warranted for (generic boilerplate, items 1-12). LCSC grade is "Consumer grade". Live: C177247 stock 50218, $0.1537@1; C408408 (Sunlord MWSA0503S-2R2MT) JLC extended, stock 9837, $0.1303@1 / $0.1028@50, 2.2uH 29mOhm 7A, same 5.4x5.2 mm body.
+Not verified: that Sunlord is better for automotive (its datasheet could not be fetched; consumer-grade shape likely same, not AEC-Q200 either), and "identical land pattern" (not checked here). LCSC itself returned NOT FOUND for C408408, so the repo's note is partly true on the LCSC side; JLC lists it.
+Impact: ~$0.02/board saving; not on ordered boards (cur_db only); repo design.py:221 already documents the swap reason. Neither part is automotive qualified, so benefit is cost only.
+Fix: optional swap to C408408 if stock holds; no technical fault in L1.

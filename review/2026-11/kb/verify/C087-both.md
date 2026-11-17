@@ -1,0 +1,5 @@
+# C087 verdict: partly
+Checked: BOM of ord_db and cur_db uses STM32F407VGT6 (1 MB, parts manifest line 11: "192KB 1MB"). Repo VERIFICATION.md:714 says firmware "Links; 669 kB" (confirmed). STM32F407VET6_Mini.bat in pinned rusEFI (repo/firmware/ext/rusefi) says "this board has only 512K flash so using custom FLASH_ADDR ... len = 450K", with -DEFI_STORAGE_INT_FLASH=FALSE and -DHAL_USE_RTC=FALSE (confirmed). 669 kB > 512 kB is plain arithmetic. NOT checked: the "640,368 bytes hellenNA6 release 2026-11-16" figure (no network check; date is after the brief's today).
+Consequence: a 512 kB part would not hold this project's image. But no board uses a VET6; it is a warning against a future substitution, not a defect. Not a board error, does not affect ordered boards (they carry VGT6). Not documented as a VET6 warning in the repo, but only a hypothetical.
+Corrected statement: This project's firmware links to ~669 kB, so 512 kB F407VE parts (incl. GD/APM clones) cannot be substituted for the VG; the design correctly uses the 1 MB VGT6. Severity info.
+Fix: none; keep VGT6 if cost-cutting.

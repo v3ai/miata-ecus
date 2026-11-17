@@ -1,0 +1,5 @@
+# C069 verdict: partly (true but already documented in one line)
+Checked: kb/interconnect.md lists 1Q/1T (1996-2000 boards) and 3U (2001-05) as "(no net)" on current and ordered boards (lines 394, 596, 638, 818, 1453, 1654, 1696, 1863). 1989-95 1Q is IN_SW2, not the lamp, so "all" boards is wrong; only NB1/NB2.
+repo/VERIFICATION.md line 1122: "NB charge-warning lamp (NB1 1Q, NB2 3U) is not driven." M5 (line 1108) already covers the alternator control wire and the no-pull-up risk, and the firmware ships control off. So the facts are not news; what is new is only the consequence (no bulb check, no failure warning) and the possible no-charge case, which stays unverified (forum thread, not checked).
+Affects ordered boards: yes (1Q/3U unconnected on ord_mb9900, ord_mb0105; ord_mb9697 also 1996-97 NB1). Rework is a wire from a spare low side to 1Q/3U, plus Lua/GPPWM.
+Fix: wire a spare low side to 1Q/3U, state consequence in README, test alternator with 1O/1T open on a car. Severity: low-medium (safety-convenience, documented).

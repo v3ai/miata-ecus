@@ -1,0 +1,5 @@
+# C073 verdict: partly
+Checked: evidence/ord_mb*/pcb_footprints.csv: all 5 ordered MBs have F4 "0.5A hold" 1206 (C70077, datasheet 0.50 A hold / 1.00 A trip), J5 2x8, no D5; OUT_BOOST nets only J5.3+JD1.37. Current scripts/mb_common.py has D5 SS34 + F4 1.1 A. J5-12/13 on ordered MB are UART_TX/RX (J5.12/J5.13), no flex/nitrous pins in ord INSTALL.
+True: no D5, 0.5 A PTC, 16-pin J5 on ordered boards, all five.
+Overstated: ordered daughterboard drives OUT_BOOST with Q7 VND7NV04 (self-clamping, current limit), so missing diode = driver clamp energy stress at PWM, not an immediate fault. Hold current 0.5 A is at 23 C; derating (0.34 A at 60 C) from generic PTC curve, not rechecked. Already documented: repo/ordered-boards/2026-11/INSTALL.md:253 tells user to take the valve 12 V from a fused car supply, not pin 15 ("0.45 A, right at the 0.5 A fuse"); VERIFICATION and mb_*.py changelogs record D5/1.1 A as added in later revs. The flex/nitrous pin-details (PC6/PC7 filters, EXTI7 clash) not rechecked by me.
+Fix: nothing to rework; follow INSTALL (external fused supply, no valve from pin 15). Optionally add an external flyback diode at the valve.

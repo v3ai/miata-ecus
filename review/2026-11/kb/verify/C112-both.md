@@ -1,0 +1,5 @@
+# C112 verdict: confirmed (as an advisory recommendation; not news)
+Checked live today: JLC consign page (2% non-refundable handling, min $10; refundable duty + 13% VAT deposit on (value+duty); JLC may resell only back to the seller; also 3-yr storage then abandoned, retrieval fee 30% min $30, which the claim omits). fulfill.com/3pl-pricing: pick/pack avg $3.20, storage $20.17 (18-25), receiving $10.52 (5-15), setup $250-1000+ (some $0), monthly minimum avg $517 (0-750). Matches claim; secondary survey data. Home shipping $15-18 (R26) and staged plan are the audit's INFERRED judgement, not measured; R21 notes 100 units forces Standard; 35% DDP from JLC FAQ per R21.
+Caveat: 35% applies to PCB/SMT lines; whether it applies to THT parts is unstated. The JLC fitting of the specific THT library parts is unverified.
+(a) Largely already in review brief-adjacent research (R22 summary in kb), not a design finding; no repo doc. (b) Does not affect ordered boards.
+Fix: none for boards; ok as business guidance. Add the 30% retrieval fee and 3-year abandonment to the consignment caveat.

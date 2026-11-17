@@ -1,0 +1,7 @@
+# C017 consequence check
+Verdict: partly. Real but already documented, upstream-inherited, low-medium severity, not hardware.
+- NB VE rows 116-220 kPa = 80 flat: true (repo/firmware/board/miata_nb_tune.cpp:51+). It is a verbatim copy of rusEFI mazda_miata_vvt.cpp:87 (TS2C 2017 export), not "invented" by this project; the file header (line 9) says "Above about 100 kPa the VE table is a flat 80 %: nobody has tuned it under boost". README "What it can't do" says nobody tuned under boost and 1989-97 table stops at 128 kPa. VERIFICATION.md "Base tune and closed-loop fuel" covers STFT.
+- Consequence: only affects boosted NB cars (stock NB never exceeds ~100 kPa). Real VE of a boosted 1.8 is ~90-100+, so 80 under-fuels roughly 10-20 % vs target; STFT power region +10 % / -5 % (miata_board.cpp:173-174) partly covers it, and needs warm engine + wideband. Real risk for turbo owners, nil for stock NA. Cars are sold as a stock-ECU replacement; README does not promise boost fuelling.
+- F02.10 (1.6 VE reused for 1.8): inferred only; I did not verify the table's use per year. It is rusEFI's own presets (setMazdaMiataNA6/NA94/96 shared by rusEFI) so same as upstream; closed loop trims. No ordered-board hardware involvement; firmware flashes later, so "ordered" flag is moot.
+Corrected statement: Base fuel above 116 kPa on NB is a flat 80 % copied from rusEFI; untuned under boost, already disclosed. Severity low/medium (only boosted cars). Not news.
+Fix: cheap one: have a boosted-customer notice (already in README) and a lambda target/boost cut; no board change.

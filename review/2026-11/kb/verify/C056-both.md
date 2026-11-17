@@ -1,0 +1,5 @@
+# C056 verdict: refuted as a finding against this project (true only about Hellen H72)
+Checked: GitHub issue hellen-one #47 (live): reporter saw pop at ~22 V on h72b, 0.5-0.7 ohm short, removing crowbar MOSFET cleared it; maintainer: power12 module's crowbar is the problem, same on b and c; a SOT-23 transistor acting as zener, no fuse on H72. Issue #121 quotes the "more than 24 V may damage module" doc. So the facts about H72 are accurate.
+But this design has no MOSFET crowbar. Input is SMCJ30A (D6) + SS34/B5819W (D7/D8) + PTC F1 (ord: nSMD050-33V, cur: BSMD1812-110-33V) + SMAJ33A D12 (evidence/ord_db and cur_db sch_netlist.xml). The failure mechanism (SOT-23 linear-mode crowbar with no fuse) does not exist here. VERIFICATION.md already covers 24 V jump start, 35 V load dump, PTC 33 V ratings (lines 211-213, 269), and the 24 V/33 V PTC open item.
+Corrected statement: Hellen H72's MOSFET crowbar failed at 22 V; this board uses a TVS + PTC, so no direct consequence. Residual: the generic suggestion (bench-test 24 V / 35 V with current limit on first article) is reasonable but already documented.
+Ordered boards: not affected by the cited failure.

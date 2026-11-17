@@ -1,0 +1,7 @@
+# C029 consequence check
+Verdict: partly.
+Checked: repo/website/products/make_products.py:14 "You add" = LSU 4.9 + lead, vacuum hose, stock case; price 399.00 (products.csv). No IAT, TunerStudio licence, TPS (1989-93 manual) or tune mention on product pages.
+But repo docs already cover most: INSTALL.md:105-117 lists LSU 4.9 0 258 017 025, AEM 30-3427 harness, hose+tee, TunerStudio, optional TPS kit; README.md:206-230 covers IAT and the TPS kit; README:46 says a base tune per year ships. So the omission is on the storefront only, not in the project docs. "Tune" and "coils/injector requirements" are weaker: a base tune is included and injector/coil needs are not a purchase item for a stock car.
+530-620 USD is arithmetic on an unverified basis: 399 + LSU 119 (one vendor kit price) + IAT ~15-25 + optional TS 50-130 (R05.03 itself says secondary source/search snippet; R32.03 says 99.99-129.99) => about 535-675, and TS is optional (free version works for basic use), so a floor of about 535. The AEM harness (not in the finding) adds more. The figure is plausible but not verified; do not publish it as a headline number.
+Not ordered-board related (storefront copy). Not in review brief 6 / VERIFICATION as known (not searched exhaustively).
+Severity: medium, not high (a disclosure/conversion issue, no technical harm; docs already tell buyers). Fix: add IAT, AEM harness, TunerStudio (optional) and TPS to the "You add" row (one-line edit in make_products.py:14), plus optional starter-kit; cheapest fix is the text edit.

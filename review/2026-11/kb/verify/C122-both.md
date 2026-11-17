@@ -1,0 +1,7 @@
+# C122 verdict: partly
+Checked: repo/INSTALL.md section 3 (lines 143-163), repo/README.md line 91, evidence/cur_mb8995/pcb_pads.csv (J4 pads), review brief section 6.
+- TRUE: J2, J4, ribbon and MAP hose all exit the bottom edge; INSTALL itself says the case must be cut, tabulates the openings (J2 24.5 mm, J4 80 mm) and says to fit a grommet. README line 91 states "The stock case has to be cut for the wideband plug, USB-C, MAP hose and ribbon". So B13.03 is already documented by the repo, not news. "Opposite the harness" and "stock case has no opening" are unverified (no case measured; INSTALL says "Unchecked").
+- OVERSTATED: B13.06 says the USB-C loads "SMD pads". J4 (USB4105-GF-A) has 16 SMD signal pads but also 4 plated through-hole shield legs (S1, 1.0 mm pad, 0.6 mm drill, all layers) plus 2 NPTH locating pegs. Shield legs carry the mechanical load, so the strain is not on SMD pads. A cable left plugged with no anchor in a cut hole is a plausible wear/leverage concern, but it is only inferred and is the same as any board-edge USB-C.
+- Not ordered-specific (same on all boards); reworkable only by case/cable choice, not hand rework. The suggestion to move J4 near J2 is a layout change on current boards only.
+Corrected statement: Customer openings (4 cuts) are documented; the only new content is a minor ux suggestion (grommet plus cable tie, or panel pigtail) for a long-term plugged USB-C. Severity low.
+Fix: add one sentence to INSTALL suggesting a zip tie or strain loop for the plugged cable; optionally ship a pigtail. Cost near zero.

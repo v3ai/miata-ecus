@@ -1,0 +1,7 @@
+# C090 verdict: partly (true, but low value, mostly already documented)
+Checked: kb/interconnect.md (cur_mb8995 l.199-205; ord_mb8993 l.1086-1092): 1L=OUT_FAN(JD1.9), 1M=IN_SW1 (R20 NF), 1R=HARN_1R->JP3->OUT_LS7(JD1.12). Same nets on ordered board.
+repo/motherboards/1989-95/README.md l.64-68: 1L "radiator fan relay", 1M "vehicle speed sensor", 1R "A/C extra cooling fan relay (BLK/GRN) on 1990-91, via JP3". Top README l.167 already says early cars switch the fan relay on 1R.
+repo/VERIFICATION.md item 7 (l.124): "1989-93 1L and 1M: 1990 table lists unused; we put fan relay and VSS there ... harmless". Already documented as unverified-on-car. Originating notes cite 1991 wiring diagram (1L/1M empty, 1R BLK-GRN) and rusEFI 1990 table; not re-derived from the FSM by me.
+Corrected: labels for 1L/1M on 1989-93 are speculative (copied from NA6), documented as harmless in VERIFICATION. 1R IS wired to a driver (fan2/LS7 via JP3) on current and ordered boards, so the hardware is right; remaining issue is only the 1L/1M row text and the user-setup advice (use fan2). "no fan lost" rests on thermoswitch behaviour from FSM notes, unverified by me. Also "1R = A/C fan relay" vs "cooling fan relay" naming is ambiguous in sources.
+Ordered boards: doc-only, no rework needed.
+Fix: edit 1989-93 rows of the motherboard README table (1L/1M "unused on 1990-91; verify on your car"), add setup line "fan on fan2".

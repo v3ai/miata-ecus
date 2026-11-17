@@ -1,0 +1,7 @@
+# C126 verdict: partly (low-value, documentation/firmware wish, not a defect)
+Checked: kb/research/R11 section 5 (the proposal itself, marked INFERRED, time estimate 2-3 h is a guess); repo/INSTALL.md section 8 (lines 314-330) and repo/firmware/README.md "First start" (lines 209+).
+- The repo already has a first-start procedure with observable checks (key-on sensor plausibility, throttle calibration, trigger log check with injectors unplugged, timing light at 10 deg, wideband trim check, light-throttle drives). The proposal's added value: explicit pass/fail wording per step, bench-output test, fuel-off during timing check (separate finding R11 item 3, INSTALL.md line 323 says only "Lock the timing"; step 3 "crank ... engine starts" is placed before the timing check), restore-dynamic-timing reminder (INSTALL does say "Unlock it again").
+- Proposed automation (pre-start dialog, auto-reverting modes, support-bundle button) needs rusEFI/TunerStudio firmware work; unverified feasibility, not a board matter.
+- Not a design error; no ordered-board impact (ordered: no). Not in review brief/VERIFICATION open items as such; partially covered by existing docs.
+Corrected statement: INSTALL.md/firmware README already contain a 6-step first start; a stricter 10-step version with explicit pass/fail and fuel-off timing check would be a modest docs improvement; automation features are unscoped firmware work.
+Fix: docs-only edit to INSTALL.md section 8 (reorder timing check before first crank, fuel/injectors disabled). Cost: an hour of writing.

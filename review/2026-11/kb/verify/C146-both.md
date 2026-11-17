@@ -1,0 +1,5 @@
+# C146 verdict: partly (low-value, true but trivial)
+Checked live (tools/lcsc.py today): C14709 BLM18PG121SN1D is BASIC, 0603, 120R@100MHz, 2A, 50mR, stock 1.54M, $0.014@1 (vs extended C80165 220R, 1.4A, $0.0149@1). C17936 4.7k 1206 BASIC $0.0077@1; C26032 3.3k 1206 EXTENDED $0.0046@1. FB1 = C80165 in design.py:177 (VDDA ferrite, +3V3 -> +3V3A).
+True: both swaps are possible and each removes one distinct extended part. Not true / overstated: per-part saving is only the extended-part setup fee (the audits themselves mark ~$3 UNVERIFIED), per-order not per-board; basic parts are not cheaper per unit. R144-147 swap changes pull-down behaviour (3.3k->4.7k), so it is not a free swap. 120R vs 220R changes VDDA filtering (noise margin untested). LEDs: nothing actionable.
+Ordered boards: affects ord_db only as a future-order option; nothing to rework. Not documented in repo as an item that I found (grep VERIFICATION.md for BLM18PG/C14709: no hits).
+Fix: none needed; optionally FB1 -> C14709 on next order if 120R is acceptable; skip the resistor swap.

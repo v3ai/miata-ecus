@@ -1,0 +1,5 @@
+# C085 verdict: partly (true, low impact, not ordered-board hardware)
+Checked: efifeatures.h:56-57 (EFI_LTFT_CONTROL defaults TRUE, with a caveat telling boards to disable it in prepend.txt); long_term_fuel_trim.cpp:6; repo/firmware/board/prepend.txt has no LTFT define; no ltft/long-term text in repo docs outside ext/ (grep).
+Not stated in the claim: defaults. engine_configuration.cpp:409-410 runs setDefaultBaseEngine (ltft.enabled and correctionEnabled both true), then setDefaultFuel, whose setDefaultLtftSettings (default_fuel.cpp:224-231) sets enabled=true, correctionEnabled=false ("allow learning, but do not apply"). Net default is gather on, apply off, so the suggested "safe defaults" are already the shipped defaults. Flash-write behaviour (storage.cpp:109/134) was not examined.
+Ordered boards: firmware only, not hardware; no rework. Documented by repo: no. It is a firmware decision, not a board error.
+Fix: decide ship or not; if not, add #define EFI_LTFT_CONTROL FALSE to prepend.txt; if yes, add a note to the tuning docs.
