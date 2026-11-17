@@ -150,7 +150,7 @@ def parts():
         # shunt clamp (U15/Q20) holds the rail.
         if r in ('R8', 'R9', 'R10'):
             lib = 'Resistor_SMD:R_1206_3216Metric'
-            lc = {'R8': 'C17969', 'R9': 'C17903', 'R10': 'C25341'}[r]
+            lc = {'R8': 'C17969', 'R9': 'C17903', 'R10': 'C17971'}[r]
         if r in ('R9', 'C4', 'R3'):          # sensor side of R109 is now the node behind the fuse
             pads = {k: ('WB_VMS' if v == 'LSU_VM' else v) for k, v in pads.items()}
         out.append(dict(ref=ref(r), value=val, fp=lib, lcsc=lc, pads=pads, desc=DESC.get(r, 'wideband'),
