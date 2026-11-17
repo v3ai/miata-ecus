@@ -6,13 +6,13 @@ board renders on white. [`preview/`](preview/) renders the same Liquid without a
 | Folder | What's in it |
 |---|---|
 | `theme/` | The theme (Online Store 2.0). Zipped as `mono-theme.zip` |
-| `products/` | `products.csv`: five draft products to import, one per model-year range at $399, with descriptions and spec tables. `make_products.py` rebuilds it |
+| `products/` | `products.csv`: five draft products to import, one per model-year range, each with two options: board only at $350 or a complete kit at $500 (sensor, lead, vacuum hose, USB cable). Descriptions and spec tables included. `make_products.py` rebuilds it |
 | `product-images/` | The renders to upload as product photos (`scripts/render_photos.py` redraws them and the theme's own copies from the current boards) |
 | `preview/` | `render.js` (static preview with liquidjs) and `prep_images.py` (fits viewer renders into the theme's frames) |
 
 ## Setting up the store
 1. **Theme:** Online Store → Themes → Add theme → Upload zip file → `mono-theme.zip`. Customise, then Publish.
-2. **Products:** Products → Import → `products/products.csv`. All five come in as **drafts at $399**: upload each
+2. **Products:** Products → Import → `products/products.csv`. All five come in as **drafts, $350 board only or $500 complete kit**: upload each
    one's photo from `product-images/` (`ecu-8993.jpg` for 1989–93 and so on; 1989–93 and 1994–95 are the same board, so their two photos are the same render), then set it to Active when you're ready to
    sell. (The theme shows "Coming soon" instead of "Sold out" on any product tagged `coming-soon`.)
 3. **Collection:** make one (e.g. "ECUs") with the products, and pick it in the homepage's *Shop* section.

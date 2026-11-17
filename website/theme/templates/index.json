@@ -18,7 +18,7 @@
         "meta-3": {
           "type": "meta",
           "settings": {
-            "text": "$399"
+            "text": "From $350"
           }
         }
       },
@@ -30,7 +30,7 @@
       "settings": {
         "eyebrow": "Plug-in · wideband built in",
         "heading": "The most affordable\nMiata EFI.",
-        "text": "<p>$399. A rusEFI engine computer that plugs into the stock harness, fits the stock case and runs its own wideband. No other plug-in Miata ECU with a built-in wideband costs less.</p>",
+        "text": "<p>$350, or $500 as a complete kit with the wideband sensor, its lead, the vacuum hose and a USB cable. A rusEFI engine computer that plugs into the stock harness, fits the stock case and runs its own wideband. No other plug-in Miata ECU with a built-in wideband costs less.</p>",
         "button_label": "Shop",
         "button_link": "#shop",
         "button_label_2": "How it works",

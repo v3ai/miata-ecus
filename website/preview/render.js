@@ -118,14 +118,25 @@ settings.type_heading_font = { family: 'Jost', fallback_families: 'sans-serif', 
 settings.type_body_font = { family: 'Jost', fallback_families: 'sans-serif', weight: 400 };
 
 const PAGES = { home: 'index.html', product: 'product.html', cart: 'cart.html', collection: 'collection.html' };
+// Variants from products.json (Package: Board only / Complete kit); a product without them gets one default variant
+function variantsOf(p, i) {
+  const vs = (p.variants && p.variants.length ? p.variants : [{ title: 'Default Title', price: '399.00' }])
+    .map((v, k) => ({ id: 1000 + 10 * i + k, title: v.title, price: Math.round(parseFloat(v.price) * 100), available: true, options: [v.title] }));
+  const only = vs.length === 1 && vs[0].title === 'Default Title';
+  const prices = vs.map((v) => v.price);
+  return {
+    price: Math.min(...prices), compare_at_price: null, price_varies: new Set(prices).size > 1, available: true,
+    has_only_default_variant: only,
+    options_with_values: only ? [] : [{ name: 'Package', position: 1, values: vs.map((v) => v.title), selected_value: vs[0].title }],
+    variants: vs,
+  };
+}
 const products = PRODUCTS.map((p, i) => {
   const img = { src: `assets/${p.image}-1200.jpg`, alt: p.title, media_type: 'image' };
   return {
     id: i + 1, title: p.title, handle: p.handle, url: PAGES.product, type: p.type, description: p.body, tags: p.tags.split(', '),
     featured_media: img, media: [img, { src: 'assets/render-assembly-lifted-1200.jpg', alt: 'Exploded', media_type: 'image' }],
-    price: 39900, compare_at_price: null, price_varies: false, available: true,
-    has_only_default_variant: true, options_with_values: [],
-    variants: [{ id: 1000 + i, title: 'Default Title', price: 39900, available: true, options: ['Default Title'] }],
+    ...variantsOf(p, i),
   };
 });
 products.forEach((p) => { p.selected_or_first_available_variant = p.variants[0]; });
@@ -198,7 +209,7 @@ async function page(file, template, scopeExtra, overrides) {
   const product = products[0];
   await page(PAGES.product, 'product', { product, page_title: product.title });
   await page(PAGES.collection, 'collection', { collection, page_title: 'Shop' });
-  const item = { url: PAGES.product, image: product.featured_media, product, variant: product.variants[0], properties: [], final_price: 39900,
-    final_line_price: 39900, quantity: 1, key: 'k1', url_to_remove: '#', line_level_discount_allocations: [] };
-  await page(PAGES.cart, 'cart', { cart: { item_count: 1, items: [item], total_price: 39900, cart_level_discount_applications: [], currency: { iso_code: 'USD' } }, page_title: 'Cart' });
+  const item = { url: PAGES.product, image: product.featured_media, product, variant: product.variants[0], properties: [], final_price: product.variants[0].price,
+    final_line_price: product.variants[0].price, quantity: 1, key: 'k1', url_to_remove: '#', line_level_discount_allocations: [] };
+  await page(PAGES.cart, 'cart', { cart: { item_count: 1, items: [item], total_price: product.variants[0].price, cart_level_discount_applications: [], currency: { iso_code: 'USD' } }, page_title: 'Cart' });
 })().catch((e) => { console.error(e); process.exit(1); });
