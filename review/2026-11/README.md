@@ -9,6 +9,7 @@ No board had been built when this was written. Everything here comes from the de
 | File | What it is |
 |---|---|
 | [NEXT-BATCH.md](NEXT-BATCH.md) | The findings that shape the next batch, the next steps in order, the open decisions, and a register of the verified claims |
+| [NEXT-REV.md](NEXT-REV.md) | The change list for the next board revision (rev 0.11): no via in any SMD pad, a GM air-temperature sensor on every year, part fixes, firmware, and the state of the work |
 | [REPORT.md](REPORT.md) | The full report: errors and bring-up (S1), removals and cheaper parts (S2), cost model (S3), customer experience (S4), packaging and shipping (S5), background research (S6) |
 
 The headline finding: **R110 on the daughterboard is fitted as 0.62 Ω (LCSC C25341) where the wideband circuit needs 62 Ω (C17971)**, in rev 0.9 and rev 0.10.
