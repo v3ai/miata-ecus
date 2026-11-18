@@ -61,7 +61,7 @@ the row nearer the daughterboard.
 | 19 | CAN H | CAN bus, 500 kbit/s: the bus the on-board wideband reports on |
 | 20 | CAN L | |
 
-Pins 12 and 13 need a rev 0.10 daughterboard.
+Pins 12 and 13 need a rev 0.10 or later daughterboard.
 
 **J2, wideband sensor** (JST PUD header S08B-PUDSS-1: two rows of four at 2 mm), for **AEM's X-Series sensor harness
 30-3427**, which has the Bosch LSU 4.9 plug on its other end. Pin 1 is at the left. Pins 1 and 2 are the first
@@ -192,7 +192,7 @@ carpet up again.
 - **Sustained high rpm:** on the stock wiring one driver and one clamp in the ECU work each pair of injectors, and
   each wire opens once per revolution. That is how rusEFI's and Speeduino's boards run these cars, and it is the
   hottest arrangement for this board: with high-inductance injectors (20 mH) held at 7200 rpm the model keeps the
-  clamp inside its rating only while the air around the board is below about 34–47 °C (at 5000 rpm, 61–72 °C).
+  clamp inside its rating only while the air around the board is below about 33–46 °C (at 5000 rpm, 61–72 °C).
   With 8 mH injectors there is ample margin. So measure one injector's inductance
   ([why](README.md#things-to-know-before-ordering)), and for track use do one of these, both **unchecked**:
   - set the injection **Mode** to **Sequential** in TunerStudio. With no shunts on JP1 and JP2 each wire then opens
@@ -356,7 +356,7 @@ Reconnect the battery and plug the harness in. Then follow
 | Coil-on-plug, one coil per cylinder | Cylinder 1 on the stock coil 1&4 signal wire, cylinder 3 on the stock coil 2&3 wire, cylinder 2 on pin 1, cylinder 4 on pin 2. Coils with built-in igniters only (5 V logic) | Ignition mode: sequential; set the dwell for your coils first |
 | Coil-on-plug, wasted spark | No ECU wiring: the conversion harness uses the two stock signals | Set the dwell for your coils first |
 
-Flex fuel and nitrous need a rev 0.10 daughterboard.
+Flex fuel and nitrous need a rev 0.10 or later daughterboard.
 
 **1990 to early 1995 with coil-on-plug:** the tachometer was fed by the stock igniter. With the igniter gone, fit JP5
 on the 1989–95 board, set the tach output in TunerStudio and join the two tach wires at the old igniter plug. With the

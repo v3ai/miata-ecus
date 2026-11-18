@@ -796,15 +796,17 @@ path (pessimistic), and with them leading into the motherboard (an estimate). It
 source on one square inch of copper, where datasheets quote 40-50 °C/W (as recalled, not re-read), so the model
 errs warm if anything.
 
-Rise above the air around the board, sustained 7200 rpm, 20 mH injectors (without pins / with pins):
+Rise above the air around the board, sustained 7200 rpm, 20 mH injectors (without pins / with pins). Re-run on the
+rev 0.11 board, whose tab vias sit in the tab copper around the driver tabs instead of in the tab pads: the
+1989-93 cases are 1-2 °C warmer at the drivers and 1 °C at the clamps than on rev 0.10, the rest unchanged.
 
 | | Board, mean | Injector drivers | Clamp TVSs | Processor |
 |---|---|---|---|---|
 | Sequential (1994-2005), 5.9 W | 31 / 23 °C | 41 / 30 °C | 52 / 43 °C | 40 / 32 °C |
-| 1989-93 as set up since 2026-11-15: one driver per wire, batch, 8.6 W | 46 / 33 °C | 72 / 54 °C | 116 / 103 °C | 56 / 45 °C |
-| 1989-93, one driver per wire, sequential mode (one opening per cycle), 6.5 W | 34 / 25 °C | 53 / 41 °C | 71 / 61 °C | 43 / 35 °C |
+| 1989-93 as set up since 2026-11-15: one driver per wire, batch, 8.6 W | 46 / 34 °C | 73 / 56 °C | 117 / 104 °C | 56 / 45 °C |
+| 1989-93, one driver per wire, sequential mode (one opening per cycle), 6.5 W | 34 / 25 °C | 55 / 42 °C | 72 / 62 °C | 43 / 35 °C |
 | 1989-93 with shunts on PAIR (until 2026-11-15), clamps sharing, 8.0 W | 43 / 31 °C | 58 / 43 °C | 84 / 72 °C | 52 / 42 °C |
-| 1989-93 with shunts on PAIR, one clamp of each pair taking all | 43 / 31 °C | 60 / 44 °C | 111 / 99 °C | 54 / 43 °C |
+| 1989-93 with shunts on PAIR, one clamp of each pair taking all | 43 / 31 °C | 60 / 45 °C | 112 / 100 °C | 54 / 43 °C |
 
 What that means:
 - **The board as a whole warms by 23-46 °C at sustained high rpm.** The earlier, per-part estimates missed this. It
@@ -814,11 +816,11 @@ What that means:
   Decided 2026-11-15: the standard grade stays, as on every other board read
   ([research/other_miata_pnp_boards.md](research/other_miata_pnp_boards.md)).
 - **Clamp TVSs** (150 °C since 2026-11-15): inside their rating to 98-107 °C air on sequential cars. On a
-  stock-wired 1989-93 car, one driver per wire: to 34-47 °C in batch mode and 79-89 °C in sequential mode. With
-  shunts on PAIR: to 66-78 °C when the two clamps on a wire share, and to 39-51 °C in the worst pairing. The
+  stock-wired 1989-93 car, one driver per wire: to 33-46 °C in batch mode and 78-88 °C in sequential mode. With
+  shunts on PAIR: to 66-78 °C when the two clamps on a wire share, and to 38-50 °C in the worst pairing. The
   185 °C part named first would add 35 °C to each figure; it cannot be bought at JLCPCB.
-- **Drivers** (150 °C shutdown): 90 °C air or more, except with one driver per wire in batch mode: 78-96 °C.
-- **With 8 mH injectors** the clamps take 0.8 W in total instead of 2.0 W (sequential). The processor is then 26-32 °C
+- **Drivers** (150 °C shutdown): 90 °C air or more, except with one driver per wire in batch mode: 77-94 °C.
+- **With 8 mH injectors** (run on rev 0.10) the clamps take 0.8 W in total instead of 2.0 W (sequential). The processor is then 26-32 °C
   above the air in sequential years and 33-40 °C on a stock-wired 1989-93 car, and that car's hottest clamp 53-62 °C
   (inside a 150 °C rating to 88-97 °C air).
 - "Air around the board" is the air inside the ECU case, which is warmer than the cabin.

@@ -2731,7 +2731,7 @@
     (stroke (width 0.1) (type default)) (layer "Edge.Cuts") (tstamp f9144b21-2a20-4595-aa6e-01b232bce05e))
   (gr_arc (start 112.5 53) (mid 113.378679 50.878679) (end 115.5 50)
     (stroke (width 0.1) (type default)) (layer "Edge.Cuts") (tstamp fb678e0a-6e33-4b7e-bf42-4e76e69202fb))
-  (gr_text "Miata ECU motherboard 2001-2005 (NB2, VVT)  rev 0.9" (at 177 84) (layer "F.SilkS") (tstamp 2efe95eb-a399-4756-881e-6e128d3b6237)
+  (gr_text "Miata ECU motherboard 2001-2005 (NB2, VVT)  rev 0.10" (at 177 84) (layer "F.SilkS") (tstamp 2efe95eb-a399-4756-881e-6e128d3b6237)
     (effects (font (size 1.6 1.6) (thickness 0.22)))
   )
   (gr_text "AEM 30-3427 (JST PUD)" (at 130.7 199.7) (layer "F.SilkS") (tstamp 56a71dc2-3c87-4920-900e-099dd93a0c99)

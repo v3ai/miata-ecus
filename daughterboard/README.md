@@ -1,17 +1,18 @@
-# Miata ECU — daughterboard rev 0.10 (routed, unverified)
+# Miata ECU — daughterboard rev 0.11 (routed, unverified)
 
 125 × 76 mm, **6 layers**. All SMD parts are on top; the two 1×40 2.54 mm male headers are mounted on the
 **bottom side** (plastic under the board, pins pointing down) so the board plugs straight into female
 headers on the year-specific motherboard. J1 on the top edge carries power and outputs, J2 on the
 bottom edge carries inputs, comms and the LSU 4.9 wideband sensor.
 
-## Rev 0.11 (in progress on branch `no-via-in-pad`, not released)
+## What changed in rev 0.11
 - **No via in or within 0.1 mm of any SMD pad.** The 200 vias that sat in the eight driver tab pads are now in the
   tabs' drain copper around the pads, and the other in-pad vias moved beside their pads with stubs as wide as the
   track they continue (`scripts/via_out_of_pad.py`, then `scripts/via_ripup.py` and `scripts/finish_route.py` where a
   via had no free spot). No filled vias are needed. `scripts/jlc_fab_check.py` now fails a release with a via in a pad.
 - **R110 is 62 Ω (C17971),** not the 0.62 Ω part (C25341) that rev 0.9 and rev 0.10 list.
-- The fab files in `fab/` are still rev 0.10's until the rev 0.11 release regenerates them.
+- Otherwise the same board as rev 0.10: same parts, placement, outline and pinout. Rev 0.11 goes with motherboard
+  rev 0.14 (1989-95) or 0.10 (1996-2005).
 - The change list behind this revision: [review/2026-11/NEXT-REV.md](../review/2026-11/NEXT-REV.md).
 
 ## What changed in rev 0.10
@@ -277,9 +278,9 @@ new parts have new numbers.
 | `miata_ecu_daughter.kicad_pro / .kicad_sch / .kicad_pcb` | KiCad 7.0.11 project: root schematic, board (opens in 8/9) |
 | `mcu / power / outputs / inputs / connectors / wideband .kicad_sch` | Schematic sub-sheets, one per functional block |
 | `miata_ecu_daughter_schematic.pdf` | All schematic pages as a PDF |
-| `fab/miata-ecu-daughterboard-rev0.10_jlcpcb_gerbers.zip` | Gerbers + drill files for JLCPCB (6-layer) |
-| `fab/miata-ecu-daughterboard-rev0.10_jlcpcb_bom.csv`, `fab/miata-ecu-daughterboard-rev0.10_jlcpcb_cpl.csv` | JLC assembly BOM and placement file: every part except the two bottom-side 1×40 headers |
-| `fab/miata-ecu-daughterboard-rev0.10_self_order_bom.csv` | What you order and fit yourself: the J1/J2 1×40 pin headers |
+| `fab/miata-ecu-daughterboard-rev0.11_jlcpcb_gerbers.zip` | Gerbers + drill files for JLCPCB (6-layer) |
+| `fab/miata-ecu-daughterboard-rev0.11_jlcpcb_bom.csv`, `fab/miata-ecu-daughterboard-rev0.11_jlcpcb_cpl.csv` | JLC assembly BOM and placement file: every part except the two bottom-side 1×40 headers |
+| `fab/miata-ecu-daughterboard-rev0.11_self_order_bom.csv` | What you order and fit yourself: the J1/J2 1×40 pin headers |
 | `fab/drc_report.txt`, `fab/track_current.txt` | KiCad DRC; track width against current, layer by layer (`scripts/track_current.py`) |
 | `miata_ecu_daughterboard_parts.xlsx` | Parts list by function, J1/J2 pinout, MCU pin map |
 | `../scripts/` (repo top level) | The design source: `design.py` (parts + netlist), `placement.py`, `build_pcb.py`, `route.py`, `wideband.py` (the wideband circuit, mapped from the FOME module in `wideband_ref/` under its MIT licence), `wb_clean.py` (its rev 0.3 placement and heater copper; `wb_preview.py` draws a placement preview), `wb_build.py` (the rev 0.2 transplant, kept for reference), `daughter_finish.py`, `tab_copper.py` (the drivers' drain copper), `hand_route.py` / `hand_route_all.py` / `clean_dangling.py` (the rev 0.8 hand routes and cleanup) |
@@ -367,7 +368,7 @@ that needs the same hand finishing.
 2. **Part rotations.** Check every rotation in JLC's assembly preview. JLC's footprint orientation differs from KiCad's for some packages (SOT-223, SOIC, QSOP). New in rev 0.10 and never checked there: the card socket J4, the clamp TVSs and diodes.
 3. **Ignition outputs.** The 10 nF caps from the hellen ignition outputs were left off to keep the column tidy. If you want them back, add them on the motherboard next to the coil connector.
 4. **Headers on the bottom.** J1/J2 are not in the JLC BOM or CPL (they'd need bottom-side assembly). They're in
-   `fab/miata-ecu-daughterboard-rev0.10_self_order_bom.csv`: hand-solder them, squared up against a motherboard's female sockets while the solder
+   `fab/miata-ecu-daughterboard-rev0.11_self_order_bom.csv`: hand-solder them, squared up against a motherboard's female sockets while the solder
    sets.
 5. **Schematic and layout review.** No person has reviewed the schematic yet. The wideband *circuit* is the proven FOME design, but since rev 0.3 its *layout* is new to this board, so it no longer inherits the module's proven layout. Bring up the wideband on the first boards before relying on it (heater control, pump current, and lambda reading against a known sensor).
 6. **Wideband first flash.** It goes through the main MCU (rev 0.4), so no extra cable is needed: the board's rusEFI firmware has the programming feature (`wbo_uart_flash`). A Tag-Connect TC2030-NL cable on J102 is the fallback.

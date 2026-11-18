@@ -18,7 +18,7 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 </tr>
 <tr>
 <td align="center"><sub>Daughterboard lifted off its sockets and standoffs</sub></td>
-<td align="center"><sub>The universal daughterboard (rev 0.10)</sub></td>
+<td align="center"><sub>The universal daughterboard (rev 0.11)</sub></td>
 </tr>
 </table>
 
@@ -167,23 +167,30 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
 > shunt. The boards themselves are unchanged
 > ([what it means](VERIFICATION.md#1989-93-one-driver-per-injector-wire-2026-11-15)).
 >
+> **Rev 0.11 (2026-11-18; motherboards rev 0.14 / 0.10):** no via in or against any SMD pad on any board, so the
+> boards need no filled vias. The vias that sat in the driver tabs are now in the tab copper around them, the others
+> beside their pads; every board passes KiCad's DRC with nothing unconnected, and the release check now fails a board
+> with a via in a pad. Every unit ships with a GM air-temperature sensor for the car's own IAT wires, and the 1989–93
+> fuel pump runs from the airflow meter's old signal wire (JP6 on BOOST). R110 is the 62 Ω part. The change list:
+> [review/2026-11/NEXT-REV.md](review/2026-11/NEXT-REV.md).
+>
 > **The boards ordered in November 2026** are the set before this (daughterboard rev 0.9). Their files are kept in
 > [`ordered-boards/2026-11/`](ordered-boards/2026-11/); what the rev 0.10 review means for them is in
 > [VERIFICATION.md](VERIFICATION.md#the-ordered-rev-09-boards).
 
 | Board | Folder | Rev | Harness header | Case fit |
 |---|---|---|---|---|
-| Daughterboard (all years) | [`daughterboard/`](daughterboard/) | 0.10 | 2 × 1×40 to the motherboard | 125 × 76 mm, 6 layers |
-| 1989–95 (NA6 and NA8; jumpers set 1989–93 or 1994–95) | [`motherboards/1989-95/`](motherboards/1989-95/) | 0.13 | TE 174917-6, 48 pins | stock NA case outline |
-| 1996–97 (NA8, OBD-II) | [`motherboards/1996-97/`](motherboards/1996-97/) | 0.9 | TE 178780-1, 76 positions | **provisional** (NA outline) |
-| 1999–2000 (NB1) | [`motherboards/1999-2000/`](motherboards/1999-2000/) | 0.9 | TE 178780-1, as 1996–97 (the car's own is the 64-position 176122-6; its plugs are the same housings) | **provisional** (NA outline) |
-| 2001–05 (NB2, VVT) | [`motherboards/2001-05/`](motherboards/2001-05/) | 0.9 | TE 353830-5, 72 positions | **provisional** (NA outline) |
+| Daughterboard (all years) | [`daughterboard/`](daughterboard/) | 0.11 | 2 × 1×40 to the motherboard | 125 × 76 mm, 6 layers |
+| 1989–95 (NA6 and NA8; jumpers set 1989–93 or 1994–95) | [`motherboards/1989-95/`](motherboards/1989-95/) | 0.14 | TE 174917-6, 48 pins | stock NA case outline |
+| 1996–97 (NA8, OBD-II) | [`motherboards/1996-97/`](motherboards/1996-97/) | 0.10 | TE 178780-1, 76 positions | **provisional** (NA outline) |
+| 1999–2000 (NB1) | [`motherboards/1999-2000/`](motherboards/1999-2000/) | 0.10 | TE 178780-1, as 1996–97 (the car's own is the 64-position 176122-6; its plugs are the same housings) | **provisional** (NA outline) |
+| 2001–05 (NB2, VVT) | [`motherboards/2001-05/`](motherboards/2001-05/) | 0.10 | TE 353830-5, 72 positions | **provisional** (NA outline) |
 
 Each board folder contains:
 - the KiCad 7 project (schematic and board);
 - a schematic PDF;
 - JLCPCB gerbers, BOM and placement files in `fab/`, with the DRC report, named for the board and revision (for example
-  `miata-ecu-motherboard-1989-95-rev0.13_jlcpcb_gerbers.zip`). The JLC BOM is the SMD parts (and USB-C);
+  `miata-ecu-motherboard-1989-95-rev0.14_jlcpcb_gerbers.zip`). The JLC BOM is the SMD parts (and USB-C);
   `…_self_order_bom.csv` is everything you order and solder yourself, and
   [`additional-parts/order_all_boards.csv`](additional-parts/order_all_boards.csv) adds up every motherboard, a daughterboard for each and the in-car parts
   (the same list as a page with quantities and tick boxes: [`additional-parts/shopping_list.html`](additional-parts/shopping_list.html));
@@ -241,8 +248,8 @@ Check the plug's wiring and the sensor's pins on your car before fitting R28: se
 - **1990–93 cars at sustained high rpm.** On the stock paired wiring one driver and one clamp TVS work each pair
   of injectors, as on rusEFI's and Speeduino's boards, and each wire opens once per revolution. For this board that
   is the hottest arrangement: with 20 mH injectors held at 7200 rpm the model keeps that clamp (a 150 °C part) inside
-  its rating only up to 34–47 °C around the board, and up to 61–72 °C at 5000 rpm. With 8 mH injectors it is about
-  90 °C at 7200 rpm. For track use, set the injection mode to sequential (no rewiring: 79–89 °C at 7200 rpm) or
+  its rating only up to 33–46 °C around the board, and up to 61–72 °C at 5000 rpm. With 8 mH injectors it is about
+  90 °C at 7200 rpm. For track use, set the injection mode to sequential (no rewiring: 78–88 °C at 7200 rpm) or
   convert the car to one wire per injector (about 100 °C). Both are untried:
   [INSTALL.md](INSTALL.md#4-year-specific-steps).
 - **The wideband connector has not been tried with a harness.** The motherboards carry a JST PUD header

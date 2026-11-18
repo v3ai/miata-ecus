@@ -23,7 +23,7 @@ YEARS = {   # viewer key: (file suffix, title, motherboard folder, pcb file, har
     '9900': ('1999-2000', '1999–2000 (NB)', '1999-2000', 'miata_mb_9900.kicad_pcb', 'TE 178780-1, 76 positions'),
     '0105': ('2001-05', '2001–05 (NB, VVT)', '2001-05', 'miata_mb_0105.kicad_pcb', 'TE 353830-5, 72 positions'),
 }
-DAUGHTER_REV = '0.10'
+DAUGHTER_REV = '0.11'
 
 # ---- what gets a label -------------------------------------------------------------------------------------------
 # target: 'mb:REF' / 'd:REF' = a part on the motherboard / daughterboard; 'mbhole:N' / 'dhole:N' = a mounting hole.
@@ -78,7 +78,7 @@ MB_EXTRA = {
              ('mb:JP4', '1994–95 jumper (JP4)', 'Fitted on 1994–95 (pressure-regulator solenoid). Open on 1989–93.'),
              ('mb:R28', 'Throttle-sensor links (R28–R30)', 'R29 is fitted. For a real throttle position sensor on a manual car: fit R28, move R29 to R30.'),
              ('mb:R30', None, None),
-             ('mb:D3', 'Spare injector clamps (D3, D4)', 'Not fitted: a rev 0.10 daughterboard clamps each injector itself.')],
+             ('mb:D3', 'Spare injector clamps (D3, D4)', 'Not fitted: a rev 0.10 or later daughterboard clamps each injector itself.')],
     '9900': [('mb:F2', 'Idle-valve fuse (F2)', 'Resets itself.')],
     '0105': [('mb:F2', 'Idle-valve fuse (F2)', 'Resets itself.'), ('mb:F3', 'VVT-valve fuse (F3)', 'Resets itself.')],
 }
@@ -398,7 +398,7 @@ svg text{{font-family:Inter,"DejaVu Sans",Arial,sans-serif}}
 <p class="sub">Looking down on the motherboard, the way the labelled pictures show it, with the connector edge toward you. Pin 1 is the red square. The same on all four motherboards.</p>
 <div class="grid">
 <div class="card"><h2>J5 · Add-on header (2×10 box header, 2.54 mm)</h2><p class="what">Everything the stock harness has no wire for. A 20-way ribbon cable plugs in.</p>
-<div class="row">{diagram('J5', AUX_NAMES, 17, 15, 'Odd pins are the row nearer the daughterboard, even pins the row nearer the board edge. Pin 1 is on the right. Pins 12 and 13 need a rev 0.10 daughterboard.')}</div></div>
+<div class="row">{diagram('J5', AUX_NAMES, 17, 15, 'Odd pins are the row nearer the daughterboard, even pins the row nearer the board edge. Pin 1 is on the right. Pins 12 and 13 need a rev 0.10 or later daughterboard.')}</div></div>
 <div class="card"><h2>J2 · Wideband sensor (JST PUD, 2×4, 2 mm)</h2><p class="what">Takes AEM’s X-Series sensor harness 30-3427, which has the Bosch LSU 4.9 plug on its other end. The ring round each pad is the harness wire’s colour.</p>
 <div class="row">{diagram('J2', LSU_NAMES, 44, 15, 'The pads as soldered, pin 1 on the left. Odd pins are the row away from the board edge. The same colours are printed on the board beside the connector: compare them with the harness before the first use.', WIRE)}</div></div>
 </div>

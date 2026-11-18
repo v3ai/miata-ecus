@@ -67,9 +67,9 @@ Daughterboard,"3.3k (Chip Resistor - Surface Mount, 1206)","R144,R145,R146,R147"
 Daughterboard,"BLM18PG221 (Ferrite Beads, 0603)",FB1,1,0.0149,0.01,Murata Electronics,BLM18PG221SN1D,JLCPCB (LCSC part),C80165,JLCPCB assembly,Yes,188414,"JLCPCB parts library, read 2026-11-17",live,
 Daughterboard,"YELLOW (LED Indication - Discrete, 0603)",D3,1,0.0106,0.01,Hubei KENTO Elec,KT-0603Y,JLCPCB (LCSC part),C2287,JLCPCB assembly,Yes,48435,"JLCPCB parts library, read 2026-11-17",live,
 Daughterboard,"BAT54A (Schottky Diodes, SOT-23)",D35,1,0.0097,0.01,JSMSEMI,BAT54A,JLCPCB (LCSC part),C916423,JLCPCB assembly,Yes,12053,"JLCPCB parts library, read 2026-11-17",live,
-Daughterboard,"62 (Chip Resistor - Surface Mount, 1206)",R110,1,0.0080,0.01,UNI-ROYAL(Uniroyal Elec),1206W4F620LT5E,JLCPCB (LCSC part),C25341,JLCPCB assembly,Yes,30720,"JLCPCB parts library, read 2026-11-17",live,REVIEW: wrong value. This is 0.62 ohm; R110 needs 62 ohm (C17971)
 Daughterboard,"220p (Multilayer Ceramic Capacitors MLCC - SMD/SMT, 0603)",C21,1,0.0067,0.01,Samsung Electro-Mechanics,CL10B221KB8NNNC,JLCPCB (LCSC part),C1603,JLCPCB assembly,Yes,802799,"JLCPCB parts library, read 2026-11-17",live,
 Daughterboard,"10 (Chip Resistor - Surface Mount, 1206)",R109,1,0.0061,0.01,UNI-ROYAL(Uniroyal Elec),1206W4F100JT5E,JLCPCB (LCSC part),C17903,JLCPCB assembly,Yes,1334509,"JLCPCB parts library, read 2026-11-17",live,
+Daughterboard,"62 (Chip Resistor - Surface Mount, 1206)",R110,1,0.0053,0.01,UNI-ROYAL(Uniroyal Elec),1206W4F620JT5E,JLCPCB (LCSC part),C17971,JLCPCB assembly,Yes,117671,"JLCPCB parts library, read 2026-11-17",live,
 Daughterboard,"47 (Chip Resistor - Surface Mount, 1206)",R108,1,0.0053,0.01,UNI-ROYAL(Uniroyal Elec),1206W4F470JT5E,JLCPCB (LCSC part),C17969,JLCPCB assembly,Yes,312543,"JLCPCB parts library, read 2026-11-17",live,
 Daughterboard,"1n (Multilayer Ceramic Capacitors MLCC - SMD/SMT, 0402)","C51,C52,C72",3,0.0036,0.01,FH (Guangdong Fenghua Advanced Tech),0402B102K500NT,JLCPCB (LCSC part),C1523,JLCPCB assembly,Yes,3466877,"JLCPCB parts library, read 2026-11-17",live,
 Daughterboard,"2.7k (Chip Resistor - Surface Mount, 0603)","R33,R36",2,0.0032,0.01,UNI-ROYAL(Uniroyal Elec),0603WAF2701T5E,JLCPCB (LCSC part),C13167,JLCPCB assembly,Yes,739633,"JLCPCB parts library, read 2026-11-17",live,
@@ -97,7 +97,7 @@ Daughterboard,"1M (Chip Resistor - Surface Mount, 0402)","R77,R78",2,0.0012,0.00
 Daughterboard,"68k (Chip Resistor - Surface Mount, 0402)","R131,R132",2,0.0012,0.00,UNI-ROYAL(Uniroyal Elec),0402WGF6802TCE,JLCPCB (LCSC part),C36871,JLCPCB assembly,Yes,1086076,"JLCPCB parts library, read 2026-11-17",live,
 Daughterboard,"2.2k (Chip Resistor - Surface Mount, 0402)",R138,1,0.0011,0.00,UNI-ROYAL(Uniroyal Elec),0402WGF2201TCE,JLCPCB (LCSC part),C25879,JLCPCB assembly,Yes,2975606,"JLCPCB parts library, read 2026-11-17",live,
 Daughterboard,"27k (Chip Resistor - Surface Mount, 0402)","R105,R107",2,0.0010,0.00,UNI-ROYAL(Uniroyal Elec),0402WGF2702TCE,JLCPCB (LCSC part),C25771,JLCPCB assembly,Yes,481167,"JLCPCB parts library, read 2026-11-17",live,
-Daughterboard,SUBTOTAL: Daughterboard rev 0.10,,332,,52.57,,,,,,,,,,"Required parts, bare PCB and assembly fees"
+Daughterboard,SUBTOTAL: Daughterboard rev 0.11,,332,,52.57,,,,,,,,,,"Required parts, bare PCB and assembly fees"
 ,,,,,,,,,,,,,,,
 Motherboard,"Pressure sensor 15-700kPa absolute, 5V, ratiometric analog out, unibody single port (867B)",U2,1,27.7465,27.75,NXP,MPX5700AP,LCSC,C90152,Hand,Yes,155,"LCSC, read 2026-11-17",live,"Lies flat, marking side up, leads bent 90 deg down, held by 2 x M3 screws"
 Motherboard,Harness header TE 178780-1,J1,1,13.4000,13.40,TE Connectivity,178780-1,Newark / Farnell,178780-1,Hand,Yes,,"Newark/Farnell via an aggregator, 2026-11-16, CAD converted at 0.72",snapshot,"Buyable new from distributors per aggregator data. LCSC C5166246 is about $25; Alternates 174915-6, 3-178780-6"
@@ -127,7 +127,7 @@ Motherboard,"0R (Chip Resistor - Surface Mount, 0603)",R6,1,0.0021,0.00,UNI-ROYA
 Motherboard,"120 (Chip Resistor - Surface Mount, 0603)",R1,1,0.0020,0.00,UNI-ROYAL(Uniroyal Elec),0603WAF1200T5E,JLCPCB (LCSC part),C22787,JLCPCB assembly,Yes,2323271,"JLCPCB parts library, read 2026-11-17",live,
 Motherboard,"10k (Chip Resistor - Surface Mount, 0603)",R36,1,0.0020,0.00,UNI-ROYAL(Uniroyal Elec),0603WAF1002T5E,JLCPCB (LCSC part),C25804,JLCPCB assembly,Yes,41459242,"JLCPCB parts library, read 2026-11-17",live,
 Motherboard,"5.1k (Chip Resistor - Surface Mount, 0603)","R2,R3",2,0.0015,0.00,UNI-ROYAL(Uniroyal Elec),0603WAF5101T5E,JLCPCB (LCSC part),C23186,JLCPCB assembly,Yes,18981406,"JLCPCB parts library, read 2026-11-17",live,
-Motherboard,SUBTOTAL: Motherboard 1996-97 rev 0.9,,36,,47.35,,,,,,,,,,"Required parts, bare PCB and assembly fees"
+Motherboard,SUBTOTAL: Motherboard 1996-97 rev 0.10,,36,,47.35,,,,,,,,,,"Required parts, bare PCB and assembly fees"
 ,,,,,,,,,,,,,,,
 Extra parts,TunerStudio MS registered edition,,1,69.9500,69.95,EFI Analytics,,efianalytics.com,,Customer,Optional,,"Sale price, read 2026-11-17 (normally $79.95)",live,The free edition and the free rusEFI tuner both work; registration adds autotune
 Extra parts,"Wideband oxygen sensor, Bosch LSU 4.9, 1 m lead",,1,67.9900,67.99,Bosch,0 258 017 025,Ballenger Motorsports,SNSR-01029,Seller or customer,Yes,In stock,"bmotorsports.com, read 2026-11-17",live,Mainstream retail is $109.99 (DIYAutoTune). Buy from one source and check the laser marking: counterfeits exist. M18 x 1.5 thread fit to the stock bung not checked on a car
