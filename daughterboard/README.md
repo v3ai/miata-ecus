@@ -5,6 +5,15 @@
 headers on the year-specific motherboard. J1 on the top edge carries power and outputs, J2 on the
 bottom edge carries inputs, comms and the LSU 4.9 wideband sensor.
 
+## Rev 0.11 (in progress on branch `no-via-in-pad`, not released)
+- **No via in or within 0.1 mm of any SMD pad.** The 200 vias that sat in the eight driver tab pads are now in the
+  tabs' drain copper around the pads, and the other in-pad vias moved beside their pads with stubs as wide as the
+  track they continue (`scripts/via_out_of_pad.py`, then `scripts/via_ripup.py` and `scripts/finish_route.py` where a
+  via had no free spot). No filled vias are needed. `scripts/jlc_fab_check.py` now fails a release with a via in a pad.
+- **R110 is 62 Ω (C17971),** not the 0.62 Ω part (C25341) that rev 0.9 and rev 0.10 list.
+- The fab files in `fab/` are still rev 0.10's until the rev 0.11 release regenerates them.
+- The change list behind this revision: [review/2026-11/NEXT-REV.md](../review/2026-11/NEXT-REV.md).
+
 ## What changed in rev 0.10
 Same outline, same J1/J2 pinout except J2-24 / J2-25; **six layers** instead of four. A rev 0.10 daughterboard goes
 with motherboard rev 0.13 (1989-95) or 0.9 (1996-2005); it also fits the earlier motherboards, without the new
@@ -308,9 +317,11 @@ that needs the same hand finishing.
   don't order thinner, and thicker inner copper only helps.
 - **Tracks:** 0.2 mm signal track with 0.15 mm clearance. Power tracks are 0.4–1.0 mm (injector and solenoid outputs
   0.8 mm). The injector, valve, logic-supply and USB-supply nets run on the outer layers only.
-- **Vias:** 0.6 mm with a 0.3 mm drill, all through vias. JLCPCB fills and caps the vias of a six-layer board, which the
-  vias in the DPAK tabs and in the clamp TVS pads rely on.
-- **Ground and 3.3 V connections:** every GND and +3V3 SMD pad drops to its plane through its own via.
+- **Vias:** 0.6 mm with a 0.3 mm drill, all through vias. Rev 0.10 has vias in the DPAK tabs and in the clamp TVS
+  pads and relies on JLCPCB's fill and cap; from rev 0.11 no via sits in or against an SMD pad, so plain tented vias
+  do.
+- **Ground and 3.3 V connections:** every GND and +3V3 SMD pad drops to its plane through its own via (from rev 0.11
+  beside the pad, on a short stub).
   - The MCU supply pins go inward to vias under the package.
   - About 360 GND stitching vias sit on a 3 mm grid.
 - **DRC (KiCad 7):** 0 clearance errors, 0 unconnected items. Warnings remaining:
@@ -368,6 +379,6 @@ that needs the same hand finishing.
    courtyards allow; the bodies clear and the pad spacing meets JLC's table. When ordering assembly, let JLC add the
    edge rails and fiducials (the boards have none of their own), and look at their DFM report and 3D preview.
 8. **Temperature at full load.** A model of the whole board puts the injector drivers 30-41 °C, the clamp TVSs 43-52 °C and the processor 32-40 °C above the air around the board at sustained 7200 rpm with 20 mH injectors (sequential; more on 1989-93 cars: `VERIFICATION.md`, Rev 0.10). The clamp TVSs are 150 °C parts: on 1994-2005 cars, and on 1989-93 cars converted to one wire per injector (`INSTALL.md`), they stay inside that to about 100 °C around the board. On a stock-wired 1989-93 car one driver and one clamp work each pair of injectors (as on rusEFI's and Speeduino's boards), and that clamp takes both injectors' energy twice per cycle: the model gives 34-47 °C at a sustained 7200 rpm and 61-72 °C at 5000 rpm with 20 mH injectors, 88-97 °C with 8 mH. Sequential mode on that wiring gives 79-89 °C (`VERIFICATION.md`, "1989-93: one driver per injector wire"). It is a model: measure a board at full load before track use. **Measure one injector's inductance** (LCR meter, injector unplugged): the clamp heat scales with it, and it is not known for Miata injectors.
-9. **Filled vias.** The board has vias in the DPAK tab pads and in the clamp TVS pads. JLCPCB fills and caps the vias of a six-layer board by default; check that the order says so (epoxy filled and capped). Open vias in those pads would wick solder away.
+9. **Filled vias (rev 0.10 only; rev 0.11 has no via in a pad).** The board has vias in the DPAK tab pads and in the clamp TVS pads. JLCPCB fills and caps the vias of a six-layer board by default; check that the order says so (epoxy filled and capped). Open vias in those pads would wick solder away.
 10. **After an LSU wire short to battery,** check R108-R110 (1206): they take the fault so U101 doesn't, and R108 can open.
 11. **Six-layer order:** 1.6 mm, JLCPCB's standard six-layer stack, 1 oz outer and 0.5 oz inner copper.

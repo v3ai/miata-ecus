@@ -139,6 +139,10 @@ def main():
             if any(fixed[j][1] != net and fixed[j][2] == l and fixed[j][0].distance(g) < CL
                    for l, w, g in segs for j in fixed_tree.query(g, predicate='dwithin', distance=CL)):
                 continue
+            # ... and other nets' vias (on every layer)
+            if any(o.GetNetname() != net and vpos(o).distance(g) < mm(o.GetWidth(F)) / 2 + CL
+                   for l, w, g in segs for o in others_v if vpos(o).distance(c) < 4.0):
+                continue
             # what would have to go: other nets' segments near the via (every layer) or a stub (its layer)
             rip = set()
             for j in ttree.query(ring, predicate='dwithin', distance=CL):
