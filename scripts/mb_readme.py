@@ -45,7 +45,7 @@ o.append(f'# {M.TITLE}, rev {os.environ.get("MBREV", "0.3")}\n')
 o.append('The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**. It carries:\n')
 o.append('- the stock harness header;')
 o.append('- the year-independent I/O: the wideband sensor connector (AEM X-Series harness), USB-C, the MAP sensor and the add-on header (flex fuel, nitrous, CAN, boost);')
-o.append('- the sockets for the universal daughterboard, which does all the engine control (including the wideband controller).\n')
+o.append('- the lands for the universal daughterboard, which does all the engine control (including the wideband controller): a castellated module soldered flat onto JD1 / JD2.\n')
 if getattr(M, 'CHANGES', None):
     o.append('## Changes in this revision')
     o += [f'- {c}' for c in M.CHANGES]
@@ -57,7 +57,7 @@ o.append('| Path | What |\n|---|---|')
 o.append(f'| `{P}.kicad_pro / .kicad_sch / .kicad_pcb` | KiCad 7 project. Root schematic plus three sheets: harness, daughterboard, I/O |')
 o.append(f'| `{P}_schematic.pdf` | Schematic PDF |')
 o.append(f'| `{F}jlcpcb_gerbers.zip`, `{F}jlcpcb_bom.csv`, `{F}jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |')
-o.append(f'| `{F}self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt, standoffs and screws, plus the not-fitted options. Its columns load into LCSC\'s BOM tool |')
+o.append(f'| `{F}self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt and screws, plus the not-fitted options. Its columns load into LCSC\'s BOM tool |')
 o.append(f'| `{F}parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |')
 o.append('| `fab/drc_report.txt` | KiCad DRC |')
 o.append('| `ecu_mb.pretty/`, `fp-lib-table` | Project footprints (harness header, MAP sensor lying flat, USB-C, M4 case hole) |')
@@ -168,8 +168,8 @@ HDR_SRC = {'mb_na96': 'new: TE 178780-1, LCSC C5166246, few in stock; or salvage
            'mb_nb1': 'new: TE 178780-1, LCSC C5166246, few in stock; or salvage one from a stock ECU'}.get(
     sys.argv[1], 'salvage from a stock ECU or use a clone')
 o.append('## Assembly')
-o.append('- The daughterboard plugs into JD1/JD2 (8.5 mm sockets) on four M3 × 11 mm standoffs.')
-o.append(f'- Fitted by hand (all in `{F}self_order_bom.csv`): the harness header ({HDR_SRC}), the daughterboard sockets JD1/JD2, the wideband sensor connector{TPSJ}, the add-on header, any jumper headers and their shunts, the MAP sensor, the standoffs, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC\'s quote whether that needs Standard PCBA.')
+o.append('- The daughterboard (rev 0.13 on) is a castellated module: it lies flat on the board and its 80 edge half-holes are soldered to the lands JD1 / JD2, by reflow or with an iron ([INSTALL.md](../../INSTALL.md#soldering-the-daughterboard-to-the-motherboard)). Solder it on before the harness header, so the lands are easy to reach.')
+o.append(f'- Fitted by hand (all in `{F}self_order_bom.csv`): the harness header ({HDR_SRC}), the wideband sensor connector{TPSJ}, the add-on header, any jumper headers and their shunts, the MAP sensor, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC\'s quote whether that needs Standard PCBA.')
 o.append('- The case needs cut-outs in its bottom edge for the wideband connector, USB-C and the MAP hose, and a way out for the add-on ribbon cable.\n')
 o.append('## Still to verify')
 o += [f'- {v}' for v in getattr(M, 'VERIFY', ['The case geometry, against a stock case with calipers.'])]

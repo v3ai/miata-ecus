@@ -5,7 +5,7 @@ Every part: ref, value, footprint (lib:name), LCSC number, {pad: net}.
 Placement lives in place.py, routing in route.py.
 """
 
-REV = '0.12'                   # daughterboard revision (names the fab files)
+REV = '0.13'                   # daughterboard revision (names the fab files)
 
 FP = {
     'R0603': 'Resistor_SMD:R_0603_1608Metric',
@@ -44,6 +44,7 @@ FP = {
     'L7066': 'Inductor_SMD:L_Sunlord_MWSA0603S',
     'BTN':   'Button_Switch_SMD:SW_Push_1P1T_XKB_TS-1187A',
     'HDR40': 'Connector_PinHeader_2.54mm:PinHeader_1x40_P2.54mm_Vertical',
+    'CAST40': 'miata_ecu:Castellated_1x40_P2.54mm',   # rev 0.13: plated half-holes on the board edge
     'SDCARD': 'Connector_Card:microSD_HC_Molex_47219-2001',
     'TAG':   'Connector:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical',
     'MH':    'MountingHole:MountingHole_3.2mm_M3',
@@ -115,10 +116,13 @@ J2 = {1: 'V5_SENS', 2: 'GND', 3: 'IN_KNOCK', 4: 'IN_TPS', 5: 'IN_MAP', 6: 'IN_CL
       33: 'LSU_UN', 34: 'LSU_RT', 35: 'LSU_VM', 36: 'LSU_IP',
       37: 'LSU_HTR_N', 38: 'LSU_HTR_N', 39: 'HTR_GND', 40: 'HTR_GND'}
 
-add('J1', 'Mezz_Power_Out', 'HDR40', 'C2977586', {str(k): v for k, v in J1.items()},
-    '1x40 2.54mm male, to motherboard (top edge)')
-add('J2', 'Mezz_Signal_In', 'HDR40', 'C2977586', {str(k): v for k, v in J2.items()},
-    '1x40 2.54mm male, to motherboard (bottom edge)')
+# Rev 0.13: J1 / J2 are castellated edges (40 plated half-holes each, 2.54 mm, on the board's top and bottom edges)
+# that reflow onto the motherboard's lands; up to rev 0.12 they were 1x40 male headers (C2977586) on the bottom,
+# plugged into sockets on 11 mm standoffs. Pin numbers and nets are unchanged.
+add('J1', 'Mezz_Power_Out', 'CAST40', '', {str(k): v for k, v in J1.items()},
+    'Castellated edge, 40 half-holes, 2.54 mm, reflowed onto the motherboard (top edge)')
+add('J2', 'Mezz_Signal_In', 'CAST40', '', {str(k): v for k, v in J2.items()},
+    'Castellated edge, 40 half-holes, 2.54 mm, reflowed onto the motherboard (bottom edge)')
 
 # ---------------------------------------------------------------------------
 # MCU  STM32F405VGT6 (1MB flash - required by rusEFI F4 builds). Rev 0.12: the F405 instead of the F407, for stock at JLCPCB
@@ -550,9 +554,7 @@ C('C65', '100n', '+3V3', 'GND', '0402')      # U12 VCCB
 C('C66', '100n', '+5V', 'GND', '0402')       # U13
 C('C67', '100n', '+5V', 'GND', '0402')       # U10 VCC (VIO from C56)
 
-# mounting holes
-for i in range(4):
-    add(f'H{1+i}', 'M3', 'MH', '', {})
+# mounting holes: none from rev 0.13 (the castellated edges hold the module; H1-H4 were M3 standoff holes)
 
 # on-board wideband controller (FOME / rusEFI module circuit: see wideband.py; layout: wb_clean.py)
 import wideband as _wb

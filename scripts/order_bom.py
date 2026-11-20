@@ -2,7 +2,7 @@
 
 JLCPCB gets the SMD parts plus the USB-C receptacle (0.5 mm pitch, hard by hand). Every through-hole part is left
 to you: it saves Standard-PCBA through-hole fees and bottom-side assembly, and all of them are easy joints. The
-self-order BOM also carries the parts no assembler can fit (harness header, shunt, standoffs, screws) and the
+self-order BOM also carries the parts no assembler can fit (harness header, shunt, the MAP sensor's screws) and the
 not-fitted options, marked optional. Its Quantity / Manufacture Part Number / Manufacturer / LCSC Part Number
 columns are what LCSC's BOM upload tool reads.
 """
@@ -13,8 +13,8 @@ MPN = json.load(open(os.path.join(HERE, 'mpn.json')))
 
 # parts that have an LCSC number but that you fit yourself (left out of the JLC BOM and CPL)
 HAND = {
-    'daughter': {'J1', 'J2'},                                   # 1x40 pin headers, bottom side
-    'mb': {'JD1', 'JD2', 'J2', 'J3', 'J5', 'U2'},               # sockets, wideband header, add-on header, MAP (and every JPn)
+    'daughter': set(),                                          # rev 0.13: J1 / J2 are castellated edges
+    'mb': {'J2', 'J3', 'J5', 'U2'},                             # wideband header, add-on header, MAP (and every JPn)
 }
 # hand-fitted parts the board's parts list names without an LCSC number: value or footprint fragment ->
 # (item, manufacturer, part number, required)
@@ -27,15 +27,15 @@ NAMED = {
     'R_2512': ('Resistor 1k, 2512, 1 W', 'Yageo', 'RC2512JK-071KL', 'Optional'),
 }
 # footprints with nothing to fit (Tag-Connect SWD pads: the cable presses on)
-PADS_ONLY = {'daughter': {'J3', 'J102'}, 'mb': set()}
+# and the castellated edges J1 / J2 (rev 0.13), which are part of the board
+# and the motherboard's lands for them, JD1 / JD2
+PADS_ONLY = {'daughter': {'J1', 'J2', 'J3', 'J102'}, 'mb': {'JD1', 'JD2'}}
 WHY = {
-    ('daughter', 'J1'): 'Bottom side. Solder while plugged into a motherboard\'s sockets so they come out straight',
     ('mb', 'U2'): 'Lies flat, marking side up, leads bent 90 deg down, held by 2 x M3 screws',
 }
 # parts that aren't on the board's parts list at all, per motherboard
 MB_EXTRA = [
     # item, qty, mfr, mpn, lcsc, notes     (jumper shunts are added per board, one for each jumper header it has)
-    ('Screw, M3 x 6, pan head', 8, '', 'M3 x 6 pan head', '', 'Two per daughterboard standoff (HD1-HD4)'),
     ('Screw, M3 x 10, pan head', 2, '', 'M3 x 10 pan head', '', 'MAP sensor (U2) hold-down'),
     ('Nut, M3', 2, '', 'M3 hex nut', '', 'MAP sensor (U2) hold-down'),
 ]
@@ -110,7 +110,7 @@ def self_rows(kind, parts):
             note = WHY.get((kind, r)) or ''
             agg.setdefault(key, dict(item=m.get('desc') or p['value'], refs=[], mfr=m.get('mfr', ''),
                                      mpn=m.get('mpn', ''), lcsc=p['lcsc'], req='Yes', notes=note))['refs'].append(r)
-        elif r.startswith('HD'):                                # daughterboard standoffs
+        elif r.startswith('HD'):                                # daughterboard standoffs (up to daughterboard rev 0.12)
             agg.setdefault(('standoff',), dict(item='Standoff, M3 x 11 mm, hex, female-female', refs=[], mfr='',
                                                mpn='M3 x 11 F-F hex standoff', lcsc='', req='Yes',
                                                notes='Daughterboard above the motherboard (8.5 mm sockets + 2.5 mm header plastic)')

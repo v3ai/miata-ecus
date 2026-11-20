@@ -1,27 +1,28 @@
-# Ordering the rev 0.12 boards
+# Ordering the rev 0.13 boards
 
-A checklist for ordering the current boards: **daughterboard rev 0.12** and **motherboards rev 0.15 (1989-95) and
-0.11 (1996-97, 1999-2000, 2001-05)**. Read it with [Things to know before ordering](README.md#things-to-know-before-ordering)
+A checklist for ordering the current boards: **daughterboard rev 0.13** (the castellated module) and **motherboards
+rev 0.16 (1989-95) and 0.12 (1996-97, 1999-2000, 2001-05)**, which have its lands. These go together only: an earlier,
+socketed board fits neither. Read it with [Things to know before ordering](README.md#things-to-know-before-ordering)
 and the board READMEs. Stock figures are JLCPCB's as read on 2026-11-17 (`*_costed_bom.csv`); check them again on the day.
 
-No person has reviewed the schematics, and rev 0.12 has not been built. The boards received in November 2026
+No person has reviewed the schematics, and neither rev 0.12 nor the castellated rev 0.13 has been built. The boards received in November 2026
 (daughterboard rev 0.9, [ordered-boards/2026-11/](ordered-boards/2026-11/)) are the nearest thing to a test of it.
 Section 1 lists what their bring-up should settle first.
 
 ## 1. Settle these on the received rev 0.9 boards first
 
-Each of these can change a rev 0.12 board or how you fit it. The measurements are described in
+Each of these can change a rev 0.13 board or how you fit it. The measurements are described in
 [BRING-UP.md](ordered-boards/2026-11/BRING-UP.md).
 
 | Check | What the answer changes |
 |---|---|
-| **A/C request and clutch** (1996-97 cavities 1K, 1L): switched to ground or to 12 V? | Rev 0.12 fits R21 / R22 (4.7 kΩ to 12 V) because the stock ECU's voltage tables show switches to ground. If a car drives either wire to 12 V, leave that resistor off (delete its line from the JLC BOM and placement file) and set the input back to active high. |
+| **A/C request and clutch** (1996-97 cavities 1K, 1L): switched to ground or to 12 V? | The boards fit R21 / R22 (4.7 kΩ to 12 V) because the stock ECU's voltage tables show switches to ground. If a car drives either wire to 12 V, leave that resistor off (delete its line from the JLC BOM and placement file) and set the input back to active high. |
 | **Tachometer** (1996-97 4L; 1999-2000 2K; 2001-05 3O): about 0 V or 12 V with the stock ECU out? | At about 0 V the cluster needs a pull-up of about 1 kΩ to switched 12 V. The 1996-2005 motherboards have no footprint for it yet, so it would be wired by hand. |
-| **Harness header fit.** The rev 0.9 motherboards have 1.1 mm holes; TE asks for 1.35 mm. | Rev 0.12 drills 1.3 mm on 1996-97, 1999-2000 and 2001-05. If the pins went into 1.1 mm without force, 1.3 mm is comfortable. The 1989-95 board is still 1.1 mm, so test-fit a 174917-6 there before ordering 1989-95 boards. |
+| **Harness header fit.** The rev 0.9 motherboards have 1.1 mm holes; TE asks for 1.35 mm. | The motherboards drill 1.3 mm on 1996-97, 1999-2000 and 2001-05. If the pins went into 1.1 mm without force, 1.3 mm is comfortable. The 1989-95 board is still 1.1 mm, so test-fit a 174917-6 there before ordering 1989-95 boards. |
 | **Case fit, 1996-2005.** These motherboards use the NA outline and mounting holes as a placeholder. | Measure a stock 1996-97 / NB case and fit a rev 0.9 motherboard in it. The 76-position header is 130 mm wide. Do not order 1996-2005 motherboards in quantity until a board has fitted a real case. |
 | **Injector inductance** (LCR meter, injector unplugged) | Every clamp and temperature figure assumes 20 mH. Near 8 mH there is margin to spare; near 20 mH on a 1989-93 car read the high-rpm note in the README. No board change either way. |
 | **Wideband heater current in a hot cabin** | Fuse F1 (2920L300, 3 A hold at 25 °C) holds 1.99 A at 60 °C, against a cold-heater peak of about 2.25 A. If it trips, fit the 2920L400/30GR (C19078761, same pads) instead; it can be swapped in the JLC BOM. |
-| **Part orientation** on the received boards (BRING-UP item 3) | The rev 0.9 placement file was made with the same rotation rules (`JLC_ROT`, 2026-10-31) as rev 0.12. A part that came out wrong there will come out wrong again: fix its rule (section 3) before ordering. |
+| **Part orientation** on the received boards (BRING-UP item 3) | The rev 0.9 placement file was made with the same rotation rules (`JLC_ROT`, 2026-10-31) as rev 0.13. A part that came out wrong there will come out wrong again: fix its rule (section 3) before ordering. |
 
 ## 2. Files and board settings
 
@@ -29,17 +30,26 @@ Each board's files are in its `fab/` folder.
 
 | Board | Upload to JLCPCB | Order separately and fit by hand |
 |---|---|---|
-| Daughterboard | `miata-ecu-daughterboard-rev0.12_jlcpcb_gerbers.zip`, `…_jlcpcb_bom.csv`, `…_jlcpcb_cpl.csv` | `…_self_order_bom.csv`: the two 1×40 pin headers J1 / J2 (they sit on the bottom) |
-| Motherboard, each year | `miata-ecu-motherboard-<years>-rev0.1x_jlcpcb_gerbers.zip`, `…_jlcpcb_bom.csv`, `…_jlcpcb_cpl.csv` | `…_self_order_bom.csv`: harness header, the two 1×40 sockets, MAP sensor, wideband and add-on headers, standoffs and screws, and the optional R20 |
+| Daughterboard | `miata-ecu-daughterboard-rev0.13_jlcpcb_gerbers.zip`, `…_jlcpcb_bom.csv`, `…_jlcpcb_cpl.csv` | Nothing: J1 / J2 are castellated edges |
+| Motherboard, each year | `miata-ecu-motherboard-<years>-rev0.1x_jlcpcb_gerbers.zip`, `…_jlcpcb_bom.csv`, `…_jlcpcb_cpl.csv` | `…_self_order_bom.csv`: harness header, MAP sensor and its screws, wideband and add-on headers, and the optional R20 |
 
 [`additional-parts/order_all_boards.csv`](additional-parts/order_all_boards.csv) adds up every hand-fitted part for
 one motherboard of each year with a daughterboard each, plus the in-car parts.
 
 **Daughterboard:** 6 layers, 1.6 mm, JLCPCB's standard six-layer stack (1 oz outer, 0.5 oz inner copper; the
 track-current check assumes that). No via sits in or against an SMD pad, so plain tented vias are fine: no via
-filling or capping is needed. Assembly on the top side only.
+filling or capping is needed. Assembly on the top side only. **Choose castellated holes** ("Castellated Holes: Yes",
+an extra charge): the 80 half-holes on the long edges are the module's pins, and without the option the edges may be
+routed plain. The design meets JLCPCB's castellation rules (1.0 mm holes, 1.54 mm apart, the pads reach 0.85-1.3 mm
+in from the edge); check in the preview that the half-holes show plated, and that the option is offered for six layers
+on the day.
 
 **Motherboards:** 2 layers, 1.6 mm. Assembly on the top side only; the JLC BOM is the SMD parts and the USB-C socket.
+The lands JD1 / JD2 are in the paste stencil, so an assembled board arrives with them tinned.
+
+**Soldering the module down** is yours to do: JLCPCB's assembly does not take one of your own boards as a part on
+another (check their "consigned parts" option on the day if you want them to). On a hot plate, in an oven or with an
+iron: [INSTALL.md](INSTALL.md#soldering-the-daughterboard-to-the-motherboard).
 
 ## 3. Check the placement preview
 
@@ -73,7 +83,6 @@ The parts with the least stock, against one board set each:
 
 | Part | LCSC | Per board | Stock 2026-11-17 | Enough for |
 |---|---|---|---|---|
-| 1×40 female socket (motherboard, by hand) | C124412 | 2 | 65 | 32 motherboards: buy the whole run at once |
 | microSD socket J4 (daughterboard) | C164170 | 1 | 110 | 110 |
 | MPX5700AP MAP sensor (motherboard, by hand) | C90152 | 1 | 155 | 155 |
 | TLS115B0EJ, U3 / U14 | C3743696 | 2 | 554 | 277 |
@@ -91,15 +100,16 @@ two different pitches, so check any listing against the board footprint before b
 ## 5. Order in this sequence
 
 1. A pilot of 5 daughterboards and a motherboard for each year you can test (for the two 1996-97 cars: two 1996-97
-   motherboards). Rev 0.12 has a new processor part number, a new CAN transceiver, the rev 0.11 via rule and every
-   rev 0.10 change; none of those has been built.
+   motherboards). Rev 0.13 is the first castellated module, soldered flat; rev 0.12 brought a new processor part
+   number and a new CAN transceiver, and rev 0.11 / 0.10 the via rule and every rev 0.10 change. None has been built.
+   Solder one module down first and check its joints and its temperature at load before ordering more.
 2. Bring the pilot up on the bench and in a car. Then one daughterboard lot for every year at once (JLCPCB's Economic
    assembly takes up to 50 boards).
 3. Motherboards per year, 8-10 at a time, once that year has run in a car.
 
 ## 6. Not in this release
 
-These need the board re-routed. None stops a rev 0.12 board from working; they are in
+These need the board re-routed. None stops a rev 0.13 board from working; they are in
 [NEXT-REV.md](review/2026-11/NEXT-REV.md).
 
 | Item | What it means for a board ordered now |

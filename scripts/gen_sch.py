@@ -403,7 +403,7 @@ for r in [f'R{i}' for i in range(152, 161)] + [f'D{i}' for i in range(42, 50)]: 
     SHEET_OF[r] = 'outputs'
 for r in ['J4', 'C69', 'C70', 'R150', 'R151', 'R161', 'R162', 'R163']:                 # rev 0.10: microSD socket
     SHEET_OF[r] = 'mcu'
-for r in ['J1', 'J2', 'U10', 'C56', 'C67', 'H1', 'H2', 'H3', 'H4']:
+for r in ['J1', 'J2', 'U10', 'C56', 'C67']:     # (H1-H4, the standoff holes, went in rev 0.13)
     SHEET_OF[r] = 'connectors'
 import wideband as _wb
 for r in list(_wb.placement()) + ['U106', 'C118', 'Y101', 'C119', 'C120', 'R135', 'C121', 'R137', 'D30', 'F2', 'D40',

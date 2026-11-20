@@ -18,14 +18,14 @@ def add(ref, value, fp, lcsc, pads, desc='', side='F'):
 
 def common_parts():
     """Everything except the harness header and the case holes."""
-    # daughterboard sockets: same pin numbers and nets as the daughter's J1/J2
-    add('JD1', 'Socket 1x40 (daughter J1)', 'Connector_PinSocket_2.54mm:PinSocket_1x40_P2.54mm_Vertical', 'C124412',
-        daughter.J1, '2.54 mm 1x40 female, 8.5 mm. Mates with the daughterboard J1 (power + outputs)')
-    add('JD2', 'Socket 1x40 (daughter J2)', 'Connector_PinSocket_2.54mm:PinSocket_1x40_P2.54mm_Vertical', 'C124412',
-        {k: ('GND' if v == 'HTR_GND' else v) for k, v in daughter.J2.items()}, '2.54 mm 1x40 female, 8.5 mm. Mates with the daughterboard J2 (inputs + comms)')
-    for i in range(4):
-        add(f'HD{i + 1}', 'M3 standoff', 'MountingHole:MountingHole_3.2mm_M3', '', {},
-            'Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)')
+    # daughterboard lands: same pin numbers and nets as the daughter's J1/J2. From daughterboard rev 0.13 its J1 / J2
+    # are castellated edges and the module reflows flat onto these SMD lands (up to rev 0.12: 1x40 sockets C124412,
+    # and four M3 x 11 mm standoffs HD1-HD4). Nothing may sit under the module (DAUGHTER_KEEPOUT).
+    add('JD1', 'Lands 1x40 (daughter J1)', 'ecu_mb:CastellatedLand_1x40_P2.54mm_TopEdge', '',
+        daughter.J1, '40 SMD lands, 2.54 mm, for the daughterboard\'s castellated top edge J1 (power + outputs)')
+    add('JD2', 'Lands 1x40 (daughter J2)', 'ecu_mb:CastellatedLand_1x40_P2.54mm_BottomEdge', '',
+        {k: ('GND' if v == 'HTR_GND' else v) for k, v in daughter.J2.items()},
+        '40 SMD lands, 2.54 mm, for the daughterboard\'s castellated bottom edge J2 (inputs + comms)')
 
     # CAN bus termination at the ECU end (the wideband controller now lives on the daughterboard)
     add('R1', '120', 'Resistor_SMD:R_0603_1608Metric', 'C22787', {1: 'CAN_H', 2: 'CAN_T'}, 'CAN termination')
@@ -120,22 +120,27 @@ def protection_parts(iac_supply, vvt_supply=None):
 
 
 def protection_place(P, vvt=True):
-    """Under the daughterboard: freewheel diodes below their JD1 pins, pull-up options above their JD2 pins,
-    the AUX fuse beside J5."""
+    """Freewheel diodes just above their JD1 lands, pull-up options just below their JD2 lands (both outside the
+    module from rev 0.13; up to then they sat under it), the AUX fuse beside J5."""
     dx, dy = 14.5, 42.0                       # every year board puts the daughterboard here
     pin = lambda k: dx + 13.0 + (k - 1) * 2.54
-    P['D1'] = (pin(31), dy + 10.0, 90)
-    if vvt:
-        P['D2'] = (pin(34), dy + 10.0, 90)
     import placement as dpl
+    P['D1'] = (pin(31), dy + dpl.J1_Y - 4.15, 0)
+    if vvt:
+        P['D2'] = (pin(34), dy + dpl.J1_Y - 4.15, 0)
     for ref, k in (('R20', 15), ('R21', 16), ('R22', 17)):
-        P[ref] = (pin(k), dy + dpl.J2_Y - 5.25, 90)
+        P[ref] = (pin(k), dy + dpl.J2_Y + 3.75, 90)
     P['F4'] = (100.0, dy + dpl.BOARD_H + 11.0, 0)          # beside J5
     P['D5'] = (101.0, dy + dpl.BOARD_H + 5.0, 0)           # boost valve freewheel diode, above F4
     # flex pull-up and arming pull-down: between JD2 and the AUX header
     P['R35'] = (70.0, dy + dpl.BOARD_H + 4.0, 0)
     P['R36'] = (76.0, dy + dpl.BOARD_H + 4.0, 0)
     return P
+
+
+# The castellated daughterboard (rev 0.13 on) on the motherboard: x 14.5-139.5, y 44.75-115.25 (its long edges on the
+# JD1 / JD2 pad rows). No part may sit there; tracks and tented vias may.
+DAUGHTER_KEEPOUT = (14.5, 44.75, 139.5, 115.25)
 
 
 def trigger_select(refs, sig, rtn, hall, vr_p, vr_n, default, label):

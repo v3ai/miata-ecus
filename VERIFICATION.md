@@ -808,7 +808,28 @@ rev 0.11 board, whose tab vias sit in the tab copper around the driver tabs inst
 | 1989-93 with shunts on PAIR (until 2026-11-15), clamps sharing, 8.0 W | 43 / 31 °C | 58 / 43 °C | 84 / 72 °C | 52 / 42 °C |
 | 1989-93 with shunts on PAIR, one clamp of each pair taking all | 43 / 31 °C | 60 / 45 °C | 112 / 100 °C | 54 / 43 °C |
 
-What that means:
+**Rev 0.13, soldered flat (2026-11-20).** The castellated module has no header pins and no free bottom face: it lies
+0.1 mm over the motherboard. `board_thermal.py --flat <motherboard>` puts the motherboard's real copper under the module
+in the model, two more layers below a 0.1 mm air gap, each castellation soldered to its land; it leaves out the
+motherboard beyond the module's outline, so it errs warm. On the 1996-97 and 1989-95 motherboards alike (rise above
+the air, pads / junction):
+
+| | Board, mean | Injector drivers | Clamp TVSs | Processor |
+|---|---|---|---|---|
+| Sequential (1994-2005), 5.9 W | 35 °C | 41-43 / 42-43 °C | 45-47 / 52-54 °C | 36 / 43 °C |
+| 1989-93, one driver per wire, batch, 8.6 W | 51 °C | 72-74 / 73-75 °C | 84-89 / 114-119 °C | 54 / 61 °C |
+| 1989-93, one driver per wire, sequential mode, 6.5 W | 39 °C | 54-56 / 56-57 °C | 56-59 / 71-74 °C | 40 / 47 °C |
+
+That is the old "without pins" column plus 1-5 °C (the module is also 5.5 mm narrower and lost its 40 edge stitching
+vias), and none of the 9-13 °C the pins were estimated to take away. The motherboard's bottom face takes over from
+the module's: had the gap insulated (`--hbot 0`), every rise would about double. The limits move accordingly: the
+processor (105 °C junction) holds to about 62 °C air in sequential years and 44 °C on a stock-wired 1989-93 car; the
+clamp TVSs (150 °C) to 96 °C air in sequential years and **31 °C** on a stock-wired 1989-93 car in batch mode (was
+33-46 °C) and 76 °C in sequential mode (one opening per cycle; was 78-88 °C): on those cars, run sequential mode for
+sustained high load.
+**Unchecked:** measure the module on a motherboard in its case at load before relying on these figures.
+
+What that means (rev 0.11 figures; rev 0.13 above):
 - **The board as a whole warms by 23-46 °C at sustained high rpm.** The earlier, per-part estimates missed this. It
   matters most for the processor: the STM32F407VGT6 is the 85 °C grade (suffix 6: −40 to 85 °C ambient, 105 °C
   junction; suffix 7: −40 to 105 °C ambient, 125 °C junction, per ST's ordering information and ST's own forum). It is inside that up to about 65-73 °C air in sequential years and 49-60 °C on a stock-wired 1989-93 car. The

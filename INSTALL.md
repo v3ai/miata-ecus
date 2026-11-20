@@ -8,7 +8,8 @@ How to fit the ECU to a 1989–2005 Miata and start the engine for the first tim
 >
 > The ECU replaces an emissions-certified engine computer. It is for off-road and competition use.
 
-**Contents:** [What's what](#whats-what) · [What you need](#what-you-need) · [1. Bench check](#1-bench-check) ·
+**Contents:** [What's what](#whats-what) · [What you need](#what-you-need) ·
+[Soldering the daughterboard](#soldering-the-daughterboard-to-the-motherboard) · [1. Bench check](#1-bench-check) ·
 [2. Remove the stock ECU](#2-remove-the-stock-ecu) · [3. Fit the board in the case](#3-fit-the-board-in-the-case) ·
 [4. Year-specific steps](#4-year-specific-steps) · [5. MAP hose](#5-map-hose) ·
 [6. Wideband sensor](#6-wideband-sensor) · [7. Air temperature](#7-air-temperature) ·
@@ -22,7 +23,7 @@ The layout below the harness plug is the same on every year: only the harness pl
 1989–95 board, the six year jumpers along the side edges change.
 The pictures show green solder mask; yours is whatever colour you ordered.
 
-| Year | Assembled | Motherboard alone (sockets, fuses, jumpers, option links) |
+| Year | Assembled | Motherboard alone (daughterboard lands, fuses, jumpers, option links) |
 |---|---|---|
 | 1989–95 | [picture](images/annotated_1989-95.jpg) | [picture](images/annotated_motherboard_1989-95.jpg) |
 | 1996–97 | [picture](images/annotated_1996-97.jpg) | [picture](images/annotated_motherboard_1996-97.jpg) |
@@ -107,7 +108,7 @@ The full table is in the [1989–95 README](motherboards/1989-95/README.md).
 
 Everything is on the [parts page](additional-parts/shopping_list.html), with quantities.
 
-- The ECU: a daughterboard on your year's motherboard, with firmware loaded ([firmware/README.md](firmware/README.md)).
+- The ECU: a daughterboard soldered to your year's motherboard ([how](#soldering-the-daughterboard-to-the-motherboard)), with firmware loaded ([firmware/README.md](firmware/README.md)).
 - **Your stock ECU's case.** The board goes in it (1990–95; the 1996–2005 fit is unchecked).
 - A **Bosch LSU 4.9** wideband sensor (0 258 017 025), genuine, and **AEM's X-Series sensor harness 30-3427** from it
   to J2.
@@ -118,6 +119,40 @@ Everything is on the [parts page](additional-parts/shopping_list.html), with qua
 - A USB-C cable and a laptop with [TunerStudio](https://www.tunerstudio.com/).
 - A multimeter and a timing light.
 - 1990–93 manual cars: optionally, the throttle position sensor kit ([README](README.md#throttle-position-sensor-198993-manual-cars)).
+
+## Soldering the daughterboard to the motherboard
+
+From daughterboard rev 0.13 (motherboards rev 0.16 for 1989–95, 0.12 for 1996–2005) the daughterboard is a
+castellated module: its J1 / J2 pins are 80 plated half-holes along its two long edges, and it is soldered flat onto
+the motherboard's two rows of lands, JD1 and JD2. There are no sockets, standoffs or screws. **Unchecked:** no module
+has been soldered down yet.
+
+Do this before fitting the through-hole parts (harness header, MAP sensor, wideband and add-on headers), so nothing
+stands in the way of the lands or the heat.
+
+1. **Before it goes down:** the wideband controller's SWD pads (J102) are on the module's underside and will be
+   covered. They are only a fallback (the controller is programmed through the main processor), so this matters only
+   if that programming route has failed you on an earlier board.
+2. **Lands:** a motherboard assembled by JLCPCB usually arrives with the lands tinned, because its paste stencil
+   covers them though nothing is placed there. Clean them and flux them. For reflow on bare lands, add solder paste:
+   a thin, even line along each row, or a stencil.
+3. **Place the module** with J1 (its edge with the processor) over JD1, the row nearest the harness header. The
+   silkscreen marks the module's corners. Each half-hole sits on the middle of its land; the lands reach 1.8 mm out
+   past the module's edge.
+4. **Solder, one of two ways:**
+   - **Reflow** on a hot plate, in an oven or with hot air across the whole module, to a normal profile for the paste.
+     The daughterboard's own parts go through a second reflow; they are all on its top side, face up, so they stay
+     put. Parts that have been out of their dry packing a long time may need baking first (their moisture ratings
+     are on LCSC's pages).
+   - **Soldering iron:** tack two diagonally opposite corner pins, check every half-hole is over its land, then solder
+     each pin: the tip on the land just outside the edge, solder fed into the half-hole until it fills it.
+5. **Check every joint:** a concave fillet from the land up into each half-hole, and no bridge to its neighbours.
+   With a meter: J1 pins 4 and 5 to ground (GND), and no short between neighbouring pins along both rows, especially
+   VBAT_IN (J1-1, J1-2) to ground.
+6. Then fit the through-hole parts and do the bench check below.
+
+The module comes off again only with every joint molten at once (hot plate or hot air): it is not a part to swap at
+the roadside.
 
 ## 1. Bench check
 

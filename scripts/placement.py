@@ -327,6 +327,9 @@ for _r, _v in list(PLACE.items()):
 STRIP_FLIP = 21.5               # rev 0.8 strip y 0..16 -> rev 0.9 y 5.5..21.5; J1 18.75 -> 2.75
 J1_Y, J2_Y = 2.75, 57.25 + DY
 HOLES = [(4.5, 4.5), (120.5, 4.5), (4.5, 55.5 + DY), (120.5, 55.5 + DY)]
+# Rev 0.13: the finished board's long edges were cut through the J1 / J2 pin rows (scripts/castellate_daughter.sh),
+# so the module is BOARD_W x (J2_Y - J1_Y) = 125 x 70.5 mm with castellated J1 / J2, and HOLES were removed. A full
+# rebuild from this file still gives the rev 0.12 outline: run castellate_daughter.sh on its result.
 STRIP = [r for r, v in PLACE.items() if v[1] < 16.5 and not r.startswith('H') and r != 'J1']
 for _r in STRIP:
     _v = PLACE[_r]

@@ -113,14 +113,12 @@ def sheet_harness(s):
 
 def sheet_daughter(s):
     s.paper = 'A3'
-    s.text('Daughterboard sockets: pin-for-pin with the daughterboard J1 (top) and J2 (bottom)', 20.32, 22.86)
+    s.text('Daughterboard lands: pin-for-pin with the daughterboard\'s castellated edges J1 (top) and J2 (bottom)', 20.32, 22.86)
     s.place('JD1', 101.6, 120.65)
     s.place('JD2', 236.22, 120.65)
     s.rail('JD1', 'GND', pins=[k for k, v in S.PARTS['JD1']['pads'].items() if v == 'GND'])
     s.rail('JD2', 'GND', pins=[k for k, v in S.PARTS['JD2']['pads'].items() if v == 'GND'])
-    s.text('Daughterboard standoffs (M3)', 309.88, 22.86)
-    for i in range(4):
-        s.place(f'HD{i + 1}', 312.42 + i * 12.7, 38.1)
+    s.text('The daughterboard (rev 0.13 on) is soldered to JD1 / JD2 by its castellated edges: no standoffs.', 309.88, 22.86, 1.27)
 
 
 def sheet_io(s):

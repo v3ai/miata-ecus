@@ -7,18 +7,18 @@ A plug-in [rusEFI](https://rusefi.com) engine computer for the 1989–2005 Mazda
 - **A motherboard for each model year.** Each one fits the stock ECU case, takes the stock harness connector and
   carries the year-specific wiring, the MAP sensor, the wideband sensor plug, the add-on header and USB-C.
 
-The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 standoffs.
+The daughterboard is a castellated module: it lies flat on the motherboard, its 80 edge pins soldered to two rows of lands.
 
-![The daughterboard plugged into the 1989–95 motherboard](images/assembly_1989-95.jpg)
+![The daughterboard soldered onto the 1989–95 motherboard](images/assembly_1989-95.jpg)
 
 <table>
 <tr>
-<td width="50%"><img src="images/assembly_lifted.jpg" alt="The daughterboard lifted off the motherboard's sockets and standoffs"></td>
+<td width="50%"><img src="images/assembly_lifted.jpg" alt="The daughterboard lifted off the motherboard's lands"></td>
 <td width="50%"><img src="images/daughterboard.jpg" alt="The daughterboard on its own, headers underneath"></td>
 </tr>
 <tr>
-<td align="center"><sub>Daughterboard lifted off its sockets and standoffs</sub></td>
-<td align="center"><sub>The universal daughterboard (rev 0.12)</sub></td>
+<td align="center"><sub>Daughterboard lifted off its lands</sub></td>
+<td align="center"><sub>The universal daughterboard (rev 0.13)</sub></td>
 </tr>
 </table>
 
@@ -167,6 +167,14 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
 > shunt. The boards themselves are unchanged
 > ([what it means](VERIFICATION.md#1989-93-one-driver-per-injector-wire-2026-11-15)).
 >
+> **Rev 0.13 (2026-11-20; motherboards rev 0.16 / 0.12):** the daughterboard is a **castellated module**. Its long edges
+> run through the old header pin rows, so its J1 / J2 pins are 80 plated half-holes, and it is soldered flat onto
+> two rows of lands on the motherboard, by reflow or with an iron: no headers, sockets, standoffs or screws, and the
+> 1×40 sockets that were the scarcest part are gone. Same parts, placement, routing and pinout on the daughterboard
+> (125 × 70.5 mm now); on the motherboards the parts that sat under it moved out and the copper to the lands was
+> joined again. An earlier daughterboard does not fit these motherboards, nor this one the earlier motherboards.
+> Soldering it down: [INSTALL.md](INSTALL.md#soldering-the-daughterboard-to-the-motherboard).
+>
 > **Rev 0.12 (2026-11-20; motherboards rev 0.15 / 0.11):** the processor is the STM32F405 (JLCPCB stocks it; the
 > F407 and F427 fit the same pads), the CAN transceivers are NXP TJA1042T/3, R21 / R22 are fitted so the A/C request
 > and clutch switches (which close to ground) are read, and the 1996–2005 harness headers have 1.3 mm holes. The
@@ -186,17 +194,17 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
 
 | Board | Folder | Rev | Harness header | Case fit |
 |---|---|---|---|---|
-| Daughterboard (all years) | [`daughterboard/`](daughterboard/) | 0.12 | 2 × 1×40 to the motherboard | 125 × 76 mm, 6 layers |
-| 1989–95 (NA6 and NA8; jumpers set 1989–93 or 1994–95) | [`motherboards/1989-95/`](motherboards/1989-95/) | 0.15 | TE 174917-6, 48 pins | stock NA case outline |
-| 1996–97 (NA8, OBD-II) | [`motherboards/1996-97/`](motherboards/1996-97/) | 0.11 | TE 178780-1, 76 positions | **provisional** (NA outline) |
-| 1999–2000 (NB1) | [`motherboards/1999-2000/`](motherboards/1999-2000/) | 0.11 | TE 178780-1, as 1996–97 (the car's own is the 64-position 176122-6; its plugs are the same housings) | **provisional** (NA outline) |
-| 2001–05 (NB2, VVT) | [`motherboards/2001-05/`](motherboards/2001-05/) | 0.11 | TE 353830-5, 72 positions | **provisional** (NA outline) |
+| Daughterboard (all years) | [`daughterboard/`](daughterboard/) | 0.13 | 2 × 40 castellated edge pins, soldered to the motherboard | 125 × 70.5 mm, 6 layers |
+| 1989–95 (NA6 and NA8; jumpers set 1989–93 or 1994–95) | [`motherboards/1989-95/`](motherboards/1989-95/) | 0.16 | TE 174917-6, 48 pins | stock NA case outline |
+| 1996–97 (NA8, OBD-II) | [`motherboards/1996-97/`](motherboards/1996-97/) | 0.12 | TE 178780-1, 76 positions | **provisional** (NA outline) |
+| 1999–2000 (NB1) | [`motherboards/1999-2000/`](motherboards/1999-2000/) | 0.12 | TE 178780-1, as 1996–97 (the car's own is the 64-position 176122-6; its plugs are the same housings) | **provisional** (NA outline) |
+| 2001–05 (NB2, VVT) | [`motherboards/2001-05/`](motherboards/2001-05/) | 0.12 | TE 353830-5, 72 positions | **provisional** (NA outline) |
 
 Each board folder contains:
 - the KiCad 7 project (schematic and board);
 - a schematic PDF;
 - JLCPCB gerbers, BOM and placement files in `fab/`, with the DRC report, named for the board and revision (for example
-  `miata-ecu-motherboard-1989-95-rev0.15_jlcpcb_gerbers.zip`). The JLC BOM is the SMD parts (and USB-C);
+  `miata-ecu-motherboard-1989-95-rev0.16_jlcpcb_gerbers.zip`). The JLC BOM is the SMD parts (and USB-C);
   `…_self_order_bom.csv` is everything you order and solder yourself, and
   [`additional-parts/order_all_boards.csv`](additional-parts/order_all_boards.csv) adds up every motherboard, a daughterboard for each and the in-car parts
   (the same list as a page with quantities and tick boxes: [`additional-parts/shopping_list.html`](additional-parts/shopping_list.html));
@@ -332,7 +340,7 @@ After a change to a finished board (or only its revision), regenerate everything
    revision text on a motherboard's silkscreen, and a `CHANGES` entry in its year module (`scripts/mb_*.py`).
 2. `scripts/reexport.sh daughter`, and for each motherboard
    `scripts/reexport.sh <year module> <short> <rev> <board folder>`, e.g.
-   `scripts/reexport.sh mb_na96 9697 0.11 motherboards/1996-97`. It runs the board's checks first and stops on a
+   `scripts/reexport.sh mb_na96 9697 0.12 motherboards/1996-97`. It runs the board's checks first and stops on a
    failure, then rewrites the fab files, BOMs, schematics, PDF, DRC report, parts workbook and README. Delete the
    previous revision's fab files.
 3. The 3D viewer: `viewer/pcb3d.py <board> "<prefix>" <key>` per board, e.g.

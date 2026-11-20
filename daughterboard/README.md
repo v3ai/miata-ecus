@@ -1,17 +1,42 @@
-# Miata ECU — daughterboard rev 0.12 (routed, unverified)
+# Miata ECU — daughterboard rev 0.13 (routed, unverified)
 
-125 × 76 mm, **6 layers**. All SMD parts are on top; the two 1×40 2.54 mm male headers are mounted on the
-**bottom side** (plastic under the board, pins pointing down) so the board plugs straight into female
-headers on the year-specific motherboard. J1 on the top edge carries power and outputs, J2 on the
-bottom edge carries inputs, comms and the LSU 4.9 wideband sensor.
+125 × 70.5 mm, **6 layers**, a **castellated module**. All parts are on top. J1 (top edge: power and outputs) and
+J2 (bottom edge: inputs, comms and the LSU 4.9 wideband sensor) are rows of 40 plated half-holes along the long edges,
+2.54 mm apart. The module lies flat on the year-specific motherboard and is soldered to its lands JD1 / JD2, by
+reflow or with an iron: no connectors, standoffs or screws.
+
+## What changed in rev 0.13
+- **Castellated edges instead of pin headers.** The long edges were cut through the centres of the J1 / J2 pin rows,
+  so the 80 plated header holes (1.0 mm) are now plated half-holes on the edge, and the board is 125 × 70.5 mm
+  (was 125 × 76). Each castellation's pad, on the top and bottom copper, is 1.6 mm along the edge and reaches 1.3 mm in
+  from it; seven (J1-16, J2-6, -7, -8, -14, -15, -25) reach 0.85 mm, where a part or track sits close inside.
+- **No headers, standoffs or mounting holes:** J1 / J2 were 1×40 male headers (C2977586) on the bottom, plugged into
+  8.5 mm sockets on four M3 × 11 mm standoffs; H1-H4 were in the strips the cut removed. The module now sits about
+  0.1 mm above the motherboard, on its solder joints.
+- **Same parts, placement and routing as rev 0.12;** the JLC BOM and placement file are identical. The cut removed the
+  40 GND stitching vias along the old edges, and 15 track ends that entered the pins were pulled in to keep 0.3 mm
+  from the new edge (`scripts/castellate_daughter.sh`: `castellate_daughter.py`, `castellate_copper.py`,
+  `backport_copper.py`). KiCad DRC: no errors, nothing unconnected; `jlc_fab_check.py` checks JLCPCB's castellation
+  rules (0.6 mm drill, 0.6 mm between holes, 0.25 mm ring).
+- **J102** (the wideband controller's SWD pads) stays on the bottom, so it can be reached only before the module is
+  soldered down. It is a fallback: the wideband controller is programmed through the main processor and its ROM
+  bootloader (rev 0.4 on). J3, the main processor's SWD pads, is on top.
+- **Order with castellated holes** ([ORDERING.md](../ORDERING.md)). Rev 0.13 goes with motherboard rev 0.16 (1989-95)
+  or 0.12 (1996-2005), which have the lands. It does not fit the earlier, socketed motherboards, and an earlier
+  daughterboard does not fit these.
+- **Temperature:** the board model now includes the motherboard under the module (`board_thermal.py --flat`). The
+  module runs 1-5 °C warmer than the old free-air figure, and the 9-13 °C the header pins were estimated to take away
+  are gone: at sustained 7200 rpm, the processor is +43 °C on sequential cars and the hottest clamp TVS +119 °C on a
+  stock-wired 1989-93 car in batch mode (+74 °C in sequential mode). Figures and limits:
+  [VERIFICATION.md](../VERIFICATION.md#board-temperature). Unmeasured.
 
 ## What changed in rev 0.12
 - **Processor STM32F405VGT6** (C56621) instead of the STM32F407VGT6, for JLCPCB stock: the same die and datasheet
   without Ethernet and the camera port, neither used here. The rusEFI build is unchanged; the pin map is checked against
   ST's pin data for the F405 and for the F407 and F427, which fit the same pads (`firmware/tools/check_mcu_pins.py`).
 - **CAN transceivers U10 / U106: NXP TJA1042T/3** (C132227) instead of the TCAN1042, pin for pin.
-- Same routing, placement, outline and pinout as rev 0.11. Rev 0.12 goes with motherboard rev 0.15 (1989-95) or 0.11
-  (1996-2005); it fits the motherboards from rev 0.13 / 0.9 on.
+- Same routing, placement, outline and pinout as rev 0.11. Rev 0.12 went with motherboard rev 0.15 (1989-95) or 0.11
+  (1996-2005); it fits the socketed motherboards from rev 0.13 / 0.9 on.
 
 ## What changed in rev 0.11
 - **No via in or within 0.1 mm of any SMD pad.** The 200 vias that sat in the eight driver tab pads are now in the
@@ -286,9 +311,9 @@ new parts have new numbers.
 | `miata_ecu_daughter.kicad_pro / .kicad_sch / .kicad_pcb` | KiCad 7.0.11 project: root schematic, board (opens in 8/9) |
 | `mcu / power / outputs / inputs / connectors / wideband .kicad_sch` | Schematic sub-sheets, one per functional block |
 | `miata_ecu_daughter_schematic.pdf` | All schematic pages as a PDF |
-| `fab/miata-ecu-daughterboard-rev0.12_jlcpcb_gerbers.zip` | Gerbers + drill files for JLCPCB (6-layer) |
-| `fab/miata-ecu-daughterboard-rev0.12_jlcpcb_bom.csv`, `fab/miata-ecu-daughterboard-rev0.12_jlcpcb_cpl.csv` | JLC assembly BOM and placement file: every part except the two bottom-side 1×40 headers |
-| `fab/miata-ecu-daughterboard-rev0.12_self_order_bom.csv` | What you order and fit yourself: the J1/J2 1×40 pin headers |
+| `fab/miata-ecu-daughterboard-rev0.13_jlcpcb_gerbers.zip` | Gerbers + drill files for JLCPCB (6-layer, castellated holes) |
+| `fab/miata-ecu-daughterboard-rev0.13_jlcpcb_bom.csv`, `fab/miata-ecu-daughterboard-rev0.13_jlcpcb_cpl.csv` | JLC assembly BOM and placement file: every part |
+| `fab/miata-ecu-daughterboard-rev0.13_self_order_bom.csv` | What you order and fit yourself: nothing from rev 0.13 (J1 / J2 are castellated edges), so it has only its header row |
 | `fab/drc_report.txt`, `fab/track_current.txt` | KiCad DRC; track width against current, layer by layer (`scripts/track_current.py`) |
 | `miata_ecu_daughterboard_parts.xlsx` | Parts list by function, J1/J2 pinout, MCU pin map |
 | `../scripts/` (repo top level) | The design source: `design.py` (parts + netlist), `placement.py`, `build_pcb.py`, `route.py`, `wideband.py` (the wideband circuit, mapped from the FOME module in `wideband_ref/` under its MIT licence), `wb_clean.py` (its rev 0.3 placement and heater copper; `wb_preview.py` draws a placement preview), `wb_build.py` (the rev 0.2 transplant, kept for reference), `daughter_finish.py`, `tab_copper.py` (the drivers' drain copper), `hand_route.py` / `hand_route_all.py` / `clean_dangling.py` (the rev 0.8 hand routes and cleanup) |
@@ -369,21 +394,22 @@ that needs the same hand finishing.
   - Flashing goes through the main MCU: USART3 on PD8 (TX) / PD9 (RX) to the F103's ROM bootloader, PD10 = its BOOT0,
     PD11 = its reset (open drain); its BOOT1 is held low by R135. In normal running, keep PD10 low and PD11 released.
   - The firmware is rusEFI's wideband controller built for this board (`firmware/wideband`). Fallback: SWD through the
-    J102 Tag-Connect pads on the bottom side.
+    J102 Tag-Connect pads on the bottom side, before the module is soldered to a motherboard (rev 0.13 on).
 
 ## Before ordering
 1. **LCSC numbers.** Every number was looked up against LCSC/JLCPCB in rev 0.2, and three wrong ones were fixed; the rev 0.10 parts were looked up on 2026-11-13 (`research/rev0.10_design_audit.md`). Still check stock for the extended parts when you order. **The clamp TVS D46-D49 is Littelfuse 1.5SMC16A (C1973780): 2,709 in JLCPCB's stock list on 2026-11-15.** If it is out, any SMCJ14A or SMDJ14A fits the same pads and passes the same simulation (15.6-17.2 V, 150 °C): Diodes Inc. SMCJ14A-13-F (C135134, 2,862) or Brightking SMDJ14A/TR13 (C310102, 7,830). Not a 13 V or 15 V type: the first conducts with the battery reversed, the second clamps too late. Vishay's TPSMC16AHE3_B/H (C1982018, 185 °C) can be fitted by hand where it can be bought; JLCPCB had none (`VERIFICATION.md`, Rev 0.10).
 2. **Part rotations.** Check every rotation in JLC's assembly preview ([ORDERING.md](../ORDERING.md#3-check-the-placement-preview) lists the ones not yet seen). JLC's footprint orientation differs from KiCad's for some packages (SOT-223, SOIC, QSOP). New in rev 0.10 and never checked there: the card socket J4, the clamp TVSs and diodes.
 3. **Ignition outputs.** The 10 nF caps from the hellen ignition outputs were left off to keep the column tidy. If you want them back, add them on the motherboard next to the coil connector.
-4. **Headers on the bottom.** J1/J2 are not in the JLC BOM or CPL (they'd need bottom-side assembly). They're in
-   `fab/miata-ecu-daughterboard-rev0.12_self_order_bom.csv`: hand-solder them, squared up against a motherboard's female sockets while the solder
-   sets.
+4. **Castellated holes.** Choose castellated holes on the order page (an extra charge); without it the fab may route the
+   edges plain and leave no plating in the half-holes. JLCPCB's castellation rules: 0.6 mm minimum drill (these are
+   1.0 mm), 0.6 mm between holes (1.54 mm here), 0.25 mm ring. Check in their preview that the 80 half-holes on the long
+   edges show as castellations, and that their six-layer process offers the option on the day.
 5. **Schematic and layout review.** No person has reviewed the schematic yet. The wideband *circuit* is the proven FOME design, but since rev 0.3 its *layout* is new to this board, so it no longer inherits the module's proven layout. Bring up the wideband on the first boards before relying on it (heater control, pump current, and lambda reading against a known sensor).
 6. **Wideband first flash.** It goes through the main MCU (rev 0.4), so no extra cable is needed: the board's rusEFI firmware has the programming feature (`wbo_uart_flash`). A Tag-Connect TC2030-NL cable on J102 is the fallback.
 7. **JLCPCB guidelines.** Every board passes JLCPCB's recommended part-to-part spacing per package pair
    (`scripts/jlc_spacing.py`; no two parts' pads closer than 0.25 mm) and its published PCB capabilities
    (`scripts/jlc_fab_check.py`: track width, via and hole sizes, PTH rings, 0.45 mm from a pad hole to any other hole,
-   copper 0.2 mm from the edge, silkscreen lines 0.15 mm and text 1.0 mm, applied by `scripts/silk_jlc.py`). Both run
+   copper 0.2 mm from the edge except the castellations, silkscreen lines 0.15 mm and text 1.0 mm, applied by `scripts/silk_jlc.py`). Both run
    in the release scripts. KiCad still reports courtyard overlaps (101) where small parts sit closer than their
    courtyards allow; the bodies clear and the pad spacing meets JLC's table. When ordering assembly, let JLC add the
    edge rails and fiducials (the boards have none of their own), and look at their DFM report and 3D preview.

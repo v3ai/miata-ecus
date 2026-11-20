@@ -57,7 +57,8 @@ CASE_NOTE = ('Stock NA case (same for 1990-95). Outline and holes come from the 
              'NA6 KiCad board (rev a/b), which uses the same Mazda case outline. H1 is a recessed boss: stack 3 M4 washers under the board.')
 HEADER_DESC = ('TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); rusEFI\'s 1990 page calls the '
                'second plug 3A-3Z. TE lists it as not currently available: desolder one from a stock ECU or use a clone. Fitted by hand.')
-CHANGES = ["Rev 0.15: R21 / R22 fitted (4.7 kΩ to 12 V, C23162): the A/C request and clutch switches close to ground, and the firmware reads them active low. For daughterboard rev 0.12 (STM32F405, TJA1042 CAN transceivers); any daughterboard from rev 0.10 fits.",
+CHANGES = ["Rev 0.16, for daughterboard rev 0.13, the castellated module: JD1 / JD2 are rows of 40 SMD lands (1.5 x 3.0 mm, 1.2 mm under the module and 1.8 mm beyond its edge) instead of 1x40 sockets, and the standoff holes HD1-HD4 are gone. The module is soldered flat to the lands, so nothing may sit under it: the freewheel diodes D1 / D2 and the injector clamps D3 / D4 above JD1, the TPS links R29 / R30 beside them, the pull-ups R20-R22 and R27 below JD2. The tracks that met the sockets on the bottom copper now reach the lands through vias beside them. Same nets and pinout; the earlier, socketed daughterboards do not fit.",
+           "Rev 0.15: R21 / R22 fitted (4.7 kΩ to 12 V, C23162): the A/C request and clutch switches close to ground, and the firmware reads them active low. For daughterboard rev 0.12 (STM32F405, TJA1042 CAN transceivers); any daughterboard from rev 0.10 fits.",
            "Rev 0.14: no via in or against any SMD pad (they moved beside their pads); JP6 ships on BOOST for 1989-93, where the firmware runs the fuel pump relay on 2O (the airflow meter's plug takes the GM air-temperature sensor that ships with every board).",
            "2026-11-15, no change to the board: on 1989-93 cars JP1 and JP2 now carry no shunt, so each of the two injector wires has one driver (INJ1, INJ2), as on rusEFI's and Speeduino's boards for these cars. Before, both sat on PAIR and two drivers shared each wire. The firmware is unchanged (batch firing).",
            "Rev 0.13: the wideband sensor connector J2 is now a JST PUD side-entry header (S08B-PUDSS-1, two rows of four at 2.0 mm) instead of rev 0.12's Molex Micro-Fit 2x4. AEM's instructions for the X-Series gauge name the harness's replacement terminal, JST SPUD-001T-P0.5, which is the contact of JST's PUD series (plug housing PUDP-08V-S): a Micro-Fit header would not have taken the plug. The wire colour of each pin is printed beside the connector, to check a harness against by eye. The board is routed again; nothing else changed.",
@@ -73,7 +74,7 @@ CHANGES = ["Rev 0.15: R21 / R22 fitted (4.7 kΩ to 12 V, C23162): the A/C reques
            'connector 6 mm right; SWD header removed; heater fuse now 30 V rated.']
 VERIFY = ['The case geometry: hole centres and header 1A position, with calipers on a stock case.',
           'Your car\'s fan wiring: early cars switch the fan relay on 1R, later ones on 1L; both are driven (fan and spare outputs).',
-          'LCSC stock for the extended parts (C124412, C127367, C277684, C587650, C3020560, C410772, C960026, C3406).',
+          'LCSC stock for the extended parts (C127367, C277684, C587650, C3020560, C410772, C960026, C3406).',
           'Harness pins 1N and 2L on a 1989-93 car: with the throttle switch unplugged, which plug wire reaches each (the '
           'rusEFI sources give 1N = idle contact, 2D = ground, 2L = full-throttle contact). Do this before fitting R28.',
           'The TPS conversion on a manual car: the sensor and mount against your throttle body, and the sensor\'s output '
@@ -249,8 +250,7 @@ def placement():
     import placement as dpl
     P['JD1'] = (dx + 13.0, dy + dpl.J1_Y, 90)
     P['JD2'] = (dx + 13.0, dy + dpl.J2_Y, 90)
-    for i, (hx, hy) in enumerate(dpl.HOLES):
-        P[f'HD{i + 1}'] = (dx + hx, dy + hy, 0)
+    # (no standoffs from daughterboard rev 0.13: the castellated module is soldered to JD1 / JD2)
     # CAN termination right under the daughterboard's CAN pins (JD2 27/28)
     P['R1'] = (dx + 13.0 + 26.5 * 2.54 - 0.9, dy + dpl.J2_Y + 4.35, 90)
     P['R6'] = (dx + 13.0 + 26.5 * 2.54 + 0.9, dy + dpl.J2_Y + 4.35, 90)
@@ -272,7 +272,7 @@ def placement():
     # AUX box header, body centred on the board below the daughterboard (set in mb_build)
     P['J5'] = ('centre', W / 2, dy + dpl.BOARD_H + 11.0, -90)     # rev 0.9: 16 mm lower, with the daughterboard
     C.protection_place(P)
-    # 1989-93 injector pairing links and clamps, under the daughterboard between JD1's injector pins
+    # 1989-93 injector clamps (D3 / D4, below): above JD1 by its injector pins (under the daughterboard up to rev 0.15)
     # year / option jumpers in the margins beside the daughterboard, where they can be reached with it fitted (the
     # band between the harness header and the daughterboard is the router's bus: nothing through-hole goes there)
     # (clear of the case bosses H3 / H4 at y = 84: their 7 mm pads reach y = 80.5)
@@ -281,13 +281,14 @@ def placement():
         if ref in C.SILK:
             P[ref] = (x, y, 0)
     P['R37'] = (6.5, 94.0, 90)       # below H3
-    P['D3'] = (72.0, 64.0, 0)
-    P['D4'] = (86.0, 64.0, 0)
+    # (rev 0.16: above JD1 by their injector pins, outside the castellated daughterboard)
+    P['D3'] = (73.41, 38.33, 0)
+    P['D4'] = (83.91, 38.33, 0)
     # 2L idle-switch pull-up option, above its JD2 pin (IN_AUX1 = J2 pin 9) like R20-R22
-    P['R27'] = (DAUGHTER[0] + 13.0 + 8 * 2.54, DAUGHTER[1] + dpl.J2_Y - 5.25, 90)
+    P['R27'] = (DAUGHTER[0] + 13.0 + 8 * 2.54, DAUGHTER[1] + dpl.J2_Y + 3.75, 90)     # rev 0.16: below its JD2 land
     # rev 0.11 TPS links (positions set against the routed rev 0.9 copper; see VERIFICATION.md)
     P['R28'] = (57.2, 22.75, 0)      # just below the harness header, under 1N, between two bus lanes and 0.3 mm clear of the
                                      # crank lane's via at x = 59.25 (the bus planner does not see parts in its band)
-    P['R29'] = (49.09, 102.5, 270)   # in a gap cut into the old 2L-AUX1 run
-    P['R30'] = (42.5, 102.5, 180)    # between the 2L run and the TPS run
+    P['R29'] = (66.16, 40.93, 90)    # rev 0.16: above JD1, out from under the castellated daughterboard
+    P['R30'] = (62.16, 40.93, 0)
     return P

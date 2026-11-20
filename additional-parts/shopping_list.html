@@ -70,7 +70,7 @@ td.item b a{color:var(--accent);text-underline-offset:2px}
 <main>
   <header>
     <h1>Miata ECU: parts JLCPCB won't fit</h1>
-    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.12 and the four motherboards (1989-95 rev 0.15; 1996-97, 1999-2000 and 2001-05 rev 0.11), plus the parts that go in the car. Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
+    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.13 and the four motherboards (1989-95 rev 0.16; 1996-97, 1999-2000 and 2001-05 rev 0.12), plus the parts that go in the car. Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
   </header>
 
   <div class="counts" role="group" aria-label="Build counts">
@@ -97,9 +97,9 @@ td.item b a{color:var(--accent);text-underline-offset:2px}
 const DK = m => `https://www.digikey.com/en/products/result?keywords=${encodeURIComponent(m)}`;
 const MC = m => `https://www.mcmaster.com/${encodeURIComponent(m)}/`;
 const GROUPS = [
- {id:'daughter', title:'Daughterboard', sub:'One set per daughterboard. Every daughterboard fits every motherboard.', rows:[
-  {item:'Pin header, 1×40, 2.54 mm, male', pn:'Sullins PRPC040SAAN-RC', dk:'PRPC040SAAN-RC', per:'d', q:2, who:'must',
-   note:'J1 and J2, on the bottom side. Cheaper to hand-solder than to pay for bottom-side assembly: plug them into a motherboard’s sockets while the solder sets so they come out straight.'},
+ {id:'daughter', title:'Daughterboard', sub:'Nothing to fit on the daughterboard itself from rev 0.13: it is soldered flat to its motherboard. Every daughterboard fits every motherboard of rev 0.16 (1989-95) / 0.12 (1996-2005).', rows:[
+  {item:'Solder paste, no-clean, Sn63/Pb37, 10 cc syringe', pn:'Chip Quik SMD291AX10', dk:'SMD291AX10', per:'once', q:1, who:'must',
+   note:'Solders the daughterboard’s castellated edges (J1, J2) to the motherboard’s lands JD1 / JD2 (INSTALL.md, “Soldering the daughterboard”). One syringe does many boards. With an iron on lands JLCPCB has already tinned, no-clean flux is enough.'},
  ]},
  {id:'harness', title:'Harness connectors', sub:'Not in any parts list. The one part you have to source yourself for each motherboard.', rows:[
   {item:'TE 174917-6, 48 pins', pn:'TE 174917-6', per:'8995', q:1, who:'must', warn:'Not available from TE',
@@ -118,10 +118,6 @@ const GROUPS = [
    note:'Holds the MAP sensor down through its two holes. 18-8 stainless, Phillips; sold in packs of 100.'},
   {item:'M3 nylon-insert locknut (MAP sensor)', pn:'McMaster 93625A100', mc:'93625A100', per:'mb', q:2, who:'must',
    note:'Goes under the board on the MAP sensor screws; the nylon insert stops it vibrating loose in the car. 18-8 stainless; pack of 100.'},
-  {item:'Standoff, M3 × 11 mm, female-female', pn:'Würth 970110321', dk:'970110321', per:'mb', q:4, who:'must',
-   note:'Holds the daughterboard above the motherboard (8.5 mm sockets + headers). Steel, 5.5 mm hex. Any M3 × 11 mm female-female hex standoff does.'},
-  {item:'M3 × 6 mm pan head screw (standoffs)', pn:'McMaster 92000A116', mc:'92000A116', per:'mb', q:8, who:'must', note:'Two per standoff, one through each board. 18-8 stainless, Phillips; pack of 100.'},
-  {item:'Socket, 1×40, 2.54 mm, female, 8.5 mm, gold', pn:'Würth 61304011821', dk:'61304011821', per:'mb', q:2, who:'must', note:'JD1 and JD2 for the daughterboard, one piece per row (straighter than two 1×20s end to end). Gold contacts, to match the gold-flash header pins: avoid tin sockets, which corrode against gold under vibration (crank, cam and injector signals go through these). 0.335″ (8.50 mm) insulation height: the 11 mm standoffs depend on it. Same-size alternatives: Samtec SSQ-140-01-G-S, or two Sullins PPPC201LFBN-RC end to end.'},
   {item:'JST PUD header, 2×4, 2 mm, side entry', pn:'JST S08B-PUDSS-1', dk:'S08B-PUDSS-1', per:'mb', q:1, who:'must',
    note:'J2, wideband sensor, for AEM’s X-Series harness 30-3427 (its plug is JST’s PUDP-08V-S: AEM’s instructions name that series’ terminal).'},
   {item:'Box header, 2×10, 2.54 mm', pn:'On Shore 302-S201', dk:'302-S201', per:'mb', q:1, who:'opt', note:'J5, add-on header: boost valve, flex fuel, nitrous, CAN, coils 3 and 4, knock. Leave it off if you use none of them.'},

@@ -836,9 +836,8 @@ def sheet_connectors(s):
     s.place('U10', 271.78, 55.88)
     s.o2('C56', 297.18, 78.74, 'v'); s.o2('C67', 307.34, 78.74, 'v')
     s.text('TJA1042T/3 (rev 0.12; TCAN1042V rev 0.8-0.11), 5 V VCC (C67), 3.3 V VIO (C56), STB low', 233.68, 93.98, 1.27)
-    s.text('Mounting holes', 233.68, 101.6)
-    for i in range(4):
-        s.place(f'H{i + 1}', 238.76 + i * 12.7, 111.76)
+    s.text('J1 / J2 are castellated edges (rev 0.13): 80 plated half-holes, reflowed onto the motherboard. No mounting', 233.68, 101.6, 1.27)
+    s.text('holes; up to rev 0.12 the board stood on four M3 standoffs (H1-H4) on 1x40 headers.', 233.68, 104.14, 1.27)
 
 
 def sheet_wideband(s):

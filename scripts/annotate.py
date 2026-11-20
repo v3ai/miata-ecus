@@ -2,7 +2,7 @@
 """Annotated pictures for INSTALL.md, made from the design files so they can't drift from the boards.
 
   images/annotated_<years>.jpg               the assembled ECU from above, every user-facing part labelled
-  images/annotated_motherboard_<years>.jpg   the motherboard alone: sockets, fuses, jumpers and option links
+  images/annotated_motherboard_<years>.jpg   the motherboard alone: daughterboard lands, fuses, jumpers and option links
   images/header_pinouts.png                  where pin 1 is on J5 and J2 (pad positions from the PCB file)
 
 The board pictures are the 3D viewer (viewer/index.html) looking straight down; the label positions are the viewer's
@@ -23,7 +23,7 @@ YEARS = {   # viewer key: (file suffix, title, motherboard folder, pcb file, har
     '9900': ('1999-2000', '1999–2000 (NB)', '1999-2000', 'miata_mb_9900.kicad_pcb', 'TE 178780-1, 76 positions'),
     '0105': ('2001-05', '2001–05 (NB, VVT)', '2001-05', 'miata_mb_0105.kicad_pcb', 'TE 353830-5, 72 positions'),
 }
-DAUGHTER_REV = '0.12'
+DAUGHTER_REV = '0.13'
 
 # ---- what gets a label -------------------------------------------------------------------------------------------
 # target: 'mb:REF' / 'd:REF' = a part on the motherboard / daughterboard; 'mbhole:N' / 'dhole:N' = a mounting hole.
@@ -36,8 +36,7 @@ def assembled_labels(y):
              'M4. Provisional on this board: placed as in the 1989–95 case until this year’s case is measured.')
     L = [
         ('mb:J1', 'Harness plug (J1)', f'The car’s own ECU plugs go here. {hdr}.'),
-        ('d:U1', 'Daughterboard', 'The computer itself, the same on every year. It sits on two 40-pin sockets.'),
-        ('dhole:0', 'Standoff screws (4)', 'M3. Hold the daughterboard 11 mm above the motherboard.'),
+        ('d:U1', 'Daughterboard', 'The computer itself, the same on every year. Soldered flat by its castellated edges.'),
         ('d:D3', 'Status lights', 'Green: power and running. Blue: talking to the laptop. Yellow: warning. Red: fault.'),
         ('d:SW1', 'BOOT and RESET buttons', 'Hold BOOT while powering up to start the firmware loader. RESET restarts the ECU.'),
         ('d:J4', 'microSD card socket', 'For logging to a card. The metal lid slides and hinges up.'),
@@ -58,9 +57,8 @@ def assembled_labels(y):
 
 MB_COMMON = [
     ('mb:J1', 'Harness plug (J1)', 'Soldered by hand: salvaged from a stock ECU, or a new one.'),
-    ('mb:JD1', 'Daughterboard socket JD1', 'Two 1×40 sockets, JD1 and JD2. The daughterboard only fits one way round.'),
-    ('mb:JD2', 'Daughterboard socket JD2', None),
-    ('mbstand:0', 'Standoff positions (4)', 'M3 × 11 mm standoffs, screwed from below.'),
+    ('mb:JD1', 'Daughterboard lands JD1', 'Two rows of 40 lands, JD1 and JD2: the daughterboard’s castellated edges solder here.'),
+    ('mb:JD2', 'Daughterboard lands JD2', None),
     ('mb:F1', 'Sensor-heater fuse (F1)', 'Resets itself when it cools. Feeds the wideband sensor’s heater.'),
     ('mb:F4', 'Add-on 12 V fuse (F4)', 'Resets itself. Limits add-on pin 15 to 1.1 A.'),
     ('mb:R20', 'Switch pull-ups (R20–R22)', 'R21 / R22 (A/C, clutch) fitted. R20 (speed) only if that signal switches to ground.'),
@@ -299,7 +297,7 @@ def boards(args):
                 png = pg.screenshot(clip={'x': x0, 'y': y0, 'width': x1 - x0, 'height': y1 - y0}, timeout=300000)
                 if bare:
                     jobs.append((png, geo, MB_COMMON + MB_EXTRA.get(y, []), f'Miata ECU {name}: the motherboard alone',
-                                 'Seen from above with the daughterboard lifted off: the sockets, fuses, jumpers and option links.',
+                                 'Seen from above without the daughterboard: its lands, the fuses, jumpers and option links.',
                                  foot, os.path.join(args.out, f'annotated_motherboard_{suffix}.jpg')))
                 else:
                     jobs.append((png, geo, assembled_labels(y), f'Miata ECU {name}: what’s what',

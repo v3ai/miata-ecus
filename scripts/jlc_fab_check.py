@@ -88,6 +88,7 @@ def check(path):
         if e < min_edge[0]:
             min_edge = (e, t.GetNetname())
     # pads: PTH ring, holes, copper to edge
+    castellated = []
     for fp in b.GetFootprints():
         for p in fp.Pads():
             a = p.GetAttribute()
@@ -99,6 +100,15 @@ def check(path):
                     ring = (mm(min(p.GetSize().x, p.GetSize().y)) - h) / 2
                     if ring < lim['pth_ring'] - 1e-6:
                         bad.append(f'PTH ring {ring:.3f} mm: {fp.GetReference()}.{p.GetNumber()}')
+            if p.GetProperty() == pcbnew.PAD_PROP_CASTELLATED:
+                # plated half-hole on the edge (rev 0.13 daughterboard): exempt from copper-to-edge, held instead to
+                # JLCPCB's castellation rules (0.6 mm drill, 0.6 mm between holes, 0.25 mm ring)
+                h = mm(min(p.GetDrillSize().x, p.GetDrillSize().y))
+                ring = (mm(min(p.GetSize().x, p.GetSize().y)) - h) / 2
+                if h < 0.6 - 1e-6 or ring < 0.25 - 1e-6:
+                    bad.append(f'castellation drill {h:.2f} / ring {ring:.3f} mm: {fp.GetReference()}.{p.GetNumber()}')
+                castellated.append((Point(mm(p.GetPosition().x), mm(p.GetPosition().y)), h / 2))
+                continue
             if p.IsOnCopperLayer() and a != pcbnew.PAD_ATTRIB_NPTH:
                 bb = p.GetBoundingBox()
                 g = Polygon([(mm(bb.GetLeft()), mm(bb.GetTop())), (mm(bb.GetRight()), mm(bb.GetTop())),
@@ -106,6 +116,12 @@ def check(path):
                 e = border.distance(g)
                 if e < min_edge[0]:
                     min_edge = (e, f'{fp.GetReference()}.{p.GetNumber()}')
+    if castellated:
+        gap = min((c1.distance(c2) - r1 - r2 for i, (c1, r1) in enumerate(castellated) for c2, r2 in castellated[i + 1:]),
+                  default=9e9)
+        if gap < 0.6 - 1e-6:
+            bad.append(f'castellated holes {gap:.2f} mm apart (JLCPCB: 0.6)')
+        print(f'  {len(castellated)} castellated pads, closest holes {gap:.2f} mm apart')
     # zones: their own edge clearance
     for z in b.Zones():
         for lid in z.GetLayerSet().Seq():

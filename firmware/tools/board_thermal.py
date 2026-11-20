@@ -11,7 +11,8 @@ of the planes, of the copper on the other layers, or of the neighbours heating t
     plating), counted only between layers where its net really has copper;
   - the two faces lose heat to the air at h W/m2 K (natural convection plus radiation; 10 by default, 6 for a
     board boxed in above another board). Part bodies are not counted as cooling surface. The header pins are left
-    out by default (the pessimistic figure); --pins adds them as a path into the motherboard (an estimate);
+    out by default (the pessimistic figure); --pins adds them as a path into the motherboard (an estimate). From rev
+    0.13 the module is soldered flat: --flat models the motherboard's copper under it (constants GAP, G_CAST);
   - each part's loss goes into the cells under the pads that carry its heat (the tab of a DPAK or SOT-223, the
     exposed pad of the regulators, both leads of a diode); its junction is the mean temperature of those cells plus
     loss times the maker's junction-to-case or junction-to-lead resistance.
@@ -25,7 +26,7 @@ show what the chosen h gives.
 
 As a module: Model(board, h, pins).rise({ref: watts}) -> {ref: (watts, pad rise, junction rise)}.
 
-usage: /usr/bin/python3 firmware/tools/board_thermal.py [board.kicad_pcb] [--h 10] [--pins] [--case seq,batch1,pair1,batch,batch_hog]
+usage: /usr/bin/python3 firmware/tools/board_thermal.py [board.kicad_pcb] [--h 10] [--hbot H] [--pins | --flat MB.kicad_pcb] [--case seq,batch1,pair1,batch,batch_hog]
                                                         [--png out.png] [--selftest]
 """
 import argparse
@@ -49,6 +50,13 @@ VIA_PLATE = 18e-6
 # bar, taken as 3 mW/K with the contact (assumed). The motherboard is one node: both faces of 154 x 162 mm at h, times
 # 0.35 because a two-layer board fed along two rows of pins is far from isothermal (assumed).
 G_PIN, MB_AREA, MB_FIN = 3e-3, 2 * 0.154 * 0.1616, 0.35
+# Castellated module soldered flat (--flat, daughterboard rev 0.13 on): the motherboard under the module becomes two more
+# copper layers (its real copper there, 1.5 mm of laminate between them) below an air gap of GAP (the solder joints'
+# height, assumed), entered as the FR4 thickness that conducts the same; each castellation joins the module's bottom
+# copper to the land under it by G_CAST (a solder-filled half-hole and its fillet, about 0.2 W/K; halved, assumed).
+# Left out, so the figure errs warm: the motherboard beyond the module's outline, its vias, and the top face of the
+# motherboard around the module. The module's own outline sets the grid; MB_AT is its place on the motherboard.
+GAP, K_AIR, G_CAST, MB_AT = 0.1e-3, 0.026, 0.1, (14.5e-3, 42.0e-3)
 
 # junction to case / lead, C/W (maker's figures; the ones marked "read" are in research/rev0.10_design_audit.md)
 RTH_J = {'VND7NV04TR-E': 2.1, 'VND14NV04': 1.8, 'SMCJ14A': 15.0, 'TPSMC16A': 15.0, '1.5SMC16A': 15.0, 'ES1D': 20.0, 'SMCJ30A': 15.0,
@@ -110,10 +118,11 @@ def raster(board_path, layer, nx, ny):
     return a
 
 
-def assemble(cover, thick, stack, vias, h_top, h_bot, pins=None, g_pin=0.0, g_mb=0.0):
+def assemble(cover, thick, stack, vias, h_top, h_bot, pins=None, g_pin=0.0, g_mb=0.0, extra=()):
     """Conductance matrix. cover: [nl, ny, nx] copper fraction; thick: copper thickness per layer; stack: dielectric
     between layers; vias: [(iy, ix, [connected layer indexes], hole diameter)]; pins: [(iy, ix)] header pins, each
-    joined by g_pin (W/K) to one extra node, the motherboard, which loses g_mb (W/K) to the air."""
+    joined by g_pin (W/K) to one extra node, the motherboard, which loses g_mb (W/K) to the air; extra: [(layer a,
+    layer b, iy, ix, W/K)] more links between two cells."""
     nl, ny, nx = cover.shape
     n = nl * ny * nx
     idx = np.arange(n).reshape(nl, ny, nx)
@@ -137,6 +146,8 @@ def assemble(cover, thick, stack, vias, h_top, h_bot, pins=None, g_pin=0.0, g_mb
     for iy, ix, layers, hole in vias:
         for la, lb in zip(layers, layers[1:]):
             link([idx[la, iy, ix]], [idx[lb, iy, ix]], K_CU * math.pi * hole * VIA_PLATE / (z[lb] - z[la]))
+    for la, lb, iy, ix, g in extra:
+        link([idx[la, iy, ix]], [idx[lb, iy, ix]], g)
     diag[idx[0].ravel()] += h_top * CELL * CELL
     diag[idx[-1].ravel()] += h_bot * CELL * CELL
     diag[n] += max(g_mb, 1e-9)
@@ -163,13 +174,14 @@ def selftest(h):
 
 
 class Model:
-    def __init__(self, board_path, h=10.0, pins=False):
+    def __init__(self, board_path, h=10.0, pins=False, h_bot=None, flat=None):
         import pcbnew
         sys.path.insert(0, os.path.join(ROOT, 'scripts'))
         cwd = os.getcwd(); os.chdir(os.path.join(ROOT, 'scripts'))
         import design
         os.chdir(cwd)
         self.h, self.with_pins = h, pins
+        h_bot = h if h_bot is None else h_bot
         b = pcbnew.LoadBoard(board_path)
         pcbnew.ZONE_FILLER(b).Fill(b.Zones())
         bb = b.GetBoardEdgesBoundingBox()
@@ -225,7 +237,28 @@ class Model:
                 if fp.GetReference() in ('J1', 'J2'):
                     pin_cells.append(cell(p.GetPosition()))
         self.n_pins, self.n_vias = len(pin_cells), len(vias)
-        m = assemble(self.cover, thick, stack, vias, h, h, pin_cells if pins else None, G_PIN, h * MB_AREA * MB_FIN)
+        extra = []
+        if flat:                                                    # the motherboard under the module
+            mb = pcbnew.LoadBoard(flat)
+            pcbnew.ZONE_FILLER(mb).Fill(mb.Zones())
+            mbb = mb.GetBoardEdgesBoundingBox()
+            mx0, my0 = pcbnew.ToMM(mbb.GetLeft()) * 1e-3, pcbnew.ToMM(mbb.GetTop()) * 1e-3
+            mnx = int(round(pcbnew.ToMM(mbb.GetWidth()) * 1e-3 / CELL))
+            mny = int(round(pcbnew.ToMM(mbb.GetHeight()) * 1e-3 / CELL))
+            ox, oy = int(round((x0 + MB_AT[0] - mx0) / CELL)), int(round((y0 + MB_AT[1] - my0) / CELL))
+            with tempfile.TemporaryDirectory() as td:
+                filled = os.path.join(td, 'mb.kicad_pcb')
+                mb.Save(filled)
+                mcov = np.array([raster(filled, L, mnx, mny)[oy:oy + ny, ox:ox + nx] for L in ('F.Cu', 'B.Cu')])
+            assert mcov.shape[1:] == (ny, nx), 'the module does not lie inside the motherboard'
+            self.mb_cover = float(mcov.mean())
+            self.cover = np.concatenate([self.cover, mcov])
+            thick = thick + [T_OUT, T_OUT]
+            stack = list(stack) + [GAP * K_FR4_Z / K_AIR, 1.5e-3]
+            extra = [(ncu - 1, ncu, iy, ix, G_CAST) for iy, ix in pin_cells]
+            pins = False
+        m = assemble(self.cover, thick, stack, vias, h, h_bot, pin_cells if pins else None, G_PIN, h * MB_AREA * MB_FIN,
+                     extra)
         self.lu = spl.splu(m)
         # where each part's heat goes in
         by_ref = {p['ref']: p for p in design.parts}
@@ -276,6 +309,9 @@ def main():
     ap.add_argument('--mh', type=float, default=20.0, help='injector inductance, mH')
     ap.add_argument('--png')
     ap.add_argument('--pins', action='store_true', help='count the header pins as a path into the motherboard')
+    ap.add_argument('--hbot', type=float, help='bottom face h, W/m2K (default --h); 0 for the castellated module '
+                    'soldered flat, its underside 0.1 mm over the motherboard: the pessimistic bound')
+    ap.add_argument('--flat', metavar='MB.kicad_pcb', help='the castellated module soldered flat on this motherboard')
     ap.add_argument('--selftest', action='store_true')
     a = ap.parse_args()
     if a.selftest:
@@ -283,9 +319,10 @@ def main():
             print(f'self-test, h = {h:.0f} W/m2K: a 6 x 6 mm source on 1 square inch of 1 oz copper, bare two-sided '
                   f'FR4: {selftest(h):.0f} C/W to the air')
         return 0
-    m = Model(a.board, a.h, a.pins)
-    print(f'{a.board}: {m.layers} copper layers, {m.n_vias} vias and plated holes, h = {a.h:.0f} W/m2K, '
-          + (f'{m.n_pins} header pins into the motherboard' if a.pins else 'no heat through the header pins')
+    m = Model(a.board, a.h, a.pins, a.hbot, a.flat)
+    print(f'{a.board}: {m.layers} copper layers, {m.n_vias} vias and plated holes, h = {a.h:.0f} W/m2K' + ('' if a.hbot is None else f' (bottom face {a.hbot:.0f})') + ', '
+          + (f'soldered flat on {os.path.basename(a.flat)} (its copper covers {m.mb_cover:.0%} under the module)' if a.flat
+             else f'{m.n_pins} header pins into the motherboard' if a.pins else 'no heat through the header pins')
           + f', injectors {a.mh:.0f} mH, 7200 rpm')
     for case in a.case.split(','):
         pw = losses(case, a.mh)
