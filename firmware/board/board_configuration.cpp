@@ -1,6 +1,6 @@
 /**
  * @file board_configuration.cpp
- * @brief rusEFI board definition for the miata-ecus daughterboard (STM32F407VGT6) on any of its motherboards.
+ * @brief rusEFI board definition for the miata-ecus daughterboard (STM32F405VGT6; an STM32F407VGT6 on boards up to rev 0.11) on any of its motherboards.
  *
  * The configuration itself (pin map, board facts, year presets) is in miata_board.cpp; this file wires it into
  * rusEFI's board hooks and adds the parts that only exist on the real hardware (LEDs, wideband flasher).

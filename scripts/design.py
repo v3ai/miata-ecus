@@ -121,7 +121,10 @@ add('J2', 'Mezz_Signal_In', 'HDR40', 'C2977586', {str(k): v for k, v in J2.items
     '1x40 2.54mm male, to motherboard (bottom edge)')
 
 # ---------------------------------------------------------------------------
-# MCU  STM32F407VGT6 (1MB flash - required by rusEFI F4 builds)
+# MCU  STM32F405VGT6 (1MB flash - required by rusEFI F4 builds). Rev 0.12: the F405 instead of the F407, for stock at JLCPCB
+# (1,013 against 210 on 2026-11-19). The same die and datasheet without Ethernet and the camera port (unused here); rusEFI's
+# F4 build runs unchanged. Second sources on the same pads: STM32F407VGT6 (C12345) and STM32F427VGT6 (C117815, a
+# different die that rusEFI detects at run time; bench it before shipping); see scripts/mpn.json.
 # ---------------------------------------------------------------------------
 mcu = {
     # supplies
@@ -166,7 +169,7 @@ mcu = {
     '70': 'USB_DM', '71': 'USB_DP',            # OTG_FS PA11/PA12
     '72': 'SWDIO', '76': 'SWCLK',              # PA13/PA14
 }
-add('U1', 'STM32F407VGT6', 'LQFP100', 'C12345', mcu, 'MCU, 168MHz Cortex-M4F, 1MB flash')
+add('U1', 'STM32F405VGT6', 'LQFP100', 'C56621', mcu, 'MCU, 168MHz Cortex-M4F, 1MB flash')
 
 for i in range(6):
     C(f'C{1+i}', '100n', '+3V3', 'GND', '0402' if i == 3 else '0603')   # one per VDD pin

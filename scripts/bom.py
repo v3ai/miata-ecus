@@ -34,6 +34,7 @@ GROUPS = [
 ]
 
 DESC = {
+    'STM32F405VGT6': 'MCU, Cortex-M4F 168MHz, 1MB flash, LQFP-100',
     'STM32F407VGT6': 'MCU, Cortex-M4F 168MHz, 1MB flash, LQFP-100',
     'NCV8406ASTT3G': 'Self-protected low-side driver, 60-70V clamp (inj/IACV/VVT/boost/alt)',
     'ULN2003AD': '7ch Darlington low side (relays, CEL, tach)',

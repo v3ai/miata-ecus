@@ -210,7 +210,7 @@ new parts have new numbers.
 
 ## What changed in rev 0.4
 - **Both MCUs flash over the one USB-C port.** The main MCU now has a programming link to the wideband MCU (U102):
-  | Main MCU (U1, STM32F407) | Wideband MCU (U102, STM32F042) | Job |
+  | Main MCU (U1, STM32F405) | Wideband MCU (U102, STM32F042) | Job |
   |---|---|---|
   | PD8 (USART3 TX) | PA10 (USART1 RX) | data to the wideband's ROM bootloader |
   | PD9 (USART3 RX) | PA9 (USART1 TX) | data back |
@@ -334,7 +334,7 @@ that needs the same hand finishing.
 ## Circuit summary (topologies follow rusEFI hellen-one modules)
 | Block | Parts |
 |---|---|
-| MCU | STM32F407VGT6 (1 MB flash, rusEFI F4 target), 8 MHz crystal, 4 status LEDs (PD12, PC8, PC9, PD15), BOOT/RESET buttons, Tag-Connect TC2030 SWD pads |
+| MCU | STM32F405VGT6 (1 MB flash, rusEFI F4 target; up to rev 0.11 the STM32F407VGT6, which fits the same pads, as does the STM32F427VGT6), 8 MHz crystal, 4 status LEDs (PD12, PC8, PC9, PD15), BOOT/RESET buttons, Tag-Connect TC2030 SWD pads |
 | Power | SMCJ30A load-dump TVS → SS34 reverse diode (and B5819W ignition wake) → 1.1 A PTC → SMAJ33A TVS → 2.2 µH → LMR14020 5 V buck. Two TLS115 protected 5 V supplies (MAP sensor; harness sensors on V5_EXT). LDL1117 3.3 V (low dropout), TL431 + BCP53 shunt clamp on +3V3. USB VBUS can power it on the bench. |
 | Injectors / IACV / VVT / boost / alternator | 8× VND7NV04 protected low sides (DPAK, 60 mΩ) on drain copper columns with thermal vias, driven at 5 V by an SN74LVC4245A through 220 Ω each. Its output enable (PA8) is pulled off until the firmware runs; pull-downs on both sides. Each injector driver has a turn-off clamp: ES1D to a 1.5SMC16A that returns to the battery input |
 | Relays, CEL, tach, spare | 7× ZXMS6004FF protected low sides (current limit, thermal shutdown, 60 V clamp) driven at 5 V by a second SN74LVC4245A on the same enable; the check-engine lamp's switch takes its gate from the processor pin directly |

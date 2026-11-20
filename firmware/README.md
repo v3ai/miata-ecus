@@ -1,7 +1,7 @@
 # Firmware
 
 This folder is the [rusEFI](https://github.com/rusefi/rusefi) board definition for the miata-ecus daughterboard
-(STM32F407VGT6), plus a flasher that programs the on-board wideband MCU through the main one. One firmware serves
+(STM32F405VGT6; STM32F407VGT6 up to rev 0.11, the same firmware), plus a flasher that programs the on-board wideband MCU through the main one. One firmware serves
 all four motherboards. You pick the model year in TunerStudio.
 
 > **Status:** the board code compiles and links against rusEFI (commit `1374bd07`). It has **not run on hardware**,

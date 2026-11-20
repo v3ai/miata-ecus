@@ -2,7 +2,7 @@
 
 A plug-in [rusEFI](https://rusefi.com) engine computer for the 1989–2005 Mazda Miata (NA and NB). It has two parts:
 
-- **One universal daughterboard.** It does all the engine control: an STM32F407 running rusEFI, plus an on-board
+- **One universal daughterboard.** It does all the engine control: an STM32F405 (an STM32F407 up to rev 0.11) running rusEFI, plus an on-board
   LSU 4.9 wideband controller (the open-source FOME/rusEFI design).
 - **A motherboard for each model year.** Each one fits the stock ECU case, takes the stock harness connector and
   carries the year-specific wiring, the MAP sensor, the wideband sensor plug, the add-on header and USB-C.
@@ -201,7 +201,7 @@ Each board folder contains:
 The rusEFI board definition is in [`firmware/`](firmware/): pin map, year presets, and a flasher for the wideband MCU.
 GitHub Actions builds it on every push: the firmware, the rusEFI console bundle and the TunerStudio `.ini`.
 See [`firmware/README.md`](firmware/README.md). It compiles, but hasn't run on hardware yet.
-- **One USB-C port for everything.** The USB-C on the motherboard's bottom edge goes to the main MCU (STM32F407).
+- **One USB-C port for everything.** The USB-C on the motherboard's bottom edge goes to the main MCU (STM32F405).
   - **First flash:** ST's DFU mode (hold BOOT, tap RESET).
   - **Later updates:** from the rusEFI console through the OpenBLT bootloader, with no buttons to press.
   - **Tuning:** TunerStudio over the same port. Popular Vehicles picks the model year; the tune is stored in the

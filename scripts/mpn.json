@@ -39,6 +39,14 @@
   "mpn": "0402WGF1001TCE",
   "note": ""
  },
+ "C117815": {
+  "correct_lcsc": null,
+  "desc": "MCU ARM Cortex-M4F 180MHz, 1MB Flash, 256KB SRAM, LQFP-100 (14x14)",
+  "match": true,
+  "mfr": "STMicroelectronics",
+  "mpn": "STM32F427VGT6",
+  "note": "Second source for U1 (JLCPCB stock 2,183 on 2026-11-19). ST's pin data has every F407 function on the same pad (check_mcu_pins.py). A different die (device ID 0x419): rusEFI's F4 build detects it at run time (flash option bytes, VBAT/4). Bench one before shipping it."
+ },
  "C12084": {
   "correct_lcsc": null,
   "desc": "3.3V CAN transceiver 1Mbps, SOIC-8",
@@ -53,7 +61,7 @@
   "match": true,
   "mfr": "STMicroelectronics",
   "mpn": "STM32F407VGT6",
-  "note": "Verified on both LCSC and JLCPCB: C12345 really is STM32F407VGT6. Code is correct despite looking suspicious."
+  "note": "U1 up to rev 0.11; second source for rev 0.12 (same pads, same firmware). Verified on both LCSC and JLCPCB: C12345 really is STM32F407VGT6."
  },
  "C124205": {
   "correct_lcsc": null,
@@ -925,6 +933,14 @@
   "mpn": "TLS115D0EJ",
   "note": "MISMATCH: design expects TLS115B0EJ but C540242 is TLS115D0EJ (different variant). LCSC product page is delisted ('Part not found'); identity taken from jlcpcb.com. Correct TLS115B0EJ (150mA, 45V, adjustable 2-14V tracker, DSO-8 EP) is C3743696.",
   "superseded": true
+ },
+ "C56621": {
+  "correct_lcsc": null,
+  "desc": "MCU ARM Cortex-M4F 168MHz, 1MB Flash, 192KB SRAM, LQFP-100 (14x14)",
+  "match": true,
+  "mfr": "STMicroelectronics",
+  "mpn": "STM32F405VGT6",
+  "note": "U1 from rev 0.12. JLCPCB stock 1,013 on 2026-11-19 (F407VGT6 C12345: 210). Same die and datasheet (DS8626) as the F407 without Ethernet and DCMI; ST's pin data matches the F407 pad for pad (firmware/tools/check_mcu_pins.py)."
  },
  "C57112": {
   "correct_lcsc": null,

@@ -246,7 +246,8 @@ def choose(p):
         return 'Device', 'D_Schottky'
     if r == 'J102':
         return 'Connector', 'Conn_ARM_SWD_TagConnect_TC2030-NL'
-    return {'STM32F407VGT6': ('MCU_ST_STM32F4', 'STM32F407VGTx'),
+    return {'STM32F405VGT6': ('MCU_ST_STM32F4', 'STM32F405VGTx'),
+            'STM32F407VGT6': ('MCU_ST_STM32F4', 'STM32F407VGTx'),
             'STM32F042K6T6': ('MCU_ST_STM32F0', 'STM32F042K6Tx'),
             'STM32F103C8T6': ('MCU_ST_STM32F1', 'STM32F103C8Tx'),
             'MCP6004': ('Amplifier_Operational', 'MCP6004'),

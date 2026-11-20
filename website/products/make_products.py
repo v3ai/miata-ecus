@@ -5,7 +5,7 @@ import csv, json, os
 here = os.path.dirname(os.path.abspath(__file__))
 
 COMMON = [
-    ('Processor', 'STM32F407, running rusEFI'),
+    ('Processor', 'STM32F405, running rusEFI'),
     ('Wideband', 'Built-in LSU 4.9 controller'),
     ('MAP sensor', '700 kPa absolute, on the board'),
     ('Outputs', '8 low-side drivers, 7 protected relay and lamp outputs, 4 ignition'),

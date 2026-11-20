@@ -11019,14 +11019,14 @@
     (at 161 98)
     (descr "LQFP, 100 Pin (https://www.nxp.com/docs/en/package-information/SOT407-1.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py")
     (tags "LQFP QFP")
-    (property "LCSC" "C12345")
+    (property "LCSC" "C56621")
     (path "/8de6377b-761f-4cd1-bde5-c06fe1aa2781/35a665c7-d35c-4172-9300-ab5bff5ea4e0")
     (attr smd)
     (fp_text reference "U1" (at 0 -9.42) (layer "F.SilkS")
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 791fe270-0af7-4df9-a440-1d28129a93c2)
     )
-    (fp_text value "STM32F407VGT6" (at 0 9.42) (layer "F.Fab") hide
+    (fp_text value "STM32F405VGT6" (at 0 9.42) (layer "F.Fab") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp fbb5b420-89c7-4bae-aa95-4c9f0b24982c)
     )

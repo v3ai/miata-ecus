@@ -53,7 +53,7 @@ G_PIN, MB_AREA, MB_FIN = 3e-3, 2 * 0.154 * 0.1616, 0.35
 # junction to case / lead, C/W (maker's figures; the ones marked "read" are in research/rev0.10_design_audit.md)
 RTH_J = {'VND7NV04TR-E': 2.1, 'VND14NV04': 1.8, 'SMCJ14A': 15.0, 'TPSMC16A': 15.0, '1.5SMC16A': 15.0, 'ES1D': 20.0, 'SMCJ30A': 15.0,
          'LDL1117S33R': 15.0, 'LMR14020': 6.0, 'TLS115B0EJ': 10.0, 'SS34': 20.0, 'B360A': 15.0,
-         'STM32F407VGT6': 20.0, 'ZXMS6004FFTA': 60.0}
+         'STM32F405VGT6': 20.0, 'ZXMS6004FFTA': 60.0}
 # pads that carry the heat out of a part (default: all pads)
 HEAT_PADS = {'VND7NV04TR-E': ('2',), 'VND14NV04': ('2',), 'LDL1117S33R': ('2',), 'LMR14020': ('9',),
              'TLS115B0EJ': ('9',), 'ZXMS6004FFTA': ('3',)}

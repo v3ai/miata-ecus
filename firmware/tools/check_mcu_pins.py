@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Check the daughterboard's processor pin map against ST's own pin data.
 
-Source of truth: research/st/STM32F407V(E-G)Tx.xml, ST's machine-readable pin description for the STM32F407VGT6 in
-LQFP100 (github.com/STMicroelectronics/STM32_open_pin_data, BSD-3-Clause; the data STM32CubeMX uses). For every
-processor pad in scripts/design.py this checks
+Source of truth: research/st/*.xml, ST's machine-readable pin descriptions in LQFP100
+(github.com/STMicroelectronics/STM32_open_pin_data, BSD-3-Clause; the data STM32CubeMX uses), for the fitted
+STM32F405VGT6 and the two parts that may stand in for it on the same pads, the STM32F407VGT6 (fitted up to rev 0.11)
+and the STM32F427VGT6. Each is checked in its own run. For every processor pad in scripts/design.py this checks
   - the pin number carries the pin we think it does (and scripts/stm32f407v_lqfp100_pins.txt, the hand-made table the
     other tools use, agrees with ST on all 100 pins);
   - supply, ground, VCAP, reset and boot nets sit on pins of that kind, and no supply pin of the package is left open;
@@ -13,7 +14,8 @@ processor pad in scripts/design.py this checks
   - nothing but an input-only or slow function sits on the backup-domain pins PC13-PC15 (3 mA in total, 2 MHz).
 Exits non-zero on any mismatch.
 
-usage: firmware/tools/check_mcu_pins.py
+usage: firmware/tools/check_mcu_pins.py            (all three parts)
+       firmware/tools/check_mcu_pins.py <xml> <RefName>  (one)
 """
 import os
 import re
@@ -28,9 +30,22 @@ os.chdir(SCRIPTS)
 import design  # noqa: E402
 os.chdir(cwd)
 
+PARTS = [('STM32F405VGTx.xml', 'STM32F405VGTx', 'STM32F405VGT6, fitted'),
+         ('STM32F407V(E-G)Tx.xml', 'STM32F407V(E-G)Tx', 'STM32F407VGT6, second source'),
+         ('STM32F427V(G-I)Tx.xml', 'STM32F427V(G-I)Tx', 'STM32F427VGT6, second source')]
+if len(sys.argv) < 3:
+    import subprocess
+    bad = 0
+    for xml, ref, what in PARTS:
+        print(f'== {what}')
+        sys.stdout.flush()
+        bad |= subprocess.run([sys.executable, os.path.abspath(__file__), xml, ref]).returncode
+    sys.exit(bad)
+XML, REF = sys.argv[1], sys.argv[2]
+
 NS = {'m': 'http://dummy.com'}
-root = ET.parse(os.path.join(ROOT, 'research', 'st', 'STM32F407V(E-G)Tx.xml')).getroot()
-assert root.get('Package') == 'LQFP100' and root.get('RefName') == 'STM32F407V(E-G)Tx', root.attrib
+root = ET.parse(os.path.join(ROOT, 'research', 'st', XML)).getroot()
+assert root.get('Package') == 'LQFP100' and root.get('RefName') == REF, root.attrib
 ST = {int(p.get('Position')): (p.get('Name'), p.get('Type'), [s.get('Name') for s in p.findall('m:Signal', NS)])
       for p in root.findall('m:Pin', NS)}
 assert len(ST) == 100

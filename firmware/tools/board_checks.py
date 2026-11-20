@@ -946,7 +946,7 @@ def drivers_check(sysm, year, fw, board_fw, research, notes):
 
 # datasheet rules for pins left unconnected in the design ('' or absent): value -> {pad: reason it may float}
 NC_OK = {
-    'STM32F407VGT6': 'unused GPIO (rusEFI starts unused pins as input with pull-down; ST: no tie needed)',
+    'STM32F405VGT6': 'unused GPIO (rusEFI starts unused pins as input with pull-down; ST: no tie needed)',
     'STM32F103C8T6': 'unused GPIO (F103 resets to floating input; ST AN4899 recommends analog/pull, not required)',
     'TC4427': {'1': 'NC per datasheet', '8': 'NC per datasheet'},
     'SN65HVD230DR': {'5': 'Vref output, may be left open'},
@@ -964,7 +964,7 @@ MUST_TIE = {  # value -> {pad: (required net, why)}
                    '5': ('+5V', 'ADJ reference')},
     'LMR14020': {'3': ('+12V_F', 'EN (tie to VIN or divider)'), '7': ('GND', 'GND'), '9': ('GND', 'exposed pad')},
     'SN74LVC4245APWR': {'2': ('GND', 'DIR: low = B->A'), '22': ('DRV_EN_N', 'OE')},
-    'STM32F407VGT6': {'94': ('BOOT0', 'BOOT0 pulled down'), '37': ('BOOT1', 'PB2/BOOT1 pulled down'),
+    'STM32F405VGT6': {'94': ('BOOT0', 'BOOT0 pulled down'), '37': ('BOOT1', 'PB2/BOOT1 pulled down'),
                       '20': ('GND', 'VSSA'), '21': ('+3V3A', 'VREF+'), '22': ('+3V3A', 'VDDA'),
                       '49': ('VCAP1', 'VCAP1'), '73': ('VCAP2', 'VCAP2'), '6': ('+3V3', 'VBAT')},
     'STM32F103C8T6': {'1': ('+3V3', 'VBAT'), '8': ('GND', 'VSSA'), '9': ('WB_VDDA', 'VDDA'), '44': ('WB_BOOT0', 'BOOT0'),
@@ -976,7 +976,7 @@ MUST_TIE = {  # value -> {pad: (required net, why)}
                   '13': ('GND', 'unused CMOS input must be tied')},
     'TL431AIDBZR': {'3': ('GND', 'anode')},
 }
-PULL_REQ = {('STM32F407VGT6', 'BOOT0'): 'GND', ('STM32F407VGT6', 'BOOT1'): 'GND',
+PULL_REQ = {('STM32F405VGT6', 'BOOT0'): 'GND', ('STM32F405VGT6', 'BOOT1'): 'GND',
             ('STM32F103C8T6', 'WB_BOOT0'): 'GND', ('STM32F103C8T6', 'WB_BOOT1'): 'GND'}
 
 
@@ -995,7 +995,7 @@ FLOAT_INPUTS = [  # (value, pads, what, needs a pull, why it may float)
     ('VND14NV04', ['1'], 'VND14NV04 input', True, 'F103 pin is high-Z in reset / bootloader: heater must stay off'),
     ('LM2903DR', ['2', '3', '5', '6'], 'LM2903 input', True, 'unused VR channel must sit at a defined level'),
     ('LMV321IDBVR', ['1', '3'], 'LMV321 input', True, 'knock amp bias'),
-    ('STM32F407VGT6', ['94', '37'], 'F407 BOOT0/BOOT1', True, 'boot mode'),
+    ('STM32F405VGT6', ['94', '37'], 'F405 BOOT0/BOOT1', True, 'boot mode'),
     ('STM32F103C8T6', ['44', '20'], 'F103 BOOT0/BOOT1', True, 'boot mode (BOOT0 is driven by the F407 PD10, high-Z in reset)'),
 ]
 
@@ -1101,7 +1101,7 @@ def power_paths(sysm, year, fw, board_fw):
 
 def unconnected_pins(sysm, year):
     # the rules don't depend on the year; run them once
-    pad_counts = {'STM32F407VGT6': 100, 'STM32F103C8T6': 48, 'TC4427': 8, 'SN65HVD230DR': 8, 'TLS115B0EJ': 9,
+    pad_counts = {'STM32F405VGT6': 100, 'STM32F103C8T6': 48, 'TC4427': 8, 'SN65HVD230DR': 8, 'TLS115B0EJ': 9,
                   'LMR14020': 9, 'SN74LVC4245APWR': 24, 'ULN2003AD': 16, 'LM2903DR': 8, 'LMV321IDBVR': 5,
                   'MCP6004': 14, 'AD8628': 5, 'REF3033': 3, 'AMS1117-3.3': 3, 'LDL1117S33R': 3, 'NCV8406ASTT3G': 4, 'VND14NV04': 3,
                   'MPX5700AP': 6, 'USBLC6-2SC6': 6, 'TCAN1042VDRQ1': 8, '74HCT04PW': 14, 'VND7NV04TR-E': 3,
