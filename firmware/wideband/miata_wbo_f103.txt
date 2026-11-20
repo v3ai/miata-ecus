@@ -1,3 +1,4 @@
-compiler: arm-none-eabi-gcc (15:13.2.rel1-2) 13.2.1 20231009
+compiler: arm-none-eabi-gcc (15:14.2.rel1-1) 14.2.1 20241119
 wideband: 27e115b7faa136d7d1b0554e1694322daca983b9
-sha256: fa9eece8d500f7bcc41b03e79e1bbadde1cd3bb29d98cf02e74367de91e65e68
+patches: 18db914e2271c4b0
+sha256: 895d68819a98174601588b5a57047bf361cb823a91baca5b1cdaad0680c3f1d2
