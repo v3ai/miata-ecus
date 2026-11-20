@@ -8,7 +8,8 @@
 # current report (daughterboard) and the 2D renders. Use it after a change order on a finished board (for example
 # via_out_of_pad.py + backport_copper.py) instead of the full make / release scripts, which also place and route.
 #
-# The board's own checks run first and stop the export on a failure: schematic against design, KiCad DRC (no errors,
+# The board's own checks run first and stop the export on a failure: schematic against design, every LCSC number
+# against its real part and value (check_lcsc.py), KiCad DRC (no errors,
 # nothing unconnected), jlc_fab_check (no via in a pad, edge clearance), and via_hole_gap.py on a scratch copy (it
 # must find nothing to remove). Works with KiCad 7 or, with the KiCad 9 shim on PYTHONPATH, KiCad 9.
 set -e
@@ -26,6 +27,8 @@ put_sheets() {   # <dir>: copy the generated sheets in only where they differ fr
 }
 board_checks() {   # <board> <report>
   local B=$1
+  python3 $S/check_lcsc.py > $TMP/lcsc.txt || { cat $TMP/lcsc.txt; exit 1; }
+  tail -1 $TMP/lcsc.txt
   cp $B $TMP/vhg.kicad_pcb; cp ${B%.kicad_pcb}.kicad_pro $TMP/vhg.kicad_pro
   local G=$(py $S/via_hole_gap.py $TMP/vhg.kicad_pcb $TMP/vhg_out.kicad_pcb 2>&1 | grep -v leak | tail -1)
   echo "  via_hole_gap: $G"

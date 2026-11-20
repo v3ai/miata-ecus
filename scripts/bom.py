@@ -4,7 +4,8 @@ import design
 import order_bom
 PARTS = {p["ref"]: p for p in design.parts}
 
-# every LCSC number was looked up on 2026-10-28 (scripts/mpn.json); nothing left to flag
+# every LCSC number is in scripts/mpn.json as read from LCSC / JLCPCB, and scripts/check_lcsc.py checks each part's value and
+# package against it (CI and reexport.sh run it); nothing left to flag here
 VERIFY = set()
 # JLC "basic" parts (no extended-part setup fee) among the ones used here
 BASIC = {'C14663', 'C57112', 'C1588', 'C15849', 'C19666', 'C23630', 'C15850', 'C1525', 'C15195',

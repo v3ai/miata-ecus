@@ -26,11 +26,12 @@ jobs:
         with:
           submodules: true   # rusEFI itself; the action fetches rusEFI's own submodules
 
-      - name: Check the pin map against the board design
+      - name: Check the pin map and the part numbers against the board design
         run: |
           python3 -c 'import yaml' 2>/dev/null || pip install --break-system-packages pyyaml
           python3 firmware/tools/check_pins.py
           python3 firmware/tools/check_mcu_pins.py      # the processor's pin map against ST's own pin data (research/st)
+          python3 scripts/check_lcsc.py                 # every LCSC number on every board is the part and value the schematic says
 
       - name: Build firmware
         uses: ./firmware/ext/rusefi/.github/workflows/custom-board-build

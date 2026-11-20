@@ -95,6 +95,14 @@
   "mpn": "430450600",
   "note": ""
  },
+ "C131317": {
+  "correct_lcsc": null,
+  "desc": "Hex inverter 74HCT04, 4.5-5.5 V, TSSOP-14",
+  "match": true,
+  "mfr": "Nexperia",
+  "mpn": "74HCT04PW,118",
+  "note": "Looked up on LCSC 2026-11-19 (scripts/check_lcsc.py)."
+ },
  "C13167": {
   "correct_lcsc": null,
   "desc": "Resistor 2.7k 1% 0603",
@@ -110,6 +118,14 @@
   "mfr": "Sunlord",
   "mpn": "MWSA0603S-100MT",
   "note": ""
+ },
+ "C132227": {
+  "correct_lcsc": null,
+  "desc": "CAN FD transceiver, 5 V, VIO 2.8-5.5 V, SOIC-8",
+  "match": true,
+  "mfr": "NXP",
+  "mpn": "TJA1042T/3/1J",
+  "note": "U10 and U106 from rev 0.12 (the TCAN1042VDRQ1 before). NXP datasheet: SO8 with VIO on pin 5 and STB on pin 8 (the /3 variant), CANH/CANL -58 to +58 V, Tvj -40 to 150 C. JLCPCB stock 55,740 on 2026-11-19."
  },
  "C135134": {
   "correct_lcsc": null,
@@ -152,6 +168,14 @@
   "note": "MISMATCH: design expects BLM18PG221 (220 ohm @100MHz) but C14709 is BLM18PG121SN1D (120 ohm). Correct part BLM18PG221SN1D is C80165 (JLC Extended; 1.4A, 100mohm).",
   "superseded": true
  },
+ "C15008": {
+  "correct_lcsc": null,
+  "desc": "MLCC 100uF 6.3V X5R +/-20% 1206",
+  "match": true,
+  "mfr": "Samsung Electro-Mechanics",
+  "mpn": "CL31A107MQHNNNE",
+  "note": "Looked up on LCSC 2026-11-19 (scripts/check_lcsc.py)."
+ },
  "C15195": {
   "correct_lcsc": null,
   "desc": "MLCC 10nF 50V X7R +/-10% 0402",
@@ -183,6 +207,14 @@
   "mfr": "Samsung Electro-Mechanics",
   "mpn": "CL05B104KO5NNNC",
   "note": ""
+ },
+ "C155605": {
+  "correct_lcsc": null,
+  "desc": "OMNIFET II fully protected power MOSFET, 60 mohm, 6 A, DPAK (LCSC files it under high-side switches)",
+  "match": true,
+  "mfr": "ST",
+  "mpn": "VND7NV04TR-E",
+  "note": "Looked up on LCSC 2026-11-19 (scripts/check_lcsc.py)."
  },
  "C1562": {
   "correct_lcsc": null,
@@ -280,6 +312,30 @@
   "mfr": "cjiang (Changjiang Microelectronics Tech)",
   "mpn": "FXL0530-2R2-M",
   "note": "LCSC listing read 2026-11-13: 48,725 in stock; land pattern not read from the maker (same 5.4 x 5.2 mm moulded outline as the Sunlord MWSA0503S footprint in use)"
+ },
+ "C17901": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 100 ohm 1% 250mW 1206",
+  "match": true,
+  "mfr": "UNI-ROYAL",
+  "mpn": "1206W4F1000T5E",
+  "note": "Looked up on LCSC 2026-11-19 (scripts/check_lcsc.py)."
+ },
+ "C17903": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 10 ohm 1% 250mW 1206",
+  "match": true,
+  "mfr": "UNI-ROYAL",
+  "mpn": "1206W4F100JT5E",
+  "note": "Looked up on LCSC 2026-11-19 (scripts/check_lcsc.py)."
+ },
+ "C17969": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 47 ohm 1% 250mW 1206",
+  "match": true,
+  "mfr": "UNI-ROYAL",
+  "mpn": "1206W4F470JT5E",
+  "note": "Looked up on LCSC 2026-11-19 (scripts/check_lcsc.py)."
  },
  "C17971": {
   "correct_lcsc": null,
@@ -546,6 +602,14 @@
   "mpn": "CL10A225KO8NNNC",
   "note": ""
  },
+ "C23892": {
+  "correct_lcsc": null,
+  "desc": "TL431A adjustable shunt reference, 1%, SOT-23-3",
+  "match": true,
+  "mfr": "TI",
+  "mpn": "TL431AIDBZR",
+  "note": "Looked up on LCSC 2026-11-19 (scripts/check_lcsc.py)."
+ },
  "C25077": {
   "correct_lcsc": null,
   "desc": "Thick film resistor 10 ohm 1% 62.5mW 0402",
@@ -707,6 +771,14 @@
   "mfr": "UNI-ROYAL(Uniroyal Elec)",
   "mpn": "0402WGF6801TCE",
   "note": ""
+ },
+ "C26032": {
+  "correct_lcsc": null,
+  "desc": "Thick film resistor 3.3k 1% 250mW 1206",
+  "match": true,
+  "mfr": "UNI-ROYAL",
+  "mpn": "1206W4F3301T5E",
+  "note": "Looked up on LCSC 2026-11-19 (scripts/check_lcsc.py)."
  },
  "C26083": {
   "correct_lcsc": null,
@@ -974,6 +1046,14 @@
   "mpn": "STM32F042K6T6",
   "note": ""
  },
+ "C70065": {
+  "correct_lcsc": null,
+  "desc": "Resettable fuse nSMD010, 0.1 A hold, 0.25 A trip, 60 V, 1206",
+  "match": true,
+  "mfr": "TECHFUSE",
+  "mpn": "nSMD010",
+  "note": "Looked up on LCSC 2026-11-19 (scripts/check_lcsc.py)."
+ },
  "C70077": {
   "correct_lcsc": null,
   "desc": "Resettable PTC fuse 0.5 A hold, 1 A trip, 33 V, 100 A, 1206",
@@ -1070,6 +1150,14 @@
   "mpn": "BLM18PG221SN1D",
   "note": "replacement"
  },
+ "C85085": {
+  "correct_lcsc": null,
+  "desc": "PNP transistor BCP53-16, 80 V, 1 A, SOT-223 (SC-73)",
+  "match": true,
+  "mfr": "Nexperia",
+  "mpn": "BCP53-16,115",
+  "note": "Looked up on LCSC 2026-11-19 (scripts/check_lcsc.py)."
+ },
  "C8598": {
   "correct_lcsc": null,
   "desc": "Schottky diode 40V 1A, SOD-123",
@@ -1110,6 +1198,14 @@
   "mpn": "MPX5700AP",
   "note": "replaces MPX5700DP (C410772)"
  },
+ "C916423": {
+  "correct_lcsc": null,
+  "desc": "Dual Schottky diode BAT54A, common anode, 30 V, SOT-23",
+  "match": true,
+  "mfr": "JSMSEMI",
+  "mpn": "BAT54A",
+  "note": "Looked up on LCSC 2026-11-19 (scripts/check_lcsc.py)."
+ },
  "C94193": {
   "correct_lcsc": null,
   "desc": "Schottky diode 60 V 3 A, SMA (DO-214AC)",
@@ -1117,6 +1213,14 @@
   "mfr": "Diodes Incorporated",
   "mpn": "B360A-13-F",
   "note": ""
+ },
+ "C95063": {
+  "correct_lcsc": null,
+  "desc": "IntelliFET protected low-side switch, 60 V, 350 mohm, SOT-23F",
+  "match": true,
+  "mfr": "DIODES",
+  "mpn": "ZXMS6004FFTA",
+  "note": "Looked up on LCSC 2026-11-19 (scripts/check_lcsc.py)."
  },
  "C960026": {
   "correct_lcsc": null,
