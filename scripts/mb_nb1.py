@@ -1,6 +1,7 @@
 """1999-2000 Miata (NB1, BP-4W 1.8) motherboard.
 
-Header: TE 176122-6 (4-174518-7), 64 positions: plugs 1 (22) | 2 (16) | 3 (26).
+Header: TE 178780-1, 76 positions, as the 1996-97 board (the car's own 64-position 176122-6 has the same plug housings):
+plugs 1 (22) | X (12, no harness plug) | 2 (16) | 3 (26).
 Pin map: rusEFI wiki 1999 page (3M/3O swap corrected), Hellen NB1 connector map, board netlist and its
 'OEM ECU pin' sheet, DIY MSPNP Pro MM9900, Alex Engineering Speeduino NB manual, Haltech, 2005 FSM.
 Crank (2J) and cam (2H) are 3-wire hall sensors fed +12 V from the main relay.

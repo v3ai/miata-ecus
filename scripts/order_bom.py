@@ -213,6 +213,10 @@ def write_order_all(boards, daughters, cars, path):
 # Rotation: JLC's part models don't all share KiCad's zero orientation. These offsets come from JLC's placement
 # preview of the rev 0.5 daughterboard (pin 1 of JLC's model against the board's pin-1 pad), October 2026.
 # Footprints not listed matched with no offset (chip R/C/L, SMA/SMC/SOD diodes, LEDs, crystal, buttons).
+# Not yet seen in a preview, so check them there at every order (and on the boards received in November 2026,
+# ordered-boards/2026-11/BRING-UP.md item 3): the 5 V regulators U3 / U14 (Infineon PG-DSO-8, given the SOIC
+# offset), the microSD socket J4 (no entry, so no offset), the SMC TVSs and the SOD-123 / SOD-323 diodes added since
+# rev 0.5, and the motherboards' USBLC6 (SOT-23-6, given the SOT-23 offset).
 import re
 JLC_ROT = [
     (r'^SOT-223', 180),                 # seen: 3 pins / tab swapped

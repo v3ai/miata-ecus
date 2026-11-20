@@ -1,8 +1,7 @@
-"""Write the Mazda ECU harness-header footprints with OEM terminal names (1A, 1B, ... 3Z).
+"""Write the Mazda ECU harness-header footprints (1.3 mm holes, 1.8 mm pads: TE asks for 1.35 mm) with OEM terminal names (1A, 1B, ... 3Z).
 
 TE 178780-1 (76 pins: plug 1 = 22, plug 4 = 12 (not used by the OEM harness), plug 2 = 16, plug 3 = 26)
   geometry from the Hellen NA8-96 board (hellen-one-common:178780-1);
-TE 176122-6 (64 pins: 22 + 16 + 26) geometry from rusefi_lib 176122-6_2nd.
 Within every plug the lower row (nearest the board centre) carries A, C, E ... and the upper row
 B, D, F ... (checked against the Hellen board's net names). Footprint origin = terminal 1A.
 """
@@ -39,7 +38,7 @@ def write(name, desc, pins, pegs, lines, model=''):
         ys += [b - y0, d - y0]
     out.append(f'  (fp_rect (start {min(xs) - 0.5:.3f} {min(ys) - 0.5:.3f}) (end {max(xs) + 0.5:.3f} {max(ys) + 1.6:.3f}) (stroke (width 0.05) (type solid)) (fill none) (layer "F.CrtYd"))')
     for nm, x, y in pins:
-        out.append(f'  (pad "{nm}" thru_hole circle (at {x - x0:.4f} {y - y0:.4f}) (size 1.8 1.8) (drill 1.1) (layers "*.Cu" "*.Mask"))')
+        out.append(f'  (pad "{nm}" thru_hole circle (at {x - x0:.4f} {y - y0:.4f}) (size 1.8 1.8) (drill 1.3) (layers "*.Cu" "*.Mask"))')
     for x, y in pegs:
         out.append(f'  (pad "" np_thru_hole circle (at {x - x0:.4f} {y - y0:.4f}) (size 3.5 3.5) (drill 3.5) (layers "*.Cu" "*.Mask"))')
     for nm, x, y in pins:
@@ -79,21 +78,8 @@ write('TE_178780-1_76P_NB1', 'TE 178780-1 76-pin header with 1999-2000 Miata ter
       '12-position bay (XA-XL) has no harness plug, plug 2 = 2A-2P (16), plug 3 = 3A-3Z (26)',
       [(_m[nm[0]] + nm[1:], x, y) for nm, x, y in pins], pegs, lines)
 
-# ---- 176122-6 from rusefi_lib
-s = open(LIBS + '/rusefi_lib.pretty/176122-6_2nd.kicad_mod').read()
-pp = re.findall(r'\(pad "?([^" ]*)"? (\w+) (\w+) \(at ([-\d.]+) ([-\d.]+)', s)
-pad = {p[0]: (float(p[3]), float(p[4])) for p in pp if p[0]}
-pegs = [(float(p[3]), float(p[4])) for p in pp if not p[0]]
-lines = [tuple(float(v) for v in m) for m in re.findall(r'fp_line \(start ([-\d.]+) ([-\d.]+)\) \(end ([-\d.]+) ([-\d.]+)\)', s)]
-pins = []
-for plug, n, lo_nums, hi_nums in (('1', 22, range(1, 12), range(12, 23)), ('2', 16, range(23, 31), range(31, 39)),
-                                   ('3', 26, range(39, 52), range(52, 65))):
-    lo, hi = names(plug, n)
-    pins += [(nm, *pad[str(k)]) for nm, k in zip(lo, lo_nums)]
-    pins += [(nm, *pad[str(k)]) for nm, k in zip(hi, hi_nums)]
-pins.sort(key=lambda p: (p[0][0] != '1', p[0]))
-write('TE_176122-6_64P', 'TE 176122-6 Mazda 64-pin ECU header (22+16+26), 1999-2000 Miata; pads named by OEM terminal',
-      pins, pegs, lines)
+# (The 64-position TE 176122-6, the 1999-2000 car's own header, was generated here until rev 0.12. The 1999-2000 board
+# uses the 76-position 178780-1 above since rev 0.8, so it was dropped.)
 
 
 # ---- 72-pin NB2 header (TE 353830-5 / 1123038-2): OEM plugs 2 (17), 3 (24), 4 (31) in three rows.
