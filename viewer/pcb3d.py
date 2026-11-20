@@ -25,7 +25,16 @@ sys.path.insert(0, SCRIPTS)
 WORK = os.path.join(HERE, 'work_' + (PRE or 'daughter'))
 os.makedirs(WORK, exist_ok=True)
 GLTFPACK = os.environ.get('GLTFPACK', 'gltfpack')        # npm i gltfpack, or set GLTFPACK to its path
-ENV = dict(os.environ, KICAD6_3DMODEL_DIR='/usr/share/kicad/3dmodels', KICAD7_3DMODEL_DIR='/usr/share/kicad/3dmodels')
+MODELS = os.environ.get('KICAD_3DMODELS', '/usr/share/kicad/3dmodels').rstrip('/')   # KiCad's 3D library folder
+ENV = dict(os.environ, **{f'KICAD{v}_3DMODEL_DIR': MODELS for v in (6, 7, 8, 9)})
+FOOTPRINTS = os.environ.get('KICAD_FOOTPRINTS', '/usr/share/kicad/footprints').rstrip('/')   # KiCad's footprint library
+
+
+def pos0(p):
+    """A pad's position in its footprint's own frame (KiCad 7: GetPos0; KiCad 8 and later: GetFPRelativePosition)."""
+    return p.GetPos0() if hasattr(p, 'GetPos0') else p.GetFPRelativePosition()
+
+
 board = pcbnew.LoadBoard(BOARD)
 
 # ---------------------------------------------------------------- layer rasters
@@ -185,7 +194,7 @@ step = f'{WORK}/board.step'
 SUBST = {'SOIC-8-1EP_3.9x4.9mm_P1.27mm_EP2.29x3mm': 'Package_SO.3dshapes/SO-8_3.9x4.9mm_P1.27mm.wrl',
          'Infineon_PG-DSO-8-27_3.9x4.9mm_EP2.65x3mm': 'Package_SO.3dshapes/SO-8_3.9x4.9mm_P1.27mm.wrl',
          'Fuse_1812_4532Metric': 'Capacitor_SMD.3dshapes/C_1812_4532Metric.wrl'}
-MODELDIR = '/usr/share/kicad/3dmodels/'
+MODELDIR = MODELS + '/'
 sub_board = pcbnew.LoadBoard(BOARD)
 nsub = 0
 for fp in sub_board.GetFootprints():
@@ -288,11 +297,11 @@ if True:                       # procedural models (both boards)
         elif 'Micro-Fit_3.0' in name and name.endswith('Horizontal'):
             # right-angle Molex Micro-Fit (no 3D model in this KiCad install): housing = the footprint's Fab outline,
             # mating face (local -y) with one dark cavity per contact, pins through the board
-            src = open(f'/usr/share/kicad/footprints/Connector_Molex.pretty/{name.split(":")[1]}.kicad_mod').read()
+            src = open(f'{FOOTPRINTS}/Connector_Molex.pretty/{name.split(":")[1]}.kicad_mod').read()
             fab = [tuple(map(float, m)) for m in re.findall(
                 r'fp_line \(start ([-\d.]+) ([-\d.]+)\) \(end ([-\d.]+) ([-\d.]+)\) \(layer "F.Fab"', src)]
             fx = [v for a, b, c, d in fab for v in (a, c)]; fy = [v for a, b, c, d in fab for v in (b, d)]
-            pins = [(pcbnew.ToMM(p.GetPos0().x), pcbnew.ToMM(p.GetPos0().y))
+            pins = [(pcbnew.ToMM(pos0(p).x), pcbnew.ToMM(pos0(p).y))
                     for p in fp.Pads() if p.GetNumber()]
             mrows = sorted({round(y, 2) for _, y in pins}); mcols = sorted({round(x, 2) for x, _ in pins})
             hgt = 3.6 + 3.0 * len(mrows)
@@ -308,7 +317,7 @@ if True:                       # procedural models (both boards)
             # side-entry JST PUD header (no 3D model in this KiCad install): natural-colour housing on the footprint's
             # Fab outline, open mating face on local +y (the board edge), pins through the board. Height is not in the
             # footprint: 6.6 mm, a two-row 2 mm header lying down (stand-in model).
-            src = open(f'/usr/share/kicad/footprints/Connector_JST.pretty/{name.split(":")[1]}.kicad_mod').read()
+            src = open(f'{FOOTPRINTS}/Connector_JST.pretty/{name.split(":")[1]}.kicad_mod').read()
             fab = [tuple(map(float, m)) for m in re.findall(
                 r'fp_line\s*\(start ([-\d.]+) ([-\d.]+)\)\s*\(end ([-\d.]+) ([-\d.]+)\)[^\n]*?\(layer "?F\.Fab"?\)', src)]
             fx = [v for a, b, c, d in fab for v in (a, c)]; fy = [v for a, b, c, d in fab for v in (b, d)]
@@ -319,12 +328,12 @@ if True:                       # procedural models (both boards)
             extra[NATURAL].append(cuboid(f, (x0 + x1) / 2 - 1.6, (x0 + x1) / 2 + 1.6, y1 - 4.0, y1 - 1.2, top, top + 0.7))   # lock ledge
             for p in fp.Pads():
                 if p.GetNumber():
-                    px_, py_ = pcbnew.ToMM(p.GetPos0().x), pcbnew.ToMM(p.GetPos0().y)
+                    px_, py_ = pcbnew.ToMM(pos0(p).x), pcbnew.ToMM(pos0(p).y)
                     extra[TIN].append(cuboid(f, px_ - 0.25, px_ + 0.25, py_ - 0.25, py_ + 0.25, -2.6, 1.7))
         elif name.endswith('microSD_HC_Molex_47219-2001'):
             # Molex 47219-2001 hinged microSD socket: stamped steel cover over a black base, 1.9 mm tall, on the
             # footprint's Fab outline (stand-in model)
-            src = open(f'/usr/share/kicad/footprints/Connector_Card.pretty/{name.split(":")[1]}.kicad_mod').read()
+            src = open(f'{FOOTPRINTS}/Connector_Card.pretty/{name.split(":")[1]}.kicad_mod').read()
             fab = [tuple(map(float, m)) for m in re.findall(
                 r'fp_line\s*\(start ([-\d.]+) ([-\d.]+)\)\s*\(end ([-\d.]+) ([-\d.]+)\)[^\n]*?\(layer "?F\.Fab"?\)', src)]
             fx = [v for a, b, c, d in fab for v in (a, c)]; fy = [v for a, b, c, d in fab for v in (b, d)]
@@ -350,7 +359,7 @@ if True:                       # procedural models (both boards)
             extra[TIN].append(cuboid(f, -2.55, 2.55, -2.55, 2.55, 2.5, 2.7))
             extra[BLACK].append(cylinder(f, 0, 0, 2.7, 1.25, 0.4, axis='z'))
             for p in fp.Pads():
-                px, py = pcbnew.ToMM(p.GetPos0().x), pcbnew.ToMM(p.GetPos0().y)
+                px, py = pcbnew.ToMM(pos0(p).x), pcbnew.ToMM(pos0(p).y)
                 x0, x1 = sorted((px, px * 0.85))
                 extra[TIN].append(cuboid(f, x0 - 0.35, x1 + 0.35, py - 0.35, py + 0.35, 1.6, 1.75))
         elif name.endswith('MPX5700_867C_Flat'):

@@ -1,6 +1,6 @@
 # Installing the ECU
 
-How to fit the ECU to a 1990–2005 Miata and start the engine for the first time.
+How to fit the ECU to a 1989–2005 Miata and start the engine for the first time.
 
 > **Read this first.** No board has been built or run in a car yet. This guide is written from the design files and
 > from the published install procedures of other plug-in Miata ECUs (listed under [Sources](#sources)). Steps that
@@ -61,7 +61,7 @@ the row nearer the daughterboard.
 | 19 | CAN H | CAN bus, 500 kbit/s: the bus the on-board wideband reports on |
 | 20 | CAN L | |
 
-Pins 12 and 13 need a rev 0.10 daughterboard.
+Pins 12 and 13 need a rev 0.10 or later daughterboard.
 
 **J2, wideband sensor** (JST PUD header S08B-PUDSS-1: two rows of four at 2 mm), for **AEM's X-Series sensor harness
 30-3427**, which has the Bosch LSU 4.9 plug on its other end. Pin 1 is at the left. Pins 1 and 2 are the first
@@ -99,7 +99,7 @@ car before the first start:
 | JP3 (FAN2) | 90-93 | 94-95 | Which harness pin the second fan relay is on |
 | JP4 (94-95 2R) | open | fitted | The 1994–95 pressure-regulator solenoid |
 | JP5 (TACH COP) | open | open | Fit only after a coil-on-plug conversion with the igniter removed |
-| JP6 (2O) | AFM | AFM | BOOST: the boost valve output on the airflow meter's old signal wire, once the meter is gone |
+| JP6 (2O) | BOOST | AFM | BOOST: a driver on the airflow meter's old signal wire, which the 1989–93 firmware runs as the fuel pump relay. AFM: to the spare analog input |
 
 The full table is in the [1989–95 README](motherboards/1989-95/README.md).
 
@@ -111,6 +111,9 @@ Everything is on the [parts page](additional-parts/shopping_list.html), with qua
 - **Your stock ECU's case.** The board goes in it (1990–95; the 1996–2005 fit is unchecked).
 - A **Bosch LSU 4.9** wideband sensor (0 258 017 025), genuine, and **AEM's X-Series sensor harness 30-3427** from it
   to J2.
+- A **GM open-element air-temperature sensor** (Delphi 25036751 type, 3/8-18 NPT) with its 2-way Metri-Pack 150
+  plug, terminals and about 2 m of two-core 20 AWG wire, plus two male terminals that fit your car's sensor plug or two
+  sealed butt splices. It replaces the stock sensor on every year: [Air temperature](#7-air-temperature).
 - **Vacuum hose**, 3–4 mm inside diameter, about 3 m, and a **4 mm barbed tee**.
 - A USB-C cable and a laptop with [TunerStudio](https://www.tunerstudio.com/).
 - A multimeter and a timing light.
@@ -167,27 +170,29 @@ carpet up again.
 
 ### 1990–93
 
-- **Fuel pump: keep the airflow meter plugged in.** On these cars the fuel pump is switched by a contact inside the
-  airflow meter, not by the ECU, and the stock harness has no wire in the ECU plug's fuel-pump cavity (2T). So:
-  - **Airflow meter left in the intake and plugged in:** the pump works as stock. Nothing to do. This is the
-    simplest first install.
-  - **Airflow meter removed** (most turbo builds): the pump will not run. Add one wire from the **F/P** terminal of
-    the diagnosis box under the hood to cavity **2T** of the ECU plug, with a matching terminal. The ECU then
-    switches the pump, and stops it when the engine stalls. This is the method the ME221 guide gives for these
-    cars. **Unchecked on this board.**
-  - Bridging F/P to GND in the diagnosis box also runs the pump, but it then runs whenever the key is on, even with
+- **Fuel pump: the ECU switches it on the airflow meter's old signal wire.** On these cars a contact inside the
+  airflow meter switches the pump, and the stock harness has no wire in the ECU plug's pump cavity (2T). The GM
+  air-temperature sensor takes over the meter's plug, so the meter and its pump contact are gone. Instead:
+  - Set **JP6 on BOOST** (the 1989–93 setting). The 1989–93 year button runs the pump relay on that driver, which
+    reaches the meter's old signal wire **2O**.
+  - In the airflow meter's plug, link the **pump-contact cavity** (the light-green wire from the circuit opening
+    relay; terminal Fc in the factory manual) to the **signal cavity** (the wire that rings out to ECU cavity 2O).
+    With the key on, the ECU primes the pump for a few seconds, runs it while the engine turns, and stops it on a
+    stall. Speeduino's NA6 board and forum installs switch the pump the same way. **Unchecked on this board.**
+  - The other way: a wire from the **F/P** terminal of the diagnosis box to cavity **2T** of the ECU plug (the ME221
+    method). Then leave JP6 on AFM and set the Fuel pump pin back to the FP output in TunerStudio.
+  - Bridging F/P to GND in the diagnosis box also runs the pump, but then it runs whenever the key is on, even with
     the engine stopped. Use it for testing only.
-- **Air temperature:** the stock sensor is inside the airflow meter, and the ECU reads it through the harness. With
-  the meter removed, see [Air temperature](#7-air-temperature).
+- **Air temperature:** the GM sensor goes on the airflow meter's plug: see [Air temperature](#7-air-temperature).
 - **Manual cars have no throttle position sensor**, only a switch. The engine runs without one, but there is no
   closed-loop idle, no throttle-based acceleration fuel and no overrun fuel cut until you fit one: see
   [Throttle position sensor](README.md#throttle-position-sensor-198993-manual-cars).
-- **Jumpers:** no shunt on JP1 and JP2, JP3 on 90-93, JP4 and JP5 open, JP6 on AFM.
+- **Jumpers:** no shunt on JP1 and JP2, JP3 on 90-93, JP4 and JP5 open, JP6 on BOOST (the fuel pump).
 - **Automatics:** never put JP2 on SEQ, and leave R28 and R30 off.
 - **Sustained high rpm:** on the stock wiring one driver and one clamp in the ECU work each pair of injectors, and
   each wire opens once per revolution. That is how rusEFI's and Speeduino's boards run these cars, and it is the
   hottest arrangement for this board: with high-inductance injectors (20 mH) held at 7200 rpm the model keeps the
-  clamp inside its rating only while the air around the board is below about 34–47 °C (at 5000 rpm, 61–72 °C).
+  clamp inside its rating only while the air around the board is below about 33–46 °C (at 5000 rpm, 61–72 °C).
   With 8 mH injectors there is ample margin. So measure one injector's inductance
   ([why](README.md#things-to-know-before-ordering)), and for track use do one of these, both **unchecked**:
   - set the injection **Mode** to **Sequential** in TunerStudio. With no shunts on JP1 and JP2 each wire then opens
@@ -239,17 +244,18 @@ then open twice per cycle with full-length pulses, which is twice the fuel.
 ### 1994–95 and 1996–97
 
 - **1994–95 jumpers:** JP1 and JP2 on SEQ, JP3 on 94-95, JP4 fitted, JP5 open, JP6 on AFM.
-- The stock airflow meter can stay plugged in: the ECU ignores its signal, and the stock air-temperature sensor
-  inside it keeps working.
+- The ECU ignores the airflow meter's signal. The stock air-temperature sensor is inside the meter; the GM sensor
+  takes its two wires at the meter's plug ([Air temperature](#7-air-temperature)), so the meter comes out or stays
+  unplugged. The pump needs nothing: the ECU already switches it on 2T (1994–95) or 1U (1996–97).
 - The ECU is behind the passenger seat, so the MAP hose and the wideband lead are long: run them from the firewall
   along the passenger sill, under the trim.
 
 ### 1999–2000 and 2001–05
 
 - **Pick the right year button.** A 2001–02 car on the 2003–05 button gets no fuel or spark.
-- The stock airflow meter can stay plugged in: the ECU ignores its signal. The stock air-temperature sensor is in
-  the air filter box (a separate two-wire sensor on 1999–2000), and keeps working for as long as the stock airbox
-  stays.
+- The stock airflow meter can stay plugged in or come out: the ECU ignores its signal. The stock air-temperature
+  sensor is a separate two-wire sensor in the air filter box, not in the airflow meter; the GM sensor goes on that
+  sensor's plug ([Air temperature](#7-air-temperature)).
 - **Charging:** alternator control ships switched off. Check the wire and switch it on:
   [firmware/README.md, First start, step 7](firmware/README.md#first-start). Until then, watch battery voltage.
 - **2001–05 Mazdaspeed:** not supported. Its pin 4R is a second air-temperature sensor, not the VVT valve.
@@ -296,20 +302,29 @@ Never leave the sensor in a running engine's exhaust with the ECU unplugged: an 
 
 ## 7. Air temperature
 
-The ECU needs the temperature of the air entering the engine.
+Every unit reads a **GM open-element sensor**, not the stock Mazda one: the firmware's year buttons load the GM curve
+(Delphi 25036751 table), so there is nothing to enter in TunerStudio. The sensor goes on the car's own air-temperature
+wires, at the plug of the part it replaces, and then sits in the intake air.
 
-| Situation | Do this |
-|---|---|
-| Stock airbox and airflow meter still fitted and plugged in | Nothing: the ECU reads the stock sensor through the harness |
-| Airflow meter removed, 1990–93 | A GM open-element sensor on an adapter that plugs into the airflow meter's plug (MiataSource and Speedy EFI sell them) |
-| Airflow meter removed, 1994–97 | The same sensor wired to the two air-temperature wires at the meter's plug (AMP: the third and fourth wires on 1994–95). Confirm the two wires with a meter on your car |
-| Stock airbox removed, 1999–2005 | The same sensor on the stock air-temperature sensor's plug |
-| Turbo or supercharger | Put the sensor after the intercooler, close to the throttle body, not in the airbox, and extend the same two wires to it |
+| Years | Where the two wires are | ECU cavities to ring out to (signal, ground) | Then |
+|---|---|---|---|
+| 1990–93 | The vane airflow meter's plug (the sensor is inside the meter). MSPNP and Speeduino both use plug pins 1 and 6 | 2P, 2D | The meter comes out; link its pump contact for the fuel pump ([1990–93](#199093)) |
+| 1994–95 | The airflow meter's 5-wire plug | 2P (red/black), 2D (black/blue) | Meter out or unplugged |
+| 1996–97 | The airflow meter's 5-wire plug | 3K (red/black), 3O (black/blue) | Meter out or unplugged |
+| 1999–2005 | The stock air-temperature sensor's own 2-pin plug in the air filter box, not the airflow meter's 3-pin plug | 2B, 3F (1999–2000); 4N, 4O (2001–05) | Unplug the stock sensor |
 
-The board has no separate air-temperature plug (it had one up to motherboard rev 0.11 / 0.7).
+- **Find the two wires with a meter first.** Install guides disagree on which pins of the 1994–97 meter plug carry the
+  sensor, and on one reading one of them is the meter's 5 V supply. With the ECU unplugged, ring each wire out to the
+  ECU cavities in the table. The sensor has no polarity.
+- **Never leave the stock sensor connected as well.** Two sensors in parallel read neither curve.
+- **Joining it:** either crimp two male terminals that fit the car's plug onto the GM sensor's lead (an adapter
+  pigtail; the 1999–2005 sensor plug takes 1.8 mm blades, one seller's adapter suggests, so the GM sensor's own 1.5 mm
+  pins are too small to push in), or cut the two wires behind the plug and join them with sealed butt splices.
+- **Where the sensor goes:** in the intake tube after the air filter, in a 3/8 NPT bung or grommet. With a turbo or
+  supercharger, after the intercooler and close to the throttle body.
 
-After changing the sensor type, enter its resistance curve in TunerStudio's air-temperature sensor settings. The
-year buttons are set for the stock Mazda sensor.
+The board has no separate air-temperature plug (it had one up to motherboard rev 0.11 / 0.7). A car that keeps its
+stock Mazda sensor needs the Mazda curve entered in TunerStudio's air-temperature settings.
 
 ## 8. First start
 
@@ -341,7 +356,7 @@ Reconnect the battery and plug the harness in. Then follow
 | Coil-on-plug, one coil per cylinder | Cylinder 1 on the stock coil 1&4 signal wire, cylinder 3 on the stock coil 2&3 wire, cylinder 2 on pin 1, cylinder 4 on pin 2. Coils with built-in igniters only (5 V logic) | Ignition mode: sequential; set the dwell for your coils first |
 | Coil-on-plug, wasted spark | No ECU wiring: the conversion harness uses the two stock signals | Set the dwell for your coils first |
 
-Flex fuel and nitrous need a rev 0.10 daughterboard.
+Flex fuel and nitrous need a rev 0.10 or later daughterboard.
 
 **1990 to early 1995 with coil-on-plug:** the tachometer was fed by the stock igniter. With the igniter gone, fit JP5
 on the 1989–95 board, set the tach output in TunerStudio and join the two tach wires at the old igniter plug. With the
@@ -353,7 +368,7 @@ stock igniter fitted, leave JP5 open: the firmware has no tach output on these y
 |---|---|
 | No lights with the key on | Harness plugs seated; on the bench, USB alone should light the green power light |
 | Red light | A firmware fault: connect TunerStudio and read the message |
-| Cranks, RPM shows, no start, 1990–93 | The fuel pump: is the airflow meter plugged in, or the F/P wire fitted? |
+| Cranks, RPM shows, no start, 1990–93 | The fuel pump: JP6 on BOOST and the link in the meter plug, or the F/P wire fitted with the Fuel pump pin set to FP? |
 | No fuel or spark at all, 2001–05 | The wrong year button (2001–02 against 2003–05) |
 | RPM stays at zero while cranking | The trigger input: see [First start, step 4](firmware/README.md#first-start) |
 | MAP stuck near 100 kPa | The hose: off, kinked, or taken from before the throttle |
@@ -371,7 +386,9 @@ Where this guide's car-specific facts come from:
   [1999–2000](https://ampenginemanagement.com/blogs/amp-pnp-documentation/amp-pnp-mm9900-installation) and
   [2001–05](https://ampenginemanagement.com/blogs/amp-pnp-documentation/amp-pnp-mm0105-installation), and the
   [FOME Miata quick start](https://wiki.fome.tech/Vehicle-Specific/Mazda-MX5-Miata/Miata-MX5-Quick-Start/).
-- 1990–93 fuel pump: the [ME221 MX-5 guide](https://motorsport-electronics.co.uk/wp-content/uploads/2023/09/ME221_MX5_8995-Quick-Start-.pdf),
+- 1990–93 fuel pump on the airflow meter's wire: the [Speeduino MX5 PNP wiki](https://raw.githubusercontent.com/speeduino/wiki.js/master/boards/MX5_PNP.md)
+  and a [miataturbo.net thread](https://www.miataturbo.net/megasquirt-18/fuel-pump-wiring-1600-eunos-1990-a-75438/).
+- 1990–93 fuel pump with a 2T wire: the [ME221 MX-5 guide](https://motorsport-electronics.co.uk/wp-content/uploads/2023/09/ME221_MX5_8995-Quick-Start-.pdf),
   the [Speeduino MX5 manual](https://speeduino.com/Speeduino_mx5.pdf) and the FOME quick start.
 - One wire per injector on 1990–93 cars: a 1991 owner's write-up in the
   [rusEFI forum](https://rusefi.com/forum/viewtopic.php?p=41337) (the joints, the two new wires, the loose terminal)
@@ -388,7 +405,12 @@ Where this guide's car-specific facts come from:
   [1999–2000](https://support.haltech.com/portal/en/kb/articles/99-00-nb1-1-8l-bp-4w) and
   [2001–05](https://support.haltech.com/portal/en/kb/articles/01-05-nb2-1-8l-w-vvt-bp-z3-bp-ve) engine pages (in
   the air filter housing).
-- Airflow-meter adapters: [MiataSource](https://miata-source.com/products/90-93-afm-to-iat-harness),
-  [Speedy EFI](https://speedyefi.com/product/89-93-mazda-miata-vaf-maf-delete-plug/).
+- GM sensor on the airflow meter's plug: AMP's [1990–93 MSPNP2 guide](https://ampenginemanagement.com/blogs/mspnp2-documentation/mspnp2-mm9093-v2-installation)
+  (pins 1 and 6), the [1994–95 MSPNP guide](https://www.megasquirtpnp.com/docs/mspnp_g2_mm9495.php) and a
+  [miataturbo.net thread](https://www.miataturbo.net/megasquirt-18/94-95-96-97-maf-delete-discussion-14166/) on the
+  1996–97 plug's wire colours. The GM resistance table: Delphi's 25036751 data sheet.
+- Ready-made adapters: [MiataSource](https://miata-source.com/products/90-93-afm-to-iat-harness) (1990–93),
+  [Speedy EFI](https://speedyefi.com/product/89-93-mazda-miata-vaf-maf-delete-plug/), and Ballenger's Mazda-IAT to
+  GM adapter (CONN-85972) for the 1999–2005 sensor plug.
 
 The labelled pictures and pin maps are drawn from the board files by [`scripts/annotate.py`](scripts/annotate.py).

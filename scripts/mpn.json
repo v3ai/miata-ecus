@@ -273,6 +273,14 @@
   "mpn": "FXL0530-2R2-M",
   "note": "LCSC listing read 2026-11-13: 48,725 in stock; land pattern not read from the maker (same 5.4 x 5.2 mm moulded outline as the Sunlord MWSA0503S footprint in use)"
  },
+ "C17971": {
+  "correct_lcsc": null,
+  "desc": "Resistor 62 ohm 1% 250mW 1206",
+  "match": true,
+  "mfr": "UNI-ROYAL",
+  "mpn": "1206W4F620JT5E",
+  "note": "R110 (wideband R10) since rev 0.11; C25341 was 0.62 ohm"
+ },
  "C187824": {
   "correct_lcsc": null,
   "desc": "Buck converter 4-40V in, 2A, 200kHz-2.5MHz, SO PowerPAD-8 (HSOP-8-EP)",
@@ -553,6 +561,15 @@
   "mfr": "UNI-ROYAL(Uniroyal Elec)",
   "mpn": "0402WGF470JTCE",
   "note": ""
+ },
+ "C25341": {
+  "correct_lcsc": "C17971",
+  "desc": "Resistor 0.62 ohm 1% 1206",
+  "match": false,
+  "mfr": "UNI-ROYAL",
+  "mpn": "1206W4F620LT5E",
+  "note": "MISMATCH: 620 milliohm, not 62 ohm. Was R110 on rev 0.9 and 0.10",
+  "superseded": true
  },
  "C25741": {
   "correct_lcsc": null,
@@ -1084,5 +1101,13 @@
   "mfr": "Diodes Incorporated",
   "mpn": "B360A-13-F",
   "note": ""
+ },
+ "C960026": {
+  "correct_lcsc": null,
+  "desc": "PTC fuse 2A hold 30V 1812",
+  "match": true,
+  "mfr": "BHFUSE",
+  "mpn": "BSMD1812-200-30V",
+  "note": "F2/F3 since 1999-2000 / 2001-05 rev 0.10 (C46641168 low stock)"
  }
 }

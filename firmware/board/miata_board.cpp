@@ -72,6 +72,17 @@ static void setMpx5700() {
 	engineConfiguration->map.sensor.highValue = 700;
 }
 
+/**
+ * Air temperature: every unit ships with a GM open-element sensor (Delphi 25036751 class) on the car's own IAT wires
+ * (in the airflow meter's plug on 1990-97, on the air-filter-box sensor's plug on 1999-2005), not the stock Mazda
+ * sensor. Points from the Delphi resistance table (-20 C 28146, 40 C 1443, 100 C 175.3 ohm); the fit is within 0.1 C
+ * from -20 to 120 C. Set after every preset (the presets load the Mazda curve), not in the config overrides, so a
+ * user's own curve survives a reboot. The bias resistor and supply stay the board's (miataBoardConfigOverrides).
+ */
+static void setGmIat() {
+	setAtSensor(&engineConfiguration->iat, -20, 28146, 40, 1443, 100, 175.3);
+}
+
 static void setOutputs() {
 	// Wasted spark uses ignitionPins[0] (cylinders 1&4) and [2] (2&3); [1] and [3] are for a coil-on-plug conversion.
 	engineConfiguration->ignitionPins[0] = MIATA_IGN1;
@@ -320,6 +331,14 @@ void miataApplyYearPreset(engine_type_e engineType) {
 		engineConfiguration->injectionPins[1] = MIATA_INJ2;   // slot 2 -> 2V
 		engineConfiguration->injectionPins[2] = MIATA_INJ3;   // slot 3 -> nothing (2V with JP1 on PAIR, 2Y on SEQ)
 		engineConfiguration->injectionPins[3] = MIATA_INJ4;   // slot 4 -> nothing (2U with JP2 on PAIR, 2Z on SEQ)
+		// Fuel pump: on these cars a contact in the vane airflow meter switches the circuit opening relay, and the
+		// harness has no wire in the ECU's pump cavity 2T. Every unit now ships with a GM air-temperature sensor in
+		// the meter's plug, so the meter is gone. The pump relay is switched instead on the meter's old signal wire 2O:
+		// JP6 on BOOST joins 2O to the boost driver, and a link in the meter plug joins its pump-contact cavity to its
+		// signal cavity (Speeduino's NA6 board does the same). The ECU primes the pump at key-on and stops it on a
+		// stall. A car with an added 2T wire instead sets the Fuel pump pin back to the FP output in TunerStudio.
+		engineConfiguration->fuelPumpPin = MIATA_BOOST;
+		engineConfiguration->boostControlPin = Gpio::Unassigned;
 		break;
 	case engine_type_e::MAZDA_MIATA_NA94:
 		// 1994-95: four injector wires (2U/2V/2Y/2Z), sequential like rusEFI's own 1994 preset.
@@ -349,6 +368,7 @@ void miataApplyYearPreset(engine_type_e engineType) {
 void miataAfterTuneDefaults(engine_type_e) {
 	miataBoardConfigOverrides();
 	setMpx5700();
+	setGmIat();
 }
 
 void miataPeriodicSlowCallback() {

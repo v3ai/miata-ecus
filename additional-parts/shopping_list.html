@@ -70,7 +70,7 @@ td.item b a{color:var(--accent);text-underline-offset:2px}
 <main>
   <header>
     <h1>Miata ECU: parts JLCPCB won't fit</h1>
-    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.10 and the four motherboards (1989-95 rev 0.13; 1996-97, 1999-2000 and 2001-05 rev 0.9), plus the parts that go in the car. Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
+    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.11 and the four motherboards (1989-95 rev 0.14; 1996-97, 1999-2000 and 2001-05 rev 0.10), plus the parts that go in the car. Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
   </header>
 
   <div class="counts" role="group" aria-label="Build counts">
@@ -143,7 +143,8 @@ const GROUPS = [
   {item:'O2 sensor weld bung, M18 × 1.5', pn:'M18 × 1.5 bung', per:'car', q:1, who:'opt', note:'Only to keep the stock oxygen sensor as well. The LSU 4.9 screws into the stock front sensor’s hole (same M18 × 1.5 thread).'},
   {item:'AEM X-Series wideband sensor harness', pn:'AEM 30-3427', per:'car', q:1, who:'must', warn:'Fit unchecked', link:'https://www.aemelectronics.com/products/dashes_and_gauges/aem_performance_gauges/gauge_accessories/parts/30-3427',
    note:'From the sensor’s plug to J2. Nobody has plugged one into this board yet: compare its wire colours with the print beside J2, and check each wire with a meter, before plugging a sensor in (INSTALL.md, header pin maps).'},
-  {item:'Air temperature sensor, open element (GM type), on an adapter for the stock sensor’s plug', pn:'open-element thermistor', per:'car', q:1, who:'opt', note:'Only once the airflow meter or the stock airbox is gone. The board reads the car’s own air-temperature wire; there is no separate plug for it.'},
+  {item:'Air temperature sensor, GM open element (Delphi 25036751 type), 3/8 NPT, with its 2-way plug and terminals', pn:'GM open-element IAT', per:'car', q:1, who:'must', note:'Included with every board, and the firmware is set for it. It goes on the car’s own air-temperature wires: the airflow meter’s plug on 1990–97, the air filter box sensor’s plug on 1999–2005 (INSTALL.md, Air temperature).'},
+  {item:'Wire and joints for the air temperature sensor: 2 m of 2-core 20 AWG, two sealed butt splices (or two male terminals that fit the stock plug)', pn:'20 AWG TXL pair, 3M MH18BCK', per:'car', q:1, who:'must', note:'From the stock plug to the sensor in the intake tube. Ring the two wires out to the ECU cavities first.'},
   {item:'Ribbon cable with a 2×10 IDC socket, 2.54 mm', pn:'20-way IDC ribbon cable', per:'car', q:1, who:'opt', note:'To the add-on header J5.'},
   {item:'microSD card', pn:'any microSD, FAT32', per:'car', q:1, who:'opt', note:'For rusEFI’s logging, in the daughterboard’s socket. Not needed to run.'},
   {item:'Silicone vacuum hose, 3-4 mm (1/8-5/32 in) inside diameter, 3 m', pn:'4 mm ID silicone vacuum hose', per:'car', q:1, who:'must', note:'From the MAP sensor’s barb to the intake manifold. 1994-97 cars need most of it: the ECU is behind the seat. Where to connect it on each year: INSTALL.md, MAP hose.'},

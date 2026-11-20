@@ -6,7 +6,7 @@ ambient. After routing, each TVS gets copper on every signal layer under its own
 under its injector driver, 7.62 mm from its neighbours):
   - around the battery-side pad (pad 2, VBAT_IN): the upper half of the column;
   - around the clamp-node pad (pad 1, INJn_CL): the lower half, down past the clamp diode;
-joined through the board by vias in and beside the pads (JLCPCB fills and caps vias in pads on six-layer boards).
+joined through the board by vias beside the pads (never in a pad: the boards are ordered without via fill).
 Other nets' copper keeps its clearance (the zones fill around it) and vias go only where they clear everything on
 every layer. The zones are named clamp_<ref>_A / _K so area() can find them again.
 
@@ -38,8 +38,8 @@ def _seg_dist(px, py, ax, ay, bx, by):
 
 
 def _clear(board, x, y, netcode, own_pad):
-    """True if a via at sheet-mm (x, y) clears every other net's copper on every layer and every hole. A via inside
-    own_pad (a pad of its own net) is wanted; one that only clips a pad edge is not."""
+    """True if a via at sheet-mm (x, y) clears every other net's copper on every layer and every hole, and stays
+    0.1 mm clear of every SMD pad, its own included (no via in pad). own_pad is kept for the callers."""
     r = VIA_D / 2 + CLEAR
     for t in board.GetTracks():
         if t.GetClass() == 'PCB_VIA':
@@ -54,13 +54,11 @@ def _clear(board, x, y, netcode, own_pad):
         for p in fp.Pads():
             bb = p.GetBoundingBox()
             l, t_, r_, b_ = ToMM(bb.GetLeft()), ToMM(bb.GetTop()), ToMM(bb.GetRight()), ToMM(bb.GetBottom())
-            if p is own_pad or (own_pad is not None and p.GetPosition() == own_pad.GetPosition() and p.GetNetCode() == netcode):
-                if l + 0.5 <= x <= r_ - 0.5 and t_ + 0.5 <= y <= b_ - 0.5:
-                    continue                      # well inside its own pad
-                if math.hypot(max(l - x, 0, x - r_), max(t_ - y, 0, y - b_)) < VIA_D / 2 + 0.1:
-                    return False                  # straddling the pad edge
-                continue
             hole = p.GetDrillSize().x > 0
+            if not hole and math.hypot(max(l - x, 0, x - r_), max(t_ - y, 0, y - b_)) < VIA_D / 2 + 0.1:
+                return False                      # in or against an SMD pad, of any net
+            if p.GetNetCode() == netcode and not hole:
+                continue
             if math.hypot(max(l - x, 0, x - r_), max(t_ - y, 0, y - b_)) < r + (0.3 if hole else 0.0):
                 return False
     return True

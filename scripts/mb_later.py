@@ -20,8 +20,8 @@ def build(header_fp, header_value, header_desc, harness, fuses=(), holes=None):
         C.add(ref, 'M4', 'ecu_mb:MountingHole_M4_4.5mm_Pad7', '', {1: 'GND'}, 'Case mounting boss, M4 x 10')
     C.common_parts()
     for ref, net, desc in fuses:
-        C.add(ref, '2A hold', 'Fuse:Fuse_1812_4532Metric', 'C46641168', {1: 'VBAT_IN', 2: net},
-              f'Resettable fuse, {desc} (R+O SMD1812-200-30: 2 A hold, 30 V)')
+        C.add(ref, '2A hold', 'Fuse:Fuse_1812_4532Metric', 'C960026', {1: 'VBAT_IN', 2: net},
+              f'Resettable fuse, {desc} (BHFUSE BSMD1812-200-30V: 2 A hold, 30 V)')
     return C.parts
 
 

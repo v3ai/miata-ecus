@@ -9,7 +9,7 @@ import os, re, sys, uuid, math
 sys.path.insert(0, os.path.dirname(__file__))
 import design, bom
 
-SYMLIB = '/usr/share/kicad/symbols/'
+SYMLIB = os.environ.get('KICAD_SYMBOLS', '/usr/share/kicad/symbols').rstrip('/') + '/'   # KiCad's symbol library folder
 PROJECT = sys.argv[2] if len(sys.argv) > 2 else 'miata_ecu_daughter'
 OUT = sys.argv[1] if len(sys.argv) > 1 else '.'
 G = 2.54

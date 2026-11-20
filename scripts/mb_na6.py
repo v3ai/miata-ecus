@@ -57,7 +57,8 @@ CASE_NOTE = ('Stock NA case (same for 1990-95). Outline and holes come from the 
              'NA6 KiCad board (rev a/b), which uses the same Mazda case outline. H1 is a recessed boss: stack 3 M4 washers under the board.')
 HEADER_DESC = ('TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); rusEFI\'s 1990 page calls the '
                'second plug 3A-3Z. TE lists it as not currently available: desolder one from a stock ECU or use a clone. Fitted by hand.')
-CHANGES = ["2026-11-15, no change to the board: on 1989-93 cars JP1 and JP2 now carry no shunt, so each of the two injector wires has one driver (INJ1, INJ2), as on rusEFI's and Speeduino's boards for these cars. Before, both sat on PAIR and two drivers shared each wire. The firmware is unchanged (batch firing).",
+CHANGES = ["Rev 0.14: no via in or against any SMD pad (they moved beside their pads); JP6 ships on BOOST for 1989-93, where the firmware runs the fuel pump relay on 2O (the airflow meter's plug takes the GM air-temperature sensor that ships with every board).",
+           "2026-11-15, no change to the board: on 1989-93 cars JP1 and JP2 now carry no shunt, so each of the two injector wires has one driver (INJ1, INJ2), as on rusEFI's and Speeduino's boards for these cars. Before, both sat on PAIR and two drivers shared each wire. The firmware is unchanged (batch firing).",
            "Rev 0.13: the wideband sensor connector J2 is now a JST PUD side-entry header (S08B-PUDSS-1, two rows of four at 2.0 mm) instead of rev 0.12's Molex Micro-Fit 2x4. AEM's instructions for the X-Series gauge name the harness's replacement terminal, JST SPUD-001T-P0.5, which is the contact of JST's PUD series (plug housing PUDP-08V-S): a Micro-Fit header would not have taken the plug. The wire colour of each pin is printed beside the connector, to check a harness against by eye. The board is routed again; nothing else changed.",
            "Rev 0.12: one board for 1989-93 and 1994-95 (same case and header); the pins that differ are on jumpers JP1-JP6, set for the car (table below). Rev 0.12 is for daughterboard rev 0.10 (a rev 0.9 daughterboard fits too, without the new functions). The wideband sensor connector J2 is a Molex Micro-Fit 2x4 for the off-the-shelf AEM X-Series sensor harness (30-3427) instead of the 2x3 for a hand-made lead; that plug family was a guess, and wrong: corrected in rev 0.13. The separate air-temperature connector J3 and its jumper are gone: the stock sensor's harness wire goes straight to the air-temperature input. The add-on header J5 is a 2x10 box header for a ribbon cable and gains the flex-fuel input (4.7k pull-up to 5 V, R35), the nitrous arming input (10k pull-down, R36) and the CAN bus; a boost valve on it has its own freewheel diode (D5), and its +12 V fuse F4 holds 1.1 A instead of 0.5 A. The tach output only reaches cavity 2I through JP5, left open: 2I is the igniter's signal into the ECU. D3/D4 are not fitted with a rev 0.10 daughterboard, which clamps each injector driver itself. Sequential injection on 1989-93 is now two jumpers (JP1/JP2 to SEQ), not solder links.",
            "Rev 0.11, for daughterboard rev 0.9: the throttle position sensor conversion uses the stock throttle switch plug, as rusEFI's Hellen NA6 and MRE boards do, instead of rev 0.10's separate lead: J6 is gone. Harness pin 1N (the manual cars' idle contact) is no longer wired straight to the sensor 5 V: it goes through R28 (0R, not fitted), so a car with the stock switch no longer shorts the 5 V to ground at every idle (rev 0.10 and earlier did, if 1N is the idle contact as the rusEFI sources say). Pin 2L goes through R29 (0R, fitted) to the spare analog AUX1 as before, or through R30 (0R, not fitted) to the TPS input. For a sensor on the stock plug: fit R28, move R29 to R30. The links are hand-routed into the rev 0.9 copper; nothing else moved.", "Rev 0.10 (replaced by 0.11): J6, a 4-pin connector for a separate TPS lead.", "Rev 0.9, for daughterboard rev 0.9: the daughterboard sits 16 mm lower, centred on the board (42 mm from the top, as up to rev 0.7), with its J1 on its top edge again: JD1 and the upper standoffs HD1/HD2 are back at their rev 0.7 places, JD2, the lower standoffs HD3/HD4, the AUX header J5 (with F4 beside it) and the parts placed against JD2 (CAN termination R1/R6, pull-up options) are 16 mm lower, and the board is routed again. Not compatible with a rev 0.8 daughterboard.", "Rev 0.8, for daughterboard rev 0.8: the harness's sensor 5 V (1N, 2K) and the AUX header pin J5-14 now come from the daughterboard's protected 5 V (V5_EXT, JD1 pin 13, which was a ground pin): a sensor 5 V wire shorted to the battery no longer back-feeds the MAP sensor and the ECU's own 5 V. The MAP sensor keeps its own supply (V5_SENS). The daughterboard outline on the silkscreen is 16 mm taller (125 x 76 mm): its new strip of output drivers overhangs the free area above JD1. D3/D4 (the batch injector clamps) are now SMCJ30A (33.3-36.8 V breakdown) instead of SMCJ40A: the new daughterboard drivers clamp at 40 V minimum, so a 40 V TVS could leave the turn-off energy in a driver; at 30 V the TVS always clamps first. Not-fitted option R27: 4.7k pull-up from the protected 5 V for the manual cars' TPS idle switch on 2L.",
@@ -71,7 +72,7 @@ CHANGES = ["2026-11-15, no change to the board: on 1989-93 cars JP1 and JP2 now 
            'connector 6 mm right; SWD header removed; heater fuse now 30 V rated.']
 VERIFY = ['The case geometry: hole centres and header 1A position, with calipers on a stock case.',
           'Your car\'s fan wiring: early cars switch the fan relay on 1R, later ones on 1L; both are driven (fan and spare outputs).',
-          'LCSC stock for the extended parts (C124412, C127367, C277684, C587650, C3020560, C410772, C46641168, C3406).',
+          'LCSC stock for the extended parts (C124412, C127367, C277684, C587650, C3020560, C410772, C960026, C3406).',
           'Harness pins 1N and 2L on a 1989-93 car: with the throttle switch unplugged, which plug wire reaches each (the '
           'rusEFI sources give 1N = idle contact, 2D = ground, 2L = full-throttle contact). Do this before fitting R28.',
           'The TPS conversion on a manual car: the sensor and mount against your throttle body, and the sensor\'s output '
@@ -118,7 +119,7 @@ HARNESS = {
     '2L': 'HARN_2L',     # manual cars: the throttle switch's other contact. R29 (fitted) to the spare analog AUX1, or R30 (not fitted) to the TPS input after a sensor conversion
     '2M': 'IN_TPS',      # automatics' TPS signal (a manual car's converted sensor comes in on 2L through R30)
     '2N': 'IN_AUX2',     # stock narrowband O2
-    '2O': 'HARN_2O',     # airflow meter signal. JP6: to the spare analog input (AFM), or the boost valve output on this wire once the meter is gone
+    '2O': 'HARN_2O',     # airflow meter signal. JP6: BOOST on 1989-93 (the fuel pump relay, linked to the pump contact in the meter plug), AFM = the spare analog input
     '2P': 'IN_IAT',      # air temperature sensor in the airflow meter
     '2Q': 'IN_CLT',
     '2R': 'HARN_2R',     # 1994-95: pressure regulator control solenoid, through JP4. Not connected on 1989-93
@@ -152,8 +153,9 @@ JUMPERS = [
      'after a coil-on-plug conversion with the igniter removed: the ECU then drives the tachometer through 2I (R37 '
      'is its 12 V pull-up; join the two tach wires at the old igniter plug)'),
     ('JP6', 3, {1: 'IN_AUX3', 2: 'HARN_2O', 3: 'OUT_BOOST'}, '2O', {1: 'AFM', 3: 'BOOST'},
-     'Airflow meter signal wire 2O: AFM = to the spare analog input (stock); BOOST = boost valve output on that wire '
-     'once the meter is removed (valve between the old meter plug\'s signal pin and 12 V)'),
+     'Airflow meter signal wire 2O: BOOST on 1989-93 = the boost driver on that wire, which the 1989-93 firmware runs '
+     'as the fuel pump relay (link the meter plug\'s pump-contact cavity to its signal cavity); AFM = to the spare '
+     'analog input (1994-95, or a 1989-93 car with an added 2T pump wire)'),
 ]
 
 
@@ -161,7 +163,9 @@ JUMPERS = [
 # tools (mb_y8993.py / mb_y9495.py) and the README.
 # 1989-93 since 2026-11-15: no shunt on JP1 / JP2 (one driver per two-injector wire, as on rusEFI's and Speeduino's
 # boards for these cars); before that both sat on PAIR.
-SHUNTS = {'1989-93': {'JP3': (1, 2), 'JP6': (1, 2)},
+# 1989-93 since rev 0.14: JP6 on BOOST (2-3), the fuel pump relay on the old airflow meter signal wire 2O (the meter is
+# replaced by the kit's GM air-temperature sensor, and its pump contact with it).
+SHUNTS = {'1989-93': {'JP3': (1, 2), 'JP6': (2, 3)},
           '1994-95': {'JP1': (2, 3), 'JP2': (2, 3), 'JP3': (2, 3), 'JP4': (1, 2), 'JP6': (1, 2)}}
 
 

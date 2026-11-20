@@ -409,9 +409,11 @@ mismatch in `mpn.json:138-145`. The design's C80165 is correct.
 
 ## 8. Progress on the via work
 
-Status on 2026-11-18, branch `no-via-in-pad`. Every board file there has no via in or within 0.1 mm of an SMD pad;
-the fab files in each `fab/` folder are still the previous release's until the boards are released as daughterboard
-rev 0.11 and motherboards rev 0.14 / 0.10.
+Status on 2026-11-18, branch `no-via-in-pad`. Every board file there has no via in or within 0.1 mm of an SMD pad,
+and the boards are released as daughterboard rev 0.11 and motherboards rev 0.14 (1989-95) / 0.10 (1996-2005): fab
+files, BOMs, schematics, renders, 3D viewer and pictures regenerated from them by `scripts/reexport.sh`, which
+exports a finished board without touching its copper and stops on a failed check (schematic against design, KiCad
+DRC errors or unconnected items, a via in a pad, a hole too close to another).
 
 | Board | In-pad vias (incl. within 0.1 mm) | Driver-tab vias moved out of the tab pads | Moved by `via_out_of_pad.py` | Moved with rip-up | By hand | KiCad DRC after |
 |---|---|---|---|---|---|---|
@@ -432,11 +434,13 @@ rev 0.11 and motherboards rev 0.14 / 0.10.
   wrote the tracks, vias and zone fills back into the KiCad 7 files; everything else in them is unchanged. The zone
   fills are KiCad 9's; its starved-thermal warnings on the motherboards (9 / 10 / 7 / 17) are those of a KiCad 9
   refill of the unchanged boards, except the two at J4 on 1996-97.
-- **Thermal check still to do:** the tab vias now sit around the tab pads, not under them. Re-run the board thermal
-  model before the release and quote the new driver temperatures (section 1, "Text to change").
+- **Thermal check, done:** `board_thermal.py` on rev 0.10 reproduces its published table exactly; on rev 0.11, with
+  the tab vias in the copper around the tab pads, the 1989-93 cases are 1-2 °C warmer at the injector drivers and
+  1 °C at the clamp TVSs, the sequential years and the processor unchanged. `VERIFICATION.md`, `README.md` and
+  `INSTALL.md` quote the new figures.
 
 Also done on the branch: the GM IAT curve as the firmware default (section 2), the 1989-93 fuel pump on 2O (section 7),
 the install guide and READMEs, the kit and BOM lines, R110 C17971 and the 2 A fuse C960026.
 
-Still open before ordering: the release itself (rev bump, fab files, renders), the car checks in section 2 ("Needs a
-car or bench") and the 1996-2005 case measurements.
+Still open before ordering: the car checks in section 2 ("Needs a car or bench") and the 1996-2005 case
+measurements.

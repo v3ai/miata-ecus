@@ -78,7 +78,7 @@ JLCPCB assembly,5.1k,R142,1,UNI-ROYAL(Uniroyal Elec),0603WAF5101T5E,C23186,basic
 JLCPCB assembly,100u,"C63,C68",2,Samsung Electro-Mechanics,CL31A107MQHNNNE,C15008,basic,0.0942,0.0942,0.0744,0.188,2308602,1622690,"JLCPCB parts library, 2026-11-17",
 JLCPCB assembly,33n,C103,1,YAGEO,CC0402KRX7R9BB333,C106862,extended,0.0048,0.0048,0.0048,0.005,411334,367900,"JLCPCB parts library, 2026-11-17",
 JLCPCB assembly,VND14NV04,Q101,1,STMicroelectronics,VND14NV04TR-E,C2649436,extended,1.9380,1.5268,1.3613,1.527,1897,1897,"JLCPCB parts library, 2026-11-17",
-JLCPCB assembly,62,R110,1,UNI-ROYAL(Uniroyal Elec),1206W4F620LT5E,C25341,extended,0.0080,0.0080,0.0080,0.008,30720,30700,"JLCPCB parts library, 2026-11-17",REVIEW: wrong value. This is 0.62 ohm; R110 needs 62 ohm (C17971). See review/2026-11/NEXT-BATCH.md
+JLCPCB assembly,62,R110,1,UNI-ROYAL(Uniroyal Elec),1206W4F620JT5E,C17971,extended,0.0053,0.0053,0.0053,0.005,117671,92800,"JLCPCB parts library, 2026-11-17",
 JLCPCB assembly,62k,R114,1,UNI-ROYAL(Uniroyal Elec),0603WAF6202T5E,C23221,preferred extended,0.0028,0.0028,0.0028,0.003,227037,81100,"JLCPCB parts library, 2026-11-17",
 JLCPCB assembly,3.3k,R124,1,UNI-ROYAL(Uniroyal Elec),0402WGF3301TCE,C25890,basic,0.0036,0.0036,0.0036,0.004,1115987,75600,"JLCPCB parts library, 2026-11-17",
 JLCPCB assembly,68k,"R131,R132",2,UNI-ROYAL(Uniroyal Elec),0402WGF6802TCE,C36871,preferred extended,0.0012,0.0012,0.0012,0.002,1086076,973400,"JLCPCB parts library, 2026-11-17",
@@ -92,4 +92,4 @@ JLCPCB assembly,AD8628,U105,1,Analog Devices,AD8628ARTZ-REEL7,C29309,extended,2.
 JLCPCB assembly,33p,"C119,C120",2,FH (Guangdong Fenghua Advanced Tech),0402CG330J500NT,C1562,basic,0.0024,0.0024,0.0024,0.005,1802865,657300,"JLCPCB parts library, 2026-11-17",
 JLCPCB assembly,nSMD010,F2,1,TECHFUSE,nSMD010,C70065,extended,0.0307,0.0307,0.0307,0.031,939606,939600,"JLCPCB parts library, 2026-11-17",
 Hand,"Pin header, male, 1x40, 2.54mm, through-hole, vertical","J1,J2",2,ZHOURI,2.54-1*40,C2977586,extended,0.1736,0.1412,0.1231,0.282,2565,2565,"LCSC, 2026-11-17",Bottom side. Solder while plugged into a motherboard's sockets so they come out straight
-,"TOTAL, parts only (required parts with a price)",,,,,,37 extended lines,48.06,41.30,36.97,41.30,,,,"Per board. Excludes the bare PCB, assembly and extended-part fees, duty, freight and unpriced items"
+,"TOTAL, parts only (required parts with a price)",,,,,,37 extended lines,48.06,41.29,36.97,41.29,,,,"Per board. Excludes the bare PCB, assembly and extended-part fees, duty, freight and unpriced items"

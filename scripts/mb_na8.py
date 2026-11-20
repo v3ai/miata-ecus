@@ -22,7 +22,7 @@ CHANGES = ["Rev 0.9, for daughterboard rev 0.9: the daughterboard sits 16 mm low
            '(rusEFI "Mazda Miata 1994" page and the Hellen NA6/94 connector map).']
 VERIFY = ['The case geometry, as for 89-93: one stock case with calipers.',
           '1C (VIO): the starter (START) signal, live only while cranking (Link\'s MX5 pinout: "Start Signal"; the rusEFI 1990 page calls it ignition-on). It is only an input here (diode-isolated on the daughterboard), and the firmware does not use it as ignition sense (2026-11-12).',
-          'LCSC stock for the extended parts (C124412, C127367, C587650, C3020560, C410772, C46641168, C3406).']
+          'LCSC stock for the extended parts (C124412, C127367, C587650, C3020560, C410772, C960026, C3406).']
 HARNESS = dict(base.HARNESS)
 HARNESS.update({
     '1N': '',            # 94-95: to the AT control unit - never drive the 5 V reference here
