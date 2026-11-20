@@ -5,7 +5,7 @@ electrical compatibility at each MCU pin, and DC fault analysis of every harness
   1. Connectivity. The routed .kicad_pcb files are the truth for copper: board_copper.py rebuilds each board's
      netlist from the copper geometry alone (pads, tracks, vias, zone fills) and compares it with the design scripts.
      Then, per year: every harness cavity -> motherboard net -> JD1/JD2 pin -> daughter J1/J2 net -> daughter circuit
-     -> STM32F407 / STM32F103 pin (or rail, or nothing), and every MCU pin the firmware uses (the board code's own
+     -> STM32F405 / STM32F103 pin (or rail, or nothing), and every MCU pin the firmware uses (the board code's own
      configuration, evaluated from miata_board.cpp) -> harness cavity. Flags: car-driven cavities that land nowhere,
      functions that don't reach the expected cavity (sim_report.py's reference table), two drivers on one net,
      ECU outputs on do-not-drive cavities, unconnected IC pins that a datasheet says must be tied. A board whose copper
@@ -26,7 +26,7 @@ usage: /usr/bin/python3 firmware/tools/board_checks.py [--brief] [--year 1999-20
    --sim-log    take the firmware pin assignment from the board tests' "MIATA|...|config|" dump (see sim_report.py)
                 instead of evaluating miata_board.cpp
 
-Datasheet limits used (STM32F407 DS8626, STM32F103x8 DS5319; F4 family IINJ table re-confirmed in the STM32F412
+Datasheet limits used (STM32F405 / F407 DS8626, STM32F103x8 DS5319; F4 family IINJ table re-confirmed in the STM32F412
 datasheet, same structure):
   FT pins: VIN abs max VDD + 4.0 V; injected current -5 / +0 mA (no positive injection possible: there is no clamp
   to VDD, so the limit above VDD is the voltage, not a current). TTa (PA4/PA5) and F103 non-FT pins: VIN abs max
@@ -74,7 +74,11 @@ import re
 import subprocess
 import sys
 
-import numpy as np
+# The solves are many small matrices: a threaded BLAS spends its time in thread hand-off (on 20 cores a full run took
+# hours instead of seconds). One thread each, before numpy loads.
+for _v in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS'):
+    os.environ.setdefault(_v, '1')
+import numpy as np  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SCRIPTS = os.path.join(ROOT, 'scripts')
@@ -507,6 +511,9 @@ class System:
 # ------------------------------------------------------------------------------------------------------------------
 RAILS = {'GND', '+3V3', '+3V3A', '+5V', '+12V', 'V5_SENS', 'V5_EXT', 'V5_H1', 'V5_H2', 'WB_VDDA', '+12V_F', 'DAMP',
          'KN_BIAS', 'VR_BIAS', 'VCAP1', 'VCAP2', 'BUCK_SW', 'BUCK_BOOT', 'SH_K', 'SH_REF'}
+# rev 0.12: the A/C and clutch inputs' pull-ups (R21 / R22, 4.7k to VBAT_IN). The trace stops there, as at a rail: it
+# does not walk on from a switch input to everything else on the battery feed, nor from the battery feed into the inputs.
+PULLUP_SUPPLIES = {'VBAT_IN'}
 V5_RAILS = {'V5_SENS': 'U3 TLS115 output, on-board MAP sensor only', 'V5_EXT': 'U14 TLS115 output, protected harness 5 V'}
 IC_MAP = {}   # value -> [(pad a, pad b, label)]
 IC_MAP['ULN2003AD'] = [(str(1 + i), str(16 - i), 'ULN2003 ch%d' % (1 + i)) for i in range(7)]   # rev 0.7
@@ -547,6 +554,8 @@ def graph(sysm):
             if not p['fitted']:
                 blocked[a].append((b, f'{ref} not fitted')); blocked[b].append((a, f'{ref} not fitted'))
                 continue
+            if {a, b} & PULLUP_SUPPLIES and any(re.fullmatch(r'(M:)?IN_SW\d', n) for n in (a, b)):
+                lab = f'{ref}({val}, pull-up)'      # a switch input's pull-up: an end of the trace, like a rail
             g[a].append((b, lab)); g[b].append((a, lab))
         elif kind == 'RN':
             for i in range(1, 5):
@@ -590,6 +599,10 @@ def trace(sysm, g, blocked, start, stop_at_rails=True):
             ends.setdefault(('rail', n), path + [n])
             continue
         for m, lab in g.get(n, []):
+            if lab.endswith(', pull-up)'):
+                if m in PULLUP_SUPPLIES:
+                    ends.setdefault(('rail', m), path + [n, lab, m])
+                continue
             if m not in seen:
                 seen[m] = path + [n, lab]
                 queue.append(m)
@@ -604,7 +617,7 @@ def fmt_path(p):
 
 def mcu_label(ref, pad):
     name, typ = mcu_pin_info(ref, pad)
-    return f'{"F407" if ref == "U1" else "F103"} {name}({typ})'
+    return f'{"F405" if ref == "U1" else "F103"} {name}({typ})'
 
 
 # ------------------------------------------------------------------------------------------------------------------
@@ -826,7 +839,7 @@ def connectivity(sysm, year, module, fw, board_fw, research, notes):
     ok = (has_key and want in vign_cav) or (not has_key and not want)
     row('OK' if ok else 'FAIL', 'reverse', year, f'ignition sense {"PA2 (AN_VIGN)" if has_key else "not configured"}; '
         f'VIGN_IN cavities wired {vign_cav or "-"}; reference {want or "none"}')
-    # unused F407 GPIO with a harness path but no firmware function (informational)
+    # unused F405 GPIO with a harness path but no firmware function (informational)
     for pad, net in sorted(sysm.by_ref['U1']['pads'].items(), key=lambda kv: int(kv[0])):
         name, typ = mcu_pin_info('U1', pad)
         if typ == 'PWR' or not net or port_func.get(name):
@@ -989,7 +1002,7 @@ FLOAT_INPUTS = [  # (value, pads, what, needs a pull, why it may float)
     ('LM2903DR', ['2', '3', '5', '6'], 'LM2903 input', True, 'unused VR channel must sit at a defined level'),
     ('LMV321IDBVR', ['1', '3'], 'LMV321 input', True, 'knock amp bias'),
     ('STM32F405VGT6', ['94', '37'], 'F405 BOOT0/BOOT1', True, 'boot mode'),
-    ('STM32F103C8T6', ['44', '20'], 'F103 BOOT0/BOOT1', True, 'boot mode (BOOT0 is driven by the F407 PD10, high-Z in reset)'),
+    ('STM32F103C8T6', ['44', '20'], 'F103 BOOT0/BOOT1', True, 'boot mode (BOOT0 is driven by the F405 PD10, high-Z in reset)'),
 ]
 
 
@@ -1833,7 +1846,7 @@ def _evaluate(dc, base, sysm, focus, fault_net):
     for ref, pad, net in mcu_gpio(sysm):
         name, typ = mcu_pin_info(ref, pad)
         v = V.get(net, 0.0)
-        lab = f'{"F407" if ref == "U1" else "F103"} {name}'
+        lab = f'{"F405" if ref == "U1" else "F103"} {name}'
         lim = LIM_FT_V if typ == 'FT' else LIM_NONFT_V
         if v > lim:
             F.append(('FAIL', f'{lab} ({net}) at {v:.2f} V > {lim:.1f} V abs max ({typ})', v))

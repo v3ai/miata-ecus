@@ -444,3 +444,28 @@ the install guide and READMEs, the kit and BOM lines, R110 C17971 and the 2 A fu
 
 Still open before ordering: the car checks in section 2 ("Needs a car or bench") and the 1996-2005 case
 measurements.
+
+### Rev 0.12 (branch `rev-0.12`, 2026-11-19)
+
+Done, not yet released (the fab files are still rev 0.11's):
+- **Processor STM32F405VGT6** (C56621) in place of the F407: the same rusEFI build, the pins checked against ST's
+  pin data for the F405, F407 and F427 (`check_mcu_pins.py`), which stay as second sources.
+- **CAN transceivers TJA1042T/3** (C132227) on U10 and U106.
+- **LCSC number check** (`scripts/check_lcsc.py`, in CI and `reexport.sh`): every part on every board against
+  `mpn.json`, value and size included. 422 parts, no mismatch.
+- **R21 / R22 fitted** (C23162): the A/C and clutch switches close to ground, and the firmware reads them active low.
+- **Harness-header holes 1.3 mm** on 1996-97, 1999-2000 and 2001-05 (pads stay 1.8 mm; DRC unchanged). 2001-05's
+  header was not checked against a TE drawing. The unused 64-pin footprint is gone.
+- **Firmware** (section 5): idle limits for 1989-95, A/C and clutch polarity, the protections, LTFT kept as rusEFI
+  ships it (documented); the wideband watchdog. Upstream wideband fixes 9295698 / 91aa7c6 were already in the pinned
+  production branch. Dwell waits for the coil measurement (bring-up list).
+- The leftovers of the IAT jumper are gone from the scripts, and VERIFICATION's next-revision list carries a status.
+
+Still to do for rev 0.12, all needing the routing pipeline (KiCad 9 route, `backport_copper.py`):
+- 1989-95 header holes: its 1.51 mm pads must grow to 1.8 mm for a 1.3 mm hole, which crowds four tracks / vias near
+  1A, 1H, 1O and 2B.
+- C12 to the VDDA side with FB1 upstream; vias around U4's tab; the 1989-95 1B track wider; the alternator pull-up
+  footprint on 1999-2000 / 2001-05.
+- Placement rotations for U3 / U14, J4 and the newer diodes: confirm in JLCPCB's preview and on the received boards
+  (`order_bom.py` lists them).
+- Then the release: `reexport.sh`, renders, viewer, docs.
