@@ -2,6 +2,7 @@
 """The README renders and the shop's product photos: the 3D viewer with black solder mask and gold pads.
 
   images/daughterboard.jpg, images/assembly_1989-95.jpg, images/assembly_lifted.jpg      (README)
+  motherboards/<years>/renders/assembly.jpg, assembly_lifted.jpg   (each motherboard with the daughterboard on it)
   website/theme/assets/render-*.jpg, website/product-images/*.jpg, website/mono-theme.zip  (shop)
 
 usage: scripts/render_photos.py --three <dir> --assets <dir> [--build] [--no-readme] [--no-shop]
@@ -28,6 +29,21 @@ README = {'daughterboard': (104, 246, 1354, 794), 'assembly_1989-95': (227, 237,
 # shop products (one per range of years) and the viewer board each one shows
 SHOP = {'8993': '8995', '9495': '8995', '9697': '9697', '9900': '9900', '0105': '0105'}
 HIDE = '.views,.status,.scale,.tip{display:none!important}'
+# each motherboard folder gets the viewer's assembled view of its board, flat and lifted, cropped to the boards
+FOLDERS = {'8995': '1989-95', '9697': '1996-97', '9900': '1999-2000', '0105': '2001-05'}
+
+
+def trim(im, pad=28, tol=10, edge=40):
+    """crop a canvas shot to what differs from the background, plus a margin. The viewer's background is a vertical
+    gradient (and the canvas has rounded corners), so each row is compared with that row's own pixels near both edges"""
+    import numpy as np
+    a = np.asarray(im, dtype=np.int16)
+    bg = (a[:, edge:edge + 1, :] + a[:, -edge - 1:-edge, :]) // 2
+    mask = np.abs(a - bg).max(axis=2) > tol
+    mask[:, :edge] = mask[:, -edge:] = False
+    ys, xs = np.nonzero(mask)
+    x0, x1, y0, y1 = xs.min(), xs.max(), ys.min(), ys.max()
+    return im.crop((max(0, x0 - pad), max(0, y0 - pad), min(im.width, x1 + pad), min(im.height, y1 + pad)))
 
 
 def build(assets):
@@ -57,6 +73,7 @@ def main():
     ap.add_argument('--no-shop', action='store_true')
     ap.add_argument('--settle', type=float, default=8.0, help='seconds to let the renderer finish each view')
     a = ap.parse_args()
+    global Image
     from PIL import Image
     from playwright.sync_api import sync_playwright
     if a.build:
@@ -88,6 +105,19 @@ def main():
             pg.locator('#c').screenshot(path=f'{raw}/readme_assembly_1989-95.png', timeout=300000)
             click(pg, '#t-lift'); time.sleep(a.settle)
             pg.locator('#c').screenshot(path=f'{raw}/readme_assembly_lifted.png', timeout=300000)
+            click(pg, '#t-lift'); time.sleep(a.settle)
+            for key, folder in FOLDERS.items():
+                if key != '8995':                                  # the assembled view opens on 1989-95
+                    click(pg, f'#years [data-y="{key}"]'); loaded(pg, a.settle)
+                for lifted in (False, True):
+                    if lifted:
+                        click(pg, '#t-lift'); time.sleep(a.settle)
+                    f = f'{raw}/folder_{key}{"_lifted" if lifted else ""}.png'
+                    pg.locator('#c').screenshot(path=f, timeout=300000)
+                    out = os.path.join(ROOT, 'motherboards', folder, 'renders', 'assembly_lifted.jpg' if lifted else 'assembly.jpg')
+                    trim(Image.open(f).convert('RGB')).save(out, quality=88, optimize=True, progressive=True)
+                    print('wrote', os.path.relpath(out, ROOT))
+                click(pg, '#t-lift'); time.sleep(a.settle)
             pg.close()
             for name, (x, y, w, h) in README.items():
                 im = Image.open(f'{raw}/readme_{name}.png').convert('RGB').crop((x, y, x + w, y + h))

@@ -46,6 +46,8 @@ o.append('The motherboard replaces the stock Mazda ECU board inside the **stock 
 o.append('- the stock harness header;')
 o.append('- the year-independent I/O: the wideband sensor connector (AEM X-Series harness), USB-C, the MAP sensor and the add-on header (flex fuel, nitrous, CAN, boost);')
 o.append('- the lands for the universal daughterboard, which does all the engine control (including the wideband controller): a castellated module soldered flat onto JD1 / JD2.\n')
+o.append('![This motherboard with the daughterboard soldered on](renders/assembly.jpg)\n')
+o.append('![The same, the daughterboard lifted off its lands](renders/assembly_lifted.jpg)\n')
 if getattr(M, 'CHANGES', None):
     o.append('## Changes in this revision')
     o += [f'- {c}' for c in M.CHANGES]
@@ -61,7 +63,7 @@ o.append(f'| `{F}self_order_bom.csv` | Everything you order and fit yourself: ha
 o.append(f'| `{F}parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |')
 o.append('| `fab/drc_report.txt` | KiCad DRC |')
 o.append('| `ecu_mb.pretty/`, `fp-lib-table` | Project footprints (harness header, MAP sensor lying flat, USB-C, M4 case hole) |')
-o.append('| `renders/` | Top and bottom copper |')
+o.append('| `renders/` | Top and bottom copper; `assembly.jpg` / `assembly_lifted.jpg`, the 3D render of this board with the daughterboard (`scripts/render_photos.py`) |')
 o.append('| `scripts/` | The design source; `mb_make.sh` rebuilds the whole board |\n')
 o.append('## Case fit')
 o.append(getattr(M, 'CASE_NOTE', '') + '\n')

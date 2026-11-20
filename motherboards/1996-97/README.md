@@ -1,4 +1,4 @@
-# Miata ECU motherboard 1996-1997 (NA8 OBD2), rev 0.3
+# Miata ECU motherboard 1996-1997 (NA8 OBD2), rev 0.13
 
 The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**. It carries:
 
@@ -6,7 +6,12 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 - the year-independent I/O: the wideband sensor connector (AEM X-Series harness), USB-C, the MAP sensor and the add-on header (flex fuel, nitrous, CAN, boost);
 - the lands for the universal daughterboard, which does all the engine control (including the wideband controller): a castellated module soldered flat onto JD1 / JD2.
 
+![This motherboard with the daughterboard soldered on](renders/assembly.jpg)
+
+![The same, the daughterboard lifted off its lands](renders/assembly_lifted.jpg)
+
 ## Changes in this revision
+- Rev 0.13: the add-on header J5's pins are named on the silkscreen below the header, where they stay readable with the ribbon cable's plug fitted: the even pins (the row nearer the board edge) in the band next to the header, the odd pins below them (scripts/j5_labels.py). Five ground stitching vias under the names moved sideways and U4's reference moved to its right; same copper otherwise, same parts and pinout.
 - Rev 0.12, for daughterboard rev 0.13, the castellated module: JD1 / JD2 are rows of 40 SMD lands (1.5 x 3.0 mm, 1.2 mm under the module and 1.8 mm beyond its edge) instead of 1x40 sockets, and the standoff holes HD1-HD4 are gone. The module is soldered flat to the lands, so nothing may sit under it: the freewheel diode D1 above JD1, the pull-ups R20-R22 below JD2. The tracks that met the sockets on the bottom copper now reach the lands through vias beside them. The copper near the lands and the moved parts is ripped and joined again at the board's own rules (scripts/castellate_mb.sh); the wideband heater's return (1.0 mm) takes a new way to JD2, and the board's smallest via is 0.5 mm (0.3 mm hole) where a 0.6 mm one does not fit. Same nets and pinout; the earlier, socketed daughterboards do not fit.
 - Rev 0.11: R21 / R22 fitted (4.7 kΩ to 12 V, C23162): the A/C request and clutch switches close to ground, and the firmware reads them active low; the harness-header holes are 1.3 mm (were 1.1 mm; TE asks for 1.35 mm), same 1.8 mm pads. For daughterboard rev 0.12 (STM32F405, TJA1042 CAN transceivers); any daughterboard from rev 0.10 fits.
 - Rev 0.10: no via in or against any SMD pad (they moved beside their pads); the air-temperature input reads the GM sensor that ships with every board, on the car's own wires.
@@ -25,12 +30,12 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 |---|---|
 | `miata_mb_9697.kicad_pro / .kicad_sch / .kicad_pcb` | KiCad 7 project. Root schematic plus three sheets: harness, daughterboard, I/O |
 | `miata_mb_9697_schematic.pdf` | Schematic PDF |
-| `fab/miata-ecu-motherboard-1996-97-rev0.0_jlcpcb_gerbers.zip`, `fab/miata-ecu-motherboard-1996-97-rev0.0_jlcpcb_bom.csv`, `fab/miata-ecu-motherboard-1996-97-rev0.0_jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |
-| `fab/miata-ecu-motherboard-1996-97-rev0.0_self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt and screws, plus the not-fitted options. Its columns load into LCSC's BOM tool |
-| `fab/miata-ecu-motherboard-1996-97-rev0.0_parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |
+| `fab/miata-ecu-motherboard-1996-97-rev0.13_jlcpcb_gerbers.zip`, `fab/miata-ecu-motherboard-1996-97-rev0.13_jlcpcb_bom.csv`, `fab/miata-ecu-motherboard-1996-97-rev0.13_jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |
+| `fab/miata-ecu-motherboard-1996-97-rev0.13_self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt and screws, plus the not-fitted options. Its columns load into LCSC's BOM tool |
+| `fab/miata-ecu-motherboard-1996-97-rev0.13_parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |
 | `fab/drc_report.txt` | KiCad DRC |
 | `ecu_mb.pretty/`, `fp-lib-table` | Project footprints (harness header, MAP sensor lying flat, USB-C, M4 case hole) |
-| `renders/` | Top and bottom copper |
+| `renders/` | Top and bottom copper; `assembly.jpg` / `assembly_lifted.jpg`, the 3D render of this board with the daughterboard (`scripts/render_photos.py`) |
 | `scripts/` | The design source; `mb_make.sh` rebuilds the whole board |
 
 ## Case fit
@@ -133,7 +138,7 @@ Not connected: 1C, 1D, 1F, 1H, 1I, 1J, 1N, 1P, 1Q, 1R, 1S, 1T, 1V, 2A, 2B, 2C, 2
 
 ## Assembly
 - The daughterboard (rev 0.13 on) is a castellated module: it lies flat on the board and its 80 edge half-holes are soldered to the lands JD1 / JD2, by reflow or with an iron ([INSTALL.md](../../INSTALL.md#soldering-the-daughterboard-to-the-motherboard)). Solder it on before the harness header, so the lands are easy to reach.
-- Fitted by hand (all in `fab/miata-ecu-motherboard-1996-97-rev0.0_self_order_bom.csv`): the harness header (new: TE 178780-1, LCSC C5166246, few in stock; or salvage one from a stock ECU), the wideband sensor connector, the add-on header, any jumper headers and their shunts, the MAP sensor, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC's quote whether that needs Standard PCBA.
+- Fitted by hand (all in `fab/miata-ecu-motherboard-1996-97-rev0.13_self_order_bom.csv`): the harness header (new: TE 178780-1, LCSC C5166246, few in stock; or salvage one from a stock ECU), the wideband sensor connector, the add-on header, any jumper headers and their shunts, the MAP sensor, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC's quote whether that needs Standard PCBA.
 - The case needs cut-outs in its bottom edge for the wideband connector, USB-C and the MAP hose, and a way out for the add-on ribbon cable.
 
 ## Still to verify

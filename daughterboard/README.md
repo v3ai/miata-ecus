@@ -21,8 +21,8 @@ reflow or with an iron: no connectors, standoffs or screws.
 - **J102** (the wideband controller's SWD pads) stays on the bottom, so it can be reached only before the module is
   soldered down. It is a fallback: the wideband controller is programmed through the main processor and its ROM
   bootloader (rev 0.4 on). J3, the main processor's SWD pads, is on top.
-- **Order with castellated holes** ([ORDERING.md](../ORDERING.md)). Rev 0.13 goes with motherboard rev 0.16 (1989-95)
-  or 0.12 (1996-2005), which have the lands. It does not fit the earlier, socketed motherboards, and an earlier
+- **Order with castellated holes** ([ORDERING.md](../ORDERING.md)). Rev 0.13 goes with motherboard rev 0.16 or later (1989-95)
+  or 0.12 or later (1996-2005), which have the lands. It does not fit the earlier, socketed motherboards, and an earlier
   daughterboard does not fit these.
 - **Temperature:** the board model now includes the motherboard under the module (`board_thermal.py --flat`). The
   module runs 1-5 °C warmer than the old free-air figure, and the 9-13 °C the header pins were estimated to take away

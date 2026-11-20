@@ -32,15 +32,15 @@ The headline finding: **R110 on the daughterboard is fitted as 0.62 Ω (LCSC C25
 
 ## Priced BOMs
 
-Each current board now has a `*_costed_bom.csv` beside its JLCPCB and self-order BOMs. It joins both BOMs with JLCPCB and LCSC prices and stock read on 2026-11-17, at batches of 5, 30 and 100 boards. The table is for the castellated rev 0.13 / 0.16 / 0.12 boards, with R110 and the 2 A fuse changed as the review asked (prices as read on 2026-11-17). The JLCPCB upload files are unchanged.
+Each current board now has a `*_costed_bom.csv` beside its JLCPCB and self-order BOMs. It joins both BOMs with JLCPCB and LCSC prices and stock read on 2026-11-17, at batches of 5, 30 and 100 boards. The table is for the castellated rev 0.13 / 0.17 / 0.13 boards, with R110 and the 2 A fuse changed as the review asked (prices as read on 2026-11-17). The JLCPCB upload files are unchanged.
 
 | File | Lines | Extended lines | Parts per board, batch 5 | Batch 30 | Batch 100 |
 |---|---|---|---|---|---|
 | `daughterboard/fab/miata-ecu-daughterboard-rev0.13_costed_bom.csv` | 92 | 37 | $49.67 | $42.33 | $38.02 |
-| `motherboards/1989-95/fab/miata-ecu-motherboard-1989-95-rev0.16_costed_bom.csv` | 30 | 4 | $38.82 | $35.88 | $34.65 |
-| `motherboards/1996-97/fab/miata-ecu-motherboard-1996-97-rev0.12_costed_bom.csv` | 20 | 4 | $45.90 | $42.37 | $39.67 |
-| `motherboards/1999-2000/fab/miata-ecu-motherboard-1999-2000-rev0.12_costed_bom.csv` | 21 | 5 | $46.01 | $42.48 | $39.76 |
-| `motherboards/2001-05/fab/miata-ecu-motherboard-2001-05-rev0.12_costed_bom.csv` | 21 | 5 | $41.25 | $38.58 | $36.96 |
+| `motherboards/1989-95/fab/miata-ecu-motherboard-1989-95-rev0.17_costed_bom.csv` | 30 | 4 | $38.82 | $35.88 | $34.65 |
+| `motherboards/1996-97/fab/miata-ecu-motherboard-1996-97-rev0.13_costed_bom.csv` | 20 | 4 | $45.90 | $42.37 | $39.67 |
+| `motherboards/1999-2000/fab/miata-ecu-motherboard-1999-2000-rev0.13_costed_bom.csv` | 21 | 5 | $46.01 | $42.48 | $39.76 |
+| `motherboards/2001-05/fab/miata-ecu-motherboard-2001-05-rev0.13_costed_bom.csv` | 21 | 5 | $41.25 | $38.58 | $36.96 |
 
 - Totals are parts only. They leave out the bare PCB, assembly and extended-part fees, duty, freight, and the items listed as unpriced in each file's last row. The full cost model is REPORT.md section S3.
 - Harness-header prices are distributor snapshots from an aggregator, converted from CAD, and were not checked live.

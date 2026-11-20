@@ -980,6 +980,9 @@ change: JD1 / JD2 become rows of SMD lands, the standoff holes go, and the parts
 - **Vias.** Each board's smallest via is now 0.5 mm with a 0.3 mm hole (the rule was 0.6 mm), used only where a
   0.6 mm one does not fit: the tach output's via between JD1 lands 11 and 12 on 2001-05 and two ground stitching
   vias. Vias stay tented under the module.
+- **Rev 0.17 / 0.13, the same day:** J5's pin names on the silkscreen (`scripts/j5_labels.py`, checked against the
+  nets on J5's pads); five ground stitching vias under the names moved 0.5-1.2 mm sideways. DRC and `jlc_fab_check.py`
+  as above, silkscreen overlaps as before.
 - **1989-95:** the tab pours of the injector clamps D3 / D4 stayed under the module when the clamps moved out, with
   nothing joined to them. They are gone; the clamps are not fitted with a rev 0.10 or later daughterboard.
 

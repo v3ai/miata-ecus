@@ -1,11 +1,15 @@
 ** Drc report for miata_mb_9697.kicad_pcb **
-** Created on 2026-11-20 08:19:40 **
+** Created on 2026-11-20 09:57:22 **
 
 ** Found 46 DRC violations **
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
-    @(111.9724 mm, 61.1050 mm): Segment of J1 on F.Silkscreen
-    @(116.0000 mm, 61.8291 mm): Footprint text of J1 (1B)
+    @(202.9227 mm, 61.4044 mm): Segment of J1 on F.Silkscreen
+    @(200.2969 mm, 61.8291 mm): Footprint text of J1 (4B)
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; warning
+    @(238.0006 mm, 61.8291 mm): Footprint text of J1 (4Z)
+    @(242.0732 mm, 61.3794 mm): Segment of J1 on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
     @(144.0467 mm, 61.1298 mm): Segment of J1 on F.Silkscreen
@@ -16,12 +20,8 @@
     @(152.6500 mm, 61.8291 mm): Footprint text of J1 (2B)
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
-    @(238.0006 mm, 61.8291 mm): Footprint text of J1 (4Z)
-    @(242.0732 mm, 61.3794 mm): Segment of J1 on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
-    @(202.9227 mm, 61.4044 mm): Segment of J1 on F.Silkscreen
-    @(200.2969 mm, 61.8291 mm): Footprint text of J1 (4B)
+    @(111.9724 mm, 61.1050 mm): Segment of J1 on F.Silkscreen
+    @(116.0000 mm, 61.8291 mm): Footprint text of J1 (1B)
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
     @(163.5825 mm, 169.2373 mm): Segment of R20 on F.Silkscreen
