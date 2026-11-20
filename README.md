@@ -245,6 +245,8 @@ Check the plug's wiring and the sensor's pins on your car before fitting R28: se
 [1989–95 README](motherboards/1989-95/README.md). Automatics leave R28 and R30 off.
 
 ## Things to know before ordering
+- **[ORDERING.md](ORDERING.md)** is the order checklist for the current boards: what to settle on the received
+  rev 0.9 boards first, board settings, the placement preview, stock and order sequence.
 - **Measure one injector's inductance first** (LCR meter, injector unplugged). The heat the injector clamps put into
   the board scales with it, and it is not known for Miata injectors: the design is sized for 20 mH, earlier revisions
   assumed 8 mH. At sustained 7200 rpm with 20 mH injectors the board model puts the processor 32–40 °C above the air
@@ -290,6 +292,7 @@ Check the plug's wiring and the sensor's pins on your car before fitting R28: se
 | `website/` | A black-and-white Shopify theme for selling the boards, draft product listings and product photos ([website/README.md](website/README.md)) |
 | `INSTALL.md` | Fitting the ECU to a car: labelled pictures, header pin maps, the MAP hose and wideband per year, first start |
 | `images/` | Renders, and the labelled pictures and pin maps (`scripts/annotate.py` redraws those from the board files) |
+| `ORDERING.md` | The order checklist for the current boards |
 | `VERIFICATION.md` | Pinout, datasheet, simulation, flashing and safety review, with the hardware changes it calls for |
 | `.github/workflows/firmware.yaml` | CI: checks the pin map against the board design and builds the firmware |
 
@@ -322,6 +325,28 @@ The labelled pictures and pin maps in [INSTALL.md](INSTALL.md) come from the vie
 `scripts/annotate.py --three <unpacked three@0.160.0 package>` redraws them (needs Playwright with Chromium, and `Pillow`).
 `scripts/render_photos.py` renders the pictures at the top of this page and the shop's product photos the same way,
 from a black-mask build of the viewer's assets.
+
+### Making a release
+After a change to a finished board (or only its revision), regenerate everything derived from it:
+1. Set the revision: `REV` in `scripts/design.py` (daughterboard) and `DAUGHTER_REV` in `scripts/annotate.py`; the
+   revision text on a motherboard's silkscreen, and a `CHANGES` entry in its year module (`scripts/mb_*.py`).
+2. `scripts/reexport.sh daughter`, and for each motherboard
+   `scripts/reexport.sh <year module> <short> <rev> <board folder>`, e.g.
+   `scripts/reexport.sh mb_na96 9697 0.11 motherboards/1996-97`. It runs the board's checks first and stops on a
+   failure, then rewrites the fab files, BOMs, schematics, PDF, DRC report, parts workbook and README. Delete the
+   previous revision's fab files.
+3. The 3D viewer: `viewer/pcb3d.py <board> "<prefix>" <key>` per board, e.g.
+   `viewer/pcb3d.py motherboards/1996-97/miata_mb_9697.kicad_pcb mb9697_ mb:mb_na96` (the daughterboard takes an
+   empty prefix and the key `daughter`). Update the revisions in `viewer/index.html`.
+4. The pictures: `scripts/annotate.py --three <dir>`, then
+   `scripts/render_photos.py --three <dir> --assets <scratch folder> --build`.
+5. The order list: `scripts/order_all.py additional-parts/order_all_boards.csv`, and the revisions in
+   `additional-parts/shopping_list.html`.
+6. Check: `firmware/tools/check_pins.py`, `firmware/tools/check_mcu_pins.py`, `scripts/check_lcsc.py` and
+   `firmware/tools/board_checks.py --brief`.
+
+The costed BOMs (`*_costed_bom.csv`) and the per-year BOMs in `bom/` are generated from a price snapshot outside this
+repository; regenerate them after a release so their file names and lines follow the boards.
 
 ## Credits and licences
 - This project (the board designs, scripts and viewer) is released under the [MIT licence](LICENSE).

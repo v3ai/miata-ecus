@@ -32,7 +32,7 @@ The headline finding: **R110 on the daughterboard is fitted as 0.62 Ω (LCSC C25
 
 ## Priced BOMs
 
-Each current board now has a `*_costed_bom.csv` beside its JLCPCB and self-order BOMs. It joins both BOMs with JLCPCB and LCSC prices and stock read on 2026-11-17, at batches of 5, 30 and 100 boards. The table is for the rev 0.11 / 0.14 / 0.10 boards, with R110 and the 2 A fuse changed as the review asked (prices as read on 2026-11-17). The JLCPCB upload files are unchanged.
+Each current board now has a `*_costed_bom.csv` beside its JLCPCB and self-order BOMs. It joins both BOMs with JLCPCB and LCSC prices and stock read on 2026-11-17, at batches of 5, 30 and 100 boards. The table is for the rev 0.12 / 0.15 / 0.11 boards, with R110 and the 2 A fuse changed as the review asked (prices as read on 2026-11-17). The JLCPCB upload files are unchanged.
 
 | File | Lines | Extended lines | Parts per board, batch 5 | Batch 30 | Batch 100 |
 |---|---|---|---|---|---|

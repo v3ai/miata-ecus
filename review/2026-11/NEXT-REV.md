@@ -473,5 +473,5 @@ Still to do, all needing the routing pipeline (KiCad 9 route, `backport_copper.p
 - Heater fuse F1: 1.99 A hold at 60 °C against a 2.25 A cold-heater peak (VERIFICATION N5, corrected). The
   2920L400/30GR (C19078761) fits the same pads; decide after logging the heater current in a hot cabin.
 - Placement rotations for U3 / U14, J4 and the newer diodes: confirm in JLCPCB's preview and on the received boards
-  (`order_bom.py` lists them).
+  (`order_bom.py` lists them; [ORDERING.md](../../ORDERING.md#3-check-the-placement-preview) has the table).
 - Then another release (`reexport.sh`, renders, viewer, docs).
