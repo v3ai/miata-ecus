@@ -159,7 +159,8 @@ Unplug the harness plugs and keep the ECU: its case is the new ECU's case, and i
    | MAP hose | wherever the hose leaves: the barb points sideways, toward the middle of the board |
 
 3. Deburr the cut edges and fit a grommet or edge trim where the hose and leads pass.
-4. Screw the board down through its six M4 holes with the stock screws.
+4. Screw the board down through its M4 holes with the stock screws: six on 1989-95 and 2001-05, four on 1996-97 and
+   1999-2000.
 5. **1996–2005:** these boards still have the 1990–95 outline and holes. Check the fit against your case before
    cutting anything.
 

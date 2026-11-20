@@ -163,9 +163,13 @@ if getattr(M, 'JUMPERS', None):
              'removed: fit JP5, set the tach output in TunerStudio, and join the two tach wires at the old igniter plug (R37 is the 12 V '
              'pull-up the tachometer then needs).\n')
 TPSJ = ''
+# where the harness header comes from: the 76-position 178780-1 is sold new (LCSC C5166246 had 18 on 2026-11-20)
+HDR_SRC = {'mb_na96': 'new: TE 178780-1, LCSC C5166246, few in stock; or salvage one from a stock ECU',
+           'mb_nb1': 'new: TE 178780-1, LCSC C5166246, few in stock; or salvage one from a stock ECU'}.get(
+    sys.argv[1], 'salvage from a stock ECU or use a clone')
 o.append('## Assembly')
 o.append('- The daughterboard plugs into JD1/JD2 (8.5 mm sockets) on four M3 × 11 mm standoffs.')
-o.append(f'- Fitted by hand (all in `{F}self_order_bom.csv`): the harness header (salvage from a stock ECU or use a clone), the daughterboard sockets JD1/JD2, the wideband sensor connector{TPSJ}, the add-on header, any jumper headers and their shunts, the MAP sensor, the standoffs, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC\'s quote whether that needs Standard PCBA.')
+o.append(f'- Fitted by hand (all in `{F}self_order_bom.csv`): the harness header ({HDR_SRC}), the daughterboard sockets JD1/JD2, the wideband sensor connector{TPSJ}, the add-on header, any jumper headers and their shunts, the MAP sensor, the standoffs, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC\'s quote whether that needs Standard PCBA.')
 o.append('- The case needs cut-outs in its bottom edge for the wideband connector, USB-C and the MAP hose, and a way out for the add-on ribbon cable.\n')
 o.append('## Still to verify')
 o += [f'- {v}' for v in getattr(M, 'VERIFY', ['The case geometry, against a stock case with calipers.'])]

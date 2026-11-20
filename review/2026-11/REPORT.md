@@ -210,7 +210,7 @@ All of these are firmware settings and need a reflash, not board rework, so they
 |---|---|---|---|
 | 1 | Does 2I on 1989-95 need an ECU pull-up or tach drive? (C002) | Key on, ECU unplugged: 2I to ground; then with ECU plugged in and tach output off. Cluster needle works or not on the stock igniter | 1989-93, 1994-95 (ordered: only the firmware setting) |
 | 2 | Does 3O (tach) and 3M (alternator) need a pull-up on 1996-2005? (C040, C010) | Key on, ECU unplugged: 3O, 4L, 2K (per car) to ground. About 0 V: add about 1k to switched 12 V; about 12 V: nothing | All 1996-2005 |
-| 3 | A/C request and clutch polarity (C003, C039) | 1Q (1989-95), 1P/1S (1996-2000), 4F and 4I (2001-05) with the stock ECU unplugged | All years |
+| 3 | A/C request and clutch polarity (C003, C039) | 1Q / 1V (1989-95), 1K / 1L (1996-97), 1P / 3I (1999-2000), 4F / 4I (2001-05) with the stock ECU unplugged. Corrected 2026-11-20: this row first gave "1P/1S (1996-2000)"; 1S on 1999-2000 is the A/C relay output | All years |
 | 4 | Injector inductance (C007) | LCR meter on one injector. 8 mH or less: nothing. Above 12 mH: external TVS | 1994-2005 ordered |
 | 5 | Logic supply current and drops (C006) | 6, 8, 13.8 V: supply current; voltage across D7, F1, L1; hot soak and crank | Ordered daughterboard |
 | 6 | Case geometry for 1996-2005 (C011, C031) | Measure hole centres, case height, header window on one real case per generation | 1996-2005 |

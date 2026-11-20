@@ -94,7 +94,7 @@ for k in 'ABCDEFGHIJKL':
 
 def build_parts():
     parts = L.build('ecu_mb:TE_178780-1_76P', 'TE 178780-1', 'Stock harness header, 76 positions (OEM plugs 1/3/4 used). '
-                    'Hand-solder; salvage from a stock ECU or use a clone', HARNESS, holes=CASE_HOLES)
+                    'Hand-solder; new from LCSC C5166246 (few in stock) or salvaged from a stock ECU', HARNESS, holes=CASE_HOLES)
     L.C.protection_parts('VBAT_IN')       # idle valve fed from the main relay; the VVT driver runs the O2 heater
     return parts
 

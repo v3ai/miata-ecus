@@ -1,8 +1,9 @@
 # Boards ordered in November 2026
 
 This folder is a frozen copy of the design as it was ordered, so it stays usable after the main design moves on.
-Nothing in here is edited again. The same state is commit `4f34615` on `main`; that commit also has
-the build scripts, the 3D viewer and the shop drafts, which are not copied here.
+Nothing in here is edited again, except the two corrections marked below (2026-11-20). The same state is commit
+`5e8cde8` on `main`; that commit also has the build scripts, the 3D viewer and the shop drafts, which are not copied
+here. (This page first named `4f34615`, a commit that is not in the repository.)
 
 | Board | Folder | Revision | Harness header |
 |---|---|---|---|
@@ -20,8 +21,10 @@ the build scripts, the 3D viewer and the shop drafts, which are not copied here.
 - `VERIFICATION.md`: every check that was run and what is still open. No board had been built or tested when this
   copy was made.
 - `additional-parts/`: the parts to buy besides the boards.
-- `firmware/`: the rusEFI board files for these boards. Build this firmware for them, not a later one: later board
-  revisions change the pin map. (`git checkout 4f34615` gives the complete tree to build from.)
+- `firmware/`: the rusEFI board files for these boards, as ordered (`git checkout 5e8cde8` gives the complete tree to
+  build from). Corrected 2026-11-20: the current firmware also runs these boards. Against rev 0.9 it only adds the
+  microSD pins, which are not connected here, and turns AUX pins 12-13 into inputs; its settings that differ for
+  these boards are listed in [BRING-UP.md](BRING-UP.md).
 
 ## Known points on these boards
 

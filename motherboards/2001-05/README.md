@@ -132,7 +132,7 @@ Not connected: 2E, 2F, 2H, 2I, 2N, 2O, 3C, 3D, 3E, 3J, 3K, 3L, 3N, 3P, 3Q, 3S, 3
 
 **Protection:** D1 (and D2 where the VVT driver runs a coil) freewheel the PWM valve coils into their own +12 V feed, and D5 does the same for a boost valve on the add-on header, so the drivers don't absorb the turn-off energy. F4 fuses the add-on header's +12 V pin (1.1 A hold: a boost valve draws about 0.5 A).
 
-**Switch inputs (R20-R22, not fitted):** the VSS, A/C and clutch inputs read signals that are driven to 12 V. If your car's signal only switches to ground (or is open collector), fit the 4.7 kΩ pull-up for that input. Never fit it for a switch that drives 12 V: the input would always read on.
+**Switch inputs (R20-R22):** the A/C request and clutch switches close to ground (the stock ECU's tables: B+ open, under 2.5 V closed), so R21 and R22 pull them up to 12 V and the firmware reads both active low (fitted from rev 0.12; on an earlier board fit them by hand, 4.7 kΩ 0603). R20, the vehicle speed pull-up, is not fitted: fit it only if your car's speed signal switches to ground or is open collector.
 
 **Sensor 5 V:** the harness's 5 V reference and the AUX header pin J5-14 come from the daughterboard's protected 5 V regulator (V5_EXT; it survives a short to the battery or to ground). The MAP sensor has its own supply (V5_SENS), so a damaged sensor wire doesn't take the MAP reading with it.
 

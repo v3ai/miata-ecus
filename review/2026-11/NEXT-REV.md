@@ -465,7 +465,10 @@ Still to do for rev 0.12, all needing the routing pipeline (KiCad 9 route, `back
 - 1989-95 header holes: its 1.51 mm pads must grow to 1.8 mm for a 1.3 mm hole, which crowds four tracks / vias near
   1A, 1H, 1O and 2B.
 - C12 to the VDDA side with FB1 upstream; vias around U4's tab; the 1989-95 1B track wider; the alternator pull-up
-  footprint on 1999-2000 / 2001-05.
+  footprint on 1999-2000 / 2001-05, and a tach pull-up footprint on 1996-2005 (4L / 2K / 3O, not fitted until the car
+  measurement says so).
+- Heater fuse F1: 1.99 A hold at 60 °C against a 2.25 A cold-heater peak (VERIFICATION N5, corrected). The
+  2920L400/30GR (C19078761) fits the same pads; decide after logging the heater current in a hot cabin.
 - Placement rotations for U3 / U14, J4 and the newer diodes: confirm in JLCPCB's preview and on the received boards
   (`order_bom.py` lists them).
 - Then the release: `reexport.sh`, renders, viewer, docs.

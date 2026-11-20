@@ -89,7 +89,7 @@ FUSES = [('F2', 'IAC_12V', 'idle valve +12 V feed (3O)')]
 
 def build_parts():
     parts = L.build('ecu_mb:TE_178780-1_76P_NB1', 'TE 178780-1', 'Harness header, 76 positions (the 22-, 16- and 26-position '
-                    'bays take the car\'s three plugs; the 12-position bay stays empty). Hand-solder',
+                    'bays take the car\'s three plugs; the 12-position bay stays empty). Hand-solder; new from LCSC C5166246 (few in stock) or salvaged from a stock ECU',
                     dict(HARNESS, **{'X' + k: '' for k in 'ABCDEFGHIJKL'}), FUSES, holes=CASE_HOLES)
     L.C.protection_parts('IAC_12V')
     return parts
