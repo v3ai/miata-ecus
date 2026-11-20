@@ -6,9 +6,34 @@
 
 #include "ch.hpp"
 
+// Independent watchdog (LSI, 30-60 kHz on the F103): /128 and 1250 counts, so 4 s nominal and 2.7-5.3 s over the
+// LSI's range. Started here, as sampling starts and just before the heater thread does (its first loop is 1 s later).
+// The heater loop kicks it at 20 Hz (PortHeaterLoopAlive(), patches/0001-heater-loop-watchdog.patch), and only when
+// the sampling loop has taken a new sample since the last kick: if either loop stops, the chip resets and the heater
+// output goes to its reset state, off, instead of holding the last duty with no one watching the sensor. A reset
+// from the ECU (NRST, for flashing) stops the watchdog with everything else.
+static const WDGConfig wdgConfig = {
+    .pr = STM32_IWDG_PR_128,
+    .rlr = STM32_IWDG_RL(1250),
+};
+
+static volatile uint32_t sampleCount = 0;
+
+void PortHeaterLoopAlive()
+{
+    static uint32_t lastSampleCount = 0;
+    uint32_t now = sampleCount;
+    if (now != lastSampleCount)
+    {
+        lastSampleCount = now;
+        wdgReset(&WDGD1);
+    }
+}
+
 void PortPrepareAnalogSampling()
 {
     adcStart(&ADCD1, nullptr);
+    wdgStart(&WDGD1, &wdgConfig);
 }
 
 #define ADC_CHANNEL_COUNT 4
@@ -67,6 +92,7 @@ static float AverageSamples(adcsample_t* buffer, size_t idx)
 
 void AnalogSampleStart()
 {
+    sampleCount = sampleCount + 1;
     adcStartConversion(&ADCD1, &convGroup, adcBuffer, ADC_OVERSAMPLE);
 }
 

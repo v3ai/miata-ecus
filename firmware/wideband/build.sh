@@ -1,6 +1,6 @@
 #!/bin/bash
 # Builds the on-board wideband's firmware: rusEFI's wideband controller sources (the wideband_firmware submodule of the
-# rusEFI tree) with this board's port (miata_f1/, STM32F103C8).
+# rusEFI tree) with this board's port (miata_f1/, STM32F103C8) and its patches to those sources (patches/).
 # usage: build.sh [rusEFI dir, default firmware/ext/rusefi] [output dir, default firmware/wideband/out]
 # Output: miata_wbo_f103.bin (raw image for 0x08000000, written by the ECU's flasher), .elf, .map.
 set -eo pipefail
@@ -14,7 +14,11 @@ mkdir -p "$OUT"
 BOARD=miata_f1
 rm -rf "$WB/boards/$BOARD"
 cp -r "$HERE/$BOARD" "$WB/boards/$BOARD"
-trap 'rm -rf "$WB/boards/$BOARD"' EXIT
+# this board's changes to the controller sources themselves (patches/, applied for the build and taken out after)
+PATCHES=("$HERE"/patches/*.patch)
+git -C "$WB/.." apply --check "${PATCHES[@]}" || { echo "patches/ don't apply to $(git -C "$WB/.." rev-parse HEAD)"; rm -rf "$WB/boards/$BOARD"; exit 1; }
+git -C "$WB/.." apply "${PATCHES[@]}"
+trap 'git -C "$WB/.." apply -R "${PATCHES[@]}"; rm -rf "$WB/boards/$BOARD"' EXIT
 make -C "$WB" -j"$(nproc)" BOARD=$BOARD BUILDDIR="$OUT/build" > "$OUT/build.log" 2>&1 || { tail -40 "$OUT/build.log"; exit 1; }
 cp "$OUT/build/wideband.bin" "$OUT/miata_wbo_f103.bin"
 cp "$OUT/build/wideband.elf" "$OUT/miata_wbo_f103.elf"
@@ -24,5 +28,6 @@ python3 "$HERE/check_wbo_image.py" "$OUT/miata_wbo_f103.elf" "$OUT/miata_wbo_f10
 # provenance: compiler and sources, so an identical rebuild can be checked
 { echo "compiler: $(arm-none-eabi-gcc --version | head -1)"
   echo "wideband: $(git -C "$WB/.." rev-parse HEAD)"
+  echo "patches: $(cd "$HERE/patches" && sha256sum *.patch | sha256sum | cut -c1-16)"
   echo "sha256: $(sha256sum "$OUT/miata_wbo_f103.bin" | cut -d' ' -f1)"; } > "$OUT/miata_wbo_f103.txt"
 cat "$OUT/miata_wbo_f103.txt"

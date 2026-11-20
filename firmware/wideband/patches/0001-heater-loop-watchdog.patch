@@ -1,0 +1,23 @@
+diff --git a/firmware/heater_thread.cpp b/firmware/heater_thread.cpp
+index 41e8c1e..660034f 100644
+--- a/firmware/heater_thread.cpp
++++ b/firmware/heater_thread.cpp
+@@ -6,6 +6,9 @@
+ #include "port.h"
+ #include "sampling.h"
+ 
++// miata-ecus: the port kicks the independent watchdog from here (miata_f1/port.cpp)
++void PortHeaterLoopAlive();
++
+ // 400khz / 1024 = 390hz PWM
+ static Pwm heaterPwm(HEATER_PWM_DEVICE);
+ static const PWMConfig heaterPwmConfig = {
+@@ -105,6 +108,8 @@ static void HeaterThread(void*)
+             heater.Update(sampler, heaterAllowState);
+         }
+ 
++        PortHeaterLoopAlive();
++
+         // Loop at ~20hz
+         chThdSleepMilliseconds(HEATER_CONTROL_PERIOD);
+     }
