@@ -18,7 +18,7 @@ The daughterboard plugs into the motherboard on two 1×40 sockets and four M3 st
 </tr>
 <tr>
 <td align="center"><sub>Daughterboard lifted off its sockets and standoffs</sub></td>
-<td align="center"><sub>The universal daughterboard (rev 0.11)</sub></td>
+<td align="center"><sub>The universal daughterboard (rev 0.12)</sub></td>
 </tr>
 </table>
 
@@ -167,6 +167,12 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
 > shunt. The boards themselves are unchanged
 > ([what it means](VERIFICATION.md#1989-93-one-driver-per-injector-wire-2026-11-15)).
 >
+> **Rev 0.12 (2026-11-20; motherboards rev 0.15 / 0.11):** the processor is the STM32F405 (JLCPCB stocks it; the
+> F407 and F427 fit the same pads), the CAN transceivers are NXP TJA1042T/3, R21 / R22 are fitted so the A/C request
+> and clutch switches (which close to ground) are read, and the 1996–2005 harness headers have 1.3 mm holes. The
+> firmware adds rev limits for a cold engine, lambda protection, an overboost cut and a MAP-failure fallback; the
+> wideband controller has a watchdog on its heater loop.
+>
 > **Rev 0.11 (2026-11-18; motherboards rev 0.14 / 0.10):** no via in or against any SMD pad on any board, so the
 > boards need no filled vias. The vias that sat in the driver tabs are now in the tab copper around them, the others
 > beside their pads; every board passes KiCad's DRC with nothing unconnected, and the release check now fails a board
@@ -180,17 +186,17 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
 
 | Board | Folder | Rev | Harness header | Case fit |
 |---|---|---|---|---|
-| Daughterboard (all years) | [`daughterboard/`](daughterboard/) | 0.11 | 2 × 1×40 to the motherboard | 125 × 76 mm, 6 layers |
-| 1989–95 (NA6 and NA8; jumpers set 1989–93 or 1994–95) | [`motherboards/1989-95/`](motherboards/1989-95/) | 0.14 | TE 174917-6, 48 pins | stock NA case outline |
-| 1996–97 (NA8, OBD-II) | [`motherboards/1996-97/`](motherboards/1996-97/) | 0.10 | TE 178780-1, 76 positions | **provisional** (NA outline) |
-| 1999–2000 (NB1) | [`motherboards/1999-2000/`](motherboards/1999-2000/) | 0.10 | TE 178780-1, as 1996–97 (the car's own is the 64-position 176122-6; its plugs are the same housings) | **provisional** (NA outline) |
-| 2001–05 (NB2, VVT) | [`motherboards/2001-05/`](motherboards/2001-05/) | 0.10 | TE 353830-5, 72 positions | **provisional** (NA outline) |
+| Daughterboard (all years) | [`daughterboard/`](daughterboard/) | 0.12 | 2 × 1×40 to the motherboard | 125 × 76 mm, 6 layers |
+| 1989–95 (NA6 and NA8; jumpers set 1989–93 or 1994–95) | [`motherboards/1989-95/`](motherboards/1989-95/) | 0.15 | TE 174917-6, 48 pins | stock NA case outline |
+| 1996–97 (NA8, OBD-II) | [`motherboards/1996-97/`](motherboards/1996-97/) | 0.11 | TE 178780-1, 76 positions | **provisional** (NA outline) |
+| 1999–2000 (NB1) | [`motherboards/1999-2000/`](motherboards/1999-2000/) | 0.11 | TE 178780-1, as 1996–97 (the car's own is the 64-position 176122-6; its plugs are the same housings) | **provisional** (NA outline) |
+| 2001–05 (NB2, VVT) | [`motherboards/2001-05/`](motherboards/2001-05/) | 0.11 | TE 353830-5, 72 positions | **provisional** (NA outline) |
 
 Each board folder contains:
 - the KiCad 7 project (schematic and board);
 - a schematic PDF;
 - JLCPCB gerbers, BOM and placement files in `fab/`, with the DRC report, named for the board and revision (for example
-  `miata-ecu-motherboard-1989-95-rev0.14_jlcpcb_gerbers.zip`). The JLC BOM is the SMD parts (and USB-C);
+  `miata-ecu-motherboard-1989-95-rev0.15_jlcpcb_gerbers.zip`). The JLC BOM is the SMD parts (and USB-C);
   `…_self_order_bom.csv` is everything you order and solder yourself, and
   [`additional-parts/order_all_boards.csv`](additional-parts/order_all_boards.csv) adds up every motherboard, a daughterboard for each and the in-car parts
   (the same list as a page with quantities and tick boxes: [`additional-parts/shopping_list.html`](additional-parts/shopping_list.html));

@@ -1,4 +1,4 @@
-# Miata ECU motherboard 1989-1995 (NA6 / NA8), rev 0.14
+# Miata ECU motherboard 1989-1995 (NA6 / NA8), rev 0.15
 
 The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**. It carries:
 
@@ -7,6 +7,7 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 - the sockets for the universal daughterboard, which does all the engine control (including the wideband controller).
 
 ## Changes in this revision
+- Rev 0.15: R21 / R22 fitted (4.7 kΩ to 12 V, C23162): the A/C request and clutch switches close to ground, and the firmware reads them active low. For daughterboard rev 0.12 (STM32F405, TJA1042 CAN transceivers); any daughterboard from rev 0.10 fits.
 - Rev 0.14: no via in or against any SMD pad (they moved beside their pads); JP6 ships on BOOST for 1989-93, where the firmware runs the fuel pump relay on 2O (the airflow meter's plug takes the GM air-temperature sensor that ships with every board).
 - 2026-11-15, no change to the board: on 1989-93 cars JP1 and JP2 now carry no shunt, so each of the two injector wires has one driver (INJ1, INJ2), as on rusEFI's and Speeduino's boards for these cars. Before, both sat on PAIR and two drivers shared each wire. The firmware is unchanged (batch firing).
 - Rev 0.13: the wideband sensor connector J2 is now a JST PUD side-entry header (S08B-PUDSS-1, two rows of four at 2.0 mm) instead of rev 0.12's Molex Micro-Fit 2x4. AEM's instructions for the X-Series gauge name the harness's replacement terminal, JST SPUD-001T-P0.5, which is the contact of JST's PUD series (plug housing PUDP-08V-S): a Micro-Fit header would not have taken the plug. The wire colour of each pin is printed beside the connector, to check a harness against by eye. The board is routed again; nothing else changed.
@@ -27,9 +28,9 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 |---|---|
 | `miata_mb_8995.kicad_pro / .kicad_sch / .kicad_pcb` | KiCad 7 project. Root schematic plus three sheets: harness, daughterboard, I/O |
 | `miata_mb_8995_schematic.pdf` | Schematic PDF |
-| `fab/miata-ecu-motherboard-1989-95-rev0.14_jlcpcb_gerbers.zip`, `fab/miata-ecu-motherboard-1989-95-rev0.14_jlcpcb_bom.csv`, `fab/miata-ecu-motherboard-1989-95-rev0.14_jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |
-| `fab/miata-ecu-motherboard-1989-95-rev0.14_self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt, standoffs and screws, plus the not-fitted options. Its columns load into LCSC's BOM tool |
-| `fab/miata-ecu-motherboard-1989-95-rev0.14_parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |
+| `fab/miata-ecu-motherboard-1989-95-rev0.15_jlcpcb_gerbers.zip`, `fab/miata-ecu-motherboard-1989-95-rev0.15_jlcpcb_bom.csv`, `fab/miata-ecu-motherboard-1989-95-rev0.15_jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |
+| `fab/miata-ecu-motherboard-1989-95-rev0.15_self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt, standoffs and screws, plus the not-fitted options. Its columns load into LCSC's BOM tool |
+| `fab/miata-ecu-motherboard-1989-95-rev0.15_parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |
 | `fab/drc_report.txt` | KiCad DRC |
 | `ecu_mb.pretty/`, `fp-lib-table` | Project footprints (harness header, MAP sensor lying flat, USB-C, M4 case hole) |
 | `renders/` | Top and bottom copper |
@@ -131,7 +132,7 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J.
 | 19 | `CAN_H` | CAN high |
 | 20 | `CAN_L` | CAN low |
 
-**Flex fuel** (GM / Continental type sensor): signal to J5-12, sensor +12 V from J5-15, ground to J5-16. In TunerStudio set the flex sensor input to "Flex input (J2-24)". **Nitrous:** arming switch from +12 V to J5-13; in TunerStudio enable nitrous control, set the trigger to "Nitrous arm (J2-25)" and pick a spare output (boost on J5-3, or the second fan output) for the solenoid relay. **Boost valve:** between J5-15 (+12 V) and J5-3. All of these need a rev 0.10 daughterboard.
+**Flex fuel** (GM / Continental type sensor): signal to J5-12, sensor +12 V from J5-15, ground to J5-16. In TunerStudio set the flex sensor input to "Flex input (J2-24)". **Nitrous:** arming switch from +12 V to J5-13; in TunerStudio enable nitrous control, set the trigger to "Nitrous arm (J2-25)" and pick a spare output (boost on J5-3, or the second fan output) for the solenoid relay. **Boost valve:** between J5-15 (+12 V) and J5-3. All of these need a rev 0.10 or later daughterboard.
 
 **Jumpers (2.54 mm headers with shunts, in the margins beside the daughterboard):** this one board covers 1989-93 and 1994-95; the pins that differ are on jumpers. Set them for the car before the first start.
 
@@ -160,7 +161,7 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J.
 
 ## Assembly
 - The daughterboard plugs into JD1/JD2 (8.5 mm sockets) on four M3 × 11 mm standoffs.
-- Fitted by hand (all in `fab/miata-ecu-motherboard-1989-95-rev0.14_self_order_bom.csv`): the harness header (salvage from a stock ECU or use a clone), the daughterboard sockets JD1/JD2, the wideband sensor connector, the add-on header, any jumper headers and their shunts, the MAP sensor, the standoffs, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC's quote whether that needs Standard PCBA.
+- Fitted by hand (all in `fab/miata-ecu-motherboard-1989-95-rev0.15_self_order_bom.csv`): the harness header (salvage from a stock ECU or use a clone), the daughterboard sockets JD1/JD2, the wideband sensor connector, the add-on header, any jumper headers and their shunts, the MAP sensor, the standoffs, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC's quote whether that needs Standard PCBA.
 - The case needs cut-outs in its bottom edge for the wideband connector, USB-C and the MAP hose, and a way out for the add-on ribbon cable.
 
 ## Still to verify

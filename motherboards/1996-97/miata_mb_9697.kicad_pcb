@@ -2560,7 +2560,7 @@
   (gr_text "1 GRN  3 ORG  5 RED  7 --" (at 130.7 201.4) (layer "F.SilkS") (tstamp 9f37d6eb-fece-4e2c-b6cb-ada58fd9b8d0)
     (effects (font (size 1 1) (thickness 0.15)) (justify left))
   )
-  (gr_text "Miata ECU motherboard 1996-1997 (NA8 OBD2)  rev 0.10" (at 177 84) (layer "F.SilkS") (tstamp d0155f71-e6c1-4fbf-a707-e244dc59d73a)
+  (gr_text "Miata ECU motherboard 1996-1997 (NA8 OBD2)  rev 0.11" (at 177 84) (layer "F.SilkS") (tstamp d0155f71-e6c1-4fbf-a707-e244dc59d73a)
     (effects (font (size 1.6 1.6) (thickness 0.22)))
   )
   (gr_text "DAUGHTERBOARD" (at 177 130) (layer "F.SilkS") (tstamp eb847f16-50e6-422c-aa1c-78557ee28e98)

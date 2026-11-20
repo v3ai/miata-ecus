@@ -1,5 +1,5 @@
 ** Drc report for miata_mb_8995.kicad_pcb **
-** Created on 2026-11-18 15:28:19 **
+** Created on 2026-11-20 01:53:38 **
 
 ** Found 115 DRC violations **
 [silk_overlap]: Silkscreen overlap
@@ -12,16 +12,16 @@
     @(114.5000 mm, 92.0000 mm): Segment on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
-    @(194.4325 mm, 169.8373 mm): Segment of R1 on F.Silkscreen
-    @(194.2800 mm, 169.6000 mm): Reference field of R6
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
     @(166.7100 mm, 160.0000 mm): Reference field of R22
     @(166.1225 mm, 160.2373 mm): Segment of R21 on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
     @(164.1700 mm, 160.0000 mm): Reference field of R21
     @(163.5825 mm, 160.2373 mm): Segment of R20 on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; warning
+    @(194.4325 mm, 169.8373 mm): Segment of R1 on F.Silkscreen
+    @(194.2800 mm, 169.6000 mm): Reference field of R6
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; warning
     @(194.2800 mm, 169.6000 mm): Reference field of R6

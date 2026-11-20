@@ -1,15 +1,7 @@
 ** Drc report for miata_mb_0105.kicad_pcb **
-** Created on 2026-11-18 15:28:49 **
+** Created on 2026-11-20 01:53:08 **
 
 ** Found 69 DRC violations **
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
-    @(164.1700 mm, 160.0000 mm): Reference field of R21
-    @(163.5825 mm, 160.2373 mm): Segment of R20 on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
-    @(119.0000 mm, 92.3000 mm): Reference field of HD1
-    @(114.5000 mm, 92.0000 mm): Segment on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
     @(140.9500 mm, 69.6000 mm): Reference field of J1
@@ -26,6 +18,14 @@
     Rule: board setup constraints silk; warning
     @(235.0000 mm, 92.3000 mm): Reference field of HD2
     @(114.5000 mm, 92.0000 mm): Segment on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; warning
+    @(119.0000 mm, 92.3000 mm): Reference field of HD1
+    @(114.5000 mm, 92.0000 mm): Segment on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; warning
+    @(164.1700 mm, 160.0000 mm): Reference field of R21
+    @(163.5825 mm, 160.2373 mm): Segment of R20 on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
     @(166.1225 mm, 160.2373 mm): Segment of R21 on F.Silkscreen
@@ -71,14 +71,6 @@
     Local override; error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu, priority 0
     @(175.7600 mm, 94.7500 mm): PTH pad 20 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (layer B.Cu; 1 spokes connected to isolated island)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu, priority 0
-    @(191.0000 mm, 94.7500 mm): PTH pad 26 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (layer B.Cu; 1 spokes connected to isolated island)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu, priority 0
-    @(193.5400 mm, 94.7500 mm): PTH pad 27 [GND] of JD1
 [starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
     Local override; error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
@@ -95,10 +87,18 @@
     Local override; error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
     @(185.9200 mm, 94.7500 mm): PTH pad 24 [GND] of JD1
+[starved_thermal]: Thermal relief connection to zone incomplete (layer B.Cu; 1 spokes connected to isolated island)
+    Local override; error
+    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu, priority 0
+    @(191.0000 mm, 94.7500 mm): PTH pad 26 [GND] of JD1
 [starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
     Local override; error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
     @(191.0000 mm, 94.7500 mm): PTH pad 26 [GND] of JD1
+[starved_thermal]: Thermal relief connection to zone incomplete (layer B.Cu; 1 spokes connected to isolated island)
+    Local override; error
+    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu, priority 0
+    @(193.5400 mm, 94.7500 mm): PTH pad 27 [GND] of JD1
 [starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
     Local override; error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0

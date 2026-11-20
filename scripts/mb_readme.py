@@ -101,7 +101,7 @@ o += [f'| {k} | `{C.AUX[k]}` | {AUXROLE.get(C.AUX[k], "")} |' for k in sorted(C.
 o.append('\n**Flex fuel** (GM / Continental type sensor): signal to J5-12, sensor +12 V from J5-15, ground to J5-16. In TunerStudio set the '
          'flex sensor input to "Flex input (J2-24)". **Nitrous:** arming switch from +12 V to J5-13; in TunerStudio enable nitrous control, '
          'set the trigger to "Nitrous arm (J2-25)" and pick a spare output (boost on J5-3, or the second fan output) for the solenoid relay. '
-         '**Boost valve:** between J5-15 (+12 V) and J5-3. All of these need a rev 0.10 daughterboard.\n')
+         '**Boost valve:** between J5-15 (+12 V) and J5-3. All of these need a rev 0.10 or later daughterboard.\n')
 if any(p['ref'] in ('R7', 'R10') for p in C.parts):
     o.append('**Crank / cam sensor type:** each trigger has three 0R links. Fit the hall link for a hall / open-collector sensor, '
              'or the two VR links for a 2-wire magnetic sensor. The default for this car is assembled; see the parts list.\n')

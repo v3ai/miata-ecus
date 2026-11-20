@@ -1,5 +1,5 @@
 ** Drc report for miata_ecu_daughter.kicad_pcb **
-** Created on 2026-11-18 15:25:38 **
+** Created on 2026-11-20 01:52:14 **
 
 ** Found 495 DRC violations **
 [silk_overlap]: Silkscreen overlap

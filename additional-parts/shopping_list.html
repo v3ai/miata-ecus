@@ -70,7 +70,7 @@ td.item b a{color:var(--accent);text-underline-offset:2px}
 <main>
   <header>
     <h1>Miata ECU: parts JLCPCB won't fit</h1>
-    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.11 and the four motherboards (1989-95 rev 0.14; 1996-97, 1999-2000 and 2001-05 rev 0.10), plus the parts that go in the car. Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
+    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.12 and the four motherboards (1989-95 rev 0.15; 1996-97, 1999-2000 and 2001-05 rev 0.11), plus the parts that go in the car. Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
   </header>
 
   <div class="counts" role="group" aria-label="Build counts">
@@ -133,8 +133,8 @@ const GROUPS = [
   {item:'Resistor 1 kΩ, 2512, 1 W', pn:'Yageo RC2512JK-071KL', dk:'RC2512JK-071KL', per:'8995', q:1, who:'opt', note:'R37: the tachometer’s 12 V pull-up, only with JP5 fitted (coil-on-plug, igniter removed).'},
  ]},
  {id:'optional', title:'Optional parts on the motherboard', sub:'Not fitted by default. Buy only if your car needs them.', rows:[
-  {item:'Resistor 4.7 kΩ, 0603', pn:'Yageo RC0603FR-074K7L', dk:'RC0603FR-074K7L', per:'mb', q:3, who:'opt',
-   note:'R20-R22: pull-ups for VSS, A/C and clutch. Fit one only where that signal switches to ground. Never on a line the car drives to 12 V.'},
+  {item:'Resistor 4.7 kΩ, 0603', pn:'Yageo RC0603FR-074K7L', dk:'RC0603FR-074K7L', per:'mb', q:1, who:'opt',
+   note:'R20: pull-up for the vehicle speed input. Fit it only if that signal switches to ground; never on a line the car drives to 12 V. (R21 / R22, the A/C and clutch pull-ups, are fitted by JLCPCB from rev 0.11 / 0.15.)'},
   {item:'Resistor 0 Ω, 0805 (TPS links)', pn:'Yageo RC0805JR-070RL', dk:'RC0805JR-070RL', per:'mt', q:2, who:'opt', warn:'Manual cars only',
    note:'R28 (5 V on 1N) and R30 (2L to the TPS input, after removing R29) on the 1989-95 board, for a sensor on the stock throttle plug. Never with the stock switch still fitted.'},
  ]},

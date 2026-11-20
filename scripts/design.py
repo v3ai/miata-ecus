@@ -5,7 +5,7 @@ Every part: ref, value, footprint (lib:name), LCSC number, {pad: net}.
 Placement lives in place.py, routing in route.py.
 """
 
-REV = '0.11'                   # daughterboard revision (names the fab files)
+REV = '0.12'                   # daughterboard revision (names the fab files)
 
 FP = {
     'R0603': 'Resistor_SMD:R_0603_1608Metric',

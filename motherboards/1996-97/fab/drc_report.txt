@@ -1,5 +1,5 @@
 ** Drc report for miata_mb_9697.kicad_pcb **
-** Created on 2026-11-18 15:28:30 **
+** Created on 2026-11-20 01:52:51 **
 
 ** Found 59 DRC violations **
 [silk_overlap]: Silkscreen overlap
@@ -12,8 +12,16 @@
     @(166.1225 mm, 160.2373 mm): Segment of R21 on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
-    @(194.2800 mm, 169.6000 mm): Reference field of R6
-    @(194.4325 mm, 169.8373 mm): Segment of R1 on F.Silkscreen
+    @(202.9227 mm, 61.4044 mm): Segment of J1 on F.Silkscreen
+    @(200.2969 mm, 61.8291 mm): Footprint text of J1 (4B)
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; warning
+    @(238.0006 mm, 61.8291 mm): Footprint text of J1 (4Z)
+    @(242.0732 mm, 61.3794 mm): Segment of J1 on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; warning
+    @(111.9724 mm, 61.1050 mm): Segment of J1 on F.Silkscreen
+    @(116.0000 mm, 61.8291 mm): Footprint text of J1 (1B)
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
     @(144.0467 mm, 61.1298 mm): Segment of J1 on F.Silkscreen
@@ -24,24 +32,16 @@
     @(152.6500 mm, 61.8291 mm): Footprint text of J1 (2B)
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
-    @(111.9724 mm, 61.1050 mm): Segment of J1 on F.Silkscreen
-    @(116.0000 mm, 61.8291 mm): Footprint text of J1 (1B)
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
-    @(202.9227 mm, 61.4044 mm): Segment of J1 on F.Silkscreen
-    @(200.2969 mm, 61.8291 mm): Footprint text of J1 (4B)
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
-    @(238.0006 mm, 61.8291 mm): Footprint text of J1 (4Z)
-    @(242.0732 mm, 61.3794 mm): Segment of J1 on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
     @(114.5000 mm, 92.0000 mm): Segment on F.Silkscreen
     @(119.0000 mm, 92.3000 mm): Reference field of HD1
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
     @(235.0000 mm, 92.3000 mm): Reference field of HD2
     @(114.5000 mm, 92.0000 mm): Segment on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; warning
+    @(194.2800 mm, 169.6000 mm): Reference field of R6
+    @(194.4325 mm, 169.8373 mm): Segment of R1 on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; warning
     @(194.2800 mm, 169.6000 mm): Reference field of R6

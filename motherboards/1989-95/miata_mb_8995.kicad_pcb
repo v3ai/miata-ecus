@@ -3550,7 +3550,7 @@
   (gr_text "TACH COP" (at 108 110.6) (layer "F.SilkS") (tstamp 2c2eab91-ec92-4cca-abe6-90f4b2485cc1)
     (effects (font (size 1 1) (thickness 0.15)))
   )
-  (gr_text "Miata ECU motherboard 1989-1995 (NA6 / NA8)  rev 0.14" (at 177 84) (layer "F.SilkS") (tstamp 36b0b170-2885-44bd-8d1d-5a43dbcde206)
+  (gr_text "Miata ECU motherboard 1989-1995 (NA6 / NA8)  rev 0.15" (at 177 84) (layer "F.SilkS") (tstamp 36b0b170-2885-44bd-8d1d-5a43dbcde206)
     (effects (font (size 1.6 1.6) (thickness 0.22)))
   )
   (gr_text "DAUGHTERBOARD" (at 177 130) (layer "F.SilkS") (tstamp 3bc87a92-dbd5-4754-b62b-f3ad05c1c9cf)

@@ -1,19 +1,27 @@
 ** Drc report for miata_mb_9900.kicad_pcb **
-** Created on 2026-11-18 15:28:40 **
+** Created on 2026-11-20 01:53:00 **
 
 ** Found 57 DRC violations **
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; warning
+    @(163.5825 mm, 160.2373 mm): Segment of R20 on F.Silkscreen
+    @(164.1700 mm, 160.0000 mm): Reference field of R21
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; warning
+    @(166.7100 mm, 160.0000 mm): Reference field of R22
+    @(166.1225 mm, 160.2373 mm): Segment of R21 on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
     @(119.0000 mm, 92.3000 mm): Reference field of HD1
     @(114.5000 mm, 92.0000 mm): Segment on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
-    @(114.5000 mm, 92.0000 mm): Segment on F.Silkscreen
-    @(235.0000 mm, 92.3000 mm): Reference field of HD2
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
     @(146.6984 mm, 61.8291 mm): Footprint text of J1 (1V)
     @(144.0467 mm, 61.1298 mm): Segment of J1 on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; warning
+    @(111.9724 mm, 61.1050 mm): Segment of J1 on F.Silkscreen
+    @(116.0000 mm, 61.8291 mm): Footprint text of J1 (1B)
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
     @(144.0467 mm, 61.1298 mm): Segment of J1 on F.Silkscreen
@@ -28,16 +36,8 @@
     @(200.2969 mm, 61.8291 mm): Footprint text of J1 (3B)
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
-    @(111.9724 mm, 61.1050 mm): Segment of J1 on F.Silkscreen
-    @(116.0000 mm, 61.8291 mm): Footprint text of J1 (1B)
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
-    @(163.5825 mm, 160.2373 mm): Segment of R20 on F.Silkscreen
-    @(164.1700 mm, 160.0000 mm): Reference field of R21
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
-    @(166.7100 mm, 160.0000 mm): Reference field of R22
-    @(166.1225 mm, 160.2373 mm): Segment of R21 on F.Silkscreen
+    @(114.5000 mm, 92.0000 mm): Segment on F.Silkscreen
+    @(235.0000 mm, 92.3000 mm): Reference field of HD2
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
     @(194.4325 mm, 169.8373 mm): Segment of R1 on F.Silkscreen

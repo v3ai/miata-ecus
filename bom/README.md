@@ -8,15 +8,15 @@ One CSV per year range. Each has three sections:
 
 Every line gives the component, how many, the unit price, the total price, the manufacturer and part number, where to buy it, who fits it, whether it is required, stock, and where the price came from. The two board sections also carry the bare PCB and JLCPCB's assembly fees. Each section ends with a subtotal and the file ends with a total.
 
-## Current design (Daughterboard rev 0.11)
+## Current design (Daughterboard rev 0.12)
 
 | Years | Motherboard | Daughterboard parts | Daughterboard PCB and assembly | Motherboard parts | Motherboard PCB and assembly | Extra parts | Total |
 |---|---|---|---|---|---|---|---|
-| [1989-93](1989-93.csv) | 1989-95 rev 0.14 | $41.29 | $11.28 | $37.56 | $3.32 | $137.58 | **$231.03** |
-| [1994-95](1994-95.csv) | 1989-95 rev 0.14 | $41.29 | $11.28 | $37.56 | $3.32 | $138.13 | **$231.58** |
-| [1996-97](1996-97.csv) | 1996-97 rev 0.10 | $41.29 | $11.28 | $44.04 | $3.31 | $138.13 | **$238.06** |
-| [1999-2000](1999-2000.csv) | 1999-2000 rev 0.10 | $41.29 | $11.28 | $44.15 | $3.42 | $137.41 | **$237.55** |
-| [2001-05](2001-05.csv) | 2001-05 rev 0.10 | $41.29 | $11.28 | $40.26 | $3.42 | $137.41 | **$233.66** |
+| [1989-93](1989-93.csv) | 1989-95 rev 0.15 | $42.61 | $11.28 | $37.56 | $3.32 | $137.58 | **$232.35** |
+| [1994-95](1994-95.csv) | 1989-95 rev 0.15 | $42.61 | $11.28 | $37.56 | $3.32 | $138.13 | **$232.90** |
+| [1996-97](1996-97.csv) | 1996-97 rev 0.11 | $42.61 | $11.28 | $44.05 | $3.31 | $138.13 | **$239.38** |
+| [1999-2000](1999-2000.csv) | 1999-2000 rev 0.11 | $42.61 | $11.28 | $44.16 | $3.42 | $137.41 | **$238.88** |
+| [2001-05](2001-05.csv) | 2001-05 rev 0.11 | $42.61 | $11.28 | $40.26 | $3.42 | $137.41 | **$234.98** |
 
 ## Boards ordered in November 2026 (Daughterboard rev 0.9)
 

@@ -23,7 +23,7 @@ YEARS = {   # viewer key: (file suffix, title, motherboard folder, pcb file, har
     '9900': ('1999-2000', '1999–2000 (NB)', '1999-2000', 'miata_mb_9900.kicad_pcb', 'TE 178780-1, 76 positions'),
     '0105': ('2001-05', '2001–05 (NB, VVT)', '2001-05', 'miata_mb_0105.kicad_pcb', 'TE 353830-5, 72 positions'),
 }
-DAUGHTER_REV = '0.11'
+DAUGHTER_REV = '0.12'
 
 # ---- what gets a label -------------------------------------------------------------------------------------------
 # target: 'mb:REF' / 'd:REF' = a part on the motherboard / daughterboard; 'mbhole:N' / 'dhole:N' = a mounting hole.
@@ -63,7 +63,7 @@ MB_COMMON = [
     ('mbstand:0', 'Standoff positions (4)', 'M3 × 11 mm standoffs, screwed from below.'),
     ('mb:F1', 'Sensor-heater fuse (F1)', 'Resets itself when it cools. Feeds the wideband sensor’s heater.'),
     ('mb:F4', 'Add-on 12 V fuse (F4)', 'Resets itself. Limits add-on pin 15 to 1.1 A.'),
-    ('mb:R20', 'Pull-up options (R20–R22)', 'Not fitted. Only for a speed, A/C or clutch signal that switches to ground.'),
+    ('mb:R20', 'Switch pull-ups (R20–R22)', 'R21 / R22 (A/C, clutch) fitted. R20 (speed) only if that signal switches to ground.'),
     ('mb:U2', 'MAP sensor', 'Lies flat, held by two M3 screws.'),
     ('mb:J5', 'Add-on header (J5)', '2×10 box header for a 20-way ribbon cable.'),
     ('mb:J4', 'USB-C (J4)', None),

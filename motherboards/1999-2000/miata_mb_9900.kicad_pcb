@@ -2612,7 +2612,7 @@
   (gr_text "1 GRN  3 ORG  5 RED  7 --" (at 130.7 201.4) (layer "F.SilkS") (tstamp 5ffb8296-513e-41d5-989b-ec38a092c3f8)
     (effects (font (size 1 1) (thickness 0.15)) (justify left))
   )
-  (gr_text "Miata ECU motherboard 1999-2000 (NB1)  rev 0.10" (at 177 84) (layer "F.SilkS") (tstamp 8e8763d2-4c26-4d2a-b0a6-34302c191b9e)
+  (gr_text "Miata ECU motherboard 1999-2000 (NB1)  rev 0.11" (at 177 84) (layer "F.SilkS") (tstamp 8e8763d2-4c26-4d2a-b0a6-34302c191b9e)
     (effects (font (size 1.6 1.6) (thickness 0.22)))
   )
   (gr_text "DAUGHTERBOARD" (at 177 130) (layer "F.SilkS") (tstamp a42569cc-a450-499b-b77a-bd82743aac33)

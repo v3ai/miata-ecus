@@ -175,7 +175,7 @@ CAR = [
      'Only once the airflow meter or the stock airbox is gone: it goes on the stock sensor\'s plug (INSTALL.md, Air temperature)'),
     ('Ribbon cable with a 2x10 IDC socket, 2.54 mm', 1, '', '20-way IDC ribbon cable', '', 'Optional',
      'For the add-on header J5 (boost valve, flex fuel, nitrous, CAN, coil 3 and 4, knock)'),
-    ('microSD card', 1, '', 'microSD card, FAT32 formatted', '', 'Optional', 'For rusEFI\'s on-board logging (rev 0.10 daughterboard)'),
+    ('microSD card', 1, '', 'microSD card, FAT32 formatted', '', 'Optional', 'For rusEFI\'s on-board logging (rev 0.10 or later daughterboard)'),
 ]
 
 

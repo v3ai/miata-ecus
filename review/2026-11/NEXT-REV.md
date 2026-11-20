@@ -447,7 +447,10 @@ measurements.
 
 ### Rev 0.12 (branch `rev-0.12`, 2026-11-19)
 
-Done, not yet released (the fab files are still rev 0.11's):
+Released 2026-11-20 as daughterboard rev 0.12 and motherboards rev 0.15 (1989-95) / 0.11 (1996-2005): fab files,
+schematics, BOMs, renders, 3D viewer and pictures regenerated from the boards (`scripts/reexport.sh`; every board
+passes its checks: schematic against design, LCSC numbers, KiCad DRC with nothing unconnected, no via in a pad).
+The routing items below are not in this release.
 - **Processor STM32F405VGT6** (C56621) in place of the F407: the same rusEFI build, the pins checked against ST's
   pin data for the F405, F407 and F427 (`check_mcu_pins.py`), which stay as second sources.
 - **CAN transceivers TJA1042T/3** (C132227) on U10 and U106.
@@ -461,7 +464,7 @@ Done, not yet released (the fab files are still rev 0.11's):
   production branch. Dwell waits for the coil measurement (bring-up list).
 - The leftovers of the IAT jumper are gone from the scripts, and VERIFICATION's next-revision list carries a status.
 
-Still to do for rev 0.12, all needing the routing pipeline (KiCad 9 route, `backport_copper.py`):
+Still to do, all needing the routing pipeline (KiCad 9 route, `backport_copper.py`):
 - 1989-95 header holes: its 1.51 mm pads must grow to 1.8 mm for a 1.3 mm hole, which crowds four tracks / vias near
   1A, 1H, 1O and 2B.
 - C12 to the VDDA side with FB1 upstream; vias around U4's tab; the 1989-95 1B track wider; the alternator pull-up
@@ -471,4 +474,4 @@ Still to do for rev 0.12, all needing the routing pipeline (KiCad 9 route, `back
   2920L400/30GR (C19078761) fits the same pads; decide after logging the heater current in a hot cabin.
 - Placement rotations for U3 / U14, J4 and the newer diodes: confirm in JLCPCB's preview and on the received boards
   (`order_bom.py` lists them).
-- Then the release: `reexport.sh`, renders, viewer, docs.
+- Then another release (`reexport.sh`, renders, viewer, docs).
