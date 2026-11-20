@@ -456,7 +456,9 @@ for n in ['SW1', 'SW2', 'SW3']:
 
 # CAN (termination lives on the motherboard). Rev 0.8: TI TCAN1042V-Q1 (5 V supply, 3.3 V I/O on VIO, +-58 V bus fault
 # protection, -40..125 C) instead of the SN65HVD230 (bus pins -4..16 V absolute, 85 C). Pin 8 STB low = normal mode.
-add('U10', 'TCAN1042VDRQ1', 'SOIC8', 'C485806',
+# Rev 0.12: NXP TJA1042T/3 (C132227), the same pinout with VIO on pin 5 and STB on pin 8, CANH/CANL +-58 V, Tvj to 150 C
+# (NXP datasheet, Table 4 / 6); about half the price, and deeper stock.
+add('U10', 'TJA1042T/3/1J', 'SOIC8', 'C132227',
     {'1': 'CAN_TX', '2': 'GND', '3': '+5V', '4': 'CAN_RX', '5': '+3V3', '6': 'CAN_L', '7': 'CAN_H', '8': 'GND'})
 C(f'C{cn}', '100n', '+3V3', 'GND'); cn += 1
 

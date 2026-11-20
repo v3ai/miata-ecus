@@ -156,8 +156,9 @@ def parts():
         out.append(dict(ref=ref(r), value=val, fp=lib, lcsc=lc, pads=pads, desc=DESC.get(r, 'wideband'),
                         mod_ref=r, side=f['side']))
     # CAN transceiver for the controller, same bus as the main MCU
-    # rev 0.8: TCAN1042V-Q1 (5 V supply, 3.3 V VIO, +-58 V bus fault protection), as the main MCU's U10
-    out.append(dict(ref='U106', value='TCAN1042VDRQ1', fp='Package_SO:SOIC-8_3.9x4.9mm_P1.27mm', lcsc='C485806',
+    # rev 0.8: TCAN1042V-Q1 (5 V supply, 3.3 V VIO, +-58 V bus fault protection), as the main MCU's U10; rev 0.12: the
+    # NXP TJA1042T/3, same pinout and ratings, as U10
+    out.append(dict(ref='U106', value='TJA1042T/3/1J', fp='Package_SO:SOIC-8_3.9x4.9mm_P1.27mm', lcsc='C132227',
                     pads={'1': 'WB_CAN_TX', '2': 'GND', '3': '+5V', '4': 'WB_CAN_RX', '5': '+3V3', '6': 'CAN_L',
                           '7': 'CAN_H', '8': 'GND'}, desc='wideband CAN transceiver (shared CAN bus)', side='F'))
     out.append(dict(ref='C122', value='100n', fp='Capacitor_SMD:C_0402_1005Metric', lcsc='C1525',

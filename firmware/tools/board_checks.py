@@ -53,7 +53,7 @@ MODEL NOTES (DC, steady state; assumptions, not measurements)
   ZXMS6004, which cycles in thermal shutdown); a switch above its limit is re-solved passing just the limit, so its
   drain rises. ULN2003 (rev 0.7 only) = 0.9 V + 1 ohm, no current limit. Op-amp outputs = 72 ohm from mid-rail
   (23 mA short-circuit, self-limited and rated continuous, not counted) plus rail diodes (counted against the limit);
-  op-amp inputs = rail diodes (MCP6004 2 mA abs max, AD8628 5 mA assumed, LMV321 10 mA). TCAN1042 bus pins: +-58 V, not loaded; RXD = 100 ohm to VIO. PTCs that
+  op-amp inputs = rail diodes (MCP6004 2 mA abs max, AD8628 5 mA assumed, LMV321 10 mA). TJA1042 bus pins: +-58 V, not loaded; RXD = 100 ohm to VIO. PTCs that
   carry more than their trip current (F1 nSMD050, F2 nSMD010 on the LSU VM wire, motherboard F1-F4) are opened and the
   network solved again.
   Car side (typical, assumed): relay coils 80 ohm, CEL 50 ohm, tach 1 k, VICS 30 ohm to battery; injectors 13 ohm
@@ -523,7 +523,7 @@ IC_MAP['VND14NV04'] = [('1', '2', 'VND14NV04 gate->drain')]
 IC_MAP['LM2903DR'] = [('3', '1', 'LM2903 A+'), ('2', '1', 'LM2903 A-'), ('5', '7', 'LM2903 B+'), ('6', '7', 'LM2903 B-')]
 IC_MAP['LMV321IDBVR'] = [('1', '4', 'LMV321 +'), ('3', '4', 'LMV321 -')]
 IC_MAP['SN65HVD230DR'] = [('1', '7', 'CAN D->H'), ('1', '6', 'CAN D->L'), ('4', '7', 'CAN R<-H'), ('4', '6', 'CAN R<-L')]
-IC_MAP['TCAN1042VDRQ1'] = [('1', '7', 'CAN TXD->H'), ('1', '6', 'CAN TXD->L'), ('4', '7', 'CAN RXD<-H'),
+IC_MAP['TJA1042T/3/1J'] = [('1', '7', 'CAN TXD->H'), ('1', '6', 'CAN TXD->L'), ('4', '7', 'CAN RXD<-H'),
                            ('4', '6', 'CAN RXD<-L')]
 IC_MAP['MCP6004'] = [('2', '1', 'MCP6004 A-'), ('3', '1', 'MCP6004 A+'), ('6', '7', 'MCP6004 B-'), ('5', '7', 'MCP6004 B+'),
                      ('9', '8', 'MCP6004 C-'), ('10', '8', 'MCP6004 C+'), ('13', '14', 'MCP6004 D-'), ('12', '14', 'MCP6004 D+')]
@@ -884,7 +884,7 @@ def drivers_check(sysm, year, fw, board_fw, research, notes):
                 drv[net].append((f'{ref}.{pad}', 'pp'))
             elif val == '74HCT04PW' and pad in ('2', '4', '6', '8', '10', '12'):
                 drv[net].append((f'{ref}.{pad}', 'pp'))
-            elif val == 'TCAN1042VDRQ1' and pad == '4':
+            elif val == 'TJA1042T/3/1J' and pad == '4':
                 drv[net].append((f'{ref}.{pad}', 'pp'))
             elif val == 'MCP6004' and pad in ('1', '7', '8', '14'):
                 drv[net].append((f'{ref}.{pad}', 'pp'))
@@ -970,7 +970,7 @@ MUST_TIE = {  # value -> {pad: (required net, why)}
     'STM32F103C8T6': {'1': ('+3V3', 'VBAT'), '8': ('GND', 'VSSA'), '9': ('WB_VDDA', 'VDDA'), '44': ('WB_BOOT0', 'BOOT0'),
                       '20': ('WB_BOOT1', 'PB2/BOOT1')},
     'SN65HVD230DR': {'8': ('GND', 'Rs: GND = high speed (open would be standby? low-power mode)')},
-    'TCAN1042VDRQ1': {'3': ('+5V', 'VCC 4.5-5.5 V'), '5': ('+3V3', 'VIO = MCU I/O level'),
+    'TJA1042T/3/1J': {'3': ('+5V', 'VCC 4.5-5.5 V'), '5': ('+3V3', 'VIO = MCU I/O level'),
                       '8': ('GND', 'STB: low = normal mode (internal pull-up would select standby)'), '2': ('GND', 'GND')},
     '74HCT04PW': {'14': ('+5V', 'VCC'), '7': ('GND', 'GND'), '11': ('GND', 'unused CMOS input must be tied'),
                   '13': ('GND', 'unused CMOS input must be tied')},
@@ -991,7 +991,7 @@ FLOAT_INPUTS = [  # (value, pads, what, needs a pull, why it may float)
     ('SN74LVC4245APWR', [str(i) for i in range(14, 22)], 'LVC4245 B input', False,
      'floats only while OE is high (outputs off): costs supply current only (VERIFICATION minor item)'),
     ('SN65HVD230DR', ['1'], 'SN65HVD230 D', False, 'datasheet: D open -> bus recessive'),
-    ('TCAN1042VDRQ1', ['1'], 'TCAN1042 TXD', False, 'datasheet: internal pull-up to VIO, TXD open -> bus recessive'),
+    ('TJA1042T/3/1J', ['1'], 'TJA1042 TXD', False, 'datasheet: internal pull-up to VIO, TXD open -> bus recessive'),
     ('VND14NV04', ['1'], 'VND14NV04 input', True, 'F103 pin is high-Z in reset / bootloader: heater must stay off'),
     ('LM2903DR', ['2', '3', '5', '6'], 'LM2903 input', True, 'unused VR channel must sit at a defined level'),
     ('LMV321IDBVR', ['1', '3'], 'LMV321 input', True, 'knock amp bias'),
@@ -1104,7 +1104,7 @@ def unconnected_pins(sysm, year):
     pad_counts = {'STM32F405VGT6': 100, 'STM32F103C8T6': 48, 'TC4427': 8, 'SN65HVD230DR': 8, 'TLS115B0EJ': 9,
                   'LMR14020': 9, 'SN74LVC4245APWR': 24, 'ULN2003AD': 16, 'LM2903DR': 8, 'LMV321IDBVR': 5,
                   'MCP6004': 14, 'AD8628': 5, 'REF3033': 3, 'AMS1117-3.3': 3, 'LDL1117S33R': 3, 'NCV8406ASTT3G': 4, 'VND14NV04': 3,
-                  'MPX5700AP': 6, 'USBLC6-2SC6': 6, 'TCAN1042VDRQ1': 8, '74HCT04PW': 14, 'VND7NV04TR-E': 3,
+                  'MPX5700AP': 6, 'USBLC6-2SC6': 6, 'TJA1042T/3/1J': 8, '74HCT04PW': 14, 'VND7NV04TR-E': 3,
                   'ZXMS6004FFTA': 3, 'TL431AIDBZR': 3, 'BCP53-16': 4}
     for p in sysm.parts:
         val = p['value']
@@ -1425,7 +1425,7 @@ def build_dc(sysm, year, fw, board_fw, vcar=VCAR, states=None, fault=None, jp1='
                 dc.d('GND', g(k), 0.6, 2, tag=('OA_OUT', f'{ref}.{k}', val, lim_out))
         elif val == 'SN65HVD230DR':
             dc.r(g('4'), '+3V3', 100)
-        elif val == 'TCAN1042VDRQ1':
+        elif val == 'TJA1042T/3/1J':
             dc.r(g('4'), g('5'), 100)                # RXD recessive high at VIO; bus pins +-58 V, not loaded
         elif val == 'TLS115B0EJ':
             dc.src_only(g('1'), 5.0, 0.5, tag=('SRC', f'{g("1")} ({ref} TLS115)', g('1')))
@@ -1656,7 +1656,7 @@ def electrical(systems, fws, board_fw):
         'TC4427': (['2', '4'], 'TC4427 input (VIH 2.4 V)', 2.4),
         'SN74LVC4245APWR': ([str(i) for i in range(14, 22)], 'LVC4245 B input at VCCB 3.3 V (VIH 2.0 V)', 2.0),
         'SN65HVD230DR': (['1'], 'SN65HVD230 D (VIH 2.0 V)', 2.0),
-        'TCAN1042VDRQ1': (['1'], 'TCAN1042 TXD at VIO 3.3 V (VIH 0.7 x VIO = 2.31 V)', 0.7 * VDD),
+        'TJA1042T/3/1J': (['1'], 'TJA1042 TXD at VIO 3.3 V (VIH 0.7 x VIO = 2.31 V)', 0.7 * VDD),
         '74HCT04PW': (['1', '3', '5', '9'], '74HCT04 input at VCC 5 V (HCT: VIH 2.0 V)', 2.0),
     }
     for p in sysm.parts:
@@ -1682,7 +1682,7 @@ def electrical(systems, fws, board_fw):
             if r in ('U1', 'U102'):
                 pn = mcu_pin_info(r, k)[0]
                 peers.append((f'{r} {pn}', AF_DIR.get((r, pn), ('?', '?'))[1]))
-            elif sysm.by_ref[r]['value'] in ('SN65HVD230DR', 'TCAN1042VDRQ1'):
+            elif sysm.by_ref[r]['value'] in ('SN65HVD230DR', 'TJA1042T/3/1J'):
                 peers.append((f'{r}.{k}', {'1': 'in', '4': 'out'}.get(k, '?')))
             elif r in ('J2',):
                 peers.append((f'J2.{k} (AUX)', 'ext'))
@@ -1726,7 +1726,7 @@ def electrical(systems, fws, board_fw):
             if q['value'] == 'ULN2003AD':
                 i_tot += (VDD - 1.3) / 2700
                 loads.append(f'{pn} {net} -> {r}.{k} ULN2003 input (0.74 mA)')
-            elif q['value'] in ('SN74LVC4245APWR', '74HCT04PW', 'TC4427', 'TCAN1042VDRQ1'):
+            elif q['value'] in ('SN74LVC4245APWR', '74HCT04PW', 'TC4427', 'TJA1042T/3/1J'):
                 i_tot += 5e-6
                 loads.append(f'{pn} {net} -> {r}.{k} {q["value"]} CMOS input (no load, +-5 uA)')
             elif r[0] == 'R' and q['fitted'] and len(q['pads']) == 2:

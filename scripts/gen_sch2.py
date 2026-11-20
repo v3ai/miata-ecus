@@ -835,7 +835,7 @@ def sheet_connectors(s):
     s.text('CAN transceiver (termination on the motherboard)', 233.68, 22.86)
     s.place('U10', 271.78, 55.88)
     s.o2('C56', 297.18, 78.74, 'v'); s.o2('C67', 307.34, 78.74, 'v')
-    s.text('rev 0.8: TCAN1042V, 5 V VCC (C67), 3.3 V VIO (C56), STB low', 233.68, 93.98, 1.27)
+    s.text('TJA1042T/3 (rev 0.12; TCAN1042V rev 0.8-0.11), 5 V VCC (C67), 3.3 V VIO (C56), STB low', 233.68, 93.98, 1.27)
     s.text('Mounting holes', 233.68, 101.6)
     for i in range(4):
         s.place(f'H{i + 1}', 238.76 + i * 12.7, 111.76)

@@ -15795,14 +15795,14 @@
     (at 196 88.5 90)
     (descr "SOIC, 8 Pin (JEDEC MS-012AA, https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_narrow-r/r_8.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py")
     (tags "SOIC SO")
-    (property "LCSC" "C485806")
+    (property "LCSC" "C132227")
     (path "/6c04dba8-fe58-4dbb-8b5e-d455aab13962/15cfdb74-013d-49c3-a1b9-2c10fe666415")
     (attr smd)
     (fp_text reference "U106" (at 0 -3.4 90) (layer "F.SilkS")
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp f22be468-c748-4711-9739-034bebf58e1d)
     )
-    (fp_text value "TCAN1042VDRQ1" (at 0 3.4 90) (layer "F.Fab") hide
+    (fp_text value "TJA1042T/3/1J" (at 0 3.4 90) (layer "F.Fab") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp ee6dd2ef-6989-474d-a2ab-0dbe61671f5e)
     )
@@ -19079,14 +19079,14 @@
     (at 180.31 114.6 -90)
     (descr "SOIC, 8 Pin (JEDEC MS-012AA, https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_narrow-r/r_8.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py")
     (tags "SOIC SO")
-    (property "LCSC" "C485806")
+    (property "LCSC" "C132227")
     (path "/5d8560a8-6852-47b9-8bb0-1a06e95ec3f5/2914c7ad-e8b9-420d-adcc-2f28da626e8a")
     (attr smd)
     (fp_text reference "U10" (at 0 -3.4 -90) (layer "F.SilkS")
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp b22daab9-79af-4b39-ab9c-0262339a6440)
     )
-    (fp_text value "TCAN1042VDRQ1" (at 0 3.4 -90) (layer "F.Fab") hide
+    (fp_text value "TJA1042T/3/1J" (at 0 3.4 -90) (layer "F.Fab") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp ec835726-8156-465e-8f8d-34c03c0c009d)
     )
