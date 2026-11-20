@@ -102,18 +102,21 @@ AUX = {1: 'OUT_IGN3', 2: 'OUT_IGN4', 3: 'OUT_BOOST', 4: 'OUT_ALT', 5: 'OUT_MAINR
 
 def protection_parts(iac_supply, vvt_supply=None):
     """Freewheel diodes for the PWM valve coils (idle valve always; VVT driver only where it drives a coil) to the
-    valve's own +12 V feed, and not-fitted 12 V pull-up options for the three switch inputs."""
+    valve's own +12 V feed, the 12 V pull-ups of the A/C and clutch inputs, and a not-fitted one for vehicle speed."""
     add('D1', 'SS34', 'Diode_SMD:D_SMA', 'C8678', {1: iac_supply, 2: 'OUT_IACV'},
         f'Idle valve freewheel diode (to its +12 V feed, {iac_supply}): keeps the PWM turn-off energy out of the driver')
     if vvt_supply:
         add('D2', 'SS34', 'Diode_SMD:D_SMA', 'C8678', {1: vvt_supply, 2: 'OUT_VVT'},
             f'VVT-driver coil freewheel diode (to its +12 V feed, {vvt_supply})')
-    for ref, net, what in (('R20', 'IN_SW1', 'vehicle speed'), ('R21', 'IN_SW2', 'A/C switch'),
-                           ('R22', 'IN_SW3', 'clutch switch')):
-        add(ref, '4.7k', 'Resistor_SMD:R_0603_1608Metric', '', {1: 'VBAT_IN', 2: net},
-            f'NOT FITTED: 12 V pull-up for the {what} input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the '
-            'switch closed) only if your car\'s signal switches to ground or is open collector; a switch that drives '
-            '12 V must not have it')
+    add('R20', '4.7k', 'Resistor_SMD:R_0603_1608Metric', '', {1: 'VBAT_IN', 2: 'IN_SW1'},
+        'NOT FITTED: 12 V pull-up for the vehicle speed input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the '
+        'signal low) only if your car\'s speed signal switches to ground or is open collector')
+    # rev 0.12: fitted. The stock ECU's tables give B+ with the A/C or clutch switch open and under 2.5 V closed
+    # (the switch pulls the wire to ground against the ECU's pull-up); without these the inputs never change
+    for ref, net, what in (('R21', 'IN_SW2', 'A/C request'), ('R22', 'IN_SW3', 'clutch switch')):
+        add(ref, '4.7k', 'Resistor_SMD:R_0603_1608Metric', 'C23162', {1: 'VBAT_IN', 2: net},
+            f'12 V pull-up for the {what} input (the switch closes to ground; 48 mW at 15 V with it closed). '
+            'The firmware reads the input active low')
 
 
 def protection_place(P, vvt=True):

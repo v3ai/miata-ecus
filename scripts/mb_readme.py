@@ -122,9 +122,10 @@ if getattr(M, 'JUMPERS', None):
 o.append('**Protection:** D1 (and D2 where the VVT driver runs a coil) freewheel the PWM valve coils into their own +12 V feed, '
          'and D5 does the same for a boost valve on the add-on header, so the drivers don\'t absorb the turn-off energy. F4 fuses the '
          'add-on header\'s +12 V pin (1.1 A hold: a boost valve draws about 0.5 A).\n')
-o.append('**Switch inputs (R20-R22, not fitted):** the VSS, A/C and clutch inputs read signals that are driven to 12 V. If '
-         'your car\'s signal only switches to ground (or is open collector), fit the 4.7 kΩ pull-up for that input. Never fit '
-         'it for a switch that drives 12 V: the input would always read on.\n')
+o.append('**Switch inputs (R20-R22):** the A/C request and clutch switches close to ground (the stock ECU\'s tables: B+ '
+         'open, under 2.5 V closed), so R21 and R22 pull them up to 12 V and the firmware reads both active low (fitted from '
+         'rev 0.12; on an earlier board fit them by hand, 4.7 kΩ 0603). R20, the vehicle speed pull-up, is not fitted: fit '
+         'it only if your car\'s speed signal switches to ground or is open collector.\n')
 if any(p['ref'] == 'R28' for p in C.parts):
     o.append('**Throttle position sensor (manual cars):** the 1989-93 manual cars have no throttle position sensor, only '
              'a two-contact switch. The ECU calculates fuel from the MAP sensor, so the car runs without one, but rusEFI '

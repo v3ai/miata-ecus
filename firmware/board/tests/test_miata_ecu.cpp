@@ -600,8 +600,25 @@ void checkConfiguration(engine_type_e year) {
 	EXPECT_EQ(MIATA_SW1, engineConfiguration->vehicleSpeedSensorInputPin);
 	EXPECT_EQ(MIATA_SW2, engineConfiguration->acSwitch);
 	EXPECT_EQ(MIATA_SW3, engineConfiguration->clutchDownPin);
+	// every year's A/C and clutch switch closes to ground against R21 / R22: both inputs active low
+	EXPECT_EQ(PI_PULLUP, engineConfiguration->acSwitchMode) << "rusEFI inverts the A/C input only for PI_PULLUP";
+	EXPECT_EQ(PI_INVERTED_DEFAULT, engineConfiguration->clutchDownPinMode);
+	// closed-loop idle may move the valve both ways around the open-loop position (rusEFI's 1989-95 presets pinned it
+	// at +20 %: lower and upper limit both 20)
+	EXPECT_LT(engineConfiguration->idleRpmPid.minValue, 0);
+	EXPECT_GT(engineConfiguration->idleRpmPid.maxValue, 0);
 	EXPECT_EQ(4, engineConfiguration->cylindersCount);
 	EXPECT_EQ(FO_1_3_4_2, engineConfiguration->firingOrder);
+	// protections: MAP fallback that follows the throttle, overboost cut, lambda protection, cold rev limit
+	EXPECT_NEAR(30, config->mapEstimateTable[0][0], 1) << "closed throttle";
+	EXPECT_GT(config->mapEstimateTable[MAP_EST_LOAD_COUNT - 1][0], 95) << "open throttle, low rpm";
+	EXPECT_LE(config->mapEstimateTable[MAP_EST_LOAD_COUNT - 1][MAP_EST_RPM_COUNT - 1], 100.01f);
+	EXPECT_NEAR(170, engineConfiguration->boostCutPressure, 0.1);
+	EXPECT_TRUE(engineConfiguration->lambdaProtectionEnable);
+	EXPECT_NEAR(0.15f, config->lambdaMaxDeviationTable[0][0], 0.011);
+	EXPECT_TRUE(engineConfiguration->useCltBasedRpmLimit);
+	EXPECT_EQ(engineConfiguration->rpmHardLimit, config->cltRevLimitRpm[3]) << "warm engine: the preset's limit";
+	EXPECT_EQ(4000, config->cltRevLimitRpm[0]);
 
 	// board facts
 	EXPECT_NEAR(1.56f, engineConfiguration->analogInputDividerCoefficient, 1e-4);

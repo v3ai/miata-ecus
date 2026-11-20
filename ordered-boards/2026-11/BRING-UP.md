@@ -18,6 +18,11 @@ the review.
 5. **The IAT jumper JP1** on each motherboard: shunt on **1-2 (STOCK)** to read the car's own sensor through the
    harness, or on **2-3 (EXT)** to read a sensor plugged into J3. See "Firmware settings" below: the firmware has to
    be told which sensor it is.
+6. **Fit R21 and R22 on each motherboard** (4.7 kΩ 0603, LCSC C23162; the pads are there, marked not fitted): the
+   12 V pull-ups of the A/C request and clutch inputs. Those switches close to ground, so without the pull-ups the
+   inputs never change. The current firmware reads both inputs active low, which on a board without R21 / R22 means
+   "A/C requested" and "clutch pressed" all the time. If you don't fit them, set the A/C switch and clutch pins to
+   none in TunerStudio.
 
 ## Firmware settings for these boards
 
@@ -36,6 +41,7 @@ motherboards, which differ from these in two places. In TunerStudio, after choos
   motherboard sends that output to the airflow meter's wire 2O (jumper JP6). The 1989-93 motherboard of this order has
   no JP6: on these cars keep the airflow meter plugged in, so its contact runs the pump as from the factory, and set
   Fuel pump pin to "none" and Boost control pin back to the boost output if a boost valve is wired to J5.
+- **A/C request and clutch switch:** active low (fit R21 / R22 first, item 6 above).
 - **Tach output** is already off on 1989-95 in the current firmware (the ordered motherboards wire it straight to 2I).
 
 ## Measurements to take while the boards are on the bench
@@ -44,3 +50,8 @@ These decide open design questions for the next order; the list with what each o
 [NEXT-BATCH.md step 2](../../review/2026-11/NEXT-BATCH.md#step-2-take-the-measurements-that-decide-open-design-questions).
 The most useful first: the inductance of one stock injector (LCR meter), supply current at 6 / 8 / 13.8 V, the
 drivers' temperature under load in a closed case, and the wideband against a commercial unit.
+
+For the dwell table (the firmware still has rusEFI's flat 4 ms with no battery-voltage correction): one stock coil's
+primary resistance, and its primary current against time at 14 V and at 10 V (a 0.1 Ω shunt in the coil's ground
+lead and a scope, the coil driven from the bench supply through the board's ignition output). The time to reach
+about 6-7 A at each voltage gives the dwell and its voltage correction.

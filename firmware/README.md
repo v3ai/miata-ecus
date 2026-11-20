@@ -104,6 +104,20 @@ on this board, and the tables were made on other people's cars, so treat it as a
   wideband. It may move idle and cruise fuel 10 % either way; under load it may add 10 % but remove only 5 %. With no
   sensor fitted there is no correction. It only applies to a fresh tune: switch "Short term fuel trim" off in
   TunerStudio and it stays off.
+- **Long-term fuel trim learns but does not apply.** rusEFI's default: it collects the wideband's corrections into a
+  table you can apply to the fuel table from TunerStudio ("Apply to VE"). On this board it saves that table to the
+  microSD card (`ltft.bin`), never to the processor's flash, so it can't stall the engine; with no card it isn't kept.
+- **Protections (on every year):**
+  - **Cold engine rev limit:** 4000 rpm at -20 °C, 4500 at 0 °C, 5500 at 40 °C, the full limit from 70 °C.
+  - **Lambda protection:** fuel cut when the wideband reads more than 0.15 lean of the target for 0.5 s above
+    2500 rpm, 60 % load and 50 % throttle. A sensor that isn't reading never cuts. On a rev 0.9 daughterboard replace
+    R110 first, or turn this off: until then the wideband reads about lambda 1.0 and would cut at full throttle.
+  - **Overboost cut** at 170 kPa absolute (about 10 psi of boost). Raise it with a boost tune.
+  - **MAP sensor failure:** rusEFI then estimates the pressure from throttle and rpm. The table here follows a
+    normally aspirated engine (about 30 kPa closed, 100 kPa wide open) instead of rusEFI's flat 60 kPa, which runs
+    about 40 % lean at full throttle.
+- **Idle (1989-95):** rusEFI's presets for these years limit the closed-loop idle correction to exactly +20 %, so it
+  never follows rpm. These presets use rusEFI's 1996-97 idle settings instead (correction -20 to +20 %).
 - **Where it is weakest:**
   - The 1994-97 years run a fuel table made on a 1.6. Expect the wideband to do more correcting there.
   - Above about 100 kPa (boost) the NB fuel table is a flat 80 %, and the NA table stops at 128 kPa. Nobody has
@@ -115,7 +129,9 @@ on this board, and the tables were made on other people's cars, so treat it as a
 - **Outputs:** fuel pump (on 1989-93 on the BOOST driver, which JP6 puts on 2O; see INSTALL.md), A/C relay, radiator fan, second fan (LS7), check engine lamp, tach (1996-2005), idle valve, INJ1-4,
   IGN1 (coil 1&4) and IGN2 (coil 2&3) in wasted spark.
 - **COP conversion:** IGN3/IGN4 are assigned too (cylinder 2 on IGN3, cylinder 4 on IGN4), ready for coil-on-plug.
-- **Inputs:** SW1 = vehicle speed, SW2 = A/C switch, SW3 = clutch.
+- **Inputs:** SW1 = vehicle speed, SW2 = A/C switch, SW3 = clutch. The A/C and clutch switches close to ground, so
+  both inputs read active low against the motherboard's 12 V pull-ups R21 / R22 (fitted from rev 0.12; fit them by
+  hand on an earlier motherboard, or the firmware sees "A/C on" and "clutch pressed" all the time).
 - **Sensors:** TPS, MAP (on-board MPX5700AP), CLT and IAT (GM sensor curve), AUX3 spare (the old airflow meter input; unused). External 0-5 V wideband on AFR, used
   only if the CAN wideband is switched off.
   - **1989-93 manual cars have no TPS**, only a throttle switch: the TPS input reads 0 V and rusEFI reports the sensor

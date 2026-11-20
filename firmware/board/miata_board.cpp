@@ -155,6 +155,69 @@ static void miataNoTachOutput() {
 	engineConfiguration->tachOutputPin = Gpio::Unassigned;
 }
 
+// A/C request and clutch switch: the stock ECU's terminal tables give B+ with the switch open and under 2.5 V with it
+// closed (1989-95 1Q / 1V, 1996-97 1K, 2001-05 4F / 4I; the 1999-2000 wiring diagram shows 3I switched to ground), so
+// the switch pulls the wire to ground and the ECU supplies the pull-up. 1996-97's clutch wire 1L and 1999-2000's A/C
+// wire 1P have no table and are taken to be the same (VERIFICATION.md, rev 0.12): if one of them is driven to 12 V
+// instead, the pull-up holds it high and the input never reads active, which is safe. On the motherboard that pull-up is R21 (A/C) and R22 (clutch), 4.7k to
+// VBAT_IN, fitted from rev 0.12 on; the input then reads high with the switch open, so both inputs are active low.
+// rusEFI inverts the A/C input only for PI_PULLUP (hw_layer/debounce.cpp), and the clutch input for the PI_INVERTED_*
+// modes (hw_layer/io_pins.cpp); the processor's own pull-up is weak against the board's 10k divider and does nothing.
+// A motherboard without R21 / R22 (every board ordered before rev 0.12) reads both inputs low all the time, which
+// with this polarity means "A/C requested" and "clutch pressed": fit the two resistors, or set the A/C switch and
+// clutch pins to none in TunerStudio (ordered-boards/2026-11/BRING-UP.md).
+static void setSwitchInputPolarity() {
+	engineConfiguration->acSwitchMode = PI_PULLUP;
+	engineConfiguration->clutchDownPinMode = PI_INVERTED_DEFAULT;
+}
+
+// 1989-95: rusEFI's NA presets set the idle PID's lower limit to 20 % ("below 20% this valve seems to be opening for
+// fail-safe idle air", from when the PID output was the valve position itself) and leave the upper limit at
+// rusEFI's default, also 20 %. The closed-loop part is added to the open-loop position, so it was a fixed +20 % that
+// never followed rpm. Use rusEFI's own 1996-97 preset instead (same idle air valve, same controller): -20 to +20 %
+// around the open-loop position, with its gains and integrator limits.
+static void setNaIdlePid() {
+	engineConfiguration->idleRpmPid.pFactor = 0.0065;
+	engineConfiguration->idleRpmPid.iFactor = 0.3;
+	engineConfiguration->idleRpmPid.dFactor = 0.002;
+	engineConfiguration->idleRpmPid.minValue = -20;
+	engineConfiguration->idleRpmPid.maxValue = 20;
+	engineConfiguration->idlerpmpid_iTermMin = -15;
+	engineConfiguration->idlerpmpid_iTermMax = 30;
+}
+
+// Protections for a fresh tune, after the year preset (the rev limit they scale from is the preset's):
+// - MAP fallback: rusEFI uses mapEstimateTable (TPS x rpm) when the MAP sensor reads out of range. Its default is a
+//   flat 60 kPa, about 40 % lean at full throttle. This one follows a normally aspirated engine: about 30 kPa closed,
+//   rising towards the 100 kPa of an open throttle faster at low rpm, and never above 100 kPa (a boosted car's own
+//   table belongs in its tune). With no throttle sensor (1989-93 manual cars) it reads the closed-throttle row.
+// - Overboost cut at 170 kPa absolute (about 10 psi): no normally aspirated car gets there, and it catches a stuck
+//   wastegate on a turbo kit; raise it with the boost tune.
+// - Lambda protection: cut when the wideband reads more than 0.15 lean of the target for 0.5 s above 2500 rpm, 60 %
+//   load and 50 % throttle (rusEFI's thresholds; its deviation table is otherwise all zeros). A sensor that isn't
+//   reading (warming up, unplugged) never cuts. A rev 0.9 daughterboard reads about lambda 1.0 until its R110 is
+//   replaced, which would cut at full throttle: replace R110 or turn this off.
+// - Cold engine rev limit: 4000 rpm at -20 C, 4500 at 0 C, 5500 at 40 C and the preset's limit from 70 C.
+static void setProtections() {
+	for (int t = 0; t < MAP_EST_LOAD_COUNT; t++) {
+		for (int r = 0; r < MAP_EST_RPM_COUNT; r++) {
+			float tps = config->mapEstimateTpsBins[t];
+			float krpm = std::max(0.5f, config->mapEstimateRpmBins[r] / 1000.0f);
+			config->mapEstimateTable[t][r] = 100.0f - 70.0f * expf(-0.125f * tps / krpm);
+		}
+	}
+
+	engineConfiguration->boostCutPressure = 170;
+
+	engineConfiguration->lambdaProtectionEnable = true;
+	setTable(config->lambdaMaxDeviationTable, 0.15f);
+
+	engineConfiguration->useCltBasedRpmLimit = true;
+	copyArray(config->cltRevLimitRpmBins, { -20, 0, 40, 70 });
+	int hard = engineConfiguration->rpmHardLimit;
+	copyArray(config->cltRevLimitRpm, { std::min(4000, hard), std::min(4500, hard), std::min(5500, hard), hard });
+}
+
 static bool nb2Early = false;
 
 void miataSelectNb2Early(bool early) {
@@ -325,6 +388,7 @@ void miataApplyYearPreset(engine_type_e engineType) {
 		// The "cylinder" numbers below are rusEFI's output slots, not the injectors on each wire: in the car 2U feeds
 		// injectors 1 and 3 and 2V feeds 2 and 4. In batch mode that doesn't matter.
 		setMazdaMiataNA6();
+		setNaIdlePid();
 		miataNoTachOutput();
 		engineConfiguration->injectionMode = IM_BATCH;
 		engineConfiguration->injectionPins[0] = MIATA_INJ1;   // slot 1 -> 2U
@@ -343,6 +407,7 @@ void miataApplyYearPreset(engine_type_e engineType) {
 	case engine_type_e::MAZDA_MIATA_NA94:
 		// 1994-95: four injector wires (2U/2V/2Y/2Z), sequential like rusEFI's own 1994 preset.
 		setMazdaMiataNA94();
+		setNaIdlePid();
 		miataNoTachOutput();
 		break;
 	case engine_type_e::MAZDA_MIATA_NA96:
@@ -369,6 +434,8 @@ void miataAfterTuneDefaults(engine_type_e) {
 	miataBoardConfigOverrides();
 	setMpx5700();
 	setGmIat();
+	setSwitchInputPolarity();
+	setProtections();
 }
 
 void miataPeriodicSlowCallback() {
