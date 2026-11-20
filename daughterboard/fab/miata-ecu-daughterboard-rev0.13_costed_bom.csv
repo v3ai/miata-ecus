@@ -91,5 +91,4 @@ JLCPCB assembly,REF3033,U103,1,Texas Instruments,REF3033AIDBZR,C36658,extended,0
 JLCPCB assembly,AD8628,U105,1,Analog Devices,AD8628ARTZ-REEL7,C29309,extended,2.8258,2.2771,2.0281,2.277,22894,22560,"JLCPCB parts library, 2026-11-17",
 JLCPCB assembly,33p,"C119,C120",2,FH (Guangdong Fenghua Advanced Tech),0402CG330J500NT,C1562,basic,0.0024,0.0024,0.0024,0.005,1802865,657300,"JLCPCB parts library, 2026-11-17",
 JLCPCB assembly,nSMD010,F2,1,TECHFUSE,nSMD010,C70065,extended,0.0307,0.0307,0.0307,0.031,939606,939600,"JLCPCB parts library, 2026-11-17",
-Hand,"Pin header, male, 1x40, 2.54mm, through-hole, vertical","J1,J2",2,ZHOURI,2.54-1*40,C2977586,extended,0.1736,0.1412,0.1231,0.282,2565,2565,"LCSC, 2026-11-17",Bottom side. Solder while plugged into a motherboard's sockets so they come out straight
-,"TOTAL, parts only (required parts with a price)",,,,,,37 extended lines,50.01,42.61,38.27,42.61,,,,"Per board. Excludes the bare PCB, assembly and extended-part fees, duty, freight and unpriced items"
+,"TOTAL, parts only (required parts with a price)",,,,,,37 extended lines,49.67,42.33,38.02,42.33,,,,"Per board. Excludes the bare PCB, assembly and extended-part fees, duty, freight and unpriced items"

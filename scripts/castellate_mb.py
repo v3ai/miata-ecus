@@ -6,9 +6,12 @@ Pin positions and nets do not change: the daughterboard's castellations sit wher
 
   - JD1 / JD2: the 1x40 sockets become rows of SMD lands, one per castellation, LAND_W along the edge and LAND_L
     across it, reaching LAND_IN under the module and LAND_L - LAND_IN beyond its edge (for the solder fillet and an
-    iron). Same pad numbers and nets; top copper, paste and mask only; not a part to buy.
+    iron). Same pad numbers and nets; top copper, paste and mask only; not a part to buy. The ground lands join the
+    pour solidly (a thermal relief's spokes would be starved between the neighbouring lands).
   - HD1-HD4 (the M3 standoff holes) are removed.
   - The parts that sat under the daughterboard move out from under it (MOVES; a new angle turns the part).
+  - 1989-95: the injector clamps' tab pours (left under the module) go (DROP_ZONES), and the board's title moves up
+    clear of the clamps' new place (TITLE_AT).
   - The DAUGHTERBOARD outline on the silkscreen follows the module's new outline: the short edges in full, the long
     edges as corner marks outside the lands.
 
@@ -35,6 +38,11 @@ MOVES = {
     '8995': dict(_COMMON, D2=(211.32, 90.6, 0), R27=(147.82, 169.0, 90), D3=(173.41, 88.33, 0), D4=(183.91, 88.33, 0),
                  R29=(166.16, 90.93, 90), R30=(162.16, 90.93, 0)),
 }
+# 1989-95: the injector clamps' tab pours stay under the module when D3 / D4 move out (and the clamps are not fitted
+# with a rev 0.10 or later daughterboard): the pours go, the ground pour fills their place
+DROP_ZONES = {'8995': ('OUT_INJ1', 'OUT_INJ2')}
+# 1989-95: the board's title sat where D3 / D4 now are (their courtyards start at y 84.9): it moves up 2.5 mm
+TITLE_AT = {'8995': (177, 81.5)}
 
 
 def blocks(text, head):
@@ -83,11 +91,12 @@ def lands(blk, ref):
     blk = re.sub(r'\(tags "[^"]*"\)', '(tags "castellated land")', blk)
     blk = re.sub(r'\n    \(property "LCSC" "[^"]*"\)', '', blk)
     blk = blk.replace('(attr through_hole)', '(attr smd exclude_from_pos_files exclude_from_bom)')
+    blk = re.sub(r'    \(model "[^"]*PinSocket_1x40[^"]*"\n(?:      [^\n]*\n)*    \)\n', '', blk)   # the socket's 3D model goes with it
     blk, n = re.subn(
         r'\(pad "(\d+)" thru_hole (?:rect|oval|circle) \(at ([-\d.]+) ([-\d.]+) 90\) \(size 1\.7 1\.7\) \(drill 1\) '
         r'\(layers "\*\.Cu" "\*\.Mask"\)',
         lambda q: (f'(pad "{q.group(1)}" smd roundrect (at {fmt(float(q.group(2)) + off)} {q.group(3)} 90) '
-                   f'(size {fmt(LAND_L)} {fmt(LAND_W)}) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.15)'),
+                   f'(size {fmt(LAND_L)} {fmt(LAND_W)}) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.15) (zone_connect 2)'),
         blk)
     assert n == 40, (ref, n)
     # the socket body's outline goes; a courtyard round the lands takes its place
@@ -160,6 +169,15 @@ def main(src, dst, short):
             text = text[:a] + new + text[b:]
             n += 1
     assert n == 4, n
+    for a, b in sorted(blocks(text, 'zone'), reverse=True):
+        m = re.match(r'  \(zone \(net \d+\) \(net_name "([^"]*)"\)', text[a:b])
+        if m and m.group(1) in DROP_ZONES.get(short, ()):
+            text = text[:a] + text[b:]
+            done.append('zone ' + m.group(1))
+    if short in TITLE_AT:
+        text, k = re.subn(r'(\(gr_text "Miata ECU motherboard [^"]*" \(at )[-\d.]+ [-\d.]+\)',
+                          lambda q: q[1] + ' '.join(map(fmt, TITLE_AT[short])) + ')', text)
+        assert k == 1, k
     # the revision in the board's title on the silkscreen
     text, k = re.subn(r'(\(gr_text "Miata ECU motherboard [^"]*  rev )[\d.]+"', lambda q: q[1] + REV[short] + '"', text)
     assert k == 1, k
@@ -171,7 +189,10 @@ def main(src, dst, short):
     i = text.rindex('\n)')
     text = text[:i + 1] + marks + text[i + 1:]
     open(dst, 'w').write(text)
-    print(f'{short}: lands JD1 / JD2, removed HD1-HD4, moved {", ".join(sorted(moves))}, silkscreen outline updated')
+    zs = sorted(z[5:] for z in done if z.startswith('zone '))
+    print(f'{short}: lands JD1 / JD2, removed HD1-HD4, moved {", ".join(sorted(moves))}, silkscreen outline updated'
+          + (f'; removed the {" / ".join(sorted(set(zs)))} pours ({len(zs)} zones)' if zs else '')
+          + (f'; title moved to {TITLE_AT[short]}' if short in TITLE_AT else ''))
 
 
 if __name__ == '__main__':

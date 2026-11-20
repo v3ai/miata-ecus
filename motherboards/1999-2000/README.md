@@ -1,12 +1,13 @@
-# Miata ECU motherboard 1999-2000 (NB1), rev 0.11
+# Miata ECU motherboard 1999-2000 (NB1), rev 0.3
 
 The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**. It carries:
 
 - the stock harness header;
 - the year-independent I/O: the wideband sensor connector (AEM X-Series harness), USB-C, the MAP sensor and the add-on header (flex fuel, nitrous, CAN, boost);
-- the sockets for the universal daughterboard, which does all the engine control (including the wideband controller).
+- the lands for the universal daughterboard, which does all the engine control (including the wideband controller): a castellated module soldered flat onto JD1 / JD2.
 
 ## Changes in this revision
+- Rev 0.12, for daughterboard rev 0.13, the castellated module: JD1 / JD2 are rows of 40 SMD lands (1.5 x 3.0 mm, 1.2 mm under the module and 1.8 mm beyond its edge) instead of 1x40 sockets, and the standoff holes HD1-HD4 are gone. The module is soldered flat to the lands, so nothing may sit under it: the freewheel diode D1 above JD1, the pull-ups R20-R22 below JD2. The tracks that met the sockets on the bottom copper now reach the lands through vias beside them. The copper near the lands and the moved parts is ripped and joined again at the board's own rules (scripts/castellate_mb.sh); the wideband heater's return (1.0 mm) takes a new way to JD2, and the board's smallest via is 0.5 mm (0.3 mm hole) where a 0.6 mm one does not fit. Same nets and pinout; the earlier, socketed daughterboards do not fit.
 - Rev 0.11: R21 / R22 fitted (4.7 kΩ to 12 V, C23162): the A/C request and clutch switches close to ground, and the firmware reads them active low; the harness-header holes are 1.3 mm (were 1.1 mm; TE asks for 1.35 mm), same 1.8 mm pads. For daughterboard rev 0.12 (STM32F405, TJA1042 CAN transceivers); any daughterboard from rev 0.10 fits.
 - Rev 0.10: no via in or against any SMD pad (they moved beside their pads; AUX_VBAT re-routed at D5); fuse F2 is now BHFUSE BSMD1812-200-30V (C960026); the air-temperature input reads the GM sensor that ships with every board, on the stock sensor's plug.
 - Rev 0.9: the wideband sensor connector J2 is now a JST PUD side-entry header (S08B-PUDSS-1, two rows of four at 2.0 mm) instead of rev 0.8's Molex Micro-Fit 2x4. AEM's instructions for the X-Series gauge name the harness's replacement terminal, JST SPUD-001T-P0.5, which is the contact of JST's PUD series (plug housing PUDP-08V-S): a Micro-Fit header would not have taken the plug. The wire colour of each pin is printed beside the connector, to check a harness against by eye. The board is routed again; nothing else changed.
@@ -24,9 +25,9 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 |---|---|
 | `miata_mb_9900.kicad_pro / .kicad_sch / .kicad_pcb` | KiCad 7 project. Root schematic plus three sheets: harness, daughterboard, I/O |
 | `miata_mb_9900_schematic.pdf` | Schematic PDF |
-| `fab/miata-ecu-motherboard-1999-2000-rev0.11_jlcpcb_gerbers.zip`, `fab/miata-ecu-motherboard-1999-2000-rev0.11_jlcpcb_bom.csv`, `fab/miata-ecu-motherboard-1999-2000-rev0.11_jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |
-| `fab/miata-ecu-motherboard-1999-2000-rev0.11_self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt, standoffs and screws, plus the not-fitted options. Its columns load into LCSC's BOM tool |
-| `fab/miata-ecu-motherboard-1999-2000-rev0.11_parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |
+| `fab/miata-ecu-motherboard-1999-2000-rev0.0_jlcpcb_gerbers.zip`, `fab/miata-ecu-motherboard-1999-2000-rev0.0_jlcpcb_bom.csv`, `fab/miata-ecu-motherboard-1999-2000-rev0.0_jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |
+| `fab/miata-ecu-motherboard-1999-2000-rev0.0_self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt and screws, plus the not-fitted options. Its columns load into LCSC's BOM tool |
+| `fab/miata-ecu-motherboard-1999-2000-rev0.0_parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |
 | `fab/drc_report.txt` | KiCad DRC |
 | `ecu_mb.pretty/`, `fp-lib-table` | Project footprints (harness header, MAP sensor lying flat, USB-C, M4 case hole) |
 | `renders/` | Top and bottom copper |
@@ -134,8 +135,8 @@ Not connected: 1A, 1C, 1D, 1F, 1G, 1H, 1J, 1K, 1L, 1M, 1N, 1Q, 1T, 1V, 2A, 2G, 2
 **Sensor 5 V:** the harness's 5 V reference and the AUX header pin J5-14 come from the daughterboard's protected 5 V regulator (V5_EXT; it survives a short to the battery or to ground). The MAP sensor has its own supply (V5_SENS), so a damaged sensor wire doesn't take the MAP reading with it.
 
 ## Assembly
-- The daughterboard plugs into JD1/JD2 (8.5 mm sockets) on four M3 × 11 mm standoffs.
-- Fitted by hand (all in `fab/miata-ecu-motherboard-1999-2000-rev0.11_self_order_bom.csv`): the harness header (new: TE 178780-1, LCSC C5166246, few in stock; or salvage one from a stock ECU), the daughterboard sockets JD1/JD2, the wideband sensor connector, the add-on header, any jumper headers and their shunts, the MAP sensor, the standoffs, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC's quote whether that needs Standard PCBA.
+- The daughterboard (rev 0.13 on) is a castellated module: it lies flat on the board and its 80 edge half-holes are soldered to the lands JD1 / JD2, by reflow or with an iron ([INSTALL.md](../../INSTALL.md#soldering-the-daughterboard-to-the-motherboard)). Solder it on before the harness header, so the lands are easy to reach.
+- Fitted by hand (all in `fab/miata-ecu-motherboard-1999-2000-rev0.0_self_order_bom.csv`): the harness header (new: TE 178780-1, LCSC C5166246, few in stock; or salvage one from a stock ECU), the wideband sensor connector, the add-on header, any jumper headers and their shunts, the MAP sensor, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC's quote whether that needs Standard PCBA.
 - The case needs cut-outs in its bottom edge for the wideband connector, USB-C and the MAP hose, and a way out for the add-on ribbon cable.
 
 ## Still to verify

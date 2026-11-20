@@ -131,6 +131,7 @@ def main(src, dst, short=SHORT):
         blk = re.sub(r'\(tags "[^"]*"\)', '(tags "castellated")', blk)
         blk = re.sub(r'\n    \(property "LCSC" "C2977586"\)', '', blk)
         blk = blk.replace('(attr through_hole)', '(attr through_hole exclude_from_pos_files exclude_from_bom)')
+        blk = re.sub(r'    \(model "[^"]*PinHeader_1x40[^"]*"\n(?:      [^\n]*\n)*    \)\n', '', blk)   # the pin header's 3D model goes with it
         # the reference sits on the bottom, under the module once it is soldered down
         blk = re.sub(r'(\(fp_text reference "J[12]" \(at [^)]*\) \(layer "B\.SilkS"\))', r'\1 hide', blk)
         text = text[:a] + blk + text[b:]

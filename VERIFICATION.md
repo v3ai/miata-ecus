@@ -1,7 +1,8 @@
 # Verification report
 
 **Date:** 2026-10-30; full-firmware emulation, expanded circuit and board checks 2026-11-02; rev 0.7 and 0.8 fixes 2026-11-03; rev 0.9 layout 2026-11-03; rev 0.10 2026-11-13; wideband connector, emulation re-run and pictures 2026-11-14; plug photograph and other
-boards 2026-11-15; clamp TVS stock, the open choices decided, and one driver per 1989-93 injector wire, 2026-11-15.
+boards 2026-11-15; clamp TVS stock, the open choices decided, and one driver per 1989-93 injector wire, 2026-11-15; the castellated
+module and its motherboards, 2026-11-20.
 **Boards:** daughterboard rev 0.10; motherboards 1989-95 rev 0.13, 1996-97 / 1999-2000 / 2001-05 rev 0.9. The boards ordered in November 2026 are the earlier set (daughterboard rev 0.9), kept in `ordered-boards/2026-11/`; what this review means for them is under [Rev 0.10](#the-ordered-rev-09-boards).
 These revisions carry the fixes this review called for (see [Rev 0.5 changes](#rev-05-changes-and-re-verification),
 [Rev 0.6](#rev-06-stm32f103-wideband-controller), [Rev 0.7](#rev-07-fixes-for-the-2026-11-02-findings),
@@ -955,6 +956,32 @@ makes it from this branch, on Renode):
   board where J2's printed outline runs to the board edge. Heater tracks 1.0 mm on both layers.
   `board_checks.py` on the new boards: 1606 OK / 263 CHECK / 4 FAIL, as before; `circuit_sim_full.py` 93 OK / 11
   CHECK / 1 REF / 0 FAIL.
+
+### Motherboards rev 0.16 / 0.12: lands for the castellated module (2026-11-20)
+The four motherboards keep their rev 0.15 / 0.11 placement and copper except where the castellated module needs a
+change: JD1 / JD2 become rows of SMD lands, the standoff holes go, and the parts that sat under the module move out
+(`scripts/castellate_mb.sh`; the steps are listed at its top). What was checked on the finished boards:
+
+| Check | 1989-95 | 1996-97 | 1999-2000 | 2001-05 |
+|---|---|---|---|---|
+| Pads whose net changed, against rev 0.15 / 0.11 (HD1-HD4 removed) | 0 | 0 | 0 | 0 |
+| KiCad DRC errors / unconnected items | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
+| Starved thermal reliefs (not counted as errors; rev 0.15 / 0.11 had) | 1 (9) | 3 (10) | 2 (7) | 2 (17) |
+| Dangling tracks or vias | 0 | 0 | 0 | 0 |
+| `jlc_fab_check.py` (no via in or within 0.1 mm of an SMD pad, edge) | OK | OK | OK | OK |
+
+- **Bottom-copper tracks to the lands.** The lands are top copper only, so each track that met a socket pin on the
+  bottom copper now ends at a via beside its land (`via_lands.py`), outside the land's solder mask opening.
+- **Track widths.** Every re-routed join is at the board's rules (0.25 mm track, 0.2 mm clearance) or at its net's
+  own width. A net is narrower than before only where it carries a few milliamps: on 1999-2000 the 12 V feed to the
+  switch pull-ups R21 / R22 (0.25 mm, 11.6 mm; the fuses and the module's supply pins stay on the wide copper), and on
+  2001-05 the tach output's two short joins (0.3 mm). The wideband heater's return, which ran along the old JD2 row,
+  takes a new 1.0 mm way to it (96.7-104.3 mm).
+- **Vias.** Each board's smallest via is now 0.5 mm with a 0.3 mm hole (the rule was 0.6 mm), used only where a
+  0.6 mm one does not fit: the tach output's via between JD1 lands 11 and 12 on 2001-05 and two ground stitching
+  vias. Vias stay tented under the module.
+- **1989-95:** the tab pours of the injector clamps D3 / D4 stayed under the module when the clamps moved out, with
+  nothing joined to them. They are gone; the clamps are not fitted with a rev 0.10 or later daughterboard.
 
 ### What other Miata plug-in ECUs do (2026-11-15)
 [research/other_miata_pnp_boards.md](research/other_miata_pnp_boards.md): the open designs read (rusEFI Hellen and

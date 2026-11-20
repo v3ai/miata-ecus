@@ -15,7 +15,9 @@ first and joined again.
 usage: finish_route.py --unclose in.kicad_pcb out.kicad_pcb                (first: remove the too-close tracks)
        finish_route.py --free in.kicad_pcb out.kicad_pcb REF.PAD ...       (make room for a via in a boxed-in pad)
        finish_route.py in.kicad_pcb out.kicad_pcb [NET[:REF:PAD] ...]      (no nets given: every net in pieces)
-env:   TW track width (0.2), CL clearance with margin (0.17); PLANE_FIRST=1 places the plane vias before the signals
+env:   TW track width (0.2; a net with wider tracks is joined at its own width first), TW_MIN the narrowest tried
+       (0.15), CL clearance with margin (0.17); PLANE_FIRST=1 places the plane vias before the signals;
+       LIMIT search steps per window (900000); WINDOW=x0,y0,x1,y1 (mm) searches that area instead, for a long join
 Prints one line per connection; exits 1 if any is left open.
 """
 import collections
@@ -31,6 +33,7 @@ from shapely.strtree import STRtree
 
 mm, IU = pcbnew.ToMM, pcbnew.FromMM
 TW = float(os.environ.get('TW', '0.2'))
+TW_MIN = float(os.environ.get('TW_MIN', '0.15'))     # the narrowest track tried where TW does not fit
 CL = float(os.environ.get('CL', '0.17'))
 VD, VDRILL, G = 0.6, 0.3, 0.05
 PLANES = ('GND', '+3V3')
@@ -38,7 +41,7 @@ PLANES = ('GND', '+3V3')
 OUTER = {'OUT_INJ1', 'OUT_INJ2', 'OUT_INJ3', 'OUT_INJ4', 'OUT_IACV', 'OUT_VVT', 'OUT_BOOST', '+12V_IN', '+12V', '+12V_F',
          'BUCK_SW', 'USB_VBUS'}
 MARGINS = (3.0, 6.0, 10.0, 16.0)
-LIMIT = 900000
+LIMIT = int(os.environ.get('LIMIT', 900000))         # search steps per window; raise it for a long join
 
 
 def sig_layers(b):
@@ -69,17 +72,20 @@ class Board:
         """items per net: ('t', layer, geom) track, ('v', None, geom) via, ('p', layers, geom, ref, num) pad"""
         b = self.b
         self.items = collections.defaultdict(list)
+        self.anchors = collections.defaultdict(list)    # per item: the points KiCad joins it by
         self.holes = []
         for t in b.GetTracks():
             n = t.GetNetname()
             if t.Type() == pcbnew.PCB_VIA_T:
                 p = t.GetPosition()
                 self.items[n].append(('v', None, Point(mm(p.x), mm(p.y)).buffer(mm(t.GetWidth()) / 2)))
+                self.anchors[n].append([(mm(p.x), mm(p.y))])
                 self.holes.append(Point(mm(p.x), mm(p.y)).buffer(mm(t.GetDrillValue()) / 2))
             elif t.GetLayerName() in self.lid:
                 s, e = t.GetStart(), t.GetEnd()
                 g = LineString([(mm(s.x), mm(s.y)), (mm(e.x), mm(e.y))]).buffer(mm(t.GetWidth()) / 2, cap_style=1)
                 self.items[n].append(('t', t.GetLayerName(), g))
+                self.anchors[n].append([(mm(s.x), mm(s.y)), (mm(e.x), mm(e.y))])
         for fp in b.GetFootprints():
             for pd in fp.Pads():
                 layers = [l for l in self.sig if pd.IsOnLayer(self.lid[l])]
@@ -89,6 +95,7 @@ class Board:
                     layers = list(self.sig)
                 if layers:
                     self.items[pd.GetNetname()].append(('p', layers, poly, fp.GetReference(), pd.GetNumber()))
+                    self.anchors[pd.GetNetname()].append([(mm(pd.GetPosition().x), mm(pd.GetPosition().y))])
                 if pd.GetDrillSize().x > 0:
                     self.holes.append(Point(mm(pd.GetPosition().x), mm(pd.GetPosition().y)).buffer(mm(pd.GetDrillSize().x) / 2))
         # pours that are not planes block the way like any copper (their outline: they may not be filled yet)
@@ -106,7 +113,12 @@ class Board:
     def pieces(self, net):
         """connected pieces of a net's copper: lists of item indexes"""
         it = self.items[net]
+        anc = self.anchors[net]
         par = list(range(len(it)))
+
+        def inside(pts, g):
+            """as KiCad's connectivity: a track or via joins another when one of its anchor points lies in its copper"""
+            return any(g.distance(Point(p)) < 1e-4 for p in pts)
 
         def find(a):
             while par[a] != a:
@@ -118,14 +130,19 @@ class Board:
             tree = STRtree([a[2] for a in it])
             for i, a in enumerate(it):
                 for j in tree.query(a[2], predicate='intersects'):
-                    if j > i and lay[i] & lay[j]:
+                    # a pad joins copper that overlaps it; tracks and vias join by their anchor points
+                    if j > i and lay[i] & lay[j] and (
+                            ('p' in (a[0], it[j][0]) and a[2].intersection(it[j][2]).area > 1e-4)
+                            or inside(anc[i], it[j][2]) or inside(anc[int(j)], a[2])):
                         par[find(i)] = find(int(j))
-        # a pour of the net joins what it covers (plane nets are handled by the caller)
-        for nm, poly in self.zones.get(net, []):
+        # a pour of the net joins what its filled islands hold, island by island (plane nets are handled by the
+        # caller); unfilled, its outline stands in
+        for nm, poly in (fill_polys(self, net) or self.zones.get(net, [])):
             first = None
             for i, a in enumerate(it):
                 la = self.sig if a[0] == 'v' else ([a[1]] if a[0] == 't' else a[1])
-                if nm in la and a[2].intersects(poly):
+                # a pad or via meets its pour through thermal spokes (its centre sits in the clearance gap)
+                if nm in la and (a[2].intersects(poly) if a[0] in 'pv' else inside(anc[i], poly)):
                     if first is None:
                         first = i
                     else:
@@ -146,6 +163,9 @@ class Board:
             # window around the closest approach of the two pieces, not around the whole net
             pa, pb = nearest_points(sg, unary_union([it[i][2] for i in dst_idx]))
             x0, y0, x1, y1 = min(pa.x, pb.x), min(pa.y, pb.y), max(pa.x, pb.x), max(pa.y, pb.y)
+        if os.environ.get('WINDOW') and not plane:              # an explicit search area for a long join
+            wx0, wy0, wx1, wy1 = map(float, os.environ['WINDOW'].split(','))
+            return self._search(net, src_idx, dst_idx, plane, tw, box(wx0, wy0, wx1, wy1).intersection(self.edge))
         for margin in MARGINS:
             win = box(x0 - margin, y0 - margin, x1 + margin, y1 + margin).intersection(self.edge)
             r = self._search(net, src_idx, dst_idx, plane, tw, win)
@@ -383,7 +403,7 @@ def stitch_planes(B):
                 break
             idx, key = todo[0]
             names = ', '.join(f'{r}.{n}' for r, n in key[:4])
-            res = B.route(net, idx, [], plane=True) or B.route(net, idx, [], plane=True, tw=0.15)
+            res = B.route(net, idx, [], plane=True) or B.route(net, idx, [], plane=True, tw=TW_MIN)
             if not res:
                 print(f'{net}: NO VIA SITE for {names}  (BLOCKED {key[0][0]}.{key[0][1]})', flush=True)
                 left += 1
@@ -435,6 +455,11 @@ def main(src, out, specs):
         want.setdefault(p[0], []).append(tuple(p[1:3]) if len(p) == 3 else None)
     nets = list(want) if want else sorted(n for n in B.items if n and n not in PLANES)
     left = 0
+    # a net is joined at its own width first (its widest track, up to 1 mm): a power output keeps its copper
+    netw = {}
+    for t in B.b.GetTracks():
+        if t.Type() != pcbnew.PCB_VIA_T:
+            netw[t.GetNetname()] = max(netw.get(t.GetNetname(), 0.0), round(mm(t.GetWidth()), 3))
     first = os.environ.get('PLANE_FIRST')
     if first and not want:
         left += stitch_planes(B)
@@ -450,7 +475,7 @@ def main(src, out, specs):
             src_p = min(named or with_pads, key=len)
             dst = [i for p in pcs if p is not src_p for i in p]
             res = None
-            for tw in dict.fromkeys((TW, 0.15)):
+            for tw in dict.fromkeys((max(TW, min(netw.get(net, 0.0), 1.0)), TW, TW_MIN)):
                 res = B.route(net, src_p, dst, tw=tw)
                 if res:
                     break

@@ -1,15 +1,11 @@
 Ref,Value,Footprint,LCSC,Assembly,Description
-J1,TE 178780-1,ecu_mb:TE_178780-1_76P,,hand-fit / not fitted,"Stock harness header, 76 positions (OEM plugs 1/3/4 used). Hand-solder; new from LCSC C5166246 (few in stock) or salvaged from a stock ECU"
+J1,TE 178780-1,ecu_mb:TE_178780-1_76P_NB1,,hand-fit / not fitted,"Harness header, 76 positions (the 22-, 16- and 26-position bays take the car's three plugs; the 12-position bay stays empty). Hand-solder; new from LCSC C5166246 (few in stock) or salvaged from a stock ECU"
 H3,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
 H4,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
 H5,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
 H6,M4,ecu_mb:MountingHole_M4_4.5mm_Pad7,,mechanical,"Case mounting boss, M4 x 10"
-JD1,Socket 1x40 (daughter J1),Connector_PinSocket_2.54mm:PinSocket_1x40_P2.54mm_Vertical,C124412,hand-fit,"2.54 mm 1x40 female, 8.5 mm. Mates with the daughterboard J1 (power + outputs)"
-JD2,Socket 1x40 (daughter J2),Connector_PinSocket_2.54mm:PinSocket_1x40_P2.54mm_Vertical,C124412,hand-fit,"2.54 mm 1x40 female, 8.5 mm. Mates with the daughterboard J2 (inputs + comms)"
-HD1,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
-HD2,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
-HD3,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
-HD4,M3 standoff,MountingHole:MountingHole_3.2mm_M3,,mechanical,"Daughterboard standoff, M3 x 11 mm (8.5 mm socket + 2.5 mm header plastic)"
+JD1,Lands 1x40 (daughter J1),ecu_mb:CastellatedLand_1x40_P2.54mm_TopEdge,,hand-fit / not fitted,"40 SMD lands, 2.54 mm, for the daughterboard's castellated top edge J1 (power + outputs)"
+JD2,Lands 1x40 (daughter J2),ecu_mb:CastellatedLand_1x40_P2.54mm_BottomEdge,,hand-fit / not fitted,"40 SMD lands, 2.54 mm, for the daughterboard's castellated bottom edge J2 (inputs + comms)"
 R1,120,Resistor_SMD:R_0603_1608Metric,C22787,JLC,CAN termination
 R6,0R,Resistor_SMD:R_0603_1608Metric,C21189,JLC,CAN termination link: fitted = 120R terminator active; remove if the bus is terminated elsewhere
 F1,3A hold,Fuse:Fuse_2920_7451Metric,C22446884,JLC,"Resettable fuse for the LSU heater supply (LUTE 2920L300/30GR: 3 A hold, 5 A trip, 30 V)"
@@ -27,7 +23,8 @@ R3,5.1k,Resistor_SMD:R_0603_1608Metric,C23186,JLC,USB-C sink CC2
 U4,USBLC6-2SC6,Package_TO_SOT_SMD:SOT-23-6,C7519,JLC,USB ESD protection
 J5,AUX 2x10,Connector_IDC:IDC-Header_2x10_P2.54mm_Vertical,,hand-fit / not fitted,"Add-on I/O: COP 3/4, boost, alternator, main relay, knock, VR crank/cam, external AFR, flex-fuel sensor, nitrous arming switch, CAN for gauges, 5 V, +12 V (fused, F4)"
 F4,1.1A hold,Fuse:Fuse_1812_4532Metric,C883150,JLC,"Resettable fuse for the AUX +12 V pin J5-15 (BHFUSE BSMD1812-110-33V: 1.1 A hold, 2.2 A trip, 33 V, 1812; the daughterboard's F1 is the same part)"
-D1,SS34,Diode_SMD:D_SMA,C8678,JLC,"Idle valve freewheel diode (to its +12 V feed, VBAT_IN): keeps the PWM turn-off energy out of the driver"
+F2,2A hold,Fuse:Fuse_1812_4532Metric,C960026,JLC,"Resettable fuse, idle valve +12 V feed (3O) (BHFUSE BSMD1812-200-30V: 2 A hold, 30 V)"
+D1,SS34,Diode_SMD:D_SMA,C8678,JLC,"Idle valve freewheel diode (to its +12 V feed, IAC_12V): keeps the PWM turn-off energy out of the driver"
 R20,4.7k,Resistor_SMD:R_0603_1608Metric,,hand-fit / not fitted,"NOT FITTED: 12 V pull-up for the vehicle speed input. Fit (4.7k 0603, LCSC C23162: 48 mW at 15 V with the signal low) only if your car's speed signal switches to ground or is open collector"
 R21,4.7k,Resistor_SMD:R_0603_1608Metric,C23162,JLC,12 V pull-up for the A/C request input (the switch closes to ground; 48 mW at 15 V with it closed). The firmware reads the input active low
 R22,4.7k,Resistor_SMD:R_0603_1608Metric,C23162,JLC,12 V pull-up for the clutch switch input (the switch closes to ground; 48 mW at 15 V with it closed). The firmware reads the input active low

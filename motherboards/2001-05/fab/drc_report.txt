@@ -1,7 +1,11 @@
 ** Drc report for miata_mb_0105.kicad_pcb **
-** Created on 2026-11-20 01:53:08 **
+** Created on 2026-11-20 08:19:40 **
 
-** Found 69 DRC violations **
+** Found 48 DRC violations **
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; warning
+    @(194.2800 mm, 169.6000 mm): Reference field of R6
+    @(194.4325 mm, 169.8373 mm): Segment of R1 on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
     @(140.9500 mm, 69.6000 mm): Reference field of J1
@@ -16,24 +20,12 @@
     @(140.9500 mm, 42.6000 mm): Segment of J1 on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
-    @(235.0000 mm, 92.3000 mm): Reference field of HD2
-    @(114.5000 mm, 92.0000 mm): Segment on F.Silkscreen
+    @(166.1225 mm, 169.2373 mm): Segment of R21 on F.Silkscreen
+    @(166.7100 mm, 169.0000 mm): Reference field of R22
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
-    @(119.0000 mm, 92.3000 mm): Reference field of HD1
-    @(114.5000 mm, 92.0000 mm): Segment on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
-    @(164.1700 mm, 160.0000 mm): Reference field of R21
-    @(163.5825 mm, 160.2373 mm): Segment of R20 on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
-    @(166.1225 mm, 160.2373 mm): Segment of R21 on F.Silkscreen
-    @(166.7100 mm, 160.0000 mm): Reference field of R22
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
-    @(194.2800 mm, 169.6000 mm): Reference field of R6
-    @(194.4325 mm, 169.8373 mm): Segment of R1 on F.Silkscreen
+    @(164.1700 mm, 169.0000 mm): Reference field of R21
+    @(163.5825 mm, 169.2373 mm): Segment of R20 on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; warning
     @(140.9500 mm, 42.6000 mm): Segment of J1 on F.Silkscreen
@@ -43,22 +35,6 @@
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; warning
     @(194.2800 mm, 169.6000 mm): Reference field of R6
-[starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
-    @(170.6800 mm, 165.2500 mm): PTH pad 18 [GND] of JD2
-[starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
-    @(183.3800 mm, 165.2500 mm): PTH pad 23 [GND] of JD2
-[starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
-    @(191.0000 mm, 165.2500 mm): PTH pad 26 [GND] of JD2
-[starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
-    @(198.6200 mm, 165.2500 mm): PTH pad 29 [GND] of JD2
 [starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; 1 spokes connected to isolated island)
     Local override; error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
@@ -67,59 +43,12 @@
     Local override; error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
     @(168.1100 mm, 180.7875 mm): PTH pad 18 [GND] of J5
-[starved_thermal]: Thermal relief connection to zone incomplete (layer B.Cu; 1 spokes connected to isolated island)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu, priority 0
-    @(175.7600 mm, 94.7500 mm): PTH pad 20 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
-    @(175.7600 mm, 94.7500 mm): PTH pad 20 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
-    @(178.3000 mm, 94.7500 mm): PTH pad 21 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
-    @(183.3800 mm, 94.7500 mm): PTH pad 23 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
-    @(185.9200 mm, 94.7500 mm): PTH pad 24 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (layer B.Cu; 1 spokes connected to isolated island)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu, priority 0
-    @(191.0000 mm, 94.7500 mm): PTH pad 26 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
-    @(191.0000 mm, 94.7500 mm): PTH pad 26 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (layer B.Cu; 1 spokes connected to isolated island)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu, priority 0
-    @(193.5400 mm, 94.7500 mm): PTH pad 27 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
-    @(193.5400 mm, 94.7500 mm): PTH pad 27 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
-    @(198.6200 mm, 94.7500 mm): PTH pad 29 [GND] of JD1
-[starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
-    @(201.1600 mm, 94.7500 mm): PTH pad 30 [GND] of JD1
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
     @(170.0000 mm, 172.0000 mm): Footprint R35
-[lib_footprint_issues]: The current configuration does not include the footprint library 'MountingHole'.
-    Local override; warning
-    @(119.0000 mm, 163.5000 mm): Footprint HD3
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
-    @(163.0600 mm, 160.0000 mm): Footprint R20
+    @(163.0600 mm, 169.0000 mm): Footprint R20
 [lib_footprint_issues]: The footprint library 'ecu_mb' was not found at '${KIPRJMOD}/ecu_mb.pretty'.
     Local override; warning
     @(104.0000 mm, 193.0000 mm): Footprint H5
@@ -131,7 +60,7 @@
     @(243.6000 mm, 186.6000 mm): Footprint C2
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
-    @(168.1400 mm, 160.0000 mm): Footprint R22
+    @(168.1400 mm, 169.0000 mm): Footprint R22
 [lib_footprint_issues]: The footprint library 'ecu_mb' was not found at '${KIPRJMOD}/ecu_mb.pretty'.
     Local override; warning
     @(250.0000 mm, 193.0000 mm): Footprint H6
@@ -141,28 +70,19 @@
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Connector_JST'.
     Local override; warning
     @(121.5000 mm, 199.4000 mm): Footprint J2
-[lib_footprint_issues]: The current configuration does not include the footprint library 'MountingHole'.
-    Local override; warning
-    @(235.0000 mm, 96.5000 mm): Footprint HD2
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
     @(193.9100 mm, 169.6000 mm): Footprint R1
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
     @(173.5000 mm, 201.0000 mm): Footprint R2
-[lib_footprint_issues]: The current configuration does not include the footprint library 'MountingHole'.
-    Local override; warning
-    @(119.0000 mm, 96.5000 mm): Footprint HD1
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
     @(176.0000 mm, 172.0000 mm): Footprint R36
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Fuse'.
     Local override; warning
     @(200.0000 mm, 179.0000 mm): Footprint F4
-[lib_footprint_issues]: The current configuration does not include the footprint library 'MountingHole'.
-    Local override; warning
-    @(235.0000 mm, 163.5000 mm): Footprint HD4
-[lib_footprint_issues]: The current configuration does not include the footprint library 'Connector_PinSocket_2.54mm'.
+[lib_footprint_issues]: The footprint library 'ecu_mb' was not found at '${KIPRJMOD}/ecu_mb.pretty'.
     Local override; warning
     @(127.5000 mm, 165.2500 mm): Footprint JD2
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Fuse'.
@@ -170,7 +90,7 @@
     @(108.0000 mm, 80.0000 mm): Footprint F2
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Diode_SMD'.
     Local override; warning
-    @(211.3200 mm, 102.0000 mm): Footprint D2
+    @(211.3200 mm, 90.6000 mm): Footprint D2
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Capacitor_SMD'.
     Local override; warning
     @(243.6000 mm, 198.0000 mm): Footprint C3
@@ -179,7 +99,7 @@
     @(140.9500 mm, 66.6000 mm): Footprint J1
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
-    @(165.6000 mm, 160.0000 mm): Footprint R21
+    @(165.6000 mm, 169.0000 mm): Footprint R21
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Connector_IDC'.
     Local override; warning
     @(188.4300 mm, 178.2475 mm): Footprint J5
@@ -198,7 +118,7 @@
 [lib_footprint_issues]: The footprint library 'ecu_mb' was not found at '${KIPRJMOD}/ecu_mb.pretty'.
     Local override; warning
     @(237.0000 mm, 57.3000 mm): Footprint H2
-[lib_footprint_issues]: The current configuration does not include the footprint library 'Connector_PinSocket_2.54mm'.
+[lib_footprint_issues]: The footprint library 'ecu_mb' was not found at '${KIPRJMOD}/ecu_mb.pretty'.
     Local override; warning
     @(127.5000 mm, 94.7500 mm): Footprint JD1
 [lib_footprint_issues]: The footprint library 'ecu_mb' was not found at '${KIPRJMOD}/ecu_mb.pretty'.
@@ -209,7 +129,7 @@
     @(195.7100 mm, 169.6000 mm): Footprint R6
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Diode_SMD'.
     Local override; warning
-    @(203.7000 mm, 102.0000 mm): Footprint D1
+    @(203.7000 mm, 90.6000 mm): Footprint D1
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Fuse'.
     Local override; warning
     @(108.0000 mm, 87.0000 mm): Footprint F3

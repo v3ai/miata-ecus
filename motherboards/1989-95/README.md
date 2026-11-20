@@ -1,12 +1,13 @@
-# Miata ECU motherboard 1989-1995 (NA6 / NA8), rev 0.15
+# Miata ECU motherboard 1989-1995 (NA6 / NA8), rev 0.3
 
 The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**. It carries:
 
 - the stock harness header;
 - the year-independent I/O: the wideband sensor connector (AEM X-Series harness), USB-C, the MAP sensor and the add-on header (flex fuel, nitrous, CAN, boost);
-- the sockets for the universal daughterboard, which does all the engine control (including the wideband controller).
+- the lands for the universal daughterboard, which does all the engine control (including the wideband controller): a castellated module soldered flat onto JD1 / JD2.
 
 ## Changes in this revision
+- Rev 0.16, for daughterboard rev 0.13, the castellated module: JD1 / JD2 are rows of 40 SMD lands (1.5 x 3.0 mm, 1.2 mm under the module and 1.8 mm beyond its edge) instead of 1x40 sockets, and the standoff holes HD1-HD4 are gone. The module is soldered flat to the lands, so nothing may sit under it: the freewheel diodes D1 / D2 and the injector clamps D3 / D4 above JD1, the TPS links R29 / R30 beside them, the pull-ups R20-R22 and R27 below JD2. The tracks that met the sockets on the bottom copper now reach the lands through vias beside them. The copper near the lands and the moved parts is ripped and joined again at the board's own rules (scripts/castellate_mb.sh); the wideband heater's return (1.0 mm) takes a new way to JD2, and the board's smallest via is 0.5 mm (0.3 mm hole) where a 0.6 mm one does not fit. The clamps' tab pours stay behind no longer (the clamps are not fitted with a rev 0.10 or later daughterboard; the ground pour takes their place), and the board's title moves up 2.5 mm, clear of them. Same nets and pinout; the earlier, socketed daughterboards do not fit.
 - Rev 0.15: R21 / R22 fitted (4.7 kΩ to 12 V, C23162): the A/C request and clutch switches close to ground, and the firmware reads them active low. For daughterboard rev 0.12 (STM32F405, TJA1042 CAN transceivers); any daughterboard from rev 0.10 fits.
 - Rev 0.14: no via in or against any SMD pad (they moved beside their pads); JP6 ships on BOOST for 1989-93, where the firmware runs the fuel pump relay on 2O (the airflow meter's plug takes the GM air-temperature sensor that ships with every board).
 - 2026-11-15, no change to the board: on 1989-93 cars JP1 and JP2 now carry no shunt, so each of the two injector wires has one driver (INJ1, INJ2), as on rusEFI's and Speeduino's boards for these cars. Before, both sat on PAIR and two drivers shared each wire. The firmware is unchanged (batch firing).
@@ -28,9 +29,9 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 |---|---|
 | `miata_mb_8995.kicad_pro / .kicad_sch / .kicad_pcb` | KiCad 7 project. Root schematic plus three sheets: harness, daughterboard, I/O |
 | `miata_mb_8995_schematic.pdf` | Schematic PDF |
-| `fab/miata-ecu-motherboard-1989-95-rev0.15_jlcpcb_gerbers.zip`, `fab/miata-ecu-motherboard-1989-95-rev0.15_jlcpcb_bom.csv`, `fab/miata-ecu-motherboard-1989-95-rev0.15_jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |
-| `fab/miata-ecu-motherboard-1989-95-rev0.15_self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt, standoffs and screws, plus the not-fitted options. Its columns load into LCSC's BOM tool |
-| `fab/miata-ecu-motherboard-1989-95-rev0.15_parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |
+| `fab/miata-ecu-motherboard-1989-95-rev0.0_jlcpcb_gerbers.zip`, `fab/miata-ecu-motherboard-1989-95-rev0.0_jlcpcb_bom.csv`, `fab/miata-ecu-motherboard-1989-95-rev0.0_jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |
+| `fab/miata-ecu-motherboard-1989-95-rev0.0_self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt and screws, plus the not-fitted options. Its columns load into LCSC's BOM tool |
+| `fab/miata-ecu-motherboard-1989-95-rev0.0_parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |
 | `fab/drc_report.txt` | KiCad DRC |
 | `ecu_mb.pretty/`, `fp-lib-table` | Project footprints (harness header, MAP sensor lying flat, USB-C, M4 case hole) |
 | `renders/` | Top and bottom copper |
@@ -160,13 +161,13 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J.
 **Tachometer (1989-95):** cavity 2I is the igniter's signal into the ECU; the igniter drives the tachometer itself. JP5 is left open and the firmware has no tach output on these years. Only after a coil-on-plug conversion with the igniter removed: fit JP5, set the tach output in TunerStudio, and join the two tach wires at the old igniter plug (R37 is the 12 V pull-up the tachometer then needs).
 
 ## Assembly
-- The daughterboard plugs into JD1/JD2 (8.5 mm sockets) on four M3 × 11 mm standoffs.
-- Fitted by hand (all in `fab/miata-ecu-motherboard-1989-95-rev0.15_self_order_bom.csv`): the harness header (salvage from a stock ECU or use a clone), the daughterboard sockets JD1/JD2, the wideband sensor connector, the add-on header, any jumper headers and their shunts, the MAP sensor, the standoffs, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC's quote whether that needs Standard PCBA.
+- The daughterboard (rev 0.13 on) is a castellated module: it lies flat on the board and its 80 edge half-holes are soldered to the lands JD1 / JD2, by reflow or with an iron ([INSTALL.md](../../INSTALL.md#soldering-the-daughterboard-to-the-motherboard)). Solder it on before the harness header, so the lands are easy to reach.
+- Fitted by hand (all in `fab/miata-ecu-motherboard-1989-95-rev0.0_self_order_bom.csv`): the harness header (salvage from a stock ECU or use a clone), the wideband sensor connector, the add-on header, any jumper headers and their shunts, the MAP sensor, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC's quote whether that needs Standard PCBA.
 - The case needs cut-outs in its bottom edge for the wideband connector, USB-C and the MAP hose, and a way out for the add-on ribbon cable.
 
 ## Still to verify
 - The case geometry: hole centres and header 1A position, with calipers on a stock case.
 - Your car's fan wiring: early cars switch the fan relay on 1R, later ones on 1L; both are driven (fan and spare outputs).
-- LCSC stock for the extended parts (C124412, C127367, C277684, C587650, C3020560, C410772, C960026, C3406).
+- LCSC stock for the extended parts (C127367, C277684, C587650, C3020560, C410772, C960026, C3406).
 - Harness pins 1N and 2L on a 1989-93 car: with the throttle switch unplugged, which plug wire reaches each (the rusEFI sources give 1N = idle contact, 2D = ground, 2L = full-throttle contact). Do this before fitting R28.
 - The TPS conversion on a manual car: the sensor and mount against your throttle body, and the sensor's output across the throttle travel (calibrate closed and wide open in TunerStudio).

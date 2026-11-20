@@ -128,8 +128,8 @@ not included. Complete sets per year, with the in-car parts, are in [bom/README.
 
 | Board | Batch 5 | Batch 30 | Batch 100 |
 |---|---|---|---|
-| Daughterboard rev 0.12 | $50.01 | $42.61 | $38.27 |
-| 1989-95 motherboard rev 0.15 | $39.72 | $36.68 | $35.27 |
-| 1996-97 motherboard rev 0.11 | $46.80 | $43.17 | $40.30 |
-| 1999-2000 motherboard rev 0.11 | $46.91 | $43.28 | $40.39 |
-| 2001-05 motherboard rev 0.11 | $42.16 | $39.38 | $37.58 |
+| Daughterboard rev 0.13 | $49.67 | $42.33 | $38.02 |
+| 1989-95 motherboard rev 0.16 | $38.82 | $35.88 | $34.65 |
+| 1996-97 motherboard rev 0.12 | $45.90 | $42.37 | $39.67 |
+| 1999-2000 motherboard rev 0.12 | $46.01 | $42.48 | $39.76 |
+| 2001-05 motherboard rev 0.12 | $41.25 | $38.58 | $36.96 |
