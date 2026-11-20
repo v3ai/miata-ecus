@@ -175,7 +175,7 @@ the firmware part has run in [emulation](firmware/sim/), that is as far as the p
 > [review/2026-11/NEXT-REV.md](review/2026-11/NEXT-REV.md).
 >
 > **The boards ordered in November 2026** are the set before this (daughterboard rev 0.9). Their files are kept in
-> [`ordered-boards/2026-11/`](ordered-boards/2026-11/); what the rev 0.10 review means for them is in
+> [`ordered-boards/2026-11/`](ordered-boards/2026-11/), with [what to rework, check and set before first power](ordered-boards/2026-11/BRING-UP.md); what the rev 0.10 review means for them is in
 > [VERIFICATION.md](VERIFICATION.md#the-ordered-rev-09-boards).
 
 | Board | Folder | Rev | Harness header | Case fit |
