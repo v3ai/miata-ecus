@@ -336,8 +336,6 @@ def load_research():
 def fitted(p, board):
     if board == 'D':
         return not p.get('dnp')
-    if p['ref'] == 'JP1':
-        return True
     if p.get('desc', '').upper().startswith('NOT FITTED'):
         return False
     if p['value'] == '0R' and not p['lcsc']:
@@ -563,11 +561,6 @@ def graph(sysm):
             a, b = pads.get('1', ''), pads.get('2', '')
             if a and b and a not in RAILS and b not in RAILS:
                 g[b].append((a, f'{ref}({val})'))          # anode (pad 2) -> cathode (pad 1) only
-        elif base == 'JP1':
-            # shunt on 2-3 (EXT) by default; 1-2 (STOCK) is an option
-            a, b, c = pads.get('1', ''), pads.get('2', ''), pads.get('3', '')
-            g[b].append((c, 'JP1 2-3 (EXT, default)')); g[c].append((b, 'JP1 2-3 (EXT, default)'))
-            blocked[a].append((b, 'JP1 1-2 (STOCK) shunt option')); blocked[b].append((a, 'JP1 1-2 (STOCK) shunt option'))
         elif val in IC_MAP and p['fitted']:
             for x, y, lab in IC_MAP[val]:
                 a, b = pads.get(x, ''), pads.get(y, '')

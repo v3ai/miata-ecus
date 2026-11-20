@@ -673,22 +673,22 @@ signals. The hand-fit list now has a one-piece gold 1×40 socket, **Würth 61304
 in stock at DigiKey; alternatives Samtec SSQ-140-01-G-S or two gold Sullins PPPC201LFBN-RC end to end). The LCSC socket
 in the board BOMs (C124412) is already gold.
 
-**Confirmed, for the next board revision (not changed):**
-- **CEL behind the shared driver enable:** it can't light while the drivers are off, so not on a fatal error.
-- **Battery sense** is after D7 and F1: reads 0.4-0.6 V low, varying with load and temperature (firmware note 6).
+**Confirmed, for the next board revision** (status as of 2026-11-19; the list itself is as written at the time):
+- **Done in rev 0.10.** **CEL behind the shared driver enable:** it can't light while the drivers are off, so not on a fatal error.
+- **Done in rev 0.10.** **Battery sense** is after D7 and F1: reads 0.4-0.6 V low, varying with load and temperature (firmware note 6).
   Sense VBAT_IN directly, with its own clamp.
-- **R120 (wideband battery sense)** sits at the wideband end of 153 mm of 0.25 mm VBAT_IN track; move it to J1 so the
+- **Done in rev 0.10.** **R120 (wideband battery sense)** sits at the wideband end of 153 mm of 0.25 mm VBAT_IN track; move it to J1 so the
   long track is high impedance.
-- **1989-93 motherboard:** all of 1B's current (logic and LSU heater) runs through 46 mm of 0.6 mm track. About a
+- **Open (rev 0.12 list).** **1989-93 motherboard:** all of 1B's current (logic and LSU heater) runs through 46 mm of 0.6 mm track. About a
   20 °C rise at the heater's 2.3 A cold peak, adequate, but widen it.
-- **F1 / L1 (logic supply, 0.5 A):** the buck draws about 0.45 A at 8 V while cranking, and a polymer PTC holds much
+- **Done in rev 0.10** (1.1 A fuse, 7 A inductor). **F1 / L1 (logic supply, 0.5 A):** the buck draws about 0.45 A at 8 V while cranking, and a polymer PTC holds much
   less when hot. A hot car with a weak crank could trip it. A 1206 PTC of about 1 A hold and a matching 1210 inductor
   fit the same pads (hand rework is possible on the ordered boards); otherwise hot-soak test.
-- **Buck input capacitors** C17/C18 are 7.5 / 4.6 mm from VIN; add 100 nF 50 V at the pins.
-- **Analog clamp leakage when hot** (N2): change the diode type rather than leave it as a check.
+- **Done in rev 0.10** (C71). **Buck input capacitors** C17/C18 are 7.5 / 4.6 mm from VIN; add 100 nF 50 V at the pins.
+- **Open.** **Analog clamp leakage when hot** (N2): change the diode type rather than leave it as a check.
 - **Wideband layout:** since rev 0.3 it is our own layout, not FOME's; consider the module layout as a block.
-- **CAN on the AUX header** (it only reaches the terminator), for dashes and gauges.
-- **Driver temperature:** the 48 °C/W estimate is per driver; eight DPAKs in one strip heat each other. Measure.
+- **Done in rev 0.10** (J5-19 / J5-20). **CAN on the AUX header** (it only reaches the terminator), for dashes and gauges.
+- **Modelled since rev 0.10** (`board_thermal.py`); still to measure. **Driver temperature:** the 48 °C/W estimate is per driver; eight DPAKs in one strip heat each other. Measure.
 - **MAP accuracy:** MPX5700AP ±2.5 % of span is about ±18 kPa worst case against a 30 kPa idle reading; the
   MPX4250AP (same case and pinout, 20-250 kPa) is about ±3.5 kPa. Kept for now; it's a hand-fit part, so a per-order
   choice for naturally aspirated cars.

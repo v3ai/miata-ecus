@@ -72,7 +72,7 @@ def add_zones(board):
 
 
 # ---------------------------------------------------------------- harness bus
-def plan_bus(r, hdr='J1', s1='JD1', s2='JD2', pass_nets=('HARN_IAT',)):
+def plan_bus(r, hdr='J1', s1='JD1', s2='JD2', pass_nets=()):
     """Neat, deterministic harness -> daughter-socket wiring: every signal drops from its
     header pin on B.Cu, runs along its own horizontal lane on F.Cu, and drops on B.Cu into
     its socket pin (JD1) or through a JD1 gap straight down to its JD2 pin."""
@@ -248,7 +248,7 @@ def main(inp, out):
     g = r.grid
     g.reserved[:] = False
     if getattr(M, 'BUS', True):
-        plan_bus(r, pass_nets=getattr(M, 'PASS_NETS', ('HARN_IAT',)))
+        plan_bus(r, pass_nets=getattr(M, 'PASS_NETS', ()))
     else:
         r.lockcells = {}
     pads = r.pads
