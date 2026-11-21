@@ -983,6 +983,13 @@ change: JD1 / JD2 become rows of SMD lands, the standoff holes go, and the parts
 - **Rev 0.17 / 0.13, the same day:** J5's pin names on the silkscreen (`scripts/j5_labels.py`, checked against the
   nets on J5's pads); five ground stitching vias under the names moved 0.5-1.2 mm sideways. DRC and `jlc_fab_check.py`
   as above, silkscreen overlaps as before.
+- **Rev 0.18 / 0.14, the same day:** the names move to both sides of J5, each next to its own row, with pin numbers
+  1 / 2 and 19 / 20 at the shroud's ends (`scripts/j5_mb.sh`). R35 / R36 moved left of J5; the tracks round their
+  old and new places and every via under a name were ripped and joined again by `finish_route.py`, which now takes
+  a no-via file (`NOVIA`, written by `scripts/j5_clear.py` from the names' outlines). `j5_clear.py --check`: no via
+  under a name on any board. KiCad DRC: no errors other than starved thermals (1 / 2 / 1 / 2; rev 0.16 / 0.12 had 1 / 3 / 2 / 2), nothing
+  unconnected; silkscreen overlaps as at rev 0.16 / 0.12 (3 / 8 / 8 / 6); `jlc_fab_check.py` OK. 1999-2000's main
+  relay output to J5 pin 5 takes a new 0.5 mm way (the old one ran under the RELAY name).
 - **1989-95:** the tab pours of the injector clamps D3 / D4 stayed under the module when the clamps moved out, with
   nothing joined to them. They are gone; the clamps are not fitted with a rev 0.10 or later daughterboard.
 

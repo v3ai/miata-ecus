@@ -37,10 +37,10 @@ Each current board now has a `*_costed_bom.csv` beside its JLCPCB and self-order
 | File | Lines | Extended lines | Parts per board, batch 5 | Batch 30 | Batch 100 |
 |---|---|---|---|---|---|
 | `daughterboard/fab/miata-ecu-daughterboard-rev0.13_costed_bom.csv` | 92 | 37 | $49.67 | $42.33 | $38.02 |
-| `motherboards/1989-95/fab/miata-ecu-motherboard-1989-95-rev0.17_costed_bom.csv` | 30 | 4 | $38.82 | $35.88 | $34.65 |
-| `motherboards/1996-97/fab/miata-ecu-motherboard-1996-97-rev0.13_costed_bom.csv` | 20 | 4 | $45.90 | $42.37 | $39.67 |
-| `motherboards/1999-2000/fab/miata-ecu-motherboard-1999-2000-rev0.13_costed_bom.csv` | 21 | 5 | $46.01 | $42.48 | $39.76 |
-| `motherboards/2001-05/fab/miata-ecu-motherboard-2001-05-rev0.13_costed_bom.csv` | 21 | 5 | $41.25 | $38.58 | $36.96 |
+| `motherboards/1989-95/fab/miata-ecu-motherboard-1989-95-rev0.18_costed_bom.csv` | 30 | 4 | $38.82 | $35.88 | $34.65 |
+| `motherboards/1996-97/fab/miata-ecu-motherboard-1996-97-rev0.14_costed_bom.csv` | 20 | 4 | $45.90 | $42.37 | $39.67 |
+| `motherboards/1999-2000/fab/miata-ecu-motherboard-1999-2000-rev0.14_costed_bom.csv` | 21 | 5 | $46.01 | $42.48 | $39.76 |
+| `motherboards/2001-05/fab/miata-ecu-motherboard-2001-05-rev0.14_costed_bom.csv` | 21 | 5 | $41.25 | $38.58 | $36.96 |
 
 - Totals are parts only. They leave out the bare PCB, assembly and extended-part fees, duty, freight, and the items listed as unpriced in each file's last row. The full cost model is REPORT.md section S3.
 - Harness-header prices are distributor snapshots from an aggregator, converted from CAD, and were not checked live.

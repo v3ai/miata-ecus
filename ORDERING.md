@@ -1,7 +1,7 @@
 # Ordering the rev 0.13 boards
 
 A checklist for ordering the current boards: **daughterboard rev 0.13** (the castellated module) and **motherboards
-rev 0.17 (1989-95) and 0.13 (1996-97, 1999-2000, 2001-05)**, which have its lands. These go together only: an earlier,
+rev 0.18 (1989-95) and 0.14 (1996-97, 1999-2000, 2001-05)**, which have its lands. These go together only: an earlier,
 socketed board fits neither. Read it with [Things to know before ordering](README.md#things-to-know-before-ordering)
 and the board READMEs. Stock figures are JLCPCB's as read on 2026-11-17 (`*_costed_bom.csv`); check them again on the day.
 
@@ -129,7 +129,7 @@ not included. Complete sets per year, with the in-car parts, are in [bom/README.
 | Board | Batch 5 | Batch 30 | Batch 100 |
 |---|---|---|---|
 | Daughterboard rev 0.13 | $49.67 | $42.33 | $38.02 |
-| 1989-95 motherboard rev 0.17 | $38.82 | $35.88 | $34.65 |
-| 1996-97 motherboard rev 0.13 | $45.90 | $42.37 | $39.67 |
-| 1999-2000 motherboard rev 0.13 | $46.01 | $42.48 | $39.76 |
-| 2001-05 motherboard rev 0.13 | $41.25 | $38.58 | $36.96 |
+| 1989-95 motherboard rev 0.18 | $38.82 | $35.88 | $34.65 |
+| 1996-97 motherboard rev 0.14 | $45.90 | $42.37 | $39.67 |
+| 1999-2000 motherboard rev 0.14 | $46.01 | $42.48 | $39.76 |
+| 2001-05 motherboard rev 0.14 | $41.25 | $38.58 | $36.96 |

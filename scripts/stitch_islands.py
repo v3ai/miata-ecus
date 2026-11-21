@@ -7,12 +7,16 @@ copper (the JD1 / JD2 lands are top only), an island of one pour can be left wit
 it as unconnected. This finds the pieces of the net (pour islands, tracks, vias, pads, joined where they touch on a
 layer; vias and plated holes join the layers), takes the largest as the body, and for every other piece puts a via
 where one of its islands overlaps a body island on the other layer: the via's copper inside both fills by MARGIN, and
-clear of any pad (TRIES) and hole. Zones are refilled and the check repeated until nothing is left or no spot is found."""
+clear of any pad (TRIES) and hole, and outside the env NOVIA file's rectangles (as finish_route.py). Zones are refilled and the check repeated until nothing is left or no spot is found."""
 import gc
 import sys
 import pcbnew
 from shapely.geometry import Point, Polygon
 from shapely.ops import unary_union
+import os
+from shapely.geometry import box
+NOVIA = (unary_union([box(*map(float, ln.split())) for ln in open(os.environ['NOVIA']) if ln.strip()])
+         if os.environ.get('NOVIA') else None)
 
 gc.disable()      # pcbnew's SWIG temporaries crash the cyclic collector under KiCad 9
 mm, MM = pcbnew.ToMM, pcbnew.FromMM
@@ -105,6 +109,8 @@ def main(src, dst, net='GND'):
             if done:
                 break
             ko = unary_union(keep_out).buffer(CLEAR + VIA / 2).union(unary_union(holes).buffer(HOLE_CLEAR + DRILL / 2))
+            if NOVIA is not None:
+                ko = ko.union(NOVIA)                    # silkscreen text (finish_route.py's NOVIA file)
             for kind, ls, geom in g:
                 if kind != 'z':
                     continue

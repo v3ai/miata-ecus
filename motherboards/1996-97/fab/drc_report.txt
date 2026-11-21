@@ -1,15 +1,7 @@
 ** Drc report for miata_mb_9697.kicad_pcb **
-** Created on 2026-11-20 09:57:22 **
+** Created on 2026-11-20 11:03:49 **
 
-** Found 46 DRC violations **
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
-    @(202.9227 mm, 61.4044 mm): Segment of J1 on F.Silkscreen
-    @(200.2969 mm, 61.8291 mm): Footprint text of J1 (4B)
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
-    @(238.0006 mm, 61.8291 mm): Footprint text of J1 (4Z)
-    @(242.0732 mm, 61.3794 mm): Segment of J1 on F.Silkscreen
+** Found 45 DRC violations **
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
     @(144.0467 mm, 61.1298 mm): Segment of J1 on F.Silkscreen
@@ -18,6 +10,14 @@
     Rule: board setup constraints silk; warning
     @(144.0467 mm, 61.1298 mm): Segment of J1 on F.Silkscreen
     @(152.6500 mm, 61.8291 mm): Footprint text of J1 (2B)
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; warning
+    @(202.9227 mm, 61.4044 mm): Segment of J1 on F.Silkscreen
+    @(200.2969 mm, 61.8291 mm): Footprint text of J1 (4B)
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; warning
+    @(238.0006 mm, 61.8291 mm): Footprint text of J1 (4Z)
+    @(242.0732 mm, 61.3794 mm): Segment of J1 on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
     @(111.9724 mm, 61.1050 mm): Segment of J1 on F.Silkscreen
@@ -37,10 +37,6 @@
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; warning
     @(194.2800 mm, 169.6000 mm): Reference field of R6
-[starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
-    @(170.6500 mm, 180.7875 mm): PTH pad 16 [GND] of J5
 [starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; zone min spoke count 2; actual 1)
     Local override; error
     @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
@@ -87,7 +83,7 @@
     @(203.7000 mm, 90.6000 mm): Footprint D1
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
-    @(170.0000 mm, 172.0000 mm): Footprint R35
+    @(156.0000 mm, 178.2500 mm): Footprint R35
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Fuse'.
     Local override; warning
     @(200.0000 mm, 179.0000 mm): Footprint F4
@@ -96,7 +92,7 @@
     @(173.5000 mm, 201.0000 mm): Footprint R2
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
-    @(176.0000 mm, 172.0000 mm): Footprint R36
+    @(156.0000 mm, 180.7900 mm): Footprint R36
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
     @(195.7100 mm, 169.6000 mm): Footprint R6

@@ -1,5 +1,5 @@
 ** Drc report for miata_mb_0105.kicad_pcb **
-** Created on 2026-11-20 09:57:22 **
+** Created on 2026-11-20 11:03:50 **
 
 ** Found 48 DRC violations **
 [silk_overlap]: Silkscreen overlap
@@ -45,7 +45,7 @@
     @(168.1100 mm, 180.7875 mm): PTH pad 18 [GND] of J5
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
-    @(170.0000 mm, 172.0000 mm): Footprint R35
+    @(156.0000 mm, 178.2500 mm): Footprint R35
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
     @(163.0600 mm, 169.0000 mm): Footprint R20
@@ -78,7 +78,7 @@
     @(173.5000 mm, 201.0000 mm): Footprint R2
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
-    @(176.0000 mm, 172.0000 mm): Footprint R36
+    @(156.0000 mm, 180.7900 mm): Footprint R36
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Fuse'.
     Local override; warning
     @(200.0000 mm, 179.0000 mm): Footprint F4

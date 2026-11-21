@@ -278,7 +278,7 @@ if True:                       # procedural models (both boards)
         name = fp.GetFPIDAsString()
         ref = fp.GetReference()
         f = fp_frame(ref)
-        if re.search(r'TE_\d+-\d+_\d+P$', name):
+        if re.search(r'TE_\d+-\d+_\d+P(_\w+)?$', name):       # _NB1: 1999-2000's variant of the 76-pin footprint
             # right-angle Mazda ECU header (174917 / 176122 / 178780 family): housing on the board, shroud over
             # the board edge with one opening per plug. Sizes from the footprint's own pads and outline.
             o = fp.GetPosition()

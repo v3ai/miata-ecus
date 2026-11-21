@@ -1,15 +1,23 @@
 ** Drc report for miata_mb_9900.kicad_pcb **
-** Created on 2026-11-20 09:57:22 **
+** Created on 2026-11-20 11:03:49 **
 
-** Found 46 DRC violations **
+** Found 45 DRC violations **
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
-    @(166.7100 mm, 169.0000 mm): Reference field of R22
-    @(166.1225 mm, 169.2373 mm): Segment of R21 on F.Silkscreen
+    @(146.6984 mm, 61.8291 mm): Footprint text of J1 (1V)
+    @(144.0467 mm, 61.1298 mm): Segment of J1 on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; warning
+    @(144.0467 mm, 61.1298 mm): Segment of J1 on F.Silkscreen
+    @(152.6500 mm, 61.8291 mm): Footprint text of J1 (XB)
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
     @(194.4325 mm, 169.8373 mm): Segment of R1 on F.Silkscreen
     @(194.2800 mm, 169.6000 mm): Reference field of R6
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; warning
+    @(166.7100 mm, 169.0000 mm): Reference field of R22
+    @(166.1225 mm, 169.2373 mm): Segment of R21 on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
     @(163.5825 mm, 169.2373 mm): Segment of R20 on F.Silkscreen
@@ -20,30 +28,18 @@
     @(242.0732 mm, 61.3794 mm): Segment of J1 on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
-    @(202.9227 mm, 61.4044 mm): Segment of J1 on F.Silkscreen
-    @(200.2969 mm, 61.8291 mm): Footprint text of J1 (3B)
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
     @(111.9724 mm, 61.1050 mm): Segment of J1 on F.Silkscreen
     @(116.0000 mm, 61.8291 mm): Footprint text of J1 (1B)
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
-    @(146.6984 mm, 61.8291 mm): Footprint text of J1 (1V)
-    @(144.0467 mm, 61.1298 mm): Segment of J1 on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
-    @(144.0467 mm, 61.1298 mm): Segment of J1 on F.Silkscreen
-    @(152.6500 mm, 61.8291 mm): Footprint text of J1 (XB)
+    @(202.9227 mm, 61.4044 mm): Segment of J1 on F.Silkscreen
+    @(200.2969 mm, 61.8291 mm): Footprint text of J1 (3B)
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; warning
     @(194.2800 mm, 169.6000 mm): Reference field of R6
-[starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; 1 spokes connected to isolated island)
+[starved_thermal]: Thermal relief connection to zone incomplete (layer B.Cu; zone min spoke count 2; actual 1)
     Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
-    @(170.6500 mm, 180.7875 mm): PTH pad 16 [GND] of J5
-[starved_thermal]: Thermal relief connection to zone incomplete (layer F.Cu; 1 spokes connected to isolated island)
-    Local override; error
-    @(115.5000 mm, 50.0000 mm): Zone [GND] on F.Cu, priority 0
+    @(115.5000 mm, 50.0000 mm): Zone [GND] on B.Cu, priority 0
     @(168.1100 mm, 180.7875 mm): PTH pad 18 [GND] of J5
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Package_TO_SOT_SMD'.
     Local override; warning
@@ -59,7 +55,7 @@
     @(121.5000 mm, 199.4000 mm): Footprint J2
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
-    @(170.0000 mm, 172.0000 mm): Footprint R35
+    @(156.0000 mm, 178.2500 mm): Footprint R35
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Fuse'.
     Local override; warning
     @(108.0000 mm, 80.0000 mm): Footprint F2
@@ -119,7 +115,7 @@
     @(195.7100 mm, 169.6000 mm): Footprint R6
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
-    @(176.0000 mm, 172.0000 mm): Footprint R36
+    @(156.0000 mm, 180.7900 mm): Footprint R36
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Fuse'.
     Local override; warning
     @(200.0000 mm, 179.0000 mm): Footprint F4

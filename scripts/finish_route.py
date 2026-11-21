@@ -17,7 +17,8 @@ usage: finish_route.py --unclose in.kicad_pcb out.kicad_pcb                (firs
        finish_route.py in.kicad_pcb out.kicad_pcb [NET[:REF:PAD] ...]      (no nets given: every net in pieces)
 env:   TW track width (0.2; a net with wider tracks is joined at its own width first), TW_MIN the narrowest tried
        (0.15), CL clearance with margin (0.17); PLANE_FIRST=1 places the plane vias before the signals;
-       LIMIT search steps per window (900000); WINDOW=x0,y0,x1,y1 (mm) searches that area instead, for a long join
+       LIMIT search steps per window (900000); WINDOW=x0,y0,x1,y1 (mm) searches that area instead, for a long join;
+       NOVIA=file of rectangles "x0 y0 x1 y1" (mm, one per line) where no via may be placed (silkscreen text)
 Prints one line per connection; exits 1 if any is left open.
 """
 import collections
@@ -36,6 +37,18 @@ TW = float(os.environ.get('TW', '0.2'))
 TW_MIN = float(os.environ.get('TW_MIN', '0.15'))     # the narrowest track tried where TW does not fit
 CL = float(os.environ.get('CL', '0.17'))
 VD, VDRILL, G = 0.6, 0.3, 0.05
+
+
+def novia():
+    """the NOVIA rectangles as one geometry (None without NOVIA): where no via may go"""
+    f = os.environ.get('NOVIA')
+    if not f:
+        return None
+    return unary_union([box(*map(float, ln.split())) for ln in open(f) if ln.strip()])
+
+
+NOVIA = novia()
+NOVIA_P = prepared.prep(NOVIA) if NOVIA is not None else None
 PLANES = ('GND', '+3V3')
 # nets whose current needs the thicker outer copper on a six-layer board (as route.py's OUTER_ONLY)
 OUTER = {'OUT_INJ1', 'OUT_INJ2', 'OUT_INJ3', 'OUT_INJ4', 'OUT_IACV', 'OUT_VVT', 'OUT_BOOST', '+12V_IN', '+12V', '+12V_F',
@@ -212,7 +225,8 @@ class Board:
         def vok(i, j):
             if (i, j) not in vfree:
                 p = Point(*xy(i, j))
-                vfree[(i, j)] = not ov.contains(p) and not hv.contains(p) and not nopad.contains(p)
+                vfree[(i, j)] = (not ov.contains(p) and not hv.contains(p) and not nopad.contains(p)
+                                 and not (NOVIA_P and NOVIA_P.contains(p)))
             return vfree[(i, j)]
 
         def cells(idx, shrink=0.03):

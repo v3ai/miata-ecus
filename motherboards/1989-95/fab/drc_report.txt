@@ -1,7 +1,11 @@
 ** Drc report for miata_mb_8995.kicad_pcb **
-** Created on 2026-11-20 09:57:22 **
+** Created on 2026-11-20 11:03:50 **
 
 ** Found 101 DRC violations **
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; warning
+    @(194.4325 mm, 169.8373 mm): Segment of R1 on F.Silkscreen
+    @(194.2800 mm, 169.6000 mm): Reference field of R6
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
     @(166.7100 mm, 169.0000 mm): Reference field of R22
@@ -10,10 +14,6 @@
     Rule: board setup constraints silk; warning
     @(164.1700 mm, 169.0000 mm): Reference field of R21
     @(163.5825 mm, 169.2373 mm): Segment of R20 on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
-    @(194.4325 mm, 169.8373 mm): Segment of R1 on F.Silkscreen
-    @(194.2800 mm, 169.6000 mm): Reference field of R6
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; warning
     @(194.2800 mm, 169.6000 mm): Reference field of R6
@@ -263,7 +263,7 @@
     @(117.0000 mm, 57.3000 mm): Footprint H1
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
-    @(176.0000 mm, 172.0000 mm): Footprint R36
+    @(156.0000 mm, 180.7900 mm): Footprint R36
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Connector_IDC'.
     Local override; warning
     @(188.4300 mm, 178.2475 mm): Footprint J5
@@ -278,7 +278,7 @@
     @(250.0000 mm, 134.0000 mm): Footprint H4
 [lib_footprint_issues]: The current configuration does not include the footprint library 'Resistor_SMD'.
     Local override; warning
-    @(170.0000 mm, 172.0000 mm): Footprint R35
+    @(156.0000 mm, 178.2500 mm): Footprint R35
 [lib_footprint_issues]: The footprint library 'ecu_mb' was not found at '${KIPRJMOD}/ecu_mb.pretty'.
     Local override; warning
     @(127.5000 mm, 94.7500 mm): Footprint JD1
