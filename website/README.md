@@ -9,6 +9,19 @@ board renders on white. [`preview/`](preview/) renders the same Liquid without a
 | `products/` | `products.csv`: five draft products to import, one per model-year range, each with two options: board only at $350 or a complete kit at $500 (sensor, lead, vacuum hose, USB cable). Both ship flashed, set for the year and bench-tested; the ECU reads the car's own air-temperature sensor. Descriptions and spec tables included. `make_products.py` rebuilds it |
 | `product-images/` | The renders to upload as product photos (`scripts/render_photos.py` redraws them and the theme's own copies from the current boards) |
 | `preview/` | `render.js` (static preview with liquidjs) and `prep_images.py` (fits viewer renders into the theme's frames) |
+| `site/` | `build.sh`: the website at [singularityboards.com](https://singularityboards.com) |
+
+## The website
+[singularityboards.com](https://singularityboards.com) is this theme rendered without a store (`render.js` with
+`SITE=1`) plus the 3D viewer at `/viewer/`, served by GitHub Pages. `.github/workflows/pages.yaml` rebuilds and
+publishes it on every push to `main` that touches `website/` or `viewer/`. Until the store opens it sells nothing:
+every product shows *Coming soon*, there's no cart, and the email sign-ups and the store's Contact / Shipping / Returns /
+Privacy links point at this repository instead (the texts are in `SITE_TEXT` in `render.js`). To build it locally:
+`NODE_PATH=…/node_modules bash site/build.sh <out dir>`.
+
+DNS (at the registrar): `A` records for `singularityboards.com` to 185.199.108.153, 185.199.109.153, 185.199.110.153 and
+185.199.111.153, and `www` a `CNAME` to `v3ai.github.io`. The domain is set in the repository's Pages settings and in
+the `CNAME` file `build.sh` writes.
 
 ## Setting up the store
 1. **Theme:** Online Store → Themes → Add theme → Upload zip file → `mono-theme.zip`. Customise, then Publish.

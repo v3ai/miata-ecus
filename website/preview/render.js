@@ -1,7 +1,10 @@
 /* Static preview of the Mono Shopify theme without a store: renders the theme's real Liquid with liquidjs, plus small
    stand-ins for Shopify's own tags, filters and objects, against made-up store data (products from
    ../products/products.json). Not what Shopify serves byte for byte, but the same templates, sections and CSS.
-   usage: node render.js <theme dir> <out dir>      (needs liquidjs: npm i liquidjs) */
+   usage: node render.js <theme dir> <out dir>      (needs liquidjs: npm i liquidjs)
+   SITE=1: the static website instead (singularityboards.com on GitHub Pages, scripts in website/site/): a page per
+   product, no cart, the products shown as coming soon (nothing is for sale until the prototypes pass), and the email
+   sign-ups and the store's Contact / Shipping / Returns / Privacy pages replaced by links to the project on GitHub. */
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -10,7 +13,9 @@ const { Liquid, Tag, Value } = require('liquidjs');
 const THEME = path.resolve(process.argv[2]);
 const OUT = path.resolve(process.argv[3]);
 const PRODUCTS = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'products', 'products.json'), 'utf8'));
-const STORE_NAME = process.env.STORE_NAME || 'Store Name';
+const SITE = process.env.SITE === '1';
+const STORE_NAME = process.env.STORE_NAME || (SITE ? 'Singularity Boards' : 'Store Name');
+const REPO = 'https://github.com/v3ai/miata-ecus';
 const read = (p) => fs.readFileSync(path.join(THEME, p), 'utf8');
 const locale = JSON.parse(read('locales/en.default.json'));
 const schemaOf = (src) => { const m = src.match(/\{%-?\s*schema\s*-?%\}([\s\S]*?)\{%-?\s*endschema\s*-?%\}/); return m ? JSON.parse(m[1]) : {}; };
@@ -117,7 +122,7 @@ for (const g of settingsSchema) for (const s of g.settings || []) if (s.id && se
 settings.type_heading_font = { family: 'Jost', fallback_families: 'sans-serif', weight: 700 };
 settings.type_body_font = { family: 'Jost', fallback_families: 'sans-serif', weight: 400 };
 
-const PAGES = { home: 'index.html', product: 'product.html', cart: 'cart.html', collection: 'collection.html' };
+const PAGES = { home: 'index.html', product: 'product.html', cart: SITE ? 'index.html#shop' : 'cart.html', collection: 'collection.html' };
 // Variants from products.json (Package: Board only / Complete kit); a product without them gets one default variant
 function variantsOf(p, i) {
   const vs = (p.variants && p.variants.length ? p.variants : [{ title: 'Default Title', price: '399.00' }])
@@ -134,16 +139,28 @@ function variantsOf(p, i) {
 const products = PRODUCTS.map((p, i) => {
   const img = { src: `assets/${p.image}-1200.jpg`, alt: p.title, media_type: 'image' };
   return {
-    id: i + 1, title: p.title, handle: p.handle, url: PAGES.product, type: p.type, description: p.body, tags: p.tags.split(', '),
+    id: i + 1, title: p.title, handle: p.handle, url: SITE ? `products/${p.handle}.html` : PAGES.product, type: p.type, description: p.body,
+    tags: p.tags.split(', ').concat(SITE ? ['coming-soon'] : []),
     featured_media: img, media: [img, { src: 'assets/render-assembly-lifted-1200.jpg', alt: 'Exploded', media_type: 'image' }],
     ...variantsOf(p, i),
   };
 });
+// the website sells nothing yet: every product and variant unavailable, so the theme shows "Coming soon"
+if (SITE) for (const p of products) { p.available = false; for (const v of p.variants) v.available = false; }
 products.forEach((p) => { p.selected_or_first_available_variant = p.variants[0]; });
 const collection = { title: 'Shop', url: PAGES.collection, products, products_count: products.length, description: '' };
 const menus = {
   'main-menu': { links: [['Shop', `${PAGES.home}#shop`], ['How it works', `${PAGES.home}#how`], ['Fit', `${PAGES.home}#fit`], ['FAQ', `${PAGES.home}#faq`]] },
-  footer: { links: [['Contact', '#'], ['Shipping', '#'], ['Returns', '#'], ['Privacy', '#']] },
+  footer: { links: SITE
+    ? [['Source on GitHub', REPO], ['Install guide', `${REPO}/blob/main/INSTALL.md`], ['Build guide', `${REPO}/blob/main/BUILD.md`], ['3D viewer', 'viewer/']]
+    : [['Contact', '#'], ['Shipping', '#'], ['Returns', '#'], ['Privacy', '#']] },
+};
+// website: the texts that point at the store's email sign-up point at the project instead
+const SITE_TEXT = {
+  announcement: 'Prototype run: not for sale yet',
+  cta: { eyebrow: 'Prototype', heading: 'Follow the build.', button_label: 'On GitHub', button_link: REPO,
+         text: '<p>The first boards are being built and tested; nothing is for sale yet. The designs, firmware and build notes are all open.</p>' },
+  ship: '<p>The first boards are being built and tested. Nothing is for sale until they pass on the bench and in a car: follow the project on GitHub for news.</p>',
 };
 const linkList = (h) => ({ links: (menus[h] || { links: [] }).links.map(([title, url]) => ({ title, url, active: false })) });
 
@@ -164,6 +181,15 @@ function resolveSettings(schemaSettings, given) {
 
 async function renderSection(type, data, id, scope) {
   const src = read(`sections/${type}.liquid`);
+  if (SITE) {
+    data = JSON.parse(JSON.stringify(data || {}));
+    data.settings = data.settings || {};
+    if (type === 'footer') data.settings.show_newsletter = false;
+    if (data.settings.announcement) data.settings.announcement = SITE_TEXT.announcement;
+    if (id === 'cta') Object.assign(data.settings, SITE_TEXT.cta);
+    for (const b of Object.values(data.blocks || {}))
+      if (b.settings && /sign up below/i.test(b.settings.answer || '')) b.settings.answer = SITE_TEXT.ship;
+  }
   const schema = schemaOf(src);
   const settingsIn = { ...(data.settings || {}) };
   if (type === 'featured-collection' && !settingsIn.collection) settingsIn.collection = 'preview';
@@ -185,7 +211,7 @@ async function page(file, template, scopeExtra, overrides) {
     settings, cart: { item_count: 1, items: [], total_price: null, currency: { iso_code: 'USD' } },
     routes: { root_url: PAGES.home, cart_url: PAGES.cart, search_url: '#', account_url: '#', all_products_collection_url: PAGES.collection },
     request: { locale: { iso_code: 'en' }, page_type: template, origin: '' }, template: { name: template },
-    canonical_url: '', page_title: STORE_NAME, content_for_header: '', powered_by_link: '<a href="https://www.shopify.com">Powered by Shopify</a>',
+    canonical_url: '', page_title: STORE_NAME, content_for_header: '', powered_by_link: SITE ? '' : '<a href="https://www.shopify.com">Powered by Shopify</a>',
     current_page: 1, ...scopeExtra,
   };
   const tpl = JSON.parse(read(`templates/${template}.json`));
@@ -198,6 +224,14 @@ async function page(file, template, scopeExtra, overrides) {
   let html = await engine.parseAndRender(read(`layout/${tpl.layout || 'theme'}.liquid`), { ...scope, content_for_layout: body }, { globals: scope });
   // the preview loads Jost from Google Fonts in place of Shopify's font CDN
   html = html.replace('</head>', '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,700;1,400&display=swap"></head>');
+  if (SITE) {
+    html = html.replace(/<a href="[^"]*" id="cart-link">[\s\S]*?<\/a>/, '');               // no cart
+    html = html.replace(/\s*<link rel="preconnect" href="https:\/\/fonts\.shopifycdn\.com"[^>]*>/, '');
+    // pages in products/ reach the rest with ../; the 404 page is served at any depth, so it uses root links
+    const pre = file === '404.html' ? '/' : '../'.repeat(file.split('/').length - 1);
+    if (pre) html = html.replace(/(href|src)="(?![a-z]+:|\/|#)([^"]*)"/g, (m, a, u) => `${a}="${pre}${u}"`);
+  }
+  fs.mkdirSync(path.dirname(path.join(OUT, file)), { recursive: true });
   fs.writeFileSync(path.join(OUT, file), html);
   console.log('wrote', file, html.length);
 }
@@ -206,6 +240,12 @@ async function page(file, template, scopeExtra, overrides) {
   fs.mkdirSync(path.join(OUT, 'assets'), { recursive: true });
   for (const f of fs.readdirSync(path.join(THEME, 'assets'))) fs.copyFileSync(path.join(THEME, 'assets', f), path.join(OUT, 'assets', f));
   await page(PAGES.home, 'index', {});
+  if (SITE) {
+    for (const p of products) await page(p.url, 'product', { product: p, page_title: p.title });
+    await page(PAGES.collection, 'collection', { collection, page_title: 'Shop' });
+    await page('404.html', '404', { page_title: 'Not found' });
+    return;
+  }
   const product = products[0];
   await page(PAGES.product, 'product', { product, page_title: product.title });
   await page(PAGES.collection, 'collection', { collection, page_title: 'Shop' });
