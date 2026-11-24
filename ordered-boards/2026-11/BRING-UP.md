@@ -67,7 +67,7 @@ With the stock ECU unplugged and the key on, measure these cavities to ground. 1
 | What | 1996-97 cavity | Reading and what it decides |
 |---|---|---|
 | A/C request, clutch | 1K, 1L | Switch operated: near 0 Ω to ground; released: open. That is the ground-switched input R21 / R22 and the active-low firmware expect. If either is driven to 12 V instead, remove its resistor and set that input back to active high |
-| Tachometer | 4L | About 0 V: the cluster needs a pull-up, so add about 1 kΩ from 4L to switched 12 V or the tach stays dead. About 12 V: nothing to do |
+| Tachometer | 4L | About 0 V: the cluster needs a pull-up, so add about 2.2 kΩ (¼ W) from 4L to switched 12 V or the tach stays dead (rev 0.15 motherboards have a footprint for it, R37). About 12 V: nothing to do |
 | Fan 2 output | 1B | The firmware drives 1B as the second fan (condenser fan relay on the 1996 diagrams; one aftermarket table calls it the A/C relay). Confirm what the wire switches before letting it run |
 | 4I | 4I | Possibly a constant battery feed: the board leaves it open. Never drive it |
 

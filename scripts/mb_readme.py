@@ -22,7 +22,7 @@ used = [(p, n) for p, n in H.items() if n]
 unused = [p for p, n in H.items() if not n]
 
 ROLE = {'VBAT_IN': 'ECU power (main relay)', 'VIGN_IN': 'switched 12 V sense (wakes the logic supply)', 'GND': 'ground',
-        'V5_SENS': 'sensor 5 V reference (out)', 'V5_EXT': 'sensor 5 V reference (out; protected, short-to-battery proof)', 'IN_IAT': 'air temperature (GM sensor on the stock wires)'}
+        'V5_SENS': 'sensor 5 V reference (out)', 'V5_EXT': 'sensor 5 V reference (out; protected, short-to-battery proof)', 'IN_IAT': 'air temperature (the stock sensor)'}
 ROLE.update({'HARN_1N': 'option links R28', 'HARN_2L': 'option links R29 / R30', 'HARN_1R': 'jumper JP3', 'HARN_2S': 'jumper JP3',
              'HARN_2I': 'jumper JP5', 'HARN_2O': 'jumper JP6', 'HARN_2R': 'jumper JP4', 'HARN_2Y': 'jumper JP1', 'HARN_2Z': 'jumper JP2'})
 for n in ('INJ1', 'INJ2', 'INJ3', 'INJ4'):
@@ -58,9 +58,17 @@ o.append('## Files')
 o.append('| Path | What |\n|---|---|')
 o.append(f'| `{P}.kicad_pro / .kicad_sch / .kicad_pcb` | KiCad 7 project. Root schematic plus three sheets: harness, daughterboard, I/O |')
 o.append(f'| `{P}_schematic.pdf` | Schematic PDF |')
-o.append(f'| `{F}jlcpcb_gerbers.zip`, `{F}jlcpcb_bom.csv`, `{F}jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |')
-o.append(f'| `{F}self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt and screws, plus the not-fitted options. Its columns load into LCSC\'s BOM tool |')
-o.append(f'| `{F}parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |')
+VAR = [f'for-{y}_' for y in getattr(M, 'YEARS', ())] if hasattr(M, 'variant_parts') else ['']
+FV = F + ('for-YEARS_' if VAR != [''] else '')          # the per-version files, named once for the table
+if VAR != ['']:
+    o.append(f'| `{F}jlcpcb_gerbers.zip` | The PCB (2 layers, 1.6 mm): one PCB for every year |')
+    o.append(f'| `{FV}jlcpcb_bom.csv`, `{FV}jlcpcb_cpl.csv` | JLC assembly files, one pair per version: YEARS is '
+             + ' or '.join(f'`{y}`' for y in M.YEARS) + '. Upload the pair for your car\'s years: the versions differ only in '
+             'which year links JLCPCB fits (see Year links). The JLC BOM is the SMD parts and USB-C only |')
+else:
+    o.append(f'| `{F}jlcpcb_gerbers.zip`, `{F}jlcpcb_bom.csv`, `{F}jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |')
+o.append(f'| `{FV}self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt and screws, plus the not-fitted options. Its columns load into LCSC\'s BOM tool |')
+o.append(f'| `{FV}parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |')
 o.append('| `fab/drc_report.txt` | KiCad DRC |')
 o.append('| `ecu_mb.pretty/`, `fp-lib-table` | Project footprints (harness header, MAP sensor lying flat, USB-C, M4 case hole) |')
 o.append('| `renders/` | Top and bottom copper; `assembly.jpg` / `assembly_lifted.jpg`, the 3D render of this board with the daughterboard (`scripts/render_photos.py`) |')
@@ -83,10 +91,10 @@ o.append('| Ref | What | Notes |\n|---|---|---|')
 o.append('| J2 | Wideband sensor (JST PUD side-entry header S08B-PUDSS-1, 2×4, 2.0 mm) | For the **AEM X-Series sensor harness 30-3427** and a Bosch LSU 4.9. Pin 1 trim (LSU RT, green wire), 2 heater − (white), 3 common (VM, orange), 5 pump current (IP, red), 6 sense (UN, black), 8 heater + (brown); 4 and 7 empty. Pins 1/2 are the first column, odd pins in the row away from the board edge; the colours are printed beside the connector. The pin functions and the terminal (JST SPUD-001T-P0.5, the PUD series\' contact) are from AEM\'s instructions for the gauge; **nobody has plugged a harness into this board yet: compare the wire colours with the print before the first use.** Heater fed from the main relay through F1 (3 A hold, 30 V, 2920). The controller is on the daughterboard |')
 o.append('| J4 | USB-C | USB 2.0 device: tuning, logging, DFU |')
 o.append('| U2 | MPX5700AP | Absolute MAP sensor (15-700 kPa, case 867B). Lies flat on 2 × M3, marking side up, leads bent 90° down, the single barb toward the board centre |\n')
-o.append('**Air temperature:** the stock sensor\'s harness wire goes straight to the air temperature input. Every board ships with a GM '
-         'open-element sensor that goes on those wires (at the airflow meter\'s plug on 1989-97, at the air filter box sensor\'s plug on '
-         '1999-2005), and the firmware is set for its curve ([INSTALL.md](../../INSTALL.md#7-air-temperature)). The separate IAT connector '
-         'and its jumper are gone. The pull-up is 2.7 kΩ.\n')
+o.append('**Air temperature:** the car\'s own sensor\'s harness wire goes straight to the air temperature input, and the firmware '
+         'is set for the stock Mazda sensor\'s curve: on 1989-97 the sensor is inside the airflow meter, so the meter stays plugged in; on '
+         '1999-2005 it is the separate sensor in the air filter box. A GM open-element sensor on the same wires is the option for a car '
+         'whose airflow meter comes out ([INSTALL.md](../../INSTALL.md#7-air-temperature)). The pull-up is 2.7 kΩ.\n')
 o.append('**CAN:** R1 + R6 terminate the bus at the ECU end; remove R6 if the bus is terminated elsewhere. The bus is on the add-on header '
          '(J5-19 CAN H, J5-20 CAN L) for a dash or gauges; it is the bus the on-board wideband controller reports on, at 500 kbit/s.\n')
 AUXROLE = {'OUT_IGN3': 'ignition 3 (5 V logic), coil-on-plug', 'OUT_IGN4': 'ignition 4 (5 V logic), coil-on-plug',
@@ -101,15 +109,26 @@ o.append('**Add-on header (J5, 2×10 box header, 2.54 mm; a 20-way ribbon cable 
 o.append('| Pin | Net | Use |\n|---|---|---|')
 o += [f'| {k} | `{C.AUX[k]}` | {AUXROLE.get(C.AUX[k], "")} |' for k in sorted(C.AUX)]
 o.append('\n**Flex fuel** (GM / Continental type sensor): signal to J5-12, sensor +12 V from J5-15, ground to J5-16. In TunerStudio set the '
-         'flex sensor input to "Flex input (J2-24)". **Nitrous:** arming switch from +12 V to J5-13; in TunerStudio enable nitrous control, '
-         'set the trigger to "Nitrous arm (J2-25)" and pick a spare output (boost on J5-3, or the second fan output) for the solenoid relay. '
+         'flex sensor input to "Flex input (J2-24)" (J2-24 is the daughterboard module\'s own pin name; on this board it is J5-12). '
+         '**Nitrous:** arming switch from +12 V to J5-13; in TunerStudio enable nitrous control, '
+         'set the trigger to "Nitrous arm (J2-25)" (J5-13 here) and pick a spare output (boost on J5-3, or the second fan output) for the solenoid relay. '
          '**Boost valve:** between J5-15 (+12 V) and J5-3. All of these need a rev 0.10 or later daughterboard.\n')
 if any(p['ref'] in ('R7', 'R10') for p in C.parts):
     o.append('**Crank / cam sensor type:** each trigger has three 0R links. Fit the hall link for a hall / open-collector sensor, '
              'or the two VR links for a 2-wire magnetic sensor. The default for this car is assembled; see the parts list.\n')
+if getattr(M, 'LINKS', None):
+    o.append('**Year links (0R 0805, fitted by JLCPCB):** this one board covers 1989-93 and 1994-95. The pins that differ '
+             'between them are on 0R links, each named on the silkscreen with the years it is for, and JLCPCB fits the links '
+             'for your car\'s years: order the assembly version for them (its own BOM and CPL, see Files). Nothing to set '
+             'by hand. Up to rev 0.18 these were the jumper headers JP1-JP4.\n')
+    o.append('| Link | Marked | 1989-93 | 1994-95 | What it does |\n|---|---|---|---|---|')
+    for ref, pads, name, years, desc in M.LINKS:
+        f = lambda y: 'fitted' if y in years else 'not fitted'
+        o.append(f'| {ref} | {name} | {f("1989-93")} | {f("1994-95")} | {desc} |')
+    o.append('')
 if getattr(M, 'JUMPERS', None):
-    o.append('**Jumpers (2.54 mm headers with shunts, in the margins beside the daughterboard):** this one board covers 1989-93 and 1994-95; '
-             'the pins that differ are on jumpers. Set them for the car before the first start.\n')
+    o.append('**Option jumpers (2.54 mm headers with shunts, in the margins beside the daughterboard):** the two choices an '
+             'owner may change later. Both ship set for a stock car.\n')
     o.append('| Jumper | Marked | 1989-93 | 1994-95 | What it does |\n|---|---|---|---|---|')
     for ref, n, pads, name, labels, desc in M.JUMPERS:
         def pos(year):
@@ -152,14 +171,12 @@ o.append('**Sensor 5 V:** the harness\'s 5 V reference and the AUX header pin J5
          'protected 5 V regulator (V5_EXT; it survives a short to the battery or to ground). The MAP sensor has its own '
          'supply (V5_SENS), so a damaged sensor wire doesn\'t take the MAP reading with it.\n')
 if getattr(M, 'JUMPERS', None):
-    o.append('**Injectors (1989-93):** the stock harness has two injectors on each of 2U and 2V (about 1.8 A per wire). JP1 and JP2 carry '
-             'no shunt: one daughterboard driver works each wire (INJ1 on 2U, INJ2 on 2V), as on rusEFI\'s and Speeduino\'s boards for these '
+    o.append('**Injectors (1989-93):** the stock harness has two injectors on each of 2U and 2V (about 1.8 A per wire). R38 and R39 are '
+             'not fitted: one daughterboard driver works each wire (INJ1 on 2U, INJ2 on 2V), as on rusEFI\'s and Speeduino\'s boards for these '
              'cars, and rusEFI\'s batch mode opens each wire once per revolution. The INJ3 and INJ4 drivers switch with nothing connected. '
-             'For a car with one wire per injector (new wires to 2Y/2Z, or a 1993 California car) fit JP1 and JP2 on SEQ; the firmware can '
-             'then be set to sequential. **Never put JP2 on SEQ on a 1989-93 automatic: 2Z goes to the A/T control unit.** PAIR (a second '
-             'driver on each wire) is for a rev 0.9 daughterboard on a 1989-93 car, whose drivers take the injectors\' turn-off energy '
-             'themselves: **fit D3/D4 (SMCJ30A) for that combination only.** With PAIR never set the firmware to sequential: every '
-             'injector would get twice its fuel.\n')
+             'For a car rewired with one wire per injector (new wires to 2Y/2Z) solder a 0R 0805 (or a wire) on R38 and R39; the firmware '
+             'can then be set to sequential. **Never fit R39 on a 1989-93 automatic: 2Z goes to the A/T control unit.** D3/D4 (SMCJ30A, not '
+             'fitted) are the paired wires\' clamps for a rev 0.9 daughterboard, which does not fit this board.\n')
     o.append('**Tachometer (1989-95):** cavity 2I is the igniter\'s signal into the ECU; the igniter drives the tachometer itself. JP5 '
              'is left open and the firmware has no tach output on these years. Only after a coil-on-plug conversion with the igniter '
              'removed: fit JP5, set the tach output in TunerStudio, and join the two tach wires at the old igniter plug (R37 is the 12 V '
@@ -171,7 +188,7 @@ HDR_SRC = {'mb_na96': 'new: TE 178780-1, LCSC C5166246, few in stock; or salvage
     sys.argv[1], 'salvage from a stock ECU or use a clone')
 o.append('## Assembly')
 o.append('- The daughterboard (rev 0.13 on) is a castellated module: it lies flat on the board and its 80 edge half-holes are soldered to the lands JD1 / JD2, by reflow or with an iron ([INSTALL.md](../../INSTALL.md#soldering-the-daughterboard-to-the-motherboard)). Solder it on before the harness header, so the lands are easy to reach.')
-o.append(f'- Fitted by hand (all in `{F}self_order_bom.csv`): the harness header ({HDR_SRC}), the wideband sensor connector{TPSJ}, the add-on header, any jumper headers and their shunts, the MAP sensor, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC\'s quote whether that needs Standard PCBA.')
+o.append(f'- Fitted by hand (all in `{FV}self_order_bom.csv`): the harness header ({HDR_SRC}), the wideband sensor connector{TPSJ}, the add-on header, any jumper headers and their shunts, the MAP sensor, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC\'s quote whether that needs Standard PCBA.')
 o.append('- The case needs cut-outs in its bottom edge for the wideband connector, USB-C and the MAP hose, and a way out for the add-on ribbon cable.\n')
 o.append('## Still to verify')
 o += [f'- {v}' for v in getattr(M, 'VERIFY', ['The case geometry, against a stock case with calipers.'])]

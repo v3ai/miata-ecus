@@ -70,7 +70,7 @@ td.item b a{color:var(--accent);text-underline-offset:2px}
 <main>
   <header>
     <h1>Miata ECU: parts JLCPCB won't fit</h1>
-    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.13 and the four motherboards (1989-95 rev 0.18; 1996-97, 1999-2000 and 2001-05 rev 0.14), plus the parts that go in the car. Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
+    <p class="lede">Everything you buy and solder yourself for the daughterboard rev 0.14 and the four motherboards (1989-95 rev 0.19; 1996-97, 1999-2000 and 2001-05 rev 0.15), plus the parts that go in the car. Set how many of each you're building and the quantities update. Tick items off as they arrive.</p>
   </header>
 
   <div class="counts" role="group" aria-label="Build counts">
@@ -114,18 +114,18 @@ const GROUPS = [
  {id:'mb', title:'Every motherboard', sub:'One set per motherboard, any year.', rows:[
   {item:'MAP sensor MPX5700AP (absolute, case 867B)', pn:'NXP MPX5700AP', dk:'MPX5700AP', per:'mb', q:1, who:'must',
    note:'Lies flat, marking side up, leads bent 90° down, barb toward the board centre. JLCPCB won’t bend and bolt it.'},
-  {item:'M3 × 10 mm pan head screw (MAP sensor)', pn:'McMaster 92000A120', mc:'92000A120', per:'mb', q:2, who:'must',
-   note:'Holds the MAP sensor down through its two holes. 18-8 stainless, Phillips; sold in packs of 100.'},
+  {item:'M3 × 16 mm pan head screw (MAP sensor)', pn:'M3 × 16 pan head, 18-8 stainless (ISO 7045)', per:'mb', q:2, who:'must',
+   note:'Holds the MAP sensor down: up from under the board, through the board and the sensor’s two holes. The holes go through the whole 8.3 mm sensor body, so 10 mm screws are too short: 16 mm reaches through the board, the sensor and the locknut with 2 mm to spare.'},
   {item:'M3 nylon-insert locknut (MAP sensor)', pn:'McMaster 93625A100', mc:'93625A100', per:'mb', q:2, who:'must',
-   note:'Goes under the board on the MAP sensor screws; the nylon insert stops it vibrating loose in the car. 18-8 stainless; pack of 100.'},
+   note:'Goes on top of the MAP sensor on its screws (the heads go under the board, where there is less room); the nylon insert stops it vibrating loose in the car. 18-8 stainless; pack of 100.'},
   {item:'JST PUD header, 2×4, 2 mm, side entry', pn:'JST S08B-PUDSS-1', dk:'S08B-PUDSS-1', per:'mb', q:1, who:'must',
    note:'J2, wideband sensor, for AEM’s X-Series harness 30-3427 (its plug is JST’s PUDP-08V-S: AEM’s instructions name that series’ terminal).'},
   {item:'Box header, 2×10, 2.54 mm', pn:'On Shore 302-S201', dk:'302-S201', per:'mb', q:1, who:'opt', note:'J5, add-on header: boost valve, flex fuel, nitrous, CAN, coils 3 and 4, knock. Leave it off if you use none of them.'},
  ]},
- {id:'na', title:'1989-95 motherboard: jumpers', sub:'One board covers 1989-93 and 1994-95; six jumpers set it for the car.', rows:[
-  {item:'Pin header, 1×3, 2.54 mm', pn:'Sullins PRPC003SAAN-RC', dk:'PRPC003SAAN-RC', per:'8995', q:4, who:'must', note:'JP1, JP2, JP3 and JP6.'},
-  {item:'Pin header, 1×2, 2.54 mm', pn:'Sullins PRPC002SAAN-RC', dk:'PRPC002SAAN-RC', per:'8995', q:2, who:'must', note:'JP4 (fitted on 1994-95) and JP5 (only after a coil-on-plug conversion).'},
-  {item:'Jumper shunt, 2.54 mm', pn:'Sullins QPC02SXGN-RC', dk:'QPC02SXGN-RC', per:'8995', q:6, who:'must', note:'One per jumper. Positions for your year: the jumper table in the 1989-95 README and in INSTALL.md.'},
+ {id:'na', title:'1989-95 motherboard: jumpers', sub:'One board covers 1989-93 and 1994-95: JLCPCB fits the year links for the version you order; two jumpers are options you may change.', rows:[
+  {item:'Pin header, 1×3, 2.54 mm', pn:'Sullins PRPC003SAAN-RC', dk:'PRPC003SAAN-RC', per:'8995', q:1, who:'must', note:'JP6 (airflow meter or BOOST).'},
+  {item:'Pin header, 1×2, 2.54 mm', pn:'Sullins PRPC002SAAN-RC', dk:'PRPC002SAAN-RC', per:'8995', q:1, who:'must', note:'JP5 (fitted only after a coil-on-plug conversion).'},
+  {item:'Jumper shunt, 2.54 mm', pn:'Sullins QPC02SXGN-RC', dk:'QPC02SXGN-RC', per:'8995', q:2, who:'must', note:'JP6 on AFM; keep the second for JP5. Table: INSTALL.md and the 1989-95 README.'},
   {item:'Resistor 1 kΩ, 2512, 1 W', pn:'Yageo RC2512JK-071KL', dk:'RC2512JK-071KL', per:'8995', q:1, who:'opt', note:'R37: the tachometer’s 12 V pull-up, only with JP5 fitted (coil-on-plug, igniter removed).'},
  ]},
  {id:'optional', title:'Optional parts on the motherboard', sub:'Not fitted by default. Buy only if your car needs them.', rows:[
@@ -139,8 +139,8 @@ const GROUPS = [
   {item:'O2 sensor weld bung, M18 × 1.5', pn:'M18 × 1.5 bung', per:'car', q:1, who:'opt', note:'Only to keep the stock oxygen sensor as well. The LSU 4.9 screws into the stock front sensor’s hole (same M18 × 1.5 thread).'},
   {item:'AEM X-Series wideband sensor harness', pn:'AEM 30-3427', per:'car', q:1, who:'must', warn:'Fit unchecked', link:'https://www.aemelectronics.com/products/dashes_and_gauges/aem_performance_gauges/gauge_accessories/parts/30-3427',
    note:'From the sensor’s plug to J2. Nobody has plugged one into this board yet: compare its wire colours with the print beside J2, and check each wire with a meter, before plugging a sensor in (INSTALL.md, header pin maps).'},
-  {item:'Air temperature sensor, GM open element (Delphi 25036751 type), 3/8 NPT, with its 2-way plug and terminals', pn:'GM open-element IAT', per:'car', q:1, who:'must', note:'Included with every board, and the firmware is set for it. It goes on the car’s own air-temperature wires: the airflow meter’s plug on 1990–97, the air filter box sensor’s plug on 1999–2005 (INSTALL.md, Air temperature).'},
-  {item:'Wire and joints for the air temperature sensor: 2 m of 2-core 20 AWG, two sealed butt splices (or two male terminals that fit the stock plug)', pn:'20 AWG TXL pair, 3M MH18BCK', per:'car', q:1, who:'must', note:'From the stock plug to the sensor in the intake tube. Ring the two wires out to the ECU cavities first.'},
+  {item:'Air temperature sensor, GM open element (Delphi 25036751 type), 3/8 NPT, with its 2-way plug and terminals', pn:'GM open-element IAT', per:'car', q:1, who:'opt', note:'Only if the airflow meter comes out (1990–97). The ECU reads the car’s own sensor by default: inside the airflow meter on 1990–97, in the air filter box on 1999–2005. With the meter out, the GM sensor goes on the meter’s two air-temperature wires and its curve is entered in TunerStudio (INSTALL.md, Taking the airflow meter out).'},
+  {item:'Wire and joints for the air temperature sensor: 2 m of 2-core 20 AWG, two sealed butt splices (or two male terminals that fit the stock plug)', pn:'20 AWG TXL pair, 3M MH18BCK', per:'car', q:1, who:'opt', note:'With the GM sensor only (airflow meter out): from the meter’s plug to the sensor in the intake tube. Ring the two wires out to the ECU cavities first.'},
   {item:'Ribbon cable with a 2×10 IDC socket, 2.54 mm', pn:'20-way IDC ribbon cable', per:'car', q:1, who:'opt', note:'To the add-on header J5.'},
   {item:'microSD card', pn:'any microSD, FAT32', per:'car', q:1, who:'opt', note:'For rusEFI’s logging, in the daughterboard’s socket. Not needed to run.'},
   {item:'Silicone vacuum hose, 3-4 mm (1/8-5/32 in) inside diameter, 3 m', pn:'4 mm ID silicone vacuum hose', per:'car', q:1, who:'must', note:'From the MAP sensor’s barb to the intake manifold. 1994-97 cars need most of it: the ECU is behind the seat. Where to connect it on each year: INSTALL.md, MAP hose.'},

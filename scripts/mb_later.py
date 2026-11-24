@@ -9,7 +9,8 @@ CASE_NOTE_PROVISIONAL = (
     'these years either use their own enclosure or a different Mazda case). Until a stock board or case is measured, '
     'this board uses the NA case outline and holes as a stand-in, with the header centred on the top edge. Moving to '
     'the real outline is a change of OUTLINE / CASE_HOLES / HDR_1A in the year module plus an automatic reroute. '
-    '**Do not order this board before the case is measured.**')
+    '**Order one pilot board and fit it in the stock case before ordering more** (ORDERING.md, "Order in this sequence"): '
+    'the owner\'s own pilot of two 1996-97 sets is how that case gets measured.')
 
 
 def build(header_fp, header_value, header_desc, harness, fuses=(), holes=None):
@@ -19,6 +20,10 @@ def build(header_fp, header_value, header_desc, harness, fuses=(), holes=None):
     for ref in (holes or CASE_HOLES):
         C.add(ref, 'M4', 'ecu_mb:MountingHole_M4_4.5mm_Pad7', '', {1: 'GND'}, 'Case mounting boss, M4 x 10')
     C.common_parts()
+    C.add('R37', '2.2k', 'Resistor_SMD:R_1206_3216Metric', '', {1: 'VBAT_IN', 2: 'OUT_TACH'},
+          'NOT FITTED: tachometer pull-up to 12 V. The tach output is an open-drain driver; fit (2.2k 1206, 0.1 W at 14.4 V)'
+          ' only if the car\'s own wiring does not pull the tach wire up (quickstart: a reading near '
+          '0 V on the tach wire, key on, stock ECU unplugged)')
     for ref, net, desc in fuses:
         C.add(ref, '2A hold', 'Fuse:Fuse_1812_4532Metric', 'C960026', {1: 'VBAT_IN', 2: net},
               f'Resettable fuse, {desc} (BHFUSE BSMD1812-200-30V: 2 A hold, 30 V)')

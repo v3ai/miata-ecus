@@ -6,7 +6,7 @@ board renders on white. [`preview/`](preview/) renders the same Liquid without a
 | Folder | What's in it |
 |---|---|
 | `theme/` | The theme (Online Store 2.0). Zipped as `mono-theme.zip` |
-| `products/` | `products.csv`: five draft products to import, one per model-year range, each with two options: board only at $350 or a complete kit at $500 (sensor, lead, vacuum hose, USB cable). Both include a GM air-temperature sensor with its plug, terminals and wire. Descriptions and spec tables included. `make_products.py` rebuilds it |
+| `products/` | `products.csv`: five draft products to import, one per model-year range, each with two options: board only at $350 or a complete kit at $500 (sensor, lead, vacuum hose, USB cable). Both ship flashed, set for the year and bench-tested; the ECU reads the car's own air-temperature sensor. Descriptions and spec tables included. `make_products.py` rebuilds it |
 | `product-images/` | The renders to upload as product photos (`scripts/render_photos.py` redraws them and the theme's own copies from the current boards) |
 | `preview/` | `render.js` (static preview with liquidjs) and `prep_images.py` (fits viewer renders into the theme's frames) |
 

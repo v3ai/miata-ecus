@@ -25,7 +25,7 @@ put_sheets() {   # <dir>: copy the generated sheets in only where they differ fr
     cp $f $1/$b; SCH_CHANGED=1; echo "  schematic sheet changed: $b"
   done
 }
-board_checks() {   # <board> <report>
+board_checks() {   # <board> <report> [silk_clean.py options]
   local B=$1
   python3 $S/check_lcsc.py > $TMP/lcsc.txt || { cat $TMP/lcsc.txt; exit 1; }
   tail -1 $TMP/lcsc.txt
@@ -50,6 +50,8 @@ print(f'  KiCad DRC: {e} errors ({st} starved thermals and the courtyard overlap
 sys.exit(1 if e or u else 0)"
   py $S/jlc_spacing.py $B 2>/dev/null | head -1
   py $S/jlc_fab_check.py $B
+  # the silkscreen rule: nothing printed on a pad, a part, other silkscreen or the edge (scripts/silk_clean.py)
+  py $S/silk_clean.py $B --check "${@:3}" 2>&1 | grep -v "Debug\|swig\|leak" | tail -6; [ "${PIPESTATUS[0]}" = 0 ] || { echo "  silkscreen overlaps: run silk_clean.py first"; exit 1; }
 }
 if [ "$1" = daughter ]; then
   D=$ROOT/daughterboard; P=miata_ecu_daughter; B=$D/$P.kicad_pcb
@@ -72,11 +74,11 @@ else
   MOD=$1; SHORT=$2; REV=$3; D=$(realpath $4); P=miata_mb_$SHORT; B=$D/$P.kicad_pcb
   export MBREV=$REV
   echo "motherboard $SHORT rev $REV"
-  ( cd $S && python3 gen_sch_mb.py $MOD $TMP $P | tail -1 )
+  ( cd $S && python3 gen_sch_mb.py $MOD $TMP $P > $TMP/gen_sch.txt ) || { cat $TMP/gen_sch.txt; exit 1; }; tail -1 $TMP/gen_sch.txt
   put_sheets $D
   ( cd $D && kicad-cli sch export netlist --format kicadsexpr -o $TMP/$P.net $P.kicad_sch >/dev/null 2>&1 )
   python3 $S/check_mb_netlist.py $MOD $TMP/$P.net | tail -1
-  board_checks $B $D/fab/drc_report.txt
+  board_checks $B $D/fab/drc_report.txt --keepout 114.5,94.75,239.5,165.25   # the soldered-down daughterboard
   py $S/mb_gnd_islands.py $B | grep -v leak | tail -1
   py $S/mb_export.py $MOD $B $D/fab
   rm -rf $D/fab/gerbers

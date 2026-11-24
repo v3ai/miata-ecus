@@ -565,18 +565,15 @@ void checkConfiguration(engine_type_e year) {
 	EXPECT_EQ(IM_WASTED_SPARK, engineConfiguration->ignitionMode);
 	EXPECT_EQ(MIATA_INJ1, engineConfiguration->injectionPins[0]);
 	EXPECT_EQ(MIATA_INJ2, engineConfiguration->injectionPins[1]);
-	// 1989-93: the pump relay is on the boost driver, which JP6 puts on the airflow meter's old signal wire 2O
-	if (year == engine_type_e::MAZDA_MIATA_NA6) {
-		EXPECT_EQ(MIATA_BOOST, engineConfiguration->fuelPumpPin);
-		EXPECT_EQ(Gpio::Unassigned, engineConfiguration->boostControlPin);
-	} else {
-		EXPECT_EQ(MIATA_FP, engineConfiguration->fuelPumpPin);
-	}
-	// every year: the kit's GM air-temperature sensor (Delphi 25036751 table)
+	// every year: the fuel pump relay on the FP output (1989-93: cavity 2T has no wire; the airflow meter, which stays
+	// plugged in, switches the pump as stock) and the boost driver on boost control
+	EXPECT_EQ(MIATA_FP, engineConfiguration->fuelPumpPin);
+	EXPECT_EQ(MIATA_BOOST, engineConfiguration->boostControlPin);
+	// every year: the car's own Mazda air-temperature sensor (workshop manual tables), with the curve inside them
 	EXPECT_NEAR(-20, engineConfiguration->iat.config.tempC_1, 0.01);
-	EXPECT_NEAR(28146, engineConfiguration->iat.config.resistance_1, 1);
-	EXPECT_NEAR(1443, engineConfiguration->iat.config.resistance_2, 1);
-	EXPECT_NEAR(175.3, engineConfiguration->iat.config.resistance_3, 0.1);
+	EXPECT_NEAR(16000, engineConfiguration->iat.config.resistance_1, 1);
+	EXPECT_NEAR(2450, engineConfiguration->iat.config.resistance_2, 1);
+	EXPECT_NEAR(322, engineConfiguration->iat.config.resistance_3, 0.5);
 	EXPECT_EQ(MIATA_FAN, engineConfiguration->fanPin);
 	EXPECT_EQ(MIATA_LS7, engineConfiguration->fan2Pin);
 	EXPECT_EQ(MIATA_AC, engineConfiguration->acRelayPin);

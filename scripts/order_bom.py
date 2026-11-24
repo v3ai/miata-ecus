@@ -17,14 +17,17 @@ HAND = {
     'mb': {'J2', 'J3', 'J5', 'U2'},                             # wideband header, add-on header, MAP (and every JPn)
 }
 # hand-fitted parts the board's parts list names without an LCSC number: value or footprint fragment ->
-# (item, manufacturer, part number, required)
+# (item, manufacturer, part number, required, LCSC number, note)
 NAMED = {
     'AEM 30-3427': ('Wideband sensor header, JST PUD, 2x4, 2.0 mm, side entry (takes AEM harness 30-3427)',
-                    'JST', 'S08B-PUDSS-1', 'Yes'),
+                    'JST', 'S08B-PUDSS-1', 'Yes', 'C412098', ''),
     'AUX 2x10': ('Box header, 2x10, 2.54 mm, vertical (add-on header; takes a 20-way ribbon cable plug)',
-                 'On Shore Technology', '302-S201', 'Optional'),
-    'PinHeader_1x02': ('Pin header, male, 1x2, 2.54mm, through-hole, vertical', 'Sullins', 'PRPC002SAAN-RC', 'Optional'),
-    'R_2512': ('Resistor 1k, 2512, 1 W', 'Yageo', 'RC2512JK-071KL', 'Optional'),
+                 'On Shore Technology', '302-S201', 'Optional', '',
+                 'LCSC has had no stock of the On Shore part; LCSC C3405 (BOOMELE 2.54-2*10P) is a 2x10 2.54 mm header: '
+                 'check its listing shows the shrouded (box) vertical type before ordering it'),
+    'PinHeader_1x02': ('Pin header, male, 1x2, 2.54mm, through-hole, vertical', 'Sullins', 'PRPC002SAAN-RC', 'Optional', '', ''),
+    'R_2512': ('Resistor 1k, 2512, 1 W', 'Yageo', 'RC2512JK-071KL', 'Optional', '', ''),
+    '2.2k': ('Resistor 2.2k, 1206, 1/4 W', 'Yageo', 'RC1206FR-072K2L', 'Optional', '', ''),
 }
 # footprints with nothing to fit (Tag-Connect SWD pads: the cable presses on)
 # and the castellated edges J1 / J2 (rev 0.13), which are part of the board
@@ -36,15 +39,20 @@ WHY = {
 # parts that aren't on the board's parts list at all, per motherboard
 MB_EXTRA = [
     # item, qty, mfr, mpn, lcsc, notes     (jumper shunts are added per board, one for each jumper header it has)
-    ('Screw, M3 x 10, pan head', 2, '', 'M3 x 10 pan head', '', 'MAP sensor (U2) hold-down'),
-    ('Nut, M3', 2, '', 'M3 hex nut', '', 'MAP sensor (U2) hold-down'),
+    # the MPX5700AP is one solid 7.75-8.26 mm block, its mounting holes through the full thickness (NXP case 867B-04):
+    # 1.6 mm board + 8.26 + a 4 mm nylon-insert nut is 13.9 mm, so a 16 mm screw (until 2026-11-23: 10 mm, too short).
+    # Head under the board (2.4 mm, inside the 3 mm the through-hole leads take; the case floor is about 4 mm down),
+    # nut on top of the sensor, where the lid has room
+    ('Screw, M3 x 16, pan head', 2, '', 'M3 x 16 pan head', '', 'MAP sensor (U2) hold-down: up from under the board through the board and the sensor (8.3 mm, the full body), 2 mm past the nut'),
+    ('Nut, M3, nylon-insert lock', 2, '', 'M3 nylon-insert lock nut (DIN 985)', '', 'MAP sensor (U2) hold-down, on top of the sensor'),
 ]
 # harness headers: manufacturer part numbers for the J1 footprints
 HARNESS = {
-    'TE 174917-6': ('TE Connectivity', '174917-6', 'Not available from TE: salvage from a stock NA ECU or buy a clone'),
-    'TE 178780-1': ('TE Connectivity', '178780-1', 'Alternates 174915-6, 3-178780-6'),
-    'TE 176122-6': ('TE Connectivity', '176122-6', 'Alternate 4-174518-7'),
-    'TE 353830-5': ('TE Connectivity', '353830-5', 'Alternate 1123038-2'),
+    'TE 174917-6': ('TE Connectivity', '174917-6', 'Few in stock anywhere (LCSC had 32 on 2026-11-21): buy it first, '
+                    'before the boards; or salvage from a stock NA ECU or buy a clone', 'C592838'),
+    'TE 178780-1': ('TE Connectivity', '178780-1', 'Alternates 174915-6, 3-178780-6', ''),
+    'TE 176122-6': ('TE Connectivity', '176122-6', 'Alternate 4-174518-7', ''),
+    'TE 353830-5': ('TE Connectivity', '353830-5', 'Alternate 1123038-2', ''),
 }
 # 1989-93 manual cars: the stock throttle "sensor" is a two-contact switch. The conversion to a real 0-5 V sensor that
 # plugs into the stock switch plug, with the motherboard's R28 / R30 links (rev 0.11). Bought per car; listed in the
@@ -116,12 +124,12 @@ def self_rows(kind, parts):
                                                notes='Daughterboard above the motherboard (8.5 mm sockets + 2.5 mm header plastic)')
                            )['refs'].append(r)
         elif p['value'] in HARNESS:
-            mfr, mpn, note = HARNESS[p['value']]
-            agg[(p['value'],)] = dict(item=f'Harness header {p["value"]}', refs=[r], mfr=mfr, mpn=mpn, lcsc='',
+            mfr, mpn, note, lc = HARNESS[p['value']]
+            agg[(p['value'],)] = dict(item=f'Harness header {p["value"]}', refs=[r], mfr=mfr, mpn=mpn, lcsc=lc,
                                       req='Yes', notes=note)
         elif p['value'] in NAMED or any(k in p['fp'] for k in NAMED):
-            item, mfr, mpn, req = NAMED.get(p['value']) or next(v for k, v in NAMED.items() if k in p['fp'])
-            a = agg.setdefault(('named', item), dict(item=item, refs=[], mfr=mfr, mpn=mpn, lcsc='', req=req, notes=''))
+            item, mfr, mpn, req, lc, extra = NAMED.get(p['value']) or next(v for k, v in NAMED.items() if k in p['fp'])
+            a = agg.setdefault(('named', item), dict(item=item, refs=[], mfr=mfr, mpn=mpn, lcsc=lc, req=req, notes=extra))
             a['refs'].append(r)
             a['notes'] = (a['notes'] + '; ' if a['notes'] else '') + f"{r}: {p['desc'].replace('NOT FITTED: ', '')}"
         else:                                                   # not-fitted options

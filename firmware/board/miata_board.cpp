@@ -73,14 +73,17 @@ static void setMpx5700() {
 }
 
 /**
- * Air temperature: every unit ships with a GM open-element sensor (Delphi 25036751 class) on the car's own IAT wires
- * (in the airflow meter's plug on 1990-97, on the air-filter-box sensor's plug on 1999-2005), not the stock Mazda
- * sensor. Points from the Delphi resistance table (-20 C 28146, 40 C 1443, 100 C 175.3 ohm); the fit is within 0.1 C
- * from -20 to 120 C. Set after every preset (the presets load the Mazda curve), not in the config overrides, so a
- * user's own curve survives a reboot. The bias resistor and supply stay the board's (miataBoardConfigOverrides).
+ * Air temperature: the car's own Mazda sensor, on its own wires (inside the airflow meter on 1990-97, so the meter stays
+ * plugged in; a separate sensor in the air filter box on 1999-2005). Mazda's tables: 13.6-18.4 kohm at -20 C,
+ * 2.21-2.69 kohm at 20 C, 493-667 ohm at 60 C (1990 workshop manual, airflow meter THA-E2) and 2.21-2.69 kohm at 20 C,
+ * 0.29-0.354 kohm at 80 C (2005 manual, IAT sensor). The points below are the middles of those ranges; the fit passes
+ * through 584 ohm at 60 C, inside the 1990 range. rusEFI's own 1.6 curve (16150 / 1150 / 330 ohm at -20 / 40 / 80 C)
+ * is the same sensor. Set after every preset, not in the config overrides, so a user's own curve survives a reboot
+ * (a GM open-element sensor, for a car whose airflow meter comes out: -20 C 28146, 40 C 1443, 100 C 175.3 ohm, entered
+ * in TunerStudio). The bias resistor and supply stay the board's (miataBoardConfigOverrides).
  */
-static void setGmIat() {
-	setAtSensor(&engineConfiguration->iat, -20, 28146, 40, 1443, 100, 175.3);
+static void setMazdaIat() {
+	setAtSensor(&engineConfiguration->iat, -20, 16000, 20, 2450, 80, 322);
 }
 
 static void setOutputs() {
@@ -396,13 +399,12 @@ void miataApplyYearPreset(engine_type_e engineType) {
 		engineConfiguration->injectionPins[2] = MIATA_INJ3;   // slot 3 -> nothing (2V with JP1 on PAIR, 2Y on SEQ)
 		engineConfiguration->injectionPins[3] = MIATA_INJ4;   // slot 4 -> nothing (2U with JP2 on PAIR, 2Z on SEQ)
 		// Fuel pump: on these cars a contact in the vane airflow meter switches the circuit opening relay, and the
-		// harness has no wire in the ECU's pump cavity 2T. Every unit now ships with a GM air-temperature sensor in
-		// the meter's plug, so the meter is gone. The pump relay is switched instead on the meter's old signal wire 2O:
-		// JP6 on BOOST joins 2O to the boost driver, and a link in the meter plug joins its pump-contact cavity to its
-		// signal cavity (Speeduino's NA6 board does the same). The ECU primes the pump at key-on and stops it on a
-		// stall. A car with an added 2T wire instead sets the Fuel pump pin back to the FP output in TunerStudio.
-		engineConfiguration->fuelPumpPin = MIATA_BOOST;
-		engineConfiguration->boostControlPin = Gpio::Unassigned;
+		// harness has no wire in the ECU's pump cavity 2T. The meter stays plugged in (its air-temperature sensor is
+		// the one the ECU reads), so the stock pump circuit works as it always has and the FP output (2T) switches
+		// nothing unless a 2T wire is added. A car whose meter comes out runs the pump relay on the meter's old signal
+		// wire 2O instead: JP6 on BOOST, a link in the meter plug from its pump-contact cavity to its signal cavity
+		// (as on Speeduino's NA6 board), and in TunerStudio the Fuel pump pin on the boost output and boost control
+		// off (INSTALL.md, "Taking the airflow meter out").
 		break;
 	case engine_type_e::MAZDA_MIATA_NA94:
 		// 1994-95: four injector wires (2U/2V/2Y/2Z), sequential like rusEFI's own 1994 preset.
@@ -433,7 +435,7 @@ void miataApplyYearPreset(engine_type_e engineType) {
 void miataAfterTuneDefaults(engine_type_e) {
 	miataBoardConfigOverrides();
 	setMpx5700();
-	setGmIat();
+	setMazdaIat();
 	setSwitchInputPolarity();
 	setProtections();
 }

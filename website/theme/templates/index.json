@@ -30,7 +30,7 @@
       "settings": {
         "eyebrow": "Plug-in · wideband built in",
         "heading": "The most affordable\nMiata EFI.",
-        "text": "<p>$350, or $500 as a complete kit with the wideband sensor, its lead, the vacuum hose and a USB cable. A rusEFI engine computer that plugs into the stock harness, fits the stock case and runs its own wideband. No other plug-in Miata ECU with a built-in wideband costs less.</p>",
+        "text": "<p>$350, or $500 as a complete kit with the wideband sensor, its lead, the vacuum hose and a USB cable. A rusEFI engine computer that plugs into the stock harness, goes in the stock case (three openings to cut) and runs its own wideband. No other plug-in Miata ECU with a built-in wideband costs less.</p>",
         "button_label": "Shop",
         "button_link": "#shop",
         "button_label_2": "How it works",
@@ -51,7 +51,7 @@
         "s2": {
           "type": "item",
           "settings": {
-            "text": "STM32F407"
+            "text": "STM32F405"
           }
         },
         "s3": {
@@ -96,14 +96,14 @@
           "type": "column",
           "settings": {
             "title": "The brain",
-            "text": "<p>One daughterboard runs the engine on every year: an STM32F407 running rusEFI, 8 low-side drivers, 7 protected relay and lamp outputs, 4 ignition outputs and a built-in LSU 4.9 wideband controller.</p>"
+            "text": "<p>One daughterboard runs the engine on every year: an STM32F405 running rusEFI, 8 low-side drivers, 7 protected relay and lamp outputs, 4 ignition outputs and a built-in LSU 4.9 wideband controller.</p>"
           }
         },
         "c2": {
           "type": "column",
           "settings": {
             "title": "The adapter",
-            "text": "<p>A motherboard for your model year fits the stock ECU case and takes the stock harness plug. It carries the MAP sensor, the wideband and air-temperature connectors and USB-C.</p>"
+            "text": "<p>A motherboard for your model year fits the stock ECU case and takes the stock harness plug. It carries the MAP sensor, the wideband sensor plug, an add-on header and USB-C, and it reads the car's own sensors.</p>"
           }
         },
         "c3": {
@@ -126,7 +126,7 @@
         "invert": false,
         "eyebrow": "How it works",
         "heading": "Two boards.\nOne brain.",
-        "text": "<p>Every unit is two boards stacked on sockets and standoffs.</p>"
+        "text": "<p>Every unit is two boards: one processor module, soldered flat onto a motherboard for your model year.</p>"
       }
     },
     "features": {

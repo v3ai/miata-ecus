@@ -12,8 +12,9 @@ COMMON = [
     ('Tuning', 'TunerStudio over USB-C'),
 ]
 VARIANTS = [('Board only', '350.00', ''), ('Complete kit', '500.00', '-kit')]   # (Package option, price, SKU suffix)
-INCLUDED = ('A GM air temperature sensor with its plug, terminals and 2 m of wire, for the car\'s own air '
-            'temperature wires (the firmware is set for it)')
+INCLUDED = ('Done before it ships: rusEFI loaded with your year\'s base tune, the on-board wideband controller programmed, '
+            'the board tested on the bench, the add-on header fitted, and on 1989–95 the year settings made. It reads your '
+            'car\'s own sensors, so there is nothing to add for air temperature')
 YOU_ADD = 'A Bosch LSU 4.9 sensor (it fits the stock front oxygen sensor\'s hole) and its lead, a vacuum hose to the intake manifold, your stock ECU case'
 KIT_ADDS = ('A Bosch LSU 4.9 sensor with a lead made up for this board, 3 m of 4 mm silicone vacuum hose and a tee, '
             'a 3 m USB cable and case washers. You add your stock ECU case')

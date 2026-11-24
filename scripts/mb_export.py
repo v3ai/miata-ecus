@@ -23,39 +23,53 @@ subprocess.run(['kicad-cli', 'pcb', 'export', 'drill', '--format', 'excellon', '
                capture_output=True)
 shutil.make_archive(out + '/' + PRE + 'jlcpcb_gerbers', 'zip', out + '/gerbers')
 
-# JLC BOM: the SMD parts JLC assembles. Through-hole parts and everything without an LCSC number go in the
-# self-order BOM (order_bom.py)
 import order_bom
-agg = collections.OrderedDict()
-for p in parts:
-    if order_bom.is_jlc('mb', p):
-        agg.setdefault((p['value'], p['fp'].split(':')[1], p['lcsc']), []).append(p['ref'])
-with open(out + '/' + PRE + 'jlcpcb_bom.csv', 'w', newline='') as f:
-    w = csv.writer(f); w.writerow(['Comment', 'Designator', 'Footprint', 'LCSC Part #'])
-    MPN = order_bom.MPN
-    for (v, fp, l), refs in agg.items():
-        # connectors by their part number, so JLC's matching doesn't flag "USB-C" against USB4105-GF-A and
-        # leave the line unticked
-        if refs[0].startswith('J') and MPN.get(l, {}).get('mpn'):
-            v = MPN[l]['mpn']
-        w.writerow([v, ','.join(refs), fp, l])
-
 b = pcbnew.LoadBoard(board_path)
-lcsc = {p['ref'] for p in parts if order_bom.is_jlc('mb', p)}
-with open(out + '/' + PRE + 'jlcpcb_cpl.csv', 'w', newline='') as f:
-    w = csv.writer(f); w.writerow(['Designator', 'Mid X', 'Mid Y', 'Layer', 'Rotation'])
-    for fp in b.GetFootprints():
-        r = fp.GetReference()
-        if r not in lcsc:
-            continue
-        w.writerow(order_bom.cpl_row(fp))         # gerber coordinates, JLC rotation offsets
 
-# full parts list (incl. hand-fitted parts) for the README / ordering
-with open(out + '/' + PRE + 'parts_list.csv', 'w', newline='') as f:
-    w = csv.writer(f); w.writerow(['Ref', 'Value', 'Footprint', 'LCSC', 'Assembly', 'Description'])
+
+def write_set(parts, PRE, mod):
+    # JLC BOM: the SMD parts JLC assembles. Through-hole parts and everything without an LCSC number go in the
+    # self-order BOM (order_bom.py)
+    agg = collections.OrderedDict()
     for p in parts:
-        asm = 'JLC' if order_bom.is_jlc('mb', p) else ('mechanical' if p['ref'].startswith('H') else
-                                                        ('hand-fit' if p['lcsc'] else 'hand-fit / not fitted'))
-        w.writerow([p['ref'], p['value'], p['fp'], p['lcsc'], asm, p['desc']])
-order_bom.write_self_bom('mb', parts, out + '/' + PRE + 'self_order_bom.csv', sys.argv[1])
-print('exported', out, len(agg), 'BOM lines')
+        if order_bom.is_jlc('mb', p):
+            agg.setdefault((p['value'], p['fp'].split(':')[1], p['lcsc']), []).append(p['ref'])
+    with open(out + '/' + PRE + 'jlcpcb_bom.csv', 'w', newline='') as f:
+        w = csv.writer(f); w.writerow(['Comment', 'Designator', 'Footprint', 'LCSC Part #'])
+        MPN = order_bom.MPN
+        for (v, fp, l), refs in agg.items():
+            # connectors by their part number, so JLC's matching doesn't flag "USB-C" against USB4105-GF-A and
+            # leave the line unticked
+            if refs[0].startswith('J') and MPN.get(l, {}).get('mpn'):
+                v = MPN[l]['mpn']
+            w.writerow([v, ','.join(refs), fp, l])
+
+    lcsc = {p['ref'] for p in parts if order_bom.is_jlc('mb', p)}
+    with open(out + '/' + PRE + 'jlcpcb_cpl.csv', 'w', newline='') as f:
+        w = csv.writer(f); w.writerow(['Designator', 'Mid X', 'Mid Y', 'Layer', 'Rotation'])
+        for fp in b.GetFootprints():
+            r = fp.GetReference()
+            if r not in lcsc:
+                continue
+            w.writerow(order_bom.cpl_row(fp))         # gerber coordinates, JLC rotation offsets
+
+    # full parts list (incl. hand-fitted parts) for the README / ordering
+    with open(out + '/' + PRE + 'parts_list.csv', 'w', newline='') as f:
+        w = csv.writer(f); w.writerow(['Ref', 'Value', 'Footprint', 'LCSC', 'Assembly', 'Description'])
+        for p in parts:
+            asm = 'JLC' if order_bom.is_jlc('mb', p) else ('mechanical' if p['ref'].startswith('H') else
+                                                            ('hand-fit' if p['lcsc'] else 'hand-fit / not fitted'))
+            w.writerow([p['ref'], p['value'], p['fp'], p['lcsc'], asm, p['desc']])
+    order_bom.write_self_bom('mb', parts, out + '/' + PRE + 'self_order_bom.csv', mod)
+    return len(agg)
+
+
+# the 1989-95 board (rev 0.19) is assembled in two versions, one per range of years: its year links (mb_na6.LINKS)
+# are fitted for the car. One PCB and one gerber zip, a BOM / CPL / parts list / self-order BOM per version
+# ("..._for-1989-93_jlcpcb_bom.csv")
+if hasattr(M, 'variant_parts'):
+    for year in M.YEARS:
+        n = write_set(M.variant_parts(year), PRE + f'for-{year}_', sys.argv[1])
+        print('exported', out, f'for {year}:', n, 'BOM lines')
+else:
+    print('exported', out, write_set(parts, PRE, sys.argv[1]), 'BOM lines')

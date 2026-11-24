@@ -1,4 +1,4 @@
-# Miata ECU motherboard 1989-1995 (NA6 / NA8), rev 0.18
+# Miata ECU motherboard 1989-1995 (NA6 / NA8), rev 0.19
 
 The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**. It carries:
 
@@ -11,6 +11,7 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 ![The same, the daughterboard lifted off its lands](renders/assembly_lifted.jpg)
 
 ## Changes in this revision
+- Rev 0.19: no silkscreen lies on a pad, on a part or on other silkscreen any more (scripts/silk_clean.py, which now runs at every change and fails the build on any overlap): references that sat under their part or on a pad moved beside it; the 48 pads of the harness header no longer carry silkscreen, and its maker's captions ("48 PIN CONNECTOR", "174917-6") are gone; the daughterboard's land rows are labelled JD1 / JD2 (they read J1 / J2, the names of the harness header and the wideband plug), and the DAUGHTERBOARD text the module covers is gone; the MAP sensor's hint is one line, "MPX5700AP marking up", beside the sensor instead of under its body. JP6 ships on AFM for 1989-93 as for 1994-95: the firmware reads the stock air-temperature sensor in the airflow meter by default, the meter stays plugged in and its fuel-pump contact runs the pump through the stock circuit opening relay, so the pump output is on 2T every year. JP6 on BOOST is only for a 1989-93 car whose airflow meter is taken out (INSTALL.md). The year jumpers JP1-JP4 are gone: the pins that differ between 1989-93 and 1994-95 are on the 0R 0805 links R38-R42 where the headers were, each named on the silkscreen with its years (INJ3 94-95, INJ4 94-95, FAN2 90-93, FAN2 94-95, 2R 94-95), and JLCPCB fits them for the car: the board is assembled in two versions, each with its own BOM and CPL (fab/..._for-1989-93_ / _for-1994-95_), from one PCB. Nothing to set by hand for the car's years; a link can still be added or taken off with an iron. PAIR (injectors 3 / 4 in parallel with 1 / 2, only for a rev 0.9 daughterboard) is gone. JP5 (tach after a coil-on-plug conversion) and JP6 (airflow meter or BOOST) stay headers: they are owner's choices. The copper that led only to the old headers' INJ1 / INJ2 pins is gone and the links are joined at their nets' own widths (scripts/mb_links.sh). Same pinout.
 - Rev 0.18: J5's pin names are on both sides of the header, each next to its own row: the odd pins' names above it (the row nearer the daughterboard), the even pins' below it, all outside the shroud, so they stay readable with the ribbon cable's plug fitted. Pin numbers 1 / 2 and 19 / 20 at the shroud's ends replace the pin-1 triangle. To make room, the flex-fuel input's pull-up R35 and the nitrous input's pull-down R36 moved to the free board left of J5, and the tracks round them and under the names were joined again, with no via under a name (scripts/j5_mb.sh); J5's reference moved below the pin numbers. Same parts, nets and pinout.
 - Rev 0.17: the add-on header J5's pins are named on the silkscreen below the header, where they stay readable with the ribbon cable's plug fitted: the even pins (the row nearer the board edge) in the band next to the header, the odd pins below them (scripts/j5_labels.py). Five ground stitching vias under the names moved sideways and U4's reference moved to its right; same copper otherwise, same parts and pinout.
 - Rev 0.16, for daughterboard rev 0.13, the castellated module: JD1 / JD2 are rows of 40 SMD lands (1.5 x 3.0 mm, 1.2 mm under the module and 1.8 mm beyond its edge) instead of 1x40 sockets, and the standoff holes HD1-HD4 are gone. The module is soldered flat to the lands, so nothing may sit under it: the freewheel diodes D1 / D2 and the injector clamps D3 / D4 above JD1, the TPS links R29 / R30 beside them, the pull-ups R20-R22 and R27 below JD2. The tracks that met the sockets on the bottom copper now reach the lands through vias beside them. The copper near the lands and the moved parts is ripped and joined again at the board's own rules (scripts/castellate_mb.sh); the wideband heater's return (1.0 mm) takes a new way to JD2, and the board's smallest via is 0.5 mm (0.3 mm hole) where a 0.6 mm one does not fit. The clamps' tab pours stay behind no longer (the clamps are not fitted with a rev 0.10 or later daughterboard; the ground pour takes their place), and the board's title moves up 2.5 mm, clear of them. Same nets and pinout; the earlier, socketed daughterboards do not fit.
@@ -35,9 +36,10 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 |---|---|
 | `miata_mb_8995.kicad_pro / .kicad_sch / .kicad_pcb` | KiCad 7 project. Root schematic plus three sheets: harness, daughterboard, I/O |
 | `miata_mb_8995_schematic.pdf` | Schematic PDF |
-| `fab/miata-ecu-motherboard-1989-95-rev0.18_jlcpcb_gerbers.zip`, `fab/miata-ecu-motherboard-1989-95-rev0.18_jlcpcb_bom.csv`, `fab/miata-ecu-motherboard-1989-95-rev0.18_jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |
-| `fab/miata-ecu-motherboard-1989-95-rev0.18_self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt and screws, plus the not-fitted options. Its columns load into LCSC's BOM tool |
-| `fab/miata-ecu-motherboard-1989-95-rev0.18_parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |
+| `fab/miata-ecu-motherboard-1989-95-rev0.19_jlcpcb_gerbers.zip` | The PCB (2 layers, 1.6 mm): one PCB for every year |
+| `fab/miata-ecu-motherboard-1989-95-rev0.19_for-YEARS_jlcpcb_bom.csv`, `fab/miata-ecu-motherboard-1989-95-rev0.19_for-YEARS_jlcpcb_cpl.csv` | JLC assembly files, one pair per version: YEARS is `1989-93` or `1994-95`. Upload the pair for your car's years: the versions differ only in which year links JLCPCB fits (see Year links). The JLC BOM is the SMD parts and USB-C only |
+| `fab/miata-ecu-motherboard-1989-95-rev0.19_for-YEARS_self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt and screws, plus the not-fitted options. Its columns load into LCSC's BOM tool |
+| `fab/miata-ecu-motherboard-1989-95-rev0.19_for-YEARS_parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |
 | `fab/drc_report.txt` | KiCad DRC |
 | `ecu_mb.pretty/`, `fp-lib-table` | Project footprints (harness header, MAP sensor lying flat, USB-C, M4 case hole) |
 | `renders/` | Top and bottom copper; `assembly.jpg` / `assembly_lifted.jpg`, the 3D render of this board with the daughterboard (`scripts/render_photos.py`) |
@@ -88,8 +90,8 @@ TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); ru
 | 2L | `HARN_2L` | option links R29 / R30 | manual cars: the throttle switch's other contact. R29 (fitted) to the spare analog AUX1, or R30 (not fitted) to the TPS input after a sensor conversion |
 | 2M | `IN_TPS` | TPS | automatics' TPS signal (a manual car's converted sensor comes in on 2L through R30) |
 | 2N | `IN_AUX2` | spare analog 2 | stock narrowband O2 |
-| 2O | `HARN_2O` | jumper JP6 | airflow meter signal. JP6: BOOST on 1989-93 (the fuel pump relay, linked to the pump contact in the meter plug), AFM = the spare analog input |
-| 2P | `IN_IAT` | air temperature (GM sensor on the stock wires) | air temperature sensor in the airflow meter |
+| 2O | `HARN_2O` | jumper JP6 | airflow meter signal. JP6: AFM = the spare analog input (every year; the meter stays plugged in for its air-temperature sensor), BOOST = the fuel pump relay on a 1989-93 car whose meter comes out (linked to the pump contact in the meter plug) |
+| 2P | `IN_IAT` | air temperature (the stock sensor) | air temperature sensor in the airflow meter |
 | 2Q | `IN_CLT` | coolant temp |  |
 | 2R | `HARN_2R` | jumper JP4 | 1994-95: pressure regulator control solenoid, through JP4. Not connected on 1989-93 |
 | 2S | `HARN_2S` | jumper JP3 | 1994-95: condenser fan relay, second fan output through JP3 (position 94-95) |
@@ -110,7 +112,7 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J.
 | J4 | USB-C | USB 2.0 device: tuning, logging, DFU |
 | U2 | MPX5700AP | Absolute MAP sensor (15-700 kPa, case 867B). Lies flat on 2 × M3, marking side up, leads bent 90° down, the single barb toward the board centre |
 
-**Air temperature:** the stock sensor's harness wire goes straight to the air temperature input. Every board ships with a GM open-element sensor that goes on those wires (at the airflow meter's plug on 1989-97, at the air filter box sensor's plug on 1999-2005), and the firmware is set for its curve ([INSTALL.md](../../INSTALL.md#7-air-temperature)). The separate IAT connector and its jumper are gone. The pull-up is 2.7 kΩ.
+**Air temperature:** the car's own sensor's harness wire goes straight to the air temperature input, and the firmware is set for the stock Mazda sensor's curve: on 1989-97 the sensor is inside the airflow meter, so the meter stays plugged in; on 1999-2005 it is the separate sensor in the air filter box. A GM open-element sensor on the same wires is the option for a car whose airflow meter comes out ([INSTALL.md](../../INSTALL.md#7-air-temperature)). The pull-up is 2.7 kΩ.
 
 **CAN:** R1 + R6 terminate the bus at the ECU end; remove R6 if the bus is terminated elsewhere. The bus is on the add-on header (J5-19 CAN H, J5-20 CAN L) for a dash or gauges; it is the bus the on-board wideband controller reports on, at 500 kbit/s.
 
@@ -139,18 +141,24 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J.
 | 19 | `CAN_H` | CAN high |
 | 20 | `CAN_L` | CAN low |
 
-**Flex fuel** (GM / Continental type sensor): signal to J5-12, sensor +12 V from J5-15, ground to J5-16. In TunerStudio set the flex sensor input to "Flex input (J2-24)". **Nitrous:** arming switch from +12 V to J5-13; in TunerStudio enable nitrous control, set the trigger to "Nitrous arm (J2-25)" and pick a spare output (boost on J5-3, or the second fan output) for the solenoid relay. **Boost valve:** between J5-15 (+12 V) and J5-3. All of these need a rev 0.10 or later daughterboard.
+**Flex fuel** (GM / Continental type sensor): signal to J5-12, sensor +12 V from J5-15, ground to J5-16. In TunerStudio set the flex sensor input to "Flex input (J2-24)" (J2-24 is the daughterboard module's own pin name; on this board it is J5-12). **Nitrous:** arming switch from +12 V to J5-13; in TunerStudio enable nitrous control, set the trigger to "Nitrous arm (J2-25)" (J5-13 here) and pick a spare output (boost on J5-3, or the second fan output) for the solenoid relay. **Boost valve:** between J5-15 (+12 V) and J5-3. All of these need a rev 0.10 or later daughterboard.
 
-**Jumpers (2.54 mm headers with shunts, in the margins beside the daughterboard):** this one board covers 1989-93 and 1994-95; the pins that differ are on jumpers. Set them for the car before the first start.
+**Year links (0R 0805, fitted by JLCPCB):** this one board covers 1989-93 and 1994-95. The pins that differ between them are on 0R links, each named on the silkscreen with the years it is for, and JLCPCB fits the links for your car's years: order the assembly version for them (its own BOM and CPL, see Files). Nothing to set by hand. Up to rev 0.18 these were the jumper headers JP1-JP4.
+
+| Link | Marked | 1989-93 | 1994-95 | What it does |
+|---|---|---|---|---|
+| R38 | INJ3 94-95 | not fitted | fitted | Injector 3 on its own wire 2Y (was JP1 on SEQ). Fitted on 1994-95. 1989-93: not fitted (the stock harness has two injectors on each of 2U and 2V, one driver each); fit it by hand only for a 1989-93 car rewired with one wire per injector |
+| R39 | INJ4 94-95 | not fitted | fitted | Injector 4 on its own wire 2Z (was JP2 on SEQ). Fitted on 1994-95. 1989-93: not fitted; NEVER on a 1989-93 automatic, where 2Z is the A/T control unit |
+| R40 | FAN2 90-93 | fitted | not fitted | Second fan relay output on 1R, the 1990-91 A/C fan (was JP3 on 90-93). Fitted on 1989-93 |
+| R41 | FAN2 94-95 | not fitted | fitted | Second fan relay output on 2S, the condenser fan (was JP3 on 94-95). Fitted on 1994-95 |
+| R42 | 2R 94-95 | not fitted | fitted | Pressure regulator control solenoid on 2R (was JP4). Fitted on 1994-95 |
+
+**Option jumpers (2.54 mm headers with shunts, in the margins beside the daughterboard):** the two choices an owner may change later. Both ship set for a stock car.
 
 | Jumper | Marked | 1989-93 | 1994-95 | What it does |
 |---|---|---|---|---|
-| JP1 | INJ3 | open | SEQ | Injector 3 driver. No shunt = 1989-93 stock harness: the two injector wires 2U and 2V each have one driver (INJ1, INJ2). SEQ = its own wire 2Y (1994-95, or a 1989-93 car with one wire per injector). PAIR = in parallel with INJ2 on 2V: only with a rev 0.9 daughterboard on a 1989-93 car |
-| JP2 | INJ4 | open | SEQ | Injector 4 driver. No shunt = 1989-93 stock harness. SEQ = its own wire 2Z (1994-95, or a 1989-93 car with one wire per injector). PAIR = in parallel with INJ1 on 2U: only with a rev 0.9 daughterboard on a 1989-93 car. NEVER SEQ on a 1989-93 automatic: 2Z is the A/T control unit |
-| JP3 | FAN2 | 90-93 | 94-95 | Second fan relay output: 1R on 1990-93 (the 1990-91 A/C fan), 2S on 1994-95 (condenser fan) |
-| JP4 | 94-95 2R | open | fitted | Fit on 1994-95: the pressure regulator control solenoid on 2R. Leave open on 1989-93 |
 | JP5 | TACH COP | open | open | Leave OPEN with the stock igniter: it drives the tachometer and sends its signal to the ECU on 2I. Fit only after a coil-on-plug conversion with the igniter removed: the ECU then drives the tachometer through 2I (R37 is its 12 V pull-up; join the two tach wires at the old igniter plug) |
-| JP6 | 2O | BOOST | AFM | Airflow meter signal wire 2O: BOOST on 1989-93 = the boost driver on that wire, which the 1989-93 firmware runs as the fuel pump relay (link the meter plug's pump-contact cavity to its signal cavity); AFM = to the spare analog input (1994-95, or a 1989-93 car with an added 2T pump wire) |
+| JP6 | 2O | AFM | AFM | Airflow meter signal wire 2O: AFM = to the spare analog input (every year: the meter stays plugged in for its air-temperature sensor, and on 1989-93 its pump contact runs the fuel pump as stock). BOOST = the boost driver on that wire, only on a 1989-93 car whose airflow meter comes out: it then runs the fuel pump relay (link the meter plug's pump-contact cavity to its signal cavity, set the Fuel pump pin to the boost output) |
 
 **Protection:** D1 (and D2 where the VVT driver runs a coil) freewheel the PWM valve coils into their own +12 V feed, and D5 does the same for a boost valve on the add-on header, so the drivers don't absorb the turn-off energy. F4 fuses the add-on header's +12 V pin (1.1 A hold: a boost valve draws about 0.5 A).
 
@@ -162,13 +170,13 @@ Not connected: 1A, 1D, 1F, 1I, 1K, 1O, 1P, 1S, 1T, 1U, 2H, 2J.
 
 **Sensor 5 V:** the harness's 5 V reference and the AUX header pin J5-14 come from the daughterboard's protected 5 V regulator (V5_EXT; it survives a short to the battery or to ground). The MAP sensor has its own supply (V5_SENS), so a damaged sensor wire doesn't take the MAP reading with it.
 
-**Injectors (1989-93):** the stock harness has two injectors on each of 2U and 2V (about 1.8 A per wire). JP1 and JP2 carry no shunt: one daughterboard driver works each wire (INJ1 on 2U, INJ2 on 2V), as on rusEFI's and Speeduino's boards for these cars, and rusEFI's batch mode opens each wire once per revolution. The INJ3 and INJ4 drivers switch with nothing connected. For a car with one wire per injector (new wires to 2Y/2Z, or a 1993 California car) fit JP1 and JP2 on SEQ; the firmware can then be set to sequential. **Never put JP2 on SEQ on a 1989-93 automatic: 2Z goes to the A/T control unit.** PAIR (a second driver on each wire) is for a rev 0.9 daughterboard on a 1989-93 car, whose drivers take the injectors' turn-off energy themselves: **fit D3/D4 (SMCJ30A) for that combination only.** With PAIR never set the firmware to sequential: every injector would get twice its fuel.
+**Injectors (1989-93):** the stock harness has two injectors on each of 2U and 2V (about 1.8 A per wire). R38 and R39 are not fitted: one daughterboard driver works each wire (INJ1 on 2U, INJ2 on 2V), as on rusEFI's and Speeduino's boards for these cars, and rusEFI's batch mode opens each wire once per revolution. The INJ3 and INJ4 drivers switch with nothing connected. For a car rewired with one wire per injector (new wires to 2Y/2Z) solder a 0R 0805 (or a wire) on R38 and R39; the firmware can then be set to sequential. **Never fit R39 on a 1989-93 automatic: 2Z goes to the A/T control unit.** D3/D4 (SMCJ30A, not fitted) are the paired wires' clamps for a rev 0.9 daughterboard, which does not fit this board.
 
 **Tachometer (1989-95):** cavity 2I is the igniter's signal into the ECU; the igniter drives the tachometer itself. JP5 is left open and the firmware has no tach output on these years. Only after a coil-on-plug conversion with the igniter removed: fit JP5, set the tach output in TunerStudio, and join the two tach wires at the old igniter plug (R37 is the 12 V pull-up the tachometer then needs).
 
 ## Assembly
 - The daughterboard (rev 0.13 on) is a castellated module: it lies flat on the board and its 80 edge half-holes are soldered to the lands JD1 / JD2, by reflow or with an iron ([INSTALL.md](../../INSTALL.md#soldering-the-daughterboard-to-the-motherboard)). Solder it on before the harness header, so the lands are easy to reach.
-- Fitted by hand (all in `fab/miata-ecu-motherboard-1989-95-rev0.18_self_order_bom.csv`): the harness header (salvage from a stock ECU or use a clone), the wideband sensor connector, the add-on header, any jumper headers and their shunts, the MAP sensor, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC's quote whether that needs Standard PCBA.
+- Fitted by hand (all in `fab/miata-ecu-motherboard-1989-95-rev0.19_for-YEARS_self_order_bom.csv`): the harness header (salvage from a stock ECU or use a clone), the wideband sensor connector, the add-on header, any jumper headers and their shunts, the MAP sensor, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC's quote whether that needs Standard PCBA.
 - The case needs cut-outs in its bottom edge for the wideband connector, USB-C and the MAP hose, and a way out for the add-on ribbon cable.
 
 ## Still to verify

@@ -69,7 +69,7 @@ HEAT_PADS = {'VND7NV04TR-E': ('2',), 'VND14NV04': ('2',), 'LDL1117S33R': ('2',),
 
 def losses(case, l_mh=20.0, rpm=7200):
     """{ref: watts} at sustained high load. case: 'seq' sequential injection; 'batch1' the 1989-93 wiring as it is set
-    up since 2026-11-15: one driver on each two-injector wire (JP1/JP2 without shunts), each wire opening once per
+    up since 2026-11-15: one driver on each two-injector wire (links R38/R39 not fitted), each wire opening once per
     revolution (rusEFI's batch mode), so two clamp TVSs take two injectors each twice per cycle and two take nothing;
     'pair1' the same wiring with each wire opening once per cycle (sequential mode); 'batch' two drivers on each wire
     (JP1/JP2 on PAIR) with the four clamp TVSs sharing equally; 'batch_hog' the same with one TVS of each pair taking

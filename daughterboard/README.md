@@ -1,9 +1,20 @@
-# Miata ECU — daughterboard rev 0.13 (routed, unverified)
+# Miata ECU — daughterboard rev 0.14 (routed, unverified)
 
 125 × 70.5 mm, **6 layers**, a **castellated module**. All parts are on top. J1 (top edge: power and outputs) and
 J2 (bottom edge: inputs, comms and the LSU 4.9 wideband sensor) are rows of 40 plated half-holes along the long edges,
 2.54 mm apart. The module lies flat on the year-specific motherboard and is soldered to its lands JD1 / JD2, by
 reflow or with an iron: no connectors, standoffs or screws.
+
+## What changed in rev 0.14
+Silkscreen only: same copper, parts, placement and pinout as rev 0.13.
+- **The status lights are named:** RUN (D1, green), COMM (D2, blue), WARN (D3, yellow), ERR (D4, red) and PWR (D5,
+  green, the 3.3 V supply), each under its light, and so are the buttons, BOOT (SW1) and RESET (SW2); their
+  references are on the assembly drawing (F.Fab).
+- **No silkscreen on a pad, a part, other silkscreen or the board edge** (it had 404 such items, 125 of them KiCad
+  silkscreen overlaps and 72 silkscreen on copper): references moved beside their parts, the rest to F.Fab, part
+  outlines cut back where they met pads, other parts or text, and pin-1 marks on a pad moved to F.Fab
+  (`scripts/daughter_rev14.sh`, `scripts/silk_clean.py`; the release check now fails a board with any). J4's
+  reference, printed upside down, is upright.
 
 ## What changed in rev 0.13
 - **Castellated edges instead of pin headers.** The long edges were cut through the centres of the J1 / J2 pin rows,
@@ -61,8 +72,8 @@ and the audit in `research/rev0.10_design_audit.md`.
   junction, was named first but JLCPCB had none, nor any other part of this package rated above 150 °C. What that
   means for 1989-93 cars is under [Before ordering](#before-ordering), item 8.
 - **1989-93 cars: one driver per injector wire** (2026-11-15, no board change). On the stock harness INJ1 and INJ2
-  each work a wire with two injectors; INJ3 and INJ4 are not connected on the motherboard (no shunts on its JP1 and
-  JP2). Before, a second driver sat in parallel on each wire.
+  each work a wire with two injectors; INJ3 and INJ4 are not connected on the motherboard (its links R38 / R39 not
+  fitted; up to rev 0.18, no shunts on JP1 and JP2). Before, a second driver sat in parallel on each wire.
 - **220 Ω in series with each low-side driver input** (R152-R159): ST's VND7NV04 rating asks for at least 150 Ω.
 - **microSD socket** J4 (Molex 47219-2001, hinged lid) on SPI2 with 47 kΩ pull-ups on every line but the clock.
   Rated -20 to +85 °C.

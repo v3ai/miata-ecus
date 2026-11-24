@@ -29,8 +29,12 @@ all four motherboards. You pick the model year in TunerStudio.
 | `tools/offline_compile_check.sh` | Compile check without rusEFI's Java code generation (see [Building](#building)) |
 
 ## Getting the firmware
-The **Firmware** GitHub Actions workflow builds it on every push that touches `firmware/`. It uses rusEFI's own
-custom-board build. Open the run on the repository's *Actions* tab and download its artifacts:
+**Released firmware** is on the repository's *Releases* page: each `fw-v*` tag publishes the build there (the bundle,
+the `.bin` / `.hex` / `.dfu` images and the TunerStudio `.ini`). That is the one to use.
+
+The **Firmware** GitHub Actions workflow also builds it on every push that touches `firmware/`. It uses rusEFI's own
+custom-board build. To try an unreleased build, open the run on the repository's *Actions* tab and download its
+artifacts (they expire after 90 days):
 - `rusefi_bundle_miata-ecu.zip`: the rusEFI console, the firmware and the TunerStudio project file (`.ini`);
 - `rusefi_miata-ecu.bin` / `.dfu` / `.hex`: OpenBLT bootloader + rusEFI in one image, starting at 0x08000000;
 - `rusefi_miata-ecu.ini`: the TunerStudio `.ini` on its own.
@@ -66,18 +70,18 @@ gets no fuel or spark with the key on, check that you didn't pick 2003-05 on a 2
   include base fuel and ignition tables.
 - **1989-93:** the stock harness has two injectors on each of its two injector wires (2U, 2V). The preset assigns
   all four injector outputs in batch mode: rusEFI fires each cylinder's output together with the cylinder 360° away
-  (1 with 4, 3 with 2), so each output opens once per revolution. On the 1989-95 motherboard JP1 and JP2 carry no
-  shunt (since 2026-11-15): INJ1 works 2U and INJ2 works 2V, one driver for the two injectors on each wire, as
+  (1 with 4, 3 with 2), so each output opens once per revolution. On the 1989-95 motherboard the links R38 and R39 are
+  not fitted on the 1989-93 version (up to rev 0.18: no shunts on JP1 and JP2, since 2026-11-15): INJ1 works 2U and INJ2 works 2V, one driver for the two injectors on each wire, as
   rusEFI's Hellen NA6 and Speeduino's NA6 boards do, and the INJ3 and INJ4 outputs switch with nothing connected.
-  For a car with one wire per injector (new wires to 2Y and 2Z) fit JP1 and JP2 on SEQ; the injection mode can then
-  be set to sequential. Never JP2 on SEQ on an automatic, where 2Z is the A/T control unit.
+  For a car with one wire per injector (new wires to 2Y and 2Z) fit R38 and R39; the injection mode can then be set
+  to sequential. Never R39 on an automatic, where 2Z is the A/T control unit.
   - **Injector clamps.** A rev 0.10 or later daughterboard clamps each injector itself (a diode and a 16 V TVS back to the
     battery input). The injector current takes about 0.16 ms longer to fall than with the drivers' own clamp: check
     the injector dead time on the car. On a stock-wired 1989-93 car one clamp takes both injectors of its wire, twice
     per cycle; what that means for temperature is in `VERIFICATION.md`, Rev 0.10.
-  - **Sequential mode on the stock wiring** (no shunts on JP1 / JP2) opens each wire once per cycle with a
+  - **Sequential mode on the stock wiring** (R38 / R39 not fitted) opens each wire once per cycle with a
     full-length pulse. The fuel is the same and the clamp heat is half. Not tried.
-  - **JP1 / JP2 on PAIR, and the earlier 1989-93 motherboards** (rev 0.6 to 0.11, which pair the injectors with 0 Ω
+  - **JP1 / JP2 on PAIR (motherboards rev 0.12 to 0.18), and the earlier 1989-93 motherboards** (rev 0.6 to 0.11, which pair the injectors with 0 Ω
     links R23/R24 and carry their own clamps D3/D4 for a rev 0.9 daughterboard): two drivers share each wire. Batch
     mode switches them together. Never set sequential mode there: every injector would get twice its fuel.
 - **1994-95:** four injector wires (2U/2V/2Y/2Z), sequential, as in rusEFI's own 1994 preset.
@@ -98,7 +102,7 @@ on this board, and the tables were made on other people's cars, so treat it as a
 | 2001-05 | the same NB table, plus rusEFI's VVT target table | rusEFI's NB table | 265 cc/min |
 
 - **What else is set:** cranking fuel, warm-up and idle-speed curves, closed-loop idle, a 7200 rpm limit, fan
-  temperatures, the coolant curve for the stock sensor and the air-temperature curve for the kit's GM sensor (Delphi 25036751), and a target mixture that goes
+  temperatures, the coolant and air-temperature curves for the stock Mazda sensors, and a target mixture that goes
   richer as load rises (rusEFI's default: lambda 1.0 in cruise, 0.90 at 100 kPa, 0.80 at 175 kPa).
 - **Closed-loop fuel is on.** Once the engine is warm, the ECU trims fuel towards the target using the on-board
   wideband. It may move idle and cruise fuel 10 % either way; under load it may add 10 % but remove only 5 %. With no
@@ -126,13 +130,13 @@ on this board, and the tables were made on other people's cars, so treat it as a
 - **Always:** check base timing with a timing light before the first drive (step 11 below).
 
 ### Same on every year
-- **Outputs:** fuel pump (on 1989-93 on the BOOST driver, which JP6 puts on 2O; see INSTALL.md), A/C relay, radiator fan, second fan (LS7), check engine lamp, tach (1996-2005), idle valve, INJ1-4,
+- **Outputs:** fuel pump (on 1989-93 the cavity 2T has no wire and the airflow meter's contact runs the pump; with the meter out, move it to the BOOST driver: INSTALL.md), A/C relay, radiator fan, second fan (LS7), check engine lamp, tach (1996-2005), idle valve, INJ1-4,
   IGN1 (coil 1&4) and IGN2 (coil 2&3) in wasted spark.
 - **COP conversion:** IGN3/IGN4 are assigned too (cylinder 2 on IGN3, cylinder 4 on IGN4), ready for coil-on-plug.
 - **Inputs:** SW1 = vehicle speed, SW2 = A/C switch, SW3 = clutch. The A/C and clutch switches close to ground, so
   both inputs read active low against the motherboard's 12 V pull-ups R21 / R22 (fitted from rev 0.12; fit them by
   hand on an earlier motherboard, or the firmware sees "A/C on" and "clutch pressed" all the time).
-- **Sensors:** TPS, MAP (on-board MPX5700AP), CLT and IAT (GM sensor curve), AUX3 spare (the old airflow meter input; unused). External 0-5 V wideband on AFR, used
+- **Sensors:** TPS, MAP (on-board MPX5700AP), CLT and IAT (stock Mazda sensors; a GM air-temperature sensor's curve is entered in TunerStudio), AUX3 spare (the old airflow meter input; unused). External 0-5 V wideband on AFR, used
   only if the CAN wideband is switched off.
   - **1989-93 manual cars have no TPS**, only a throttle switch: the TPS input reads 0 V and rusEFI reports the sensor
     failed (open-loop idle, no TPS acceleration fuel, no overrun cut). For a sensor on the stock plug, fit R28 and move
@@ -160,8 +164,9 @@ on this board, and the tables were made on other people's cars, so treat it as a
 - **Analog dividers:** analog inputs ×1.56 (5.6k/10k). Battery and ignition sense ×5.85 (33k/6.8k). The ignition
   sense channel itself is part of the year defaults (table above).
 - **CLT/IAT pull-up:** 2.7 kΩ to 5 V, and the ADC divider loads the same node. Together they behave like a
-  4.26 V supply behind 2.30 kΩ, and the firmware uses exactly that. The year buttons load the GM air-temperature curve
-  (-20 °C 28146 Ω, 40 °C 1443 Ω, 100 °C 175.3 Ω); a car keeping the stock Mazda sensor needs its curve entered.
+  4.26 V supply behind 2.30 kΩ, and the firmware uses exactly that. The year buttons load the stock Mazda air-temperature curve
+  (-20 °C 16000 Ω, 20 °C 2450 Ω, 80 °C 322 Ω, the middles of Mazda's workshop tables); a car with a GM sensor
+  (airflow meter removed) enters -20 °C 28146 Ω, 40 °C 1443 Ω, 100 °C 175.3 Ω.
 - **MAP:** MPX5700AP, 0.2 V at 0 kPa to 4.70 V at 700 kPa (custom linear MAP type). This is set with the year
   defaults, so you can change it if you fit another sensor.
 - **CAN:** the STM32's CAN2 peripheral on PB12/PB13 is the only bus, set up as rusEFI's first CAN bus (rusEFI picks

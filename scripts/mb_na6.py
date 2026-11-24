@@ -1,5 +1,6 @@
 """1989-1995 Miata (NA6 B6ZE 1.6 and NA8 BP 1.8) motherboard. Rev 0.12 merges the 1989-93 and 1994-95 boards: same
-case, same header, and the few pins that differ are on jumpers (see JUMPERS).
+case, same header, and the few pins that differ are on 0R links that JLCPCB fits for the car's years (rev 0.19, see
+LINKS) or on the two jumpers an owner may change (JUMPERS).
 
 Stock case: the NA 48-pin case (same case for 1990-95). Outline and holes from the rusEFI
 microRusEFI NA PnP board (fits this case) and the early Hellen NA6 board (same Mazda case
@@ -57,7 +58,7 @@ CASE_NOTE = ('Stock NA case (same for 1990-95). Outline and holes come from the 
              'NA6 KiCad board (rev a/b), which uses the same Mazda case outline. H1 is a recessed boss: stack 3 M4 washers under the board.')
 HEADER_DESC = ('TE **174917-6**, 48 pins: plug 1 = 1A-1V (22 pins), plug 2 = 2A-2Z (26 pins); rusEFI\'s 1990 page calls the '
                'second plug 3A-3Z. TE lists it as not currently available: desolder one from a stock ECU or use a clone. Fitted by hand.')
-CHANGES = ["Rev 0.18: J5's pin names are on both sides of the header, each next to its own row: the odd pins' names above it (the row nearer the daughterboard), the even pins' below it, all outside the shroud, so they stay readable with the ribbon cable's plug fitted. Pin numbers 1 / 2 and 19 / 20 at the shroud's ends replace the pin-1 triangle. To make room, the flex-fuel input's pull-up R35 and the nitrous input's pull-down R36 moved to the free board left of J5, and the tracks round them and under the names were joined again, with no via under a name (scripts/j5_mb.sh); J5's reference moved below the pin numbers. Same parts, nets and pinout.", "Rev 0.17: the add-on header J5's pins are named on the silkscreen below the header, where they stay readable with the ribbon cable's plug fitted: the even pins (the row nearer the board edge) in the band next to the header, the odd pins below them (scripts/j5_labels.py). Five ground stitching vias under the names moved sideways and U4's reference moved to its right; same copper otherwise, same parts and pinout.", "Rev 0.16, for daughterboard rev 0.13, the castellated module: JD1 / JD2 are rows of 40 SMD lands (1.5 x 3.0 mm, 1.2 mm under the module and 1.8 mm beyond its edge) instead of 1x40 sockets, and the standoff holes HD1-HD4 are gone. The module is soldered flat to the lands, so nothing may sit under it: the freewheel diodes D1 / D2 and the injector clamps D3 / D4 above JD1, the TPS links R29 / R30 beside them, the pull-ups R20-R22 and R27 below JD2. The tracks that met the sockets on the bottom copper now reach the lands through vias beside them. The copper near the lands and the moved parts is ripped and joined again at the board's own rules (scripts/castellate_mb.sh); the wideband heater's return (1.0 mm) takes a new way to JD2, and the board's smallest via is 0.5 mm (0.3 mm hole) where a 0.6 mm one does not fit. The clamps' tab pours stay behind no longer (the clamps are not fitted with a rev 0.10 or later daughterboard; the ground pour takes their place), and the board's title moves up 2.5 mm, clear of them. Same nets and pinout; the earlier, socketed daughterboards do not fit.",
+CHANGES = ['Rev 0.19: no silkscreen lies on a pad, on a part or on other silkscreen any more (scripts/silk_clean.py, which now runs at every change and fails the build on any overlap): references that sat under their part or on a pad moved beside it; the 48 pads of the harness header no longer carry silkscreen, and its maker\'s captions ("48 PIN CONNECTOR", "174917-6") are gone; the daughterboard\'s land rows are labelled JD1 / JD2 (they read J1 / J2, the names of the harness header and the wideband plug), and the DAUGHTERBOARD text the module covers is gone; the MAP sensor\'s hint is one line, "MPX5700AP marking up", beside the sensor instead of under its body. JP6 ships on AFM for 1989-93 as for 1994-95: the firmware reads the stock air-temperature sensor in the airflow meter by default, the meter stays plugged in and its fuel-pump contact runs the pump through the stock circuit opening relay, so the pump output is on 2T every year. JP6 on BOOST is only for a 1989-93 car whose airflow meter is taken out (INSTALL.md). The year jumpers JP1-JP4 are gone: the pins that differ between 1989-93 and 1994-95 are on the 0R 0805 links R38-R42 where the headers were, each named on the silkscreen with its years (INJ3 94-95, INJ4 94-95, FAN2 90-93, FAN2 94-95, 2R 94-95), and JLCPCB fits them for the car: the board is assembled in two versions, each with its own BOM and CPL (fab/..._for-1989-93_ / _for-1994-95_), from one PCB. Nothing to set by hand for the car\'s years; a link can still be added or taken off with an iron. PAIR (injectors 3 / 4 in parallel with 1 / 2, only for a rev 0.9 daughterboard) is gone. JP5 (tach after a coil-on-plug conversion) and JP6 (airflow meter or BOOST) stay headers: they are owner\'s choices. The copper that led only to the old headers\' INJ1 / INJ2 pins is gone and the links are joined at their nets\' own widths (scripts/mb_links.sh). Same pinout.', "Rev 0.18: J5's pin names are on both sides of the header, each next to its own row: the odd pins' names above it (the row nearer the daughterboard), the even pins' below it, all outside the shroud, so they stay readable with the ribbon cable's plug fitted. Pin numbers 1 / 2 and 19 / 20 at the shroud's ends replace the pin-1 triangle. To make room, the flex-fuel input's pull-up R35 and the nitrous input's pull-down R36 moved to the free board left of J5, and the tracks round them and under the names were joined again, with no via under a name (scripts/j5_mb.sh); J5's reference moved below the pin numbers. Same parts, nets and pinout.", "Rev 0.17: the add-on header J5's pins are named on the silkscreen below the header, where they stay readable with the ribbon cable's plug fitted: the even pins (the row nearer the board edge) in the band next to the header, the odd pins below them (scripts/j5_labels.py). Five ground stitching vias under the names moved sideways and U4's reference moved to its right; same copper otherwise, same parts and pinout.", "Rev 0.16, for daughterboard rev 0.13, the castellated module: JD1 / JD2 are rows of 40 SMD lands (1.5 x 3.0 mm, 1.2 mm under the module and 1.8 mm beyond its edge) instead of 1x40 sockets, and the standoff holes HD1-HD4 are gone. The module is soldered flat to the lands, so nothing may sit under it: the freewheel diodes D1 / D2 and the injector clamps D3 / D4 above JD1, the TPS links R29 / R30 beside them, the pull-ups R20-R22 and R27 below JD2. The tracks that met the sockets on the bottom copper now reach the lands through vias beside them. The copper near the lands and the moved parts is ripped and joined again at the board's own rules (scripts/castellate_mb.sh); the wideband heater's return (1.0 mm) takes a new way to JD2, and the board's smallest via is 0.5 mm (0.3 mm hole) where a 0.6 mm one does not fit. The clamps' tab pours stay behind no longer (the clamps are not fitted with a rev 0.10 or later daughterboard; the ground pour takes their place), and the board's title moves up 2.5 mm, clear of them. Same nets and pinout; the earlier, socketed daughterboards do not fit.",
            "Rev 0.15: R21 / R22 fitted (4.7 kΩ to 12 V, C23162): the A/C request and clutch switches close to ground, and the firmware reads them active low. For daughterboard rev 0.12 (STM32F405, TJA1042 CAN transceivers); any daughterboard from rev 0.10 fits.",
            "Rev 0.14: no via in or against any SMD pad (they moved beside their pads); JP6 ships on BOOST for 1989-93, where the firmware runs the fuel pump relay on 2O (the airflow meter's plug takes the GM air-temperature sensor that ships with every board).",
            "2026-11-15, no change to the board: on 1989-93 cars JP1 and JP2 now carry no shunt, so each of the two injector wires has one driver (INJ1, INJ2), as on rusEFI's and Speeduino's boards for these cars. Before, both sat on PAIR and two drivers shared each wire. The firmware is unchanged (batch firing).",
@@ -121,7 +122,7 @@ HARNESS = {
     '2L': 'HARN_2L',     # manual cars: the throttle switch's other contact. R29 (fitted) to the spare analog AUX1, or R30 (not fitted) to the TPS input after a sensor conversion
     '2M': 'IN_TPS',      # automatics' TPS signal (a manual car's converted sensor comes in on 2L through R30)
     '2N': 'IN_AUX2',     # stock narrowband O2
-    '2O': 'HARN_2O',     # airflow meter signal. JP6: BOOST on 1989-93 (the fuel pump relay, linked to the pump contact in the meter plug), AFM = the spare analog input
+    '2O': 'HARN_2O',     # airflow meter signal. JP6: AFM = the spare analog input (every year; the meter stays plugged in for its air-temperature sensor), BOOST = the fuel pump relay on a 1989-93 car whose meter comes out (linked to the pump contact in the meter plug)
     '2P': 'IN_IAT',      # air temperature sensor in the airflow meter
     '2Q': 'IN_CLT',
     '2R': 'HARN_2R',     # 1994-95: pressure regulator control solenoid, through JP4. Not connected on 1989-93
@@ -136,28 +137,41 @@ HARNESS = {
 }
 
 
-# Jumpers (2.54 mm headers with shunts). (ref, pins, nets, silkscreen name, {pin: position label}, description)
+# Year links (rev 0.19): 0R 0805 links JLCPCB fits for the car's years, so the board comes set for its car. Two
+# assembly versions of the one PCB (1989-93 / 1994-95: two JLC BOMs from mb_export.py). Up to rev 0.18 these were the
+# headers JP1-JP4; their PAIR position (injectors 3 / 4 in parallel with 1 / 2) was only for a rev 0.9 daughterboard,
+# which does not fit a castellated motherboard, and is gone.
+# (ref, {pad: net}, silkscreen name, years it is fitted, description)
+LINKS = [
+    ('R38', {1: 'OUT_INJ3', 2: 'HARN_2Y'}, 'INJ3 94-95', ('1994-95',),
+     'Injector 3 on its own wire 2Y (was JP1 on SEQ). Fitted on 1994-95. 1989-93: not fitted (the stock harness has '
+     'two injectors on each of 2U and 2V, one driver each); fit it by hand only for a 1989-93 car rewired with one '
+     'wire per injector'),
+    ('R39', {1: 'OUT_INJ4', 2: 'HARN_2Z'}, 'INJ4 94-95', ('1994-95',),
+     'Injector 4 on its own wire 2Z (was JP2 on SEQ). Fitted on 1994-95. 1989-93: not fitted; NEVER on a 1989-93 '
+     'automatic, where 2Z is the A/T control unit'),
+    ('R40', {1: 'OUT_LS7', 2: 'HARN_1R'}, 'FAN2 90-93', ('1989-93',),
+     'Second fan relay output on 1R, the 1990-91 A/C fan (was JP3 on 90-93). Fitted on 1989-93'),
+    ('R41', {1: 'OUT_LS7', 2: 'HARN_2S'}, 'FAN2 94-95', ('1994-95',),
+     'Second fan relay output on 2S, the condenser fan (was JP3 on 94-95). Fitted on 1994-95'),
+    ('R42', {1: 'OUT_ALT', 2: 'HARN_2R'}, '2R 94-95', ('1994-95',),
+     'Pressure regulator control solenoid on 2R (was JP4). Fitted on 1994-95'),
+]
+YEARS = ('1989-93', '1994-95')
+LINK_LCSC = 'C17477'     # 0R 0805, UNI-ROYAL 0805W8F0000T5E (JLC basic)
+
+# Jumpers an owner may change (2.54 mm headers with shunts, fitted by hand). (ref, pins, nets, silkscreen name,
+# {pin: position label}, description)
 JUMPERS = [
-    ('JP1', 3, {1: 'OUT_INJ2', 2: 'OUT_INJ3', 3: 'HARN_2Y'}, 'INJ3', {1: 'PAIR', 3: 'SEQ'},
-     'Injector 3 driver. No shunt = 1989-93 stock harness: the two injector wires 2U and 2V each have one driver '
-     '(INJ1, INJ2). SEQ = its own wire 2Y (1994-95, or a 1989-93 car with one wire per injector). PAIR = in parallel '
-     'with INJ2 on 2V: only with a rev 0.9 daughterboard on a 1989-93 car'),
-    ('JP2', 3, {1: 'OUT_INJ1', 2: 'OUT_INJ4', 3: 'HARN_2Z'}, 'INJ4', {1: 'PAIR', 3: 'SEQ'},
-     'Injector 4 driver. No shunt = 1989-93 stock harness. SEQ = its own wire 2Z (1994-95, or a 1989-93 car with one '
-     'wire per injector). PAIR = in parallel with INJ1 on 2U: only with a rev 0.9 daughterboard on a 1989-93 car. '
-     'NEVER SEQ on a 1989-93 automatic: 2Z is the A/T control unit'),
-    ('JP3', 3, {1: 'HARN_1R', 2: 'OUT_LS7', 3: 'HARN_2S'}, 'FAN2', {1: '90-93', 3: '94-95'},
-     'Second fan relay output: 1R on 1990-93 (the 1990-91 A/C fan), 2S on 1994-95 (condenser fan)'),
-    ('JP4', 2, {1: 'OUT_ALT', 2: 'HARN_2R'}, '94-95 2R', {},
-     'Fit on 1994-95: the pressure regulator control solenoid on 2R. Leave open on 1989-93'),
     ('JP5', 2, {1: 'OUT_TACH', 2: 'HARN_2I'}, 'TACH COP', {},
      'Leave OPEN with the stock igniter: it drives the tachometer and sends its signal to the ECU on 2I. Fit only '
      'after a coil-on-plug conversion with the igniter removed: the ECU then drives the tachometer through 2I (R37 '
      'is its 12 V pull-up; join the two tach wires at the old igniter plug)'),
     ('JP6', 3, {1: 'IN_AUX3', 2: 'HARN_2O', 3: 'OUT_BOOST'}, '2O', {1: 'AFM', 3: 'BOOST'},
-     'Airflow meter signal wire 2O: BOOST on 1989-93 = the boost driver on that wire, which the 1989-93 firmware runs '
-     'as the fuel pump relay (link the meter plug\'s pump-contact cavity to its signal cavity); AFM = to the spare '
-     'analog input (1994-95, or a 1989-93 car with an added 2T pump wire)'),
+     'Airflow meter signal wire 2O: AFM = to the spare analog input (every year: the meter stays plugged in for its '
+     'air-temperature sensor, and on 1989-93 its pump contact runs the fuel pump as stock). BOOST = the boost driver '
+     'on that wire, only on a 1989-93 car whose airflow meter comes out: it then runs the fuel pump relay (link the '
+     'meter plug\'s pump-contact cavity to its signal cavity, set the Fuel pump pin to the boost output)'),
 ]
 
 
@@ -165,19 +179,32 @@ JUMPERS = [
 # tools (mb_y8993.py / mb_y9495.py) and the README.
 # 1989-93 since 2026-11-15: no shunt on JP1 / JP2 (one driver per two-injector wire, as on rusEFI's and Speeduino's
 # boards for these cars); before that both sat on PAIR.
-# 1989-93 since rev 0.14: JP6 on BOOST (2-3), the fuel pump relay on the old airflow meter signal wire 2O (the meter is
-# replaced by the kit's GM air-temperature sensor, and its pump contact with it).
-SHUNTS = {'1989-93': {'JP3': (1, 2), 'JP6': (2, 3)},
-          '1994-95': {'JP1': (2, 3), 'JP2': (2, 3), 'JP3': (2, 3), 'JP4': (1, 2), 'JP6': (1, 2)}}
+# 1989-93 rev 0.14 to 0.18: JP6 on BOOST (the meter was replaced by a GM air-temperature sensor). Since rev 0.19 the
+# meter stays plugged in for the car's own air-temperature sensor, its pump contact runs the pump as stock, and JP6
+# sits on AFM on every year. Rev 0.19: JP1-JP4 are the fitted links R38-R42 (LINKS).
+SHUNTS = {'1989-93': {'JP6': (1, 2)}, '1994-95': {'JP6': (1, 2)}}
+
+
+def variant_parts(year):
+    """The parts as JLCPCB assembles the board for one range of years (one of its two assembly versions): the year
+    links (LINKS) for those years carry their LCSC number, the others are not fitted (self-order BOM, optional)."""
+    out = []
+    for p in build_parts():
+        link = next((k for k in LINKS if k[0] == p['ref']), None)
+        if link:
+            fit = year in link[3]
+            p = dict(p, lcsc=LINK_LCSC if fit else '', desc=('' if fit else 'NOT FITTED: ') + link[4])
+        out.append(p)
+    return out
 
 
 def year_parts(year):
-    """The board as one range of years is fitted, for the simulation and checking tools: each jumper is replaced by
-    0R links, one per shunt position ("R_JP1A" = pins 1-2, "R_JP1B" = 2-3, "R_JP4" for a two-pin jumper; the R makes
-    the tools treat them as the links they are), fitted where
+    """The board as one range of years is fitted, for the simulation and checking tools: the assembly version for
+    those years (variant_parts), with each jumper replaced by 0R links, one per shunt position ("R_JP6A" = pins 1-2,
+    "R_JP6B" = 2-3, "R_JP5" for a two-pin jumper; the R makes the tools treat them as the links they are), fitted where
     that year's shunt sits and not fitted elsewhere. The tools already follow fitted 0R links between nets."""
     out = []
-    for p in [dict(q, pads=dict(q['pads'])) for q in build_parts()]:
+    for p in [dict(q, pads=dict(q['pads'])) for q in variant_parts(year)]:
         j = next((j for j in JUMPERS if j[0] == p['ref']), None)
         if j is None:
             out.append(p)
@@ -205,6 +232,10 @@ def build_parts(harness=None, idle_pullup=True, tps_links=True):
         C.add(ref, name, f'Connector_PinHeader_2.54mm:PinHeader_1x0{n}_P2.54mm_Vertical', 'C49257' if n == 3 else '',
               pads, desc + '. Shunt: 2.54 mm jumper cap (LCSC C5305), fitted by hand')
         C.SILK[ref] = (name, labels)
+    # year links: fitted by JLCPCB in the assembly version for their years (variant_parts); in this base list, none
+    for ref, pads, name, years, desc in LINKS:
+        C.add(ref, '0R', 'Resistor_SMD:R_0805_2012Metric', '', pads,
+              f'Year link ({name} on the silkscreen), fitted by JLCPCB on the {" / ".join(years)} boards. {desc}')
     # 1989-93 stock harness: two injectors on each of 2U and 2V. A TVS per wire takes their turn-off energy (about
     # 37.5 V at 1.8 A, below the VND7NV04 drivers' 40 V minimum clamp)
     # Rev 0.12: not fitted. A rev 0.10 daughterboard clamps each injector itself (diode + TVS to the battery input, about
@@ -276,10 +307,13 @@ def placement():
     # year / option jumpers in the margins beside the daughterboard, where they can be reached with it fitted (the
     # band between the harness header and the daughterboard is the router's bus: nothing through-hole goes there)
     # (clear of the case bosses H3 / H4 at y = 84: their 7 mm pads reach y = 80.5)
-    for ref, x, y in (('JP3', 6.5, 50.0), ('JP5', 6.5, 63.0), ('JP4', 6.5, 74.0),
-                      ('JP6', 147.5, 46.0), ('JP1', 147.5, 57.0), ('JP2', 147.5, 68.0)):
+    for ref, x, y in (('JP5', 6.5, 63.0), ('JP6', 147.5, 46.0)):
         if ref in C.SILK:
             P[ref] = (x, y, 0)
+    # rev 0.19: the year links R38-R42 where the year headers JP1-JP4 were (scripts/mb_links.py)
+    for ref, x, y in (('R38', 147.5, 60.8), ('R39', 147.5, 71.8), ('R40', 6.5, 50.0), ('R41', 6.5, 55.5),
+                      ('R42', 6.5, 75.27)):
+        P[ref] = (x, y, 0)
     P['R37'] = (6.5, 94.0, 90)       # below H3
     # (rev 0.16: above JD1 by their injector pins, outside the castellated daughterboard)
     P['D3'] = (73.41, 38.33, 0)

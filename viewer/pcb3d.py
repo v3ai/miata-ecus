@@ -374,27 +374,31 @@ if True:                       # procedural models (both boards)
                 extra[TIN].append(cuboid(f, lx - 0.25, lx + 0.25, 12.9, 16.8, 2.4, 2.65))
                 extra[TIN].append(cuboid(f, lx - 0.25, lx + 0.25, 16.3, 16.8, -2.0, 2.65))
         elif name.endswith('MPX5700AP_867B_Flat'):
-            # 867B unibody lying flat, marking up (same geometry as scripts/mk_map_fp.py): a 3.2 mm flange in the
-            # lozenge outline with the two mounting holes, the full-height lozenge body between them, one barb leaving the far edge
-            # 4 mm toward pin 6, six leads bent 90 deg down into the board
+            # 867B unibody lying flat, marking up (same outline as scripts/mk_map_fp.py). NXP's case drawing 867B-04 (MPX5700
+            # data sheet): one solid block 7.75-8.26 mm thick, the mounting holes through all of it (no thinner flange; up
+            # to 2026-11-23 this model had a 2.6 mm flange, and the BOM 10 mm screws that could not reach a nut), the barb's
+            # axis 5.84-6.35 mm above the seating face, which lies on the board. One barb leaving the far edge 4 mm toward
+            # pin 6, six leads bent 90 deg down into the board, an M3 x 16 screw in each hole
             from shapely.geometry import Point as SP
             from shapely.ops import unary_union as SU
             YC, HX, PX = 3.81, 23.11 / 2, 4.0
             hull = SU([SP(0, YC).buffer(8.85, 64), SP(-HX, YC).buffer(3.3, 32), SP(HX, YC).buffer(3.3, 32)]).convex_hull
             flange = hull.difference(SP(-HX, YC).buffer(2.0, 32)).difference(SP(HX, YC).buffer(2.0, 32))
-            from shapely.geometry import box as SB
-            boss = hull.intersection(SB(-HX + 3.0, -20, HX - 3.0, 20)).buffer(-0.3).buffer(0.3)
 
             def slab(poly, z0, z1):
                 m = trimesh.creation.extrude_polygon(poly, z1 - z0)
                 v = np.array([f(x, y, z + z0) for x, y, z in m.vertices])
                 m = trimesh.Trimesh(v, m.faces, process=False); m.fix_normals(); m.unmerge_vertices(); return m   # crisp edges
-            extra[BLACK] += [slab(flange, 1.6, 4.2), slab(boss, 4.2, 8.4)]
+            extra[BLACK].append(slab(flange, 1.6, 9.6))
+            for hx in (-HX, HX):          # M3 x 16: pan head under the board, nylon-insert nut on top, the tip 2.4 mm past it
+                extra[TIN].append(cylinder(f, hx, YC, -2.4, 2.75, 2.4, axis='z'))
+                extra[TIN].append(cylinder(f, hx, YC, 9.6, 3.17, 4.0, axis='z', sections=6))
+                extra[TIN].append(cylinder(f, hx, YC, 13.6, 1.5, 2.4, axis='z'))
             # barb: profile (radius, distance beyond the body edge), revolved about the port axis
             edge = YC - (8.85 ** 2 - PX ** 2) ** 0.5
             prof = [(0, -1.0), (2.0, -1.0), (2.0, 1.0), (1.65, 1.0), (1.65, 4.5), (2.3, 4.5), (1.7, 11.0), (0, 11.0)]
             rv = trimesh.creation.revolve([(r, t) for r, t in prof], sections=32)
-            zc = 5.0
+            zc = 1.6 + 6.1
             v = np.array([f(PX + x, edge - t, zc + y) for x, y, t in rv.vertices])
             rv = trimesh.Trimesh(v, rv.faces, process=False); rv.fix_normals()
             extra[BLACK].append(rv)

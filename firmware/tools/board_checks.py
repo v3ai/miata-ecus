@@ -820,9 +820,9 @@ def connectivity(sysm, year, module, fw, board_fw, research, notes):
             # firmware drives a function the reference table doesn't have for this year
             row('FAIL' if cavs else 'CHECK', 'reverse', year, f'{func} {port} ({net}) -> harness {cavs or "-"}: '
                 'no reference cavity for this function on this year'
-                + ('. By design: one driver works each two-injector wire (JP1 / JP2 without shunts, as rusEFI\'s and '
+                + ('. By design: one driver works each two-injector wire (links R38 / R39 not fitted, as rusEFI\'s and '
                    'Speeduino\'s boards drive these cars), so this output switches with nothing connected; it reaches '
-                   '2Y / 2Z with the shunts on SEQ' if year == '1989-93' and func in ('inj3', 'inj4') and not cavs else ''))
+                   '2Y / 2Z with R38 / R39 fitted' if year == '1989-93' and func in ('inj3', 'inj4') and not cavs else ''))
         else:
             sev = 'OK'
             if func in FW_OUTPUTS and cavs:

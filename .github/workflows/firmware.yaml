@@ -4,6 +4,8 @@ name: Firmware
 
 on:
   push:
+    branches: ['**']
+    tags: ['fw-v*']    # a tag such as fw-v1.0 publishes a GitHub release (job "release"); path filters skip tags
     paths:
       - 'firmware/**'
       - '.github/workflows/firmware.yaml'
@@ -76,6 +78,31 @@ jobs:
             echo "--- last lines ---"; tail -n 25 /tmp/retry.log; } > /tmp/err.txt
           cat /tmp/err.txt
           echo "::error title=Firmware build errors::$(sed -e 's/%/%25/g' -e 's/\r//g' /tmp/err.txt | awk '{printf "%s%%0A", $0}')"
+
+  # A pushed tag fw-v* (e.g. git tag fw-v1.0 && git push origin fw-v1.0) publishes the build as a GitHub release, so
+  # owners download the firmware from the Releases page instead of a workflow run (whose artifacts expire).
+  release:
+    needs: [build, simulate]
+    if: startsWith(github.ref, 'refs/tags/fw-v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dl
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          mkdir out
+          find dl -type f \( -name '*bundle*.zip' -o -name 'rusefi*.bin' -o -name 'rusefi*.hex' -o -name 'rusefi*.dfu' \
+               -o -name '*.ini' -o -name 'openblt*.bin' -o -name 'rusefi*.srec' \) -exec cp {} out/ \;
+          ls -l out
+          test -n "$(ls out/*bundle*.zip 2>/dev/null)"
+          gh release create "$TAG" out/* --repo "$GITHUB_REPOSITORY" --title "Firmware $TAG" \
+            --notes "Firmware for every daughterboard from rev 0.9 on. First flash: the .bin over USB in ST's DFU mode (firmware/README.md, \"Flashing the main MCU\"); later updates: the rusEFI console's update button. The bundle .zip holds the rusEFI console and the TunerStudio .ini. Built from $(echo $GITHUB_SHA | cut -c1-7)."
 
   # The on-board wideband's firmware: rusEFI's wideband sources with this board's STM32F103 port (firmware/wideband).
   # Builds it, checks it fits the F103C8 (flash, RAM, vector table) and compares it with the committed image that the

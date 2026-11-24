@@ -196,10 +196,17 @@ def sheet_io(s):
         s.text('2L idle switch pull-up (NOT fitted)', 355.6, 187.96, 1.27)
         s.o2('R27', 360.68, 203.2, 'v')
     jps = sorted(r for r in S.PARTS if r.startswith('JP'))
+    if 'R37' in S.PARTS and not jps and 'R27' not in S.PARTS:     # 1996-2005 (rev 0.15): the tach pull-up on its own
+        s.text('Tachometer pull-up to 12 V, NOT fitted: fit only if the car\'s wiring leaves the tach wire low', 355.6, 187.96, 1.27)
+        s.o2('R37', 360.68, 203.2, 'v')
     if jps:
-        s.text('1989-95 year / option jumpers, injector clamps (1989-93 paired wires), tachometer pull-up (JP5)', 20.32, 226.06)
+        links = [r for r in ('R38', 'R39', 'R40', 'R41', 'R42') if r in S.PARTS]
+        s.text('1989-95: year links R38-R42 (0R, fitted by JLCPCB for 1989-93 or 1994-95), option jumpers JP5 / JP6, '
+               'injector clamps (1989-93 paired wires), tachometer pull-up (JP5)', 20.32, 226.06)
         for k, r in enumerate(jps):
             s.place(r, 35.56 + k * 27.94, 248.92)
+        for k, r in enumerate(links):
+            s.o2(r, 104.14 + k * 15.24, 248.92, 'v')
         for k, r in enumerate(x for x in ('D3', 'D4', 'R37') if x in S.PARTS):
             s.o2(r, 220.98 + k * 17.78, 248.92, 'v')
 

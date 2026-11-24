@@ -50,11 +50,11 @@ PORT_NET = {PINS[int(p)]: net for p, net in design.mcu.items()}
 # the ECU must not drive it; the 1989-95 motherboard only joins the tach output to 2I through jumper JP5 (left open).
 EXPECTED = {
     # 1989-93: one driver per batch injector wire, as on the Hellen NA6 board on a stock harness (the motherboard's
-    # jumpers JP1 / JP2 carry no shunt: the firmware's injector 3 and 4 outputs reach no cavity). The fuel pump relay is
-    # on the airflow meter's old signal wire 2O (JP6 on BOOST, linked to the pump contact in the meter plug, as on
-    # Speeduino's NA6 board): the 1989-93 harness has no wire in the pump cavity 2T.
+    # links R38 / R39 are not fitted: the firmware's injector 3 and 4 outputs reach no cavity). The fuel pump output
+    # is on the pump cavity 2T as on 1994-95; the 1989-93 harness has no wire there (the airflow meter's pump contact
+    # switches the pump, as stock), so it drives nothing unless a 2T wire is added.
     '1989-93': {'ign1&4': '1G', 'ign2&3': '1H', 'inj1': '2U', 'inj2': '2V',
-                'fuelPump': '2O', 'fan': '1L',
+                'fuelPump': '2T', 'fan': '1L',
                 'fan2': '1R', 'acRelay': '1J', 'cel': '1E', 'idle': '2W', 'vss': '1M',
                 'acSwitch': '1Q', 'clutch': '1V', 'crank(SGT)': '2E', 'cam(SGC)': '2G'},
     '1994-95': {'ign1&4': '1G', 'ign2&3': '1H', 'inj1': '2U', 'inj2': '2V', 'inj3': '2Y', 'inj4': '2Z',

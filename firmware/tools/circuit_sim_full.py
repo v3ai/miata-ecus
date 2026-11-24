@@ -589,11 +589,14 @@ def tvs_copper_area():
     """1989-93 D3/D4 cathode islands (scripts/mb_tvs_copper.py) on the released motherboard: effective mm^2 of the
     smaller one (F.Cu + half of B.Cu), or 0 if the board has none"""
     root = os.path.join(os.path.dirname(__file__), '../..')
-    for brd in ('motherboards/1989-93/miata_mb_8993.kicad_pcb', 'mb/release_8993/miata_mb_8993.kicad_pcb'):
+    for brd in ('motherboards/1989-95/miata_mb_8995.kicad_pcb', 'motherboards/1989-93/miata_mb_8993.kicad_pcb',
+                'mb/release_8993/miata_mb_8993.kicad_pcb'):      # the 1989-93 board is part of the 1989-95 one since rev 0.12
         try:
             import pcbnew
             b = pcbnew.LoadBoard(os.path.join(root, brd))
         except Exception:
+            continue
+        if b is None:
             continue
         eff = []
         for nn in ('OUT_INJ1', 'OUT_INJ2'):
@@ -849,7 +852,7 @@ TVS_KEY = IC.PART_KEY[TVS_PART]
 TVS_TJMAX = IC.TJMAX.get(TVS_KEY, 150.0)
 INJ_LS = (8e-3, 20e-3)
 inj_seq = {L: IC.bench(f'o_seq_{int(L * 1e3)}', 'BAT', L=L, tvs=TVS_KEY) for L in INJ_LS}
-# 1989-93: two injectors on a wire, one driver with its clamp (JP1 / JP2 without shunts)
+# 1989-93: two injectors on a wire, one driver with its clamp (links R38 / R39 not fitted; up to rev 0.18 JP1 / JP2 without shunts)
 inj_pair = {L: IC.bench(f'o_pair_{int(L * 1e3)}', 'BAT', L=L, n_inj=2, n_drv=1, tvs=TVS_KEY) for L in INJ_LS}
 inj_pair_16 = IC.bench('o_pair_16V', 'BAT', L=8e-3, n_inj=2, n_drv=1, vb=16.0, tvs=TVS_KEY)
 inj_pair_w = IC.bench('o_pair_worst', 'BAT', L=20e-3, n_inj=2, n_drv=1, vb=15.5, drv='min', tvs=TVS_KEY, tvs_corner='max', tvs_tj=150.0)
@@ -904,10 +907,11 @@ for y, _ in YEARS:
     case = 'batch' if 'inj_pair' in L.values() else 'seq'
     tvs_txt = lambda r: f'{60 + r:.0f} / {85 + r:.0f} C at 60 / 85 C air'
     if case == 'batch':
-        # 1989-93: JP1 / JP2 without shunts, so one driver, with its clamp, works each two-injector wire (as rusEFI's
-        # and Speeduino's boards drive these cars); batch mode opens each wire once per revolution
-        for _r in ('R_JP1A', 'R_JP1B', 'R_JP2A', 'R_JP2B'):
-            assert not MB[y][_r]['lcsc'], f'{_r}: the 1989-93 simulation assumes JP1 / JP2 carry no shunt'
+        # 1989-93: the year links R38 / R39 (up to rev 0.18 the headers JP1 / JP2) not fitted, so one driver, with its
+        # clamp, works each two-injector wire (as rusEFI's and Speeduino's boards drive these cars); batch mode opens
+        # each wire once per revolution
+        for _r in ('R38', 'R39'):
+            assert not MB[y][_r]['lcsc'], f'{_r}: the 1989-93 simulation assumes injectors 3 / 4 reach no wire'
         assert not MB[y]['D3']['lcsc'] and not MB[y]['D4']['lcsc'], 'motherboard D3/D4 are not fitted with a rev 0.10 daughterboard'
         pr = inj_pair[20e-3]
         tj = tj2(pr['i0'] * math.sqrt(0.9), case='batch1')

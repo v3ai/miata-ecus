@@ -1,4 +1,4 @@
-# Miata ECU motherboard 2001-2005 (NB2, VVT), rev 0.14
+# Miata ECU motherboard 2001-2005 (NB2, VVT), rev 0.15
 
 The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**. It carries:
 
@@ -11,6 +11,7 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 ![The same, the daughterboard lifted off its lands](renders/assembly_lifted.jpg)
 
 ## Changes in this revision
+- Rev 0.15: R37, a not-fitted 2.2 kOhm 1206 tachometer pull-up from 12 V to the tach output (the output is an open-drain driver; fit it only if the car's wiring does not pull the tach wire up, quickstart); the tracks at its pads were joined again (scripts/mb_rev19.sh). Also: no silkscreen lies on a pad, on a part or on other silkscreen any more (scripts/silk_clean.py, which now runs at every change and fails the build on any overlap): references that sat under their part or on a pad moved beside it; the daughterboard's land rows are labelled JD1 / JD2 (they read J1 / J2, the names of the harness header and the wideband plug), and the DAUGHTERBOARD text the module covers is gone; the MAP sensor's hint is one line, "MPX5700AP marking up", beside the sensor instead of under its body. Same pinout.
 - Rev 0.14: J5's pin names are on both sides of the header, each next to its own row: the odd pins' names above it (the row nearer the daughterboard), the even pins' below it, all outside the shroud, so they stay readable with the ribbon cable's plug fitted. Pin numbers 1 / 2 and 19 / 20 at the shroud's ends replace the pin-1 triangle. To make room, the flex-fuel input's pull-up R35 and the nitrous input's pull-down R36 moved to the free board left of J5, and the tracks round them and under the names were joined again, with no via under a name (scripts/j5_mb.sh); J5's reference moved below the pin numbers. Same parts, nets and pinout.
 - Rev 0.13: the add-on header J5's pins are named on the silkscreen below the header, where they stay readable with the ribbon cable's plug fitted: the even pins (the row nearer the board edge) in the band next to the header, the odd pins below them (scripts/j5_labels.py). Five ground stitching vias under the names moved sideways and U4's reference moved to its right; same copper otherwise, same parts and pinout.
 - Rev 0.12, for daughterboard rev 0.13, the castellated module: JD1 / JD2 are rows of 40 SMD lands (1.5 x 3.0 mm, 1.2 mm under the module and 1.8 mm beyond its edge) instead of 1x40 sockets, and the standoff holes HD1-HD4 are gone. The module is soldered flat to the lands, so nothing may sit under it: the freewheel diodes D1 / D2 above JD1, the pull-ups R20-R22 below JD2. The tracks that met the sockets on the bottom copper now reach the lands through vias beside them. The copper near the lands and the moved parts is ripped and joined again at the board's own rules (scripts/castellate_mb.sh); the wideband heater's return (1.0 mm) takes a new way to JD2, and the board's smallest via is 0.5 mm (0.3 mm hole) where a 0.6 mm one does not fit. The tach output (JD1 land 11) reaches its bottom-copper track through a 0.5 mm via between lands 11 and 12. Same nets and pinout; the earlier, socketed daughterboards do not fit.
@@ -31,16 +32,16 @@ The motherboard replaces the stock Mazda ECU board inside the **stock ECU case**
 |---|---|
 | `miata_mb_0105.kicad_pro / .kicad_sch / .kicad_pcb` | KiCad 7 project. Root schematic plus three sheets: harness, daughterboard, I/O |
 | `miata_mb_0105_schematic.pdf` | Schematic PDF |
-| `fab/miata-ecu-motherboard-2001-05-rev0.14_jlcpcb_gerbers.zip`, `fab/miata-ecu-motherboard-2001-05-rev0.14_jlcpcb_bom.csv`, `fab/miata-ecu-motherboard-2001-05-rev0.14_jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |
-| `fab/miata-ecu-motherboard-2001-05-rev0.14_self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt and screws, plus the not-fitted options. Its columns load into LCSC's BOM tool |
-| `fab/miata-ecu-motherboard-2001-05-rev0.14_parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |
+| `fab/miata-ecu-motherboard-2001-05-rev0.15_jlcpcb_gerbers.zip`, `fab/miata-ecu-motherboard-2001-05-rev0.15_jlcpcb_bom.csv`, `fab/miata-ecu-motherboard-2001-05-rev0.15_jlcpcb_cpl.csv` | JLC fabrication and assembly files (2 layers, 1.6 mm). The JLC BOM is the SMD parts and USB-C only |
+| `fab/miata-ecu-motherboard-2001-05-rev0.15_self_order_bom.csv` | Everything you order and fit yourself: harness header, through-hole connectors, MAP sensor, shunt and screws, plus the not-fitted options. Its columns load into LCSC's BOM tool |
+| `fab/miata-ecu-motherboard-2001-05-rev0.15_parts_list.csv` | Every part, including the hand-fitted and not-fitted ones |
 | `fab/drc_report.txt` | KiCad DRC |
 | `ecu_mb.pretty/`, `fp-lib-table` | Project footprints (harness header, MAP sensor lying flat, USB-C, M4 case hole) |
 | `renders/` | Top and bottom copper; `assembly.jpg` / `assembly_lifted.jpg`, the 3D render of this board with the daughterboard (`scripts/render_photos.py`) |
 | `scripts/` | The design source; `mb_make.sh` rebuilds the whole board |
 
 ## Case fit
-**PROVISIONAL.** No source gives this case's board outline and mounting holes yet (the open-source boards for these years either use their own enclosure or a different Mazda case). Until a stock board or case is measured, this board uses the NA case outline and holes as a stand-in, with the header centred on the top edge. Moving to the real outline is a change of OUTLINE / CASE_HOLES / HDR_1A in the year module plus an automatic reroute. **Do not order this board before the case is measured.**
+**PROVISIONAL.** No source gives this case's board outline and mounting holes yet (the open-source boards for these years either use their own enclosure or a different Mazda case). Until a stock board or case is measured, this board uses the NA case outline and holes as a stand-in, with the header centred on the top edge. Moving to the real outline is a change of OUTLINE / CASE_HOLES / HDR_1A in the year module plus an automatic reroute. **Order one pilot board and fit it in the stock case before ordering more** (ORDERING.md, "Order in this sequence"): the owner's own pilot of two 1996-97 sets is how that case gets measured.
 
 Board: **154.0 × 161.5 mm**, 1.6 mm. The origin is the top-left corner and y points down, toward the bottom edge.
 
@@ -89,7 +90,7 @@ TE **353830-5** (alt. 1123038-2), 72 positions in three rows: OEM plug 2 = 2A-2R
 | 4I | `IN_SW3` | 12 V switch input 3 | clutch switch |
 | 4L | `V5_EXT` | sensor 5 V reference (out; protected, short-to-battery proof) | +5 V reference |
 | 4M | `IN_KNOCK` |  | knock sensor |
-| 4N | `IN_IAT` | air temperature (GM sensor on the stock wires) | intake air temperature sensor |
+| 4N | `IN_IAT` | air temperature (the stock sensor) | intake air temperature sensor |
 | 4O | `GND` | ground | analogue sensor ground |
 | 4P | `IN_CLT` | coolant temp | coolant temperature |
 | 4R | `OUT_VVT` | PWM low side (VVT driver) | VVT oil control valve (low side, PWM) |
@@ -107,7 +108,7 @@ Not connected: 2E, 2F, 2H, 2I, 2N, 2O, 3C, 3D, 3E, 3J, 3K, 3L, 3N, 3P, 3Q, 3S, 3
 | J4 | USB-C | USB 2.0 device: tuning, logging, DFU |
 | U2 | MPX5700AP | Absolute MAP sensor (15-700 kPa, case 867B). Lies flat on 2 × M3, marking side up, leads bent 90° down, the single barb toward the board centre |
 
-**Air temperature:** the stock sensor's harness wire goes straight to the air temperature input. Every board ships with a GM open-element sensor that goes on those wires (at the airflow meter's plug on 1989-97, at the air filter box sensor's plug on 1999-2005), and the firmware is set for its curve ([INSTALL.md](../../INSTALL.md#7-air-temperature)). The separate IAT connector and its jumper are gone. The pull-up is 2.7 kΩ.
+**Air temperature:** the car's own sensor's harness wire goes straight to the air temperature input, and the firmware is set for the stock Mazda sensor's curve: on 1989-97 the sensor is inside the airflow meter, so the meter stays plugged in; on 1999-2005 it is the separate sensor in the air filter box. A GM open-element sensor on the same wires is the option for a car whose airflow meter comes out ([INSTALL.md](../../INSTALL.md#7-air-temperature)). The pull-up is 2.7 kΩ.
 
 **CAN:** R1 + R6 terminate the bus at the ECU end; remove R6 if the bus is terminated elsewhere. The bus is on the add-on header (J5-19 CAN H, J5-20 CAN L) for a dash or gauges; it is the bus the on-board wideband controller reports on, at 500 kbit/s.
 
@@ -136,7 +137,7 @@ Not connected: 2E, 2F, 2H, 2I, 2N, 2O, 3C, 3D, 3E, 3J, 3K, 3L, 3N, 3P, 3Q, 3S, 3
 | 19 | `CAN_H` | CAN high |
 | 20 | `CAN_L` | CAN low |
 
-**Flex fuel** (GM / Continental type sensor): signal to J5-12, sensor +12 V from J5-15, ground to J5-16. In TunerStudio set the flex sensor input to "Flex input (J2-24)". **Nitrous:** arming switch from +12 V to J5-13; in TunerStudio enable nitrous control, set the trigger to "Nitrous arm (J2-25)" and pick a spare output (boost on J5-3, or the second fan output) for the solenoid relay. **Boost valve:** between J5-15 (+12 V) and J5-3. All of these need a rev 0.10 or later daughterboard.
+**Flex fuel** (GM / Continental type sensor): signal to J5-12, sensor +12 V from J5-15, ground to J5-16. In TunerStudio set the flex sensor input to "Flex input (J2-24)" (J2-24 is the daughterboard module's own pin name; on this board it is J5-12). **Nitrous:** arming switch from +12 V to J5-13; in TunerStudio enable nitrous control, set the trigger to "Nitrous arm (J2-25)" (J5-13 here) and pick a spare output (boost on J5-3, or the second fan output) for the solenoid relay. **Boost valve:** between J5-15 (+12 V) and J5-3. All of these need a rev 0.10 or later daughterboard.
 
 **Protection:** D1 (and D2 where the VVT driver runs a coil) freewheel the PWM valve coils into their own +12 V feed, and D5 does the same for a boost valve on the add-on header, so the drivers don't absorb the turn-off energy. F4 fuses the add-on header's +12 V pin (1.1 A hold: a boost valve draws about 0.5 A).
 
@@ -146,7 +147,7 @@ Not connected: 2E, 2F, 2H, 2I, 2N, 2O, 3C, 3D, 3E, 3J, 3K, 3L, 3N, 3P, 3Q, 3S, 3
 
 ## Assembly
 - The daughterboard (rev 0.13 on) is a castellated module: it lies flat on the board and its 80 edge half-holes are soldered to the lands JD1 / JD2, by reflow or with an iron ([INSTALL.md](../../INSTALL.md#soldering-the-daughterboard-to-the-motherboard)). Solder it on before the harness header, so the lands are easy to reach.
-- Fitted by hand (all in `fab/miata-ecu-motherboard-2001-05-rev0.14_self_order_bom.csv`): the harness header (salvage from a stock ECU or use a clone), the wideband sensor connector, the add-on header, any jumper headers and their shunts, the MAP sensor, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC's quote whether that needs Standard PCBA.
+- Fitted by hand (all in `fab/miata-ecu-motherboard-2001-05-rev0.15_self_order_bom.csv`): the harness header (salvage from a stock ECU or use a clone), the wideband sensor connector, the add-on header, any jumper headers and their shunts, the MAP sensor, and any not-fitted option links. JLCPCB fits only the SMD parts and USB-C. USB-C has through-hole shell pegs: check in JLC's quote whether that needs Standard PCBA.
 - The case needs cut-outs in its bottom edge for the wideband connector, USB-C and the MAP hose, and a way out for the add-on ribbon cable.
 
 ## Still to verify

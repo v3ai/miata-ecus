@@ -23,7 +23,7 @@ YEARS = {   # viewer key: (file suffix, title, motherboard folder, pcb file, har
     '9900': ('1999-2000', '1999–2000 (NB)', '1999-2000', 'miata_mb_9900.kicad_pcb', 'TE 178780-1, 76 positions'),
     '0105': ('2001-05', '2001–05 (NB, VVT)', '2001-05', 'miata_mb_0105.kicad_pcb', 'TE 353830-5, 72 positions'),
 }
-DAUGHTER_REV = '0.13'
+DAUGHTER_REV = '0.14'
 
 # ---- what gets a label -------------------------------------------------------------------------------------------
 # target: 'mb:REF' / 'd:REF' = a part on the motherboard / daughterboard; 'mbhole:N' / 'dhole:N' = a mounting hole.
@@ -49,10 +49,12 @@ def assembled_labels(y):
         ('mbhole:0', 'Case screw holes (6)', holes),
     ]
     if y == '8995':
-        L += [('mb:JP3', 'Year jumpers, left (JP3, JP5, JP4)', 'Second fan, tachometer and the 1994–95 solenoid. Set for the car: table in INSTALL.md.'),
-              ('mb:JP5', None, None), ('mb:JP4', None, None),
-              ('mb:JP6', 'Year jumpers, right (JP6, JP1, JP2)', 'Airflow-meter wire and the two injector jumpers: no shunt for 1989–93, SEQ for 1994–95.'),
-              ('mb:JP1', None, None), ('mb:JP2', None, None)]
+        L += [('mb:R40', 'Year links, left (R40–R42)', 'Second fan and the 1994–95 solenoid: JLCPCB fits them for your years. Table in INSTALL.md.'),
+              ('mb:R41', None, None), ('mb:R42', None, None),
+              ('mb:JP5', 'Tachometer jumper (JP5)', 'Open with the stock igniter. Fitted only after a coil-on-plug conversion.'),
+              ('mb:JP6', 'Airflow-meter jumper (JP6)', 'AFM: stock, every year. BOOST: only once the meter is gone.'),
+              ('mb:R38', 'Injector links (R38, R39)', 'Fitted on 1994–95. Empty on 1989–93: two injectors on each stock wire.'),
+              ('mb:R39', None, None)]
     return L
 
 MB_COMMON = [
@@ -62,18 +64,19 @@ MB_COMMON = [
     ('mb:F1', 'Sensor-heater fuse (F1)', 'Resets itself when it cools. Feeds the wideband sensor’s heater.'),
     ('mb:F4', 'Add-on 12 V fuse (F4)', 'Resets itself. Limits add-on pin 15 to 1.1 A.'),
     ('mb:R20', 'Switch pull-ups (R20–R22)', 'R21 / R22 (A/C, clutch) fitted. R20 (speed) only if that signal switches to ground.'),
-    ('mb:U2', 'MAP sensor', 'Lies flat, held by two M3 screws.'),
+    ('mb:U2', 'MAP sensor', 'Lies flat, held by two M3 × 16 screws: heads under the board, locknuts on top.'),
     ('mb:J5', 'Add-on header (J5)', '2×10 box header for a 20-way ribbon cable.'),
     ('mb:J4', 'USB-C (J4)', None),
     ('mb:J2', 'Wideband oxygen sensor (J2)', 'JST PUD header for AEM’s sensor harness. The wire colours are printed beside it.'),
 ]
 MB_EXTRA = {
-    '8995': [('mb:JP1', 'Injector jumpers (JP1, JP2)', 'No shunt: 1989–93 stock harness. SEQ: 1994–95, or one wire per injector. Never SEQ on a 1989–93 automatic.'),
-             ('mb:JP2', None, None),
+    '8995': [('mb:R38', 'Injector links (R38, R39)', 'Fitted on 1994–95. Empty on 1989–93, unless the car is rewired with one wire per injector. Never R39 on a 1989–93 automatic.'),
+             ('mb:R39', None, None),
              ('mb:JP6', 'Airflow-meter wire jumper (JP6)', 'AFM: stock. BOOST: the boost valve on that wire once the meter is gone.'),
-             ('mb:JP3', 'Second-fan jumper (JP3)', '90-93 or 94-95: which harness pin the relay is on.'),
+             ('mb:R40', 'Second-fan links (R40, R41)', 'R40 fitted on 1989–93 (pin 1R), R41 on 1994–95 (pin 2S).'),
+             ('mb:R41', None, None),
              ('mb:JP5', 'Tachometer jumper (JP5)', 'Open with the stock igniter. Fitted only after a coil-on-plug conversion.'),
-             ('mb:JP4', '1994–95 jumper (JP4)', 'Fitted on 1994–95 (pressure-regulator solenoid). Open on 1989–93.'),
+             ('mb:R42', '1994–95 link (R42)', 'Fitted on 1994–95 (pressure-regulator solenoid). Empty on 1989–93.'),
              ('mb:R28', 'Throttle-sensor links (R28–R30)', 'R29 is fitted. For a real throttle position sensor on a manual car: fit R28, move R29 to R30.'),
              ('mb:R30', None, None),
              ('mb:D3', 'Spare injector clamps (D3, D4)', 'Not fitted: a rev 0.10 or later daughterboard clamps each injector itself.')],
