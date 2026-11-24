@@ -157,7 +157,7 @@
           "type": "feature",
           "settings": {
             "title": "Tune over USB-C",
-            "text": "rusEFI firmware, tuned in TunerStudio. Firmware updates over the same cable."
+            "text": "rusEFI firmware, tuned in TunerStudio, LibreTune or clibretune. Firmware updates over the same cable."
           }
         },
         "f5": {
@@ -287,7 +287,7 @@
           "type": "question",
           "settings": {
             "question": "Do I need a laptop?",
-            "answer": "<p>To tune, yes. TunerStudio talks to rusEFI over USB-C, and the firmware has a base setup for each year.</p>"
+            "answer": "<p>To tune, yes. The ECU talks to a laptop over USB-C, and the firmware has a base setup for each year. Tune it with TunerStudio, or with the open-source <a href=\"https://github.com/RallyPat/LibreTune\">LibreTune</a> or <a href=\"https://v3ai.github.io/clibretune/\">clibretune</a> (clibretune also flashes the firmware, with a preset for these boards).</p>"
           }
         },
         "q4": {

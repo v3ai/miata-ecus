@@ -9,7 +9,7 @@ COMMON = [
     ('Wideband', 'Built-in LSU 4.9 controller'),
     ('MAP sensor', '700 kPa absolute, on the board'),
     ('Outputs', '8 low-side drivers, 7 protected relay and lamp outputs, 4 ignition'),
-    ('Tuning', 'TunerStudio over USB-C'),
+    ('Tuning', 'Over USB-C, with TunerStudio or the open-source <a href="https://github.com/RallyPat/LibreTune">LibreTune</a> or <a href="https://v3ai.github.io/clibretune/">clibretune</a>'),
 ]
 VARIANTS = [('Board only', '350.00', ''), ('Complete kit', '500.00', '-kit')]   # (Package option, price, SKU suffix)
 INCLUDED = ('Done before it ships: rusEFI loaded with your year\'s base tune, the on-board wideband controller programmed, '
